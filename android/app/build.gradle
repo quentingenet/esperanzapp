@@ -1,0 +1,105 @@
+apply plugin: 'com.android.application'
+
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+def getGitVersionName = { ->
+    try {
+        def tag = "git describe --tags --abbrev=0".execute([], rootProject.rootDir).text.trim()
+        return tag.startsWith("v") ? tag.substring(1) : (tag ?: "1.0.0")
+    } catch (Exception e) {
+        return "1.0.0"
+    }
+}
+
+def getGitVersionCode = { ->
+    try {
+        def tag = "git describe --tags --abbrev=0".execute([], rootProject.rootDir).text.trim()
+        def parts = tag.replaceAll("[^0-9.]", "").split("\\.")
+        return parts[0].toInteger() * 10000 + parts[1].toInteger() * 100 + parts[2].toInteger()
+    } catch (Exception e) {
+        return 10000
+    }
+}
+
+android {
+    namespace = "com.quentingenet.esperanzapp"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.quentingenet.esperanzapp"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode getGitVersionCode()
+        versionName getGitVersionName()
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+    buildTypes {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def version = defaultConfig.versionName
+            def buildType = variant.buildType.name
+            outputFileName = "EsperanzApp-v${version}-${buildType}.apk"
+        }
+    }
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name == 'bundleRelease') {
+        task.doLast {
+            def version = getGitVersionName()
+            def outputDir = new File("${buildDir}/outputs/bundle/release")
+            def src = new File(outputDir, "app-release.aab")
+            def dst = new File(outputDir, "EsperanzApp-v${version}-release.aab")
+            if (src.exists()) {
+                src.renameTo(dst)
+            }
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
