@@ -1,0 +1,92 @@
+import type { HabitTypeConfig, HabitTypeId } from "@/types";
+
+export const HABIT_TYPES: HabitTypeConfig[] = [
+  {
+    id: "alcohol",
+    group: "substances",
+    color: "#e8a0a0",
+    bgColor: "#fdf0f0",
+    svgPath: "M21 5V3H3v2l8 9v5H6v2h12v-2h-5v-5l8-9zM5.66 5h12.68l-1.56 1.75H7.22L5.66 5z",
+  },
+  {
+    id: "tobacco",
+    group: "substances",
+    color: "#b8956a",
+    bgColor: "#fdf3e8",
+    svgPath: "M2 17h15v3H2zm16.5 3H22v-3h-3.5v3z",
+  },
+  {
+    id: "sugar",
+    group: "substances",
+    color: "#993556",
+    bgColor: "#fef0f8",
+    svgPath: "M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z",
+  },
+  {
+    id: "cannabis",
+    group: "substances",
+    color: "#1a7a3c",
+    bgColor: "#edf7f0",
+    svgPath: "M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20c4 0 4-2 8-2s4 2 8 2v-2c-4 0-4-2-8-2-1.83 0-2.9.4-3.67.8C13.2 13 15.75 10.5 21 9l-4-1z",
+  },
+  {
+    id: "social_media",
+    group: "behaviours",
+    color: "#2a6496",
+    bgColor: "#e8f4fd",
+    svgPath: "M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z",
+  },
+  {
+    id: "gaming",
+    group: "behaviours",
+    color: "#534ab7",
+    bgColor: "#eeedfe",
+    svgPath: "M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5S14.67 12 15.5 12s1.5.67 1.5 1.5S16.33 15 15.5 15zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z",
+  },
+  {
+    id: "fast_food",
+    group: "behaviours",
+    color: "#b8956a",
+    bgColor: "#fdf3e8",
+    svgPath: "M18.06 22.99h1.66c.84 0 1.53-.64 1.63-1.46L23 5.05h-5V1h-1.97v4.05h-4.97l.3 2.34c1.71.47 3.31 1.32 4.27 2.26 1.44 1.42 2.43 2.89 2.43 5.29v8.05zM1 21.99V21h15.03v.99c0 .55-.45 1-1.01 1H2.01c-.56 0-1.01-.45-1.01-1zm15.03-7c0-8-15.03-8-15.03 0h15.03z",
+  },
+  {
+    id: "adult_content",
+    group: "behaviours",
+    color: "#6a1a9a",
+    bgColor: "#f1eefe",
+    svgPath: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.68L5.68 16.9C4.63 15.55 4 13.85 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.68L18.32 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8z",
+  },
+  {
+    id: "shopping",
+    group: "behaviours",
+    color: "#0f6e56",
+    bgColor: "#e1f5ee",
+    svgPath: "M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.1 17 7 17h11v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H17c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z",
+  },
+  {
+    id: "caffeine",
+    group: "behaviours",
+    color: "#633806",
+    bgColor: "#faeeda",
+    svgPath: "M20 3H4v10c0 3.31 2.69 6 6 6h4c3.31 0 6-2.69 6-6v-3h-4V8c0-1.11.89-2 2-2h2V3zm-4 12c0 2.21-1.79 4-4 4h-4c-2.21 0-4-1.79-4-4V5h12v6c0 2.21-1.79 4-4 4z",
+  },
+  {
+    id: "screens",
+    group: "behaviours",
+    color: "#185fa5",
+    bgColor: "#e8f4fd",
+    svgPath: "M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z",
+  },
+  {
+    id: "custom",
+    group: "custom",
+    color: "#546e7a",
+    bgColor: "#eceff1",
+    svgPath: "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z",
+  },
+];
+
+export function getHabitTypeConfig(id: HabitTypeId): HabitTypeConfig | undefined {
+  return HABIT_TYPES.find((h) => h.id === id);
+}

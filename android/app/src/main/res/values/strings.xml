@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">EsperanzApp</string>
+    <string name="title_activity_main">EsperanzApp</string>
+    <string name="package_name">com.quentingenet.esperanzapp</string>
+    <string name="custom_url_scheme">com.quentingenet.esperanzapp</string>
+</resources>

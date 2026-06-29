@@ -1,0 +1,337 @@
+{
+  "app": {
+    "by": "door"
+  },
+  "common": {
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "confirm": "Bevestigen",
+    "back": "Terug",
+    "close": "Sluiten",
+    "yes": "Ja",
+    "no": "Nee",
+    "loading": "Laden…",
+    "error": "Er ging iets mis",
+    "success": "Gelukt",
+    "day_one": "dag",
+    "day_other": "dagen",
+    "today": "Vandaag",
+    "name": "Naam",
+    "saved": "Wijzigingen opgeslagen",
+    "deleted": "Verwijderd",
+    "created": "Aangemaakt"
+  },
+  "nav": {
+    "home": "Home",
+    "habits": "Gewoonten",
+    "treatments": "Behandelingen",
+    "history": "Geschiedenis",
+    "settings": "Instellingen",
+    "milestones": "Etappes",
+    "export": "Export"
+  },
+  "privacy": {
+    "title": "Welkom bij EsperanzApp",
+    "subtitle": "De app werkt volledig op je telefoon, zonder internet.",
+    "points": {
+      "noAccount": "Geen account nodig",
+      "noServer": "Je gegevens blijven op je apparaat",
+      "noTracking": "Geen advertenties, geen tracking",
+      "openSource": "Publieke en controleerbare broncode (GPL-3.0)"
+    },
+    "accept": "Beginnen",
+    "license": "GPL-3.0"
+  },
+  "tutorial": {
+    "skip": "Overslaan",
+    "next": "Volgende",
+    "start": "Beginnen",
+    "steps": {
+      "counter": {
+        "title": "EsperanzApp, jouw bondgenoot!",
+        "body": "Jezelf bevrijden van een gewoonte bouw je dag voor dag op. Elke dag zonder terugval is een kleine overwinning! EsperanzApp loopt met je mee."
+      },
+      "relapse": {
+        "title": "Een Terugval?",
+        "body": "Als je terugvalt in een gewoonte waar je van af wilt, kun je dit registreren in de geschiedenis van de gewoonte."
+      },
+      "milestones": {
+        "title": "Mijlpalen onderweg...",
+        "body": "1 dag, 7, 30, 90 of meer... Elke bereikta etappe helpt je verder op je weg."
+      },
+      "private": {
+        "title": "100% privé",
+        "body": "Niets verlaat jouw apparaat. Geen account, geen server, geen vreemde ogen."
+      },
+      "stats": {
+        "title": "Volg je voortgang",
+        "body": "Voor elke gewoonte kun je je statistieken en voortgang in de tijd bekijken."
+      }
+    }
+  },
+  "onboarding": {
+    "welcome": "Welkom",
+    "yourName": {
+      "title": "Hoe heet je?",
+      "placeholder": "Jouw voornaam (optioneel)",
+      "skip": "Doorgaan zonder naam"
+    },
+    "firstHabit": {
+      "title": "Van welke gewoonte wil je je bevrijden?",
+      "subtitle": "Je kunt later meer toevoegen."
+    },
+    "startDate": {
+      "title": "Sinds wanneer?",
+      "subtitle": "Datum van je laatste stop"
+    },
+    "ready": {
+      "title": "Laten we gaan.",
+      "body": "EsperanzApp telt met je mee.",
+      "button": "Mijn teller bekijken"
+    }
+  },
+  "habits": {
+    "title": "Mijn gewoonten",
+    "add": "Gewoonte toevoegen",
+    "edit": "Bewerken",
+    "delete": "Deze gewoonte verwijderen",
+    "deleteConfirm": "Deze gewoonte en alle geschiedenis verwijderen?",
+    "empty": "Nog geen gewoonten.\nBegin er een toe te voegen.",
+    "counter": {
+      "day_one": "{{count}} dag",
+      "day_other": "{{count}} dagen",
+      "since": "vrij van {{label}} sinds {{date}}",
+      "today": "Dit is de eerste dag"
+    },
+    "form": {
+      "name": "Naam van de gewoonte",
+      "namePlaceholder": "bijv. Alcohol, Tabak…",
+      "icon": "Pictogram",
+      "startDate": "Startdatum",
+      "color": "Kleur"
+    },
+    "duplicateWarning": "Je volgt deze gewoonte al. Je kunt geen duplicaat toevoegen."
+  },
+  "habitTypes": {
+    "alcohol": {
+      "label": "Alcohol",
+      "desc": "Bier, wijn, sterkedrank…"
+    },
+    "tobacco": {
+      "label": "Tabak",
+      "desc": "Sigaretten, sigaren, shag…"
+    },
+    "sugar": {
+      "label": "Suiker",
+      "desc": "Snoep, frisdrank, gebak…"
+    },
+    "cannabis": {
+      "label": "Cannabis",
+      "desc": "Recreatief gebruik of gewoonte om te minderen"
+    },
+    "social_media": {
+      "label": "Sociale media",
+      "desc": "Instagram, TikTok, X en dergelijke"
+    },
+    "gaming": {
+      "label": "Gaming",
+      "desc": "Dwangmatig gamen dat je wilt terugdringen"
+    },
+    "fast_food": {
+      "label": "Fastfood",
+      "desc": "Fastfood en industriële snacks"
+    },
+    "adult_content": {
+      "label": "Volwasseneninhoud",
+      "desc": "Dwangmatig gebruik van inhoud voor volwassenen"
+    },
+    "shopping": {
+      "label": "Dwangmatig winkelen",
+      "desc": "Impulsaankopen online of in winkels"
+    },
+    "caffeine": {
+      "label": "Cafeïne",
+      "desc": "Koffie, energiedranken, sterke thee…"
+    },
+    "screens": {
+      "label": "Schermen",
+      "desc": "Overmatig schermgebruik in het algemeen"
+    },
+    "custom": {
+      "label": "Aangepast",
+      "desc": "Definieer je eigen gewoonte"
+    },
+    "groups": {
+      "substances": "Stoffen",
+      "behaviours": "Gedragingen",
+      "custom": "Aangepast"
+    }
+  },
+  "grades": {
+    "awakening": {
+      "label": "Ontwaken"
+    },
+    "firstBreath": {
+      "label": "Eerste Adem"
+    },
+    "anchoring": {
+      "label": "Verankering"
+    },
+    "solidity": {
+      "label": "Stevigheid"
+    },
+    "clarity": {
+      "label": "Helderheid"
+    },
+    "mastery": {
+      "label": "Meesterschap"
+    },
+    "freedom": {
+      "label": "Vrijheid"
+    },
+    "fulfilledAwakening": {
+      "label": "Vervuld Ontwaken"
+    },
+    "legend": {
+      "label": "Legende"
+    },
+    "messages": {
+      "awakening": "Eerste dag. Hier begint het allemaal.",
+      "firstBreath": "7 dagen. Je houdt vol. Ga door.",
+      "anchoring": "2 weken. Dit is geen toeval meer, het is een beslissing.",
+      "solidity": "Een maand. Je hebt jezelf iets bewezen.",
+      "clarity": "2 maanden. De dingen worden duidelijker.",
+      "mastery": "3 maanden. Je neemt de controle terug.",
+      "freedom": "6 maanden. Je bent niet meer dezelfde persoon als op de eerste dag.",
+      "fulfilledAwakening": "Een jaar. Weinig mensen komen hier. Jij wel.",
+      "legend": "2 jaar. Zeldzaam. Echt. Jij."
+    },
+    "nextGrade": "Volgende niveau: {{grade}}",
+    "daysLeft_one": "{{count}} dag over",
+    "daysLeft_other": "{{count}} dagen over",
+    "progress": "Voortgang naar {{grade}}"
+  },
+  "relapse": {
+    "title": "Opnieuw beginnen",
+    "confirmTitle": "Een stap opzij",
+    "confirmBody": "Die dagen zijn van jou. Ze blijven.",
+    "confirmButton": "Ja, opnieuw beginnen",
+    "cancelButton": "Annuleren",
+    "messages": {
+      "before7days": "{{name}}, die {{days}} dagen tellen. Je begint vandaag opnieuw.",
+      "between7and30days": "{{name}}, je hield {{days}} dagen vol. Dit is geen mislukking. Je weet waartoe je in staat bent.",
+      "after30days": "{{name}}, je hield {{days}} dagen vol. Dat is enorm. Alles wat je hebt geleerd blijft bij je.",
+      "day0": "{{name}}, het gaat erom dat je het probeert. Begin opnieuw wanneer je er klaar voor bent."
+    }
+  },
+  "treatments": {
+    "title": "Mijn behandelingen",
+    "add": "Behandeling toevoegen",
+    "edit": "Behandeling bewerken",
+    "delete": "Deze behandeling verwijderen",
+    "deleteConfirm": "Deze behandeling en alle geschiedenis verwijderen?",
+    "empty": "Nog geen behandelingen.",
+    "taken": "Ingenomen",
+    "missed": "Vergeten",
+    "pending": "In afwachting",
+    "reminder": "Herinnering om {{time}}",
+    "noReminder": "Bijhouden zonder herinnering",
+    "form": {
+      "name": "Naam van het medicijn",
+      "namePlaceholder": "bijv. Metformine, Sertraline…",
+      "frequency": "Frequentie",
+      "reminderTime": "Herinneringstijd",
+      "enableReminder": "Herinnering inschakelen",
+      "frequencies": {
+        "daily": "Elke dag",
+        "weekly": "Elke week",
+        "monthly": "Elke maand"
+      }
+    }
+  },
+  "stats": {
+    "title": "Statistieken",
+    "currentStreak": "Huidige reeks",
+    "longestStreak": "Langste reeks",
+    "totalRelapses": "Totale terugvallen",
+    "averageStreak": "Gemiddelde reeks",
+    "startDate": "Sinds",
+    "noData": "Nog geen gegevens"
+  },
+  "history": {
+    "title": "Geschiedenis",
+    "empty": "Geen gebeurtenissen opgeslagen",
+    "start": "Gestart",
+    "relapse": "Terugval",
+    "relapseRestart": "Terugval, nieuw begin",
+    "calendar": "Kalender",
+    "list": "Lijst",
+    "gradeUnlocked": "Mijlpaal bereikt: {{grade}}"
+  },
+  "export": {
+    "title": "Gegevens",
+    "exportJSON": "Exporteren als JSON",
+    "exportCSV": "Exporteren als CSV",
+    "importJSON": "Importeren vanuit JSON",
+    "importCSV": "Importeren vanuit CSV",
+    "exportSuccess": "Export geslaagd",
+    "importSuccess": "Import geslaagd",
+    "importWarning": "De import voegt gegevens toe aan de bestaande.",
+    "error": "Bewerking mislukt",
+    "importWarningTitle": "Waarschuwing",
+    "importWarningBody": "De import voegt gegevens toe zonder bestaande te overschrijven. Duplicaten kunnen verschijnen. Bestanden in Downloads zijn leesbaar voor andere apps.",
+    "importConfirm": "Toch importeren",
+    "editName": "Mijn naam wijzigen",
+    "support": "EsperanzApp steunen",
+    "privacyWarningTitle": "Deze gegevens zijn persoonlijk en gevoelig",
+    "privacyWarningBody": "Het geëxporteerde bestand bevat gezondheidsgegevens. Eenmaal opgeslagen in Downloads kan het toegankelijk zijn voor andere apps of mensen met toegang tot dit toestel."
+  },
+  "settings": {
+    "title": "Instellingen",
+    "language": "Taal",
+    "notifications": "Meldingen",
+    "notificationsDesc": "Alleen lokale herinneringen, geen tracking",
+    "export": "Mijn gegevens",
+    "about": "Over de app",
+    "version": "Versie",
+    "license": "GPL-3.0-licentie",
+    "sourceCode": "Broncode",
+    "deleteAll": "Al mijn gegevens verwijderen",
+    "deleteAllConfirm": "Deze actie kan niet ongedaan worden gemaakt. Al jouw gegevens worden van dit apparaat gewist.",
+    "languages": {
+      "fr": "Français",
+      "en": "English",
+      "es": "Español",
+      "de": "Deutsch",
+      "pt-BR": "Português (Brasil)",
+      "nl": "Nederlands",
+      "it": "Italiano"
+    },
+    "replayTutorial": "Tutorial opnieuw bekijken",
+    "terms": "Voorwaarden & Privacy",
+    "tabs": {
+      "settings": "Instellingen",
+      "data": "Gegevens"
+    }
+  },
+  "milestones": {
+    "title": "Mijlpalen",
+    "locked": "Vergrendeld",
+    "unlocked": "Ontgrendeld op {{date}}",
+    "daysNeeded_one": "Nog {{count}} dag",
+    "daysNeeded_other": "Nog {{count}} dagen",
+    "noHabits": "Geen gewoonten"
+  },
+  "habitDetail": {
+    "milestones": "Mijlpalen",
+    "history": "Geschiedenis",
+    "stats": "Statistieken",
+    "statsSoon": "Binnenkort beschikbaar",
+    "relapse": "Terugval registreren"
+  },
+  "notifications": {
+    "genericReminder": "Vergeet je behandeling niet"
+  }
+}

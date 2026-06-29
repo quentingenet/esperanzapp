@@ -1,0 +1,337 @@
+{
+  "app": {
+    "by": "von"
+  },
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "confirm": "Bestätigen",
+    "back": "Zurück",
+    "close": "Schließen",
+    "yes": "Ja",
+    "no": "Nein",
+    "loading": "Lädt…",
+    "error": "Etwas ist schiefgelaufen",
+    "success": "Erfolgreich",
+    "day_one": "Tag",
+    "day_other": "Tage",
+    "today": "Heute",
+    "name": "Name",
+    "saved": "Änderungen gespeichert",
+    "deleted": "Gelöscht",
+    "created": "Erstellt"
+  },
+  "nav": {
+    "home": "Start",
+    "habits": "Gewohnheiten",
+    "treatments": "Behandlungen",
+    "history": "Verlauf",
+    "settings": "Einstellungen",
+    "milestones": "Etappen",
+    "export": "Export"
+  },
+  "privacy": {
+    "title": "Willkommen bei EsperanzApp",
+    "subtitle": "Die App funktioniert vollständig auf deinem Telefon, ohne Internet.",
+    "points": {
+      "noAccount": "Kein Konto erforderlich",
+      "noServer": "Deine Daten bleiben auf deinem Gerät",
+      "noTracking": "Keine Werbung, kein Tracking",
+      "openSource": "Öffentlicher und prüfbarer Quellcode (GPL-3.0)"
+    },
+    "accept": "Loslegen",
+    "license": "GPL-3.0"
+  },
+  "tutorial": {
+    "skip": "Überspringen",
+    "next": "Weiter",
+    "start": "Loslegen",
+    "steps": {
+      "counter": {
+        "title": "EsperanzApp, dein Verbündeter!",
+        "body": "Die Befreiung von einer Gewohnheit wird Tag für Tag aufgebaut. Jeder Tag ohne Rückfall ist ein kleiner Sieg! EsperanzApp begleitet dich."
+      },
+      "relapse": {
+        "title": "Ein Rückfall?",
+        "body": "Wenn du bei einer Gewohnheit rückfällig wirst, von der du dich befreien möchtest, kannst du ihn im Verlauf der Gewohnheit eintragen."
+      },
+      "milestones": {
+        "title": "Meilensteine auf dem Weg...",
+        "body": "1 Tag, 7, 30, 90 oder mehr... Jede erreichte Etappe wird dir auf deinem Weg helfen."
+      },
+      "private": {
+        "title": "100 % privat",
+        "body": "Nichts verlässt dein Gerät. Kein Konto, kein Server, keine fremden Augen."
+      },
+      "stats": {
+        "title": "Verfolge deinen Fortschritt",
+        "body": "Für jede Gewohnheit kannst du deine Statistiken und deinen Fortschritt über die Zeit einsehen."
+      }
+    }
+  },
+  "onboarding": {
+    "welcome": "Willkommen",
+    "yourName": {
+      "title": "Wie heißt du?",
+      "placeholder": "Dein Vorname (optional)",
+      "skip": "Ohne Namen fortfahren"
+    },
+    "firstHabit": {
+      "title": "Von welcher Gewohnheit möchtest du dich befreien?",
+      "subtitle": "Du kannst später weitere hinzufügen."
+    },
+    "startDate": {
+      "title": "Seit wann?",
+      "subtitle": "Datum deines letzten Aufhörens"
+    },
+    "ready": {
+      "title": "Los geht's.",
+      "body": "EsperanzApp zählt mit dir.",
+      "button": "Meinen Zähler sehen"
+    }
+  },
+  "habits": {
+    "title": "Meine Gewohnheiten",
+    "add": "Gewohnheit hinzufügen",
+    "edit": "Bearbeiten",
+    "delete": "Diese Gewohnheit löschen",
+    "deleteConfirm": "Diese Gewohnheit und den gesamten Verlauf löschen?",
+    "empty": "Noch keine Gewohnheiten.\nFüge jetzt eine hinzu.",
+    "counter": {
+      "day_one": "{{count}} Tag",
+      "day_other": "{{count}} Tage",
+      "since": "frei von {{label}} seit dem {{date}}",
+      "today": "Das ist der erste Tag"
+    },
+    "form": {
+      "name": "Name der Gewohnheit",
+      "namePlaceholder": "z. B. Alkohol, Tabak…",
+      "icon": "Symbol",
+      "startDate": "Startdatum",
+      "color": "Farbe"
+    },
+    "duplicateWarning": "Du verfolgst diese Gewohnheit bereits. Du kannst keine doppelte hinzufügen."
+  },
+  "habitTypes": {
+    "alcohol": {
+      "label": "Alkohol",
+      "desc": "Bier, Wein, Spirituosen…"
+    },
+    "tobacco": {
+      "label": "Tabak",
+      "desc": "Zigaretten, Zigarren, Drehtabak…"
+    },
+    "sugar": {
+      "label": "Zucker",
+      "desc": "Süßigkeiten, Limonaden, Gebäck…"
+    },
+    "cannabis": {
+      "label": "Cannabis",
+      "desc": "Freizeitkonsum oder Gewohnheit, die reduziert werden soll"
+    },
+    "social_media": {
+      "label": "Soziale Medien",
+      "desc": "Instagram, TikTok, X und Co."
+    },
+    "gaming": {
+      "label": "Gaming",
+      "desc": "Zwanghaftes Spielen, das wieder kontrolliert werden soll"
+    },
+    "fast_food": {
+      "label": "Fast Food",
+      "desc": "Schnellrestaurants und industrielle Snacks"
+    },
+    "adult_content": {
+      "label": "Erwachseneninhalt",
+      "desc": "Zwanghafter Konsum von Inhalten für Erwachsene"
+    },
+    "shopping": {
+      "label": "Zwanghaftes Shopping",
+      "desc": "Impulskäufe online oder im Laden"
+    },
+    "caffeine": {
+      "label": "Koffein",
+      "desc": "Kaffee, Energy-Drinks, starker Tee…"
+    },
+    "screens": {
+      "label": "Bildschirme",
+      "desc": "Übermäßige Bildschirmnutzung allgemein"
+    },
+    "custom": {
+      "label": "Benutzerdefiniert",
+      "desc": "Definiere deine eigene Gewohnheit"
+    },
+    "groups": {
+      "substances": "Substanzen",
+      "behaviours": "Verhaltensweisen",
+      "custom": "Benutzerdefiniert"
+    }
+  },
+  "grades": {
+    "awakening": {
+      "label": "Erwachen"
+    },
+    "firstBreath": {
+      "label": "Erster Atemzug"
+    },
+    "anchoring": {
+      "label": "Verankerung"
+    },
+    "solidity": {
+      "label": "Standfestigkeit"
+    },
+    "clarity": {
+      "label": "Klarheit"
+    },
+    "mastery": {
+      "label": "Meisterschaft"
+    },
+    "freedom": {
+      "label": "Freiheit"
+    },
+    "fulfilledAwakening": {
+      "label": "Erfülltes Erwachen"
+    },
+    "legend": {
+      "label": "Legende"
+    },
+    "messages": {
+      "awakening": "Erster Tag. Hier beginnt alles.",
+      "firstBreath": "7 Tage. Du hältst durch. Mach weiter.",
+      "anchoring": "2 Wochen. Das ist kein Zufall mehr, es ist eine Entscheidung.",
+      "solidity": "Ein Monat. Du hast dir selbst etwas bewiesen.",
+      "clarity": "2 Monate. Die Dinge werden klarer.",
+      "mastery": "3 Monate. Du übernimmst die Kontrolle zurück.",
+      "freedom": "6 Monate. Du bist nicht mehr dieselbe Person wie am ersten Tag.",
+      "fulfilledAwakening": "Ein Jahr. Wenige schaffen das. Du hast es geschafft.",
+      "legend": "2 Jahre. Selten. Real. Du."
+    },
+    "nextGrade": "Nächste Stufe: {{grade}}",
+    "daysLeft_one": "{{count}} Tag verbleibend",
+    "daysLeft_other": "{{count}} Tage verbleibend",
+    "progress": "Fortschritt zu {{grade}}"
+  },
+  "relapse": {
+    "title": "Neu beginnen",
+    "confirmTitle": "Ein Schritt zur Seite",
+    "confirmBody": "Diese Tage gehören dir. Sie bleiben.",
+    "confirmButton": "Ja, neu beginnen",
+    "cancelButton": "Abbrechen",
+    "messages": {
+      "before7days": "{{name}}, diese {{days}} Tage zählen. Du beginnst heute neu.",
+      "between7and30days": "{{name}}, du hast {{days}} Tage durchgehalten. Das ist kein Versagen. Du weißt, wozu du fähig bist.",
+      "after30days": "{{name}}, du hast {{days}} Tage durchgehalten. Das ist enorm. Alles, was du gelernt hast, bleibt bei dir.",
+      "day0": "{{name}}, wichtig ist, es zu versuchen. Fang neu an, wenn du bereit bist."
+    }
+  },
+  "treatments": {
+    "title": "Meine Behandlungen",
+    "add": "Behandlung hinzufügen",
+    "edit": "Behandlung bearbeiten",
+    "delete": "Diese Behandlung löschen",
+    "deleteConfirm": "Diese Behandlung und den gesamten Verlauf löschen?",
+    "empty": "Noch keine Behandlungen.",
+    "taken": "Eingenommen",
+    "missed": "Vergessen",
+    "pending": "Ausstehend",
+    "reminder": "Erinnerung um {{time}} Uhr",
+    "noReminder": "Verfolgung ohne Erinnerung",
+    "form": {
+      "name": "Name des Medikaments",
+      "namePlaceholder": "z. B. Metformin, Sertralin…",
+      "frequency": "Häufigkeit",
+      "reminderTime": "Erinnerungszeit",
+      "enableReminder": "Erinnerung aktivieren",
+      "frequencies": {
+        "daily": "Jeden Tag",
+        "weekly": "Jede Woche",
+        "monthly": "Jeden Monat"
+      }
+    }
+  },
+  "stats": {
+    "title": "Statistiken",
+    "currentStreak": "Aktuelle Serie",
+    "longestStreak": "Längste Serie",
+    "totalRelapses": "Rückfälle gesamt",
+    "averageStreak": "Durchschnittliche Serie",
+    "startDate": "Seit dem",
+    "noData": "Noch keine Daten"
+  },
+  "history": {
+    "title": "Verlauf",
+    "empty": "Keine Ereignisse aufgezeichnet",
+    "start": "Gestartet",
+    "relapse": "Rückfall",
+    "relapseRestart": "Rückfall, Neustart",
+    "calendar": "Kalender",
+    "list": "Liste",
+    "gradeUnlocked": "Meilenstein erreicht: {{grade}}"
+  },
+  "export": {
+    "title": "Daten",
+    "exportJSON": "Als JSON exportieren",
+    "exportCSV": "Als CSV exportieren",
+    "importJSON": "Aus JSON importieren",
+    "importCSV": "Aus CSV importieren",
+    "exportSuccess": "Export erfolgreich",
+    "importSuccess": "Import erfolgreich",
+    "importWarning": "Der Import fügt Daten zu den vorhandenen hinzu.",
+    "error": "Vorgang fehlgeschlagen",
+    "importWarningTitle": "Achtung",
+    "importWarningBody": "Der Import fügt Daten hinzu, ohne bestehende zu überschreiben. Duplikate können entstehen. Dateien im Download-Ordner sind für andere Apps zugänglich.",
+    "importConfirm": "Trotzdem importieren",
+    "editName": "Meinen Namen ändern",
+    "support": "EsperanzApp unterstützen",
+    "privacyWarningTitle": "Diese Daten sind persönlich und sensibel",
+    "privacyWarningBody": "Die exportierte Datei enthält Gesundheitsdaten. Einmal in den Downloads gespeichert, kann sie für andere Apps oder Personen mit Zugriff auf dieses Gerät zugänglich sein."
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "language": "Sprache",
+    "notifications": "Benachrichtigungen",
+    "notificationsDesc": "Nur lokale Erinnerungen, kein Tracking",
+    "export": "Meine Daten",
+    "about": "Über die App",
+    "version": "Version",
+    "license": "GPL-3.0-Lizenz",
+    "sourceCode": "Quellcode",
+    "deleteAll": "Alle meine Daten löschen",
+    "deleteAllConfirm": "Diese Aktion kann nicht rückgängig gemacht werden. Alle deine Daten werden von diesem Gerät gelöscht.",
+    "languages": {
+      "fr": "Français",
+      "en": "English",
+      "es": "Español",
+      "de": "Deutsch",
+      "pt-BR": "Português (Brasil)",
+      "nl": "Nederlands",
+      "it": "Italiano"
+    },
+    "replayTutorial": "Tutorial wiederholen",
+    "terms": "Nutzungsbedingungen & Datenschutz",
+    "tabs": {
+      "settings": "Einstellungen",
+      "data": "Daten"
+    }
+  },
+  "milestones": {
+    "title": "Meilensteine",
+    "locked": "Gesperrt",
+    "unlocked": "Freigeschaltet am {{date}}",
+    "daysNeeded_one": "Noch {{count}} Tag",
+    "daysNeeded_other": "Noch {{count}} Tage",
+    "noHabits": "Keine Gewohnheiten"
+  },
+  "habitDetail": {
+    "milestones": "Meilensteine",
+    "history": "Verlauf",
+    "stats": "Statistiken",
+    "statsSoon": "Demnächst verfügbar",
+    "relapse": "Rückfall erfassen"
+  },
+  "notifications": {
+    "genericReminder": "Vergiss nicht deine Behandlung"
+  }
+}

@@ -1,0 +1,4 @@
+# Secrets — ne jamais lire ni inclure dans le contexte
+android/keystore.properties
+*.jks
+*.keystore

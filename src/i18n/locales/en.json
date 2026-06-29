@@ -1,0 +1,337 @@
+{
+  "app": {
+    "by": "by"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "success": "Success",
+    "day_one": "day",
+    "day_other": "days",
+    "today": "Today",
+    "name": "Name",
+    "saved": "Changes saved",
+    "deleted": "Deleted",
+    "created": "Created"
+  },
+  "nav": {
+    "home": "Home",
+    "habits": "Habits",
+    "treatments": "Treatments",
+    "history": "History",
+    "settings": "Settings",
+    "milestones": "Milestones",
+    "export": "Export"
+  },
+  "privacy": {
+    "title": "Welcome to EsperanzApp",
+    "subtitle": "The app works entirely on your phone, no internet needed.",
+    "points": {
+      "noAccount": "No account required",
+      "noServer": "Your data stays on your device",
+      "noTracking": "No ads, no tracking",
+      "openSource": "Public and auditable source code (GPL-3.0)"
+    },
+    "accept": "Get started",
+    "license": "GPL-3.0"
+  },
+  "tutorial": {
+    "skip": "Skip",
+    "next": "Next",
+    "start": "Get started",
+    "steps": {
+      "counter": {
+        "title": "EsperanzApp, your ally!",
+        "body": "Breaking a habit is built day by day. Every day without a relapse is a small victory! EsperanzApp walks with you."
+      },
+      "relapse": {
+        "title": "A Relapse?",
+        "body": "If you relapse on a habit you want to break free from, you can log it in the habit's history."
+      },
+      "milestones": {
+        "title": "Milestones on the way...",
+        "body": "1 day, 7, 30, 90 or more... Each milestone is a step forward that will help you on your journey."
+      },
+      "private": {
+        "title": "100% private",
+        "body": "Nothing leaves your device. No account, no server, no outside eyes."
+      },
+      "stats": {
+        "title": "Track your progress",
+        "body": "For each habit, you can view your stats and progress over time."
+      }
+    }
+  },
+  "onboarding": {
+    "welcome": "Welcome",
+    "yourName": {
+      "title": "What's your name?",
+      "placeholder": "Your first name (optional)",
+      "skip": "Continue without a name"
+    },
+    "firstHabit": {
+      "title": "Which habit do you want to break free from?",
+      "subtitle": "You can add more later."
+    },
+    "startDate": {
+      "title": "Since when?",
+      "subtitle": "Date of your last stop"
+    },
+    "ready": {
+      "title": "Let's go.",
+      "body": "EsperanzApp is counting with you.",
+      "button": "See my counter"
+    }
+  },
+  "habits": {
+    "title": "My habits",
+    "add": "Add a habit",
+    "edit": "Edit",
+    "delete": "Delete this habit",
+    "deleteConfirm": "Delete this habit and all its history?",
+    "empty": "No habits yet.\nStart by adding one.",
+    "counter": {
+      "day_one": "{{count}} day",
+      "day_other": "{{count}} days",
+      "since": "free from {{label}} since {{date}}",
+      "today": "This is day one"
+    },
+    "form": {
+      "name": "Habit name",
+      "namePlaceholder": "e.g. Alcohol, Tobacco…",
+      "icon": "Icon",
+      "startDate": "Start date",
+      "color": "Color"
+    },
+    "duplicateWarning": "You are already tracking this habit. You cannot add a duplicate."
+  },
+  "habitTypes": {
+    "alcohol": {
+      "label": "Alcohol",
+      "desc": "Beer, wine, spirits…"
+    },
+    "tobacco": {
+      "label": "Tobacco",
+      "desc": "Cigarettes, cigars, rolling tobacco…"
+    },
+    "sugar": {
+      "label": "Sugar",
+      "desc": "Sweets, sodas, pastries…"
+    },
+    "cannabis": {
+      "label": "Cannabis",
+      "desc": "Recreational use or habit to reduce"
+    },
+    "social_media": {
+      "label": "Social media",
+      "desc": "Instagram, TikTok, X and the rest"
+    },
+    "gaming": {
+      "label": "Gaming",
+      "desc": "Compulsive gaming to take back control of"
+    },
+    "fast_food": {
+      "label": "Fast food",
+      "desc": "Fast food and processed snacks"
+    },
+    "adult_content": {
+      "label": "Adult content",
+      "desc": "Compulsive use of adult content"
+    },
+    "shopping": {
+      "label": "Compulsive shopping",
+      "desc": "Impulsive buying online or in stores"
+    },
+    "caffeine": {
+      "label": "Caffeine",
+      "desc": "Coffee, energy drinks, strong tea…"
+    },
+    "screens": {
+      "label": "Screens",
+      "desc": "Excessive screen use in general"
+    },
+    "custom": {
+      "label": "Custom",
+      "desc": "Define your own habit"
+    },
+    "groups": {
+      "substances": "Substances",
+      "behaviours": "Behaviours",
+      "custom": "Custom"
+    }
+  },
+  "grades": {
+    "awakening": {
+      "label": "Awakening"
+    },
+    "firstBreath": {
+      "label": "First Breath"
+    },
+    "anchoring": {
+      "label": "Anchoring"
+    },
+    "solidity": {
+      "label": "Solidity"
+    },
+    "clarity": {
+      "label": "Clarity"
+    },
+    "mastery": {
+      "label": "Mastery"
+    },
+    "freedom": {
+      "label": "Freedom"
+    },
+    "fulfilledAwakening": {
+      "label": "Fulfilled Awakening"
+    },
+    "legend": {
+      "label": "Legend"
+    },
+    "messages": {
+      "awakening": "Day one. This is where it starts.",
+      "firstBreath": "7 days. You're holding. Keep going.",
+      "anchoring": "2 weeks. This is no longer chance, it's a choice.",
+      "solidity": "One month. You've proven something to yourself.",
+      "clarity": "2 months. Things are becoming clearer.",
+      "mastery": "3 months. You're taking back control.",
+      "freedom": "6 months. You're not the same person you were on day one.",
+      "fulfilledAwakening": "One year. Few people get here. You did.",
+      "legend": "2 years. Rare. Real. You."
+    },
+    "nextGrade": "Next milestone: {{grade}}",
+    "daysLeft_one": "{{count}} day left",
+    "daysLeft_other": "{{count}} days left",
+    "progress": "Progress toward {{grade}}"
+  },
+  "relapse": {
+    "title": "Start again",
+    "confirmTitle": "A step aside",
+    "confirmBody": "These days are yours. They stay.",
+    "confirmButton": "Yes, start again",
+    "cancelButton": "Cancel",
+    "messages": {
+      "before7days": "{{name}}, those {{days}} days count. You start again today.",
+      "between7and30days": "{{name}}, you held on for {{days}} days. This isn't a failure. You know what you're capable of.",
+      "after30days": "{{name}}, you held on for {{days}} days. That is immense. Everything you learned stays with you.",
+      "day0": "{{name}}, what matters is trying. Start again when you're ready."
+    }
+  },
+  "treatments": {
+    "title": "My treatments",
+    "add": "Add a treatment",
+    "edit": "Edit treatment",
+    "delete": "Delete this treatment",
+    "deleteConfirm": "Delete this treatment and all its history?",
+    "empty": "No treatments yet.",
+    "taken": "Taken",
+    "missed": "Missed",
+    "pending": "Pending",
+    "reminder": "Reminder at {{time}}",
+    "noReminder": "Tracking without reminder",
+    "form": {
+      "name": "Medication name",
+      "namePlaceholder": "e.g. Metformin, Sertraline…",
+      "frequency": "Frequency",
+      "reminderTime": "Reminder time",
+      "enableReminder": "Enable reminder",
+      "frequencies": {
+        "daily": "Every day",
+        "weekly": "Every week",
+        "monthly": "Every month"
+      }
+    }
+  },
+  "stats": {
+    "title": "Statistics",
+    "currentStreak": "Current streak",
+    "longestStreak": "Longest streak",
+    "totalRelapses": "Total relapses",
+    "averageStreak": "Average streak",
+    "startDate": "Since",
+    "noData": "No data yet"
+  },
+  "history": {
+    "title": "History",
+    "empty": "No events recorded",
+    "start": "Started",
+    "relapse": "Relapse",
+    "relapseRestart": "Relapse, new start",
+    "calendar": "Calendar",
+    "list": "List",
+    "gradeUnlocked": "Milestone reached: {{grade}}"
+  },
+  "export": {
+    "title": "Data",
+    "exportJSON": "Export as JSON",
+    "exportCSV": "Export as CSV",
+    "importJSON": "Import from JSON",
+    "importCSV": "Import from CSV",
+    "exportSuccess": "Export successful",
+    "importSuccess": "Import successful",
+    "importWarning": "Import will add data to what already exists.",
+    "error": "Operation failed",
+    "importWarningTitle": "Warning",
+    "importWarningBody": "Import will add data without overwriting existing records. Duplicates may appear. Files saved in Downloads can be accessed by other apps.",
+    "importConfirm": "Import anyway",
+    "editName": "Edit my name",
+    "support": "Support EsperanzApp",
+    "privacyWarningTitle": "This data is personal and sensitive",
+    "privacyWarningBody": "The exported file contains health information. Once saved to Downloads, it may be accessible by other applications or anyone with access to this device."
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "notifications": "Notifications",
+    "notificationsDesc": "Local reminders only, no tracking",
+    "export": "My data",
+    "about": "About",
+    "version": "Version",
+    "license": "GPL-3.0 License",
+    "sourceCode": "Source code",
+    "deleteAll": "Delete all my data",
+    "deleteAllConfirm": "This action cannot be undone. All your data will be erased from this device.",
+    "languages": {
+      "fr": "Français",
+      "en": "English",
+      "es": "Español",
+      "de": "Deutsch",
+      "pt-BR": "Português (Brasil)",
+      "nl": "Nederlands",
+      "it": "Italiano"
+    },
+    "replayTutorial": "Replay the tutorial",
+    "terms": "Terms & Privacy",
+    "tabs": {
+      "settings": "Settings",
+      "data": "Data"
+    }
+  },
+  "milestones": {
+    "title": "Milestones",
+    "locked": "Locked",
+    "unlocked": "Unlocked on {{date}}",
+    "daysNeeded_one": "{{count}} day to go",
+    "daysNeeded_other": "{{count}} days to go",
+    "noHabits": "No habits to track"
+  },
+  "habitDetail": {
+    "milestones": "Milestones",
+    "history": "History",
+    "stats": "Statistics",
+    "statsSoon": "Coming soon",
+    "relapse": "Mark a relapse"
+  },
+  "notifications": {
+    "genericReminder": "Don't forget your treatment"
+  }
+}

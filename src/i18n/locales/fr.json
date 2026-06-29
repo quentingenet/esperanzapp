@@ -1,0 +1,337 @@
+{
+  "app": {
+    "by": "par"
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "close": "Fermer",
+    "yes": "Oui",
+    "no": "Non",
+    "loading": "Chargement…",
+    "error": "Une erreur est survenue",
+    "success": "Succès",
+    "day_one": "jour",
+    "day_other": "jours",
+    "today": "Aujourd'hui",
+    "name": "Prénom",
+    "saved": "Modifications enregistrées",
+    "deleted": "Supprimé",
+    "created": "Créé"
+  },
+  "nav": {
+    "home": "Accueil",
+    "habits": "Habitudes",
+    "treatments": "Traitements",
+    "history": "Historique",
+    "settings": "Paramètres",
+    "milestones": "Jalons",
+    "export": "Export"
+  },
+  "privacy": {
+    "title": "Bienvenue sur EsperanzApp",
+    "subtitle": "L'app fonctionne entièrement sur ton téléphone, sans connexion.",
+    "points": {
+      "noAccount": "Pas de compte à créer",
+      "noServer": "Tes données restent sur ton appareil",
+      "noTracking": "Pas de publicité, pas de suivi",
+      "openSource": "Code source public et vérifiable (GPL-3.0)"
+    },
+    "accept": "Commencer",
+    "license": "GPL-3.0"
+  },
+  "tutorial": {
+    "skip": "Passer",
+    "next": "Suivant",
+    "start": "Commencer",
+    "steps": {
+      "counter": {
+        "title": "EsperanzApp, ton allié !",
+        "body": "Se libérer d'une habitude, ça se construit jour après jour. Chaque jour sans rechute est une petite victoire ! EsperanzApp chemine avec toi."
+      },
+      "relapse": {
+        "title": "Une Rechute ?",
+        "body": "Si tu rechutes dans une habitude dont tu souhaites te libérer, tu peux la notifier dans l'historique de l'habitude."
+      },
+      "milestones": {
+        "title": "Des jalons sur le chemin...",
+        "body": "1 jour, 7, 30, 90 ou plus... Chaque palier est un cap franchi qui t'aidera dans ton cheminement."
+      },
+      "private": {
+        "title": "100 % privé",
+        "body": "Rien ne quitte ton appareil. Pas de compte, pas de serveur, pas d'œil extérieur."
+      },
+      "stats": {
+        "title": "Suis ta progression",
+        "body": "Pour chaque habitude, tu peux consulter tes stats et tes progrès dans le temps."
+      }
+    }
+  },
+  "onboarding": {
+    "welcome": "Bienvenue",
+    "yourName": {
+      "title": "Comment tu t'appelles ?",
+      "placeholder": "Ton prénom (facultatif)",
+      "skip": "Continuer sans prénom"
+    },
+    "firstHabit": {
+      "title": "Quelle habitude veux-tu libérer ?",
+      "subtitle": "Tu pourras en ajouter d'autres plus tard."
+    },
+    "startDate": {
+      "title": "Depuis quand ?",
+      "subtitle": "Date de ton dernier arrêt"
+    },
+    "ready": {
+      "title": "C'est parti.",
+      "body": "EsperanzApp compte avec toi.",
+      "button": "Voir mon compteur"
+    }
+  },
+  "habits": {
+    "title": "Mes habitudes",
+    "add": "Ajouter une habitude",
+    "edit": "Modifier",
+    "delete": "Supprimer cette habitude",
+    "deleteConfirm": "Supprimer cette habitude et tout son historique ?",
+    "empty": "Aucune habitude pour l'instant.\nCommence par en ajouter une.",
+    "counter": {
+      "day_one": "{{count}} jour",
+      "day_other": "{{count}} jours",
+      "since": "sans {{label}} depuis le {{date}}",
+      "today": "C'est le premier jour"
+    },
+    "form": {
+      "name": "Nom de l'habitude",
+      "namePlaceholder": "ex : Alcool, Tabac…",
+      "icon": "Icône",
+      "startDate": "Date de départ",
+      "color": "Couleur"
+    },
+    "duplicateWarning": "Tu suis déjà cette habitude. Tu ne peux pas en ajouter une identique."
+  },
+  "habitTypes": {
+    "alcohol": {
+      "label": "Alcool",
+      "desc": "Bière, vin, spiritueux…"
+    },
+    "tobacco": {
+      "label": "Tabac",
+      "desc": "Cigarettes, cigares, tabac à rouler…"
+    },
+    "sugar": {
+      "label": "Sucre",
+      "desc": "Sucreries, sodas, pâtisseries…"
+    },
+    "cannabis": {
+      "label": "Cannabis",
+      "desc": "Usage récréatif ou habitude à réduire"
+    },
+    "social_media": {
+      "label": "Réseaux sociaux",
+      "desc": "Instagram, TikTok, X et consorts"
+    },
+    "gaming": {
+      "label": "Jeux vidéo",
+      "desc": "Temps de jeu compulsif à reprendre en main"
+    },
+    "fast_food": {
+      "label": "Fast food",
+      "desc": "Restauration rapide et snacks industriels"
+    },
+    "adult_content": {
+      "label": "Contenu adulte",
+      "desc": "Usage compulsif de contenus pour adultes"
+    },
+    "shopping": {
+      "label": "Shopping compulsif",
+      "desc": "Achats impulsifs en ligne ou en magasin"
+    },
+    "caffeine": {
+      "label": "Caféine",
+      "desc": "Café, boissons énergisantes, thé fort…"
+    },
+    "screens": {
+      "label": "Écrans",
+      "desc": "Usage excessif des écrans en général"
+    },
+    "custom": {
+      "label": "Personnalisé",
+      "desc": "Définis ta propre habitude"
+    },
+    "groups": {
+      "substances": "Substances",
+      "behaviours": "Comportements",
+      "custom": "Personnalisé"
+    }
+  },
+  "grades": {
+    "awakening": {
+      "label": "Éveil"
+    },
+    "firstBreath": {
+      "label": "Premier souffle"
+    },
+    "anchoring": {
+      "label": "Ancrage"
+    },
+    "solidity": {
+      "label": "Solidité"
+    },
+    "clarity": {
+      "label": "Clarté"
+    },
+    "mastery": {
+      "label": "Maîtrise"
+    },
+    "freedom": {
+      "label": "Liberté"
+    },
+    "fulfilledAwakening": {
+      "label": "Éveil accompli"
+    },
+    "legend": {
+      "label": "Légende"
+    },
+    "messages": {
+      "awakening": "Premier jour. C'est là que tout commence.",
+      "firstBreath": "7 jours. Tu tiens. Continue.",
+      "anchoring": "2 semaines. Ce n'est plus du hasard, c'est une décision.",
+      "solidity": "Un mois. Tu as prouvé quelque chose à toi-même.",
+      "clarity": "2 mois. Les choses deviennent plus claires.",
+      "mastery": "3 mois. Tu es en train de reprendre le contrôle.",
+      "freedom": "6 mois. Tu n'es plus la même personne qu'au premier jour.",
+      "fulfilledAwakening": "Un an. Peu de gens arrivent là. Toi, tu l'as fait.",
+      "legend": "2 ans. C'est rare. C'est réel. C'est toi."
+    },
+    "nextGrade": "Prochain palier : {{grade}}",
+    "daysLeft_one": "{{count}} jour restant",
+    "daysLeft_other": "{{count}} jours restants",
+    "progress": "Progression vers {{grade}}"
+  },
+  "relapse": {
+    "title": "Recommencer",
+    "confirmTitle": "Un pas de côté",
+    "confirmBody": "Ces jours sont à toi. Ils restent.",
+    "confirmButton": "Oui, recommencer",
+    "cancelButton": "Annuler",
+    "messages": {
+      "before7days": "{{name}}, ces {{days}} jours comptent. Tu recommences aujourd'hui.",
+      "between7and30days": "{{name}}, tu as tenu {{days}} jours. Ce n'est pas une défaite. Tu sais ce dont tu es capable.",
+      "after30days": "{{name}}, tu as tenu {{days}} jours. C'est immense. Tout ce que tu as appris reste avec toi.",
+      "day0": "{{name}}, l'important c'est d'essayer. Recommence quand tu es prêt."
+    }
+  },
+  "treatments": {
+    "title": "Mes traitements",
+    "add": "Ajouter un traitement",
+    "edit": "Modifier le traitement",
+    "delete": "Supprimer ce traitement",
+    "deleteConfirm": "Supprimer ce traitement et tout son historique ?",
+    "empty": "Aucun traitement pour l'instant.",
+    "taken": "Pris",
+    "missed": "Oublié",
+    "pending": "En attente",
+    "reminder": "Rappel à {{time}}",
+    "noReminder": "Suivi sans rappel",
+    "form": {
+      "name": "Nom du médicament",
+      "namePlaceholder": "ex : Metformine, Sertraline…",
+      "frequency": "Fréquence",
+      "reminderTime": "Heure du rappel",
+      "enableReminder": "Activer le rappel",
+      "frequencies": {
+        "daily": "Chaque jour",
+        "weekly": "Chaque semaine",
+        "monthly": "Chaque mois"
+      }
+    }
+  },
+  "stats": {
+    "title": "Statistiques",
+    "currentStreak": "Série actuelle",
+    "longestStreak": "Plus longue série",
+    "totalRelapses": "Rechutes totales",
+    "averageStreak": "Moyenne des séries",
+    "startDate": "Depuis le",
+    "noData": "Pas encore de données"
+  },
+  "history": {
+    "title": "Historique",
+    "empty": "Aucun événement enregistré",
+    "start": "Démarrage",
+    "relapse": "Rechute",
+    "relapseRestart": "Rechute, nouveau départ",
+    "calendar": "Calendrier",
+    "list": "Liste",
+    "gradeUnlocked": "Palier atteint : {{grade}}"
+  },
+  "export": {
+    "title": "Données",
+    "exportJSON": "Exporter en JSON",
+    "exportCSV": "Exporter en CSV",
+    "importJSON": "Importer depuis JSON",
+    "importCSV": "Importer depuis CSV",
+    "exportSuccess": "Export réussi",
+    "importSuccess": "Import réussi",
+    "importWarning": "L'import ajoutera des données à celles existantes.",
+    "error": "Erreur lors de l'opération",
+    "importWarningTitle": "Attention",
+    "importWarningBody": "L'import ajoutera des données sans écraser l'existant. Des doublons peuvent apparaître. Si le fichier est dans Téléchargements, d'autres apps peuvent y accéder.",
+    "importConfirm": "Importer quand même",
+    "editName": "Modifier mon prénom",
+    "support": "Soutenir EsperanzApp",
+    "privacyWarningTitle": "Ces données sont personnelles et sensibles",
+    "privacyWarningBody": "Le fichier exporté contient des informations personnelles. Une fois enregistré sur votre téléphone il peut être accessible par d'autres applications ou personnes ayant accès à ce téléphone."
+  },
+  "settings": {
+    "title": "Paramètres",
+    "language": "Langue",
+    "notifications": "Notifications",
+    "notificationsDesc": "Rappels locaux uniquement, jamais de suivi",
+    "export": "Mes données",
+    "about": "À propos",
+    "version": "Version",
+    "license": "Licence GPL-3.0",
+    "sourceCode": "Code source",
+    "deleteAll": "Supprimer toutes mes données",
+    "deleteAllConfirm": "Cette action est irréversible. Toutes tes données seront effacées de cet appareil.",
+    "languages": {
+      "fr": "Français",
+      "en": "English",
+      "es": "Español",
+      "de": "Deutsch",
+      "pt-BR": "Português (Brasil)",
+      "nl": "Nederlands",
+      "it": "Italiano"
+    },
+    "replayTutorial": "Revoir le tutoriel",
+    "terms": "Mentions légales & Vie privée",
+    "tabs": {
+      "settings": "Paramètres",
+      "data": "Données"
+    }
+  },
+  "milestones": {
+    "title": "Jalons",
+    "locked": "Verrouillé",
+    "unlocked": "Déverrouillé le {{date}}",
+    "daysNeeded_one": "Encore {{count}} jour",
+    "daysNeeded_other": "Encore {{count}} jours",
+    "noHabits": "Aucune habitude à suivre"
+  },
+  "habitDetail": {
+    "milestones": "Jalons",
+    "history": "Historique",
+    "stats": "Statistiques",
+    "statsSoon": "Fonctionnalité à venir",
+    "relapse": "Marquer une rechute"
+  },
+  "notifications": {
+    "genericReminder": "N'oublie pas ton traitement"
+  }
+}
