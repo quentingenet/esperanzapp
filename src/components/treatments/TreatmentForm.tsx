@@ -15,8 +15,10 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
+import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { useDateLocale, useNotifications } from "@/hooks";
+import { toast } from "@/store/toastStore";
 import { weekDayLabel } from "./treatmentUtils";
 import type { Frequency, TreatmentFormProps } from "@/types";
 
@@ -50,18 +52,27 @@ export function TreatmentForm({ onSubmit }: TreatmentFormProps) {
 
   const handleSubmit = async () => {
     if (!label.trim()) return;
+    let effectiveReminderEnabled = reminderEnabled;
     if (reminderEnabled) {
       if (!time) return;
       if (frequency !== "daily" && reminderDay === null) return;
-      const { display } = await LocalNotifications.checkPermissions();
-      if (display === "prompt") await requestPermission();
+      if (Capacitor.isNativePlatform()) {
+        const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
+        if (display === "prompt") {
+          const granted = await requestPermission();
+          if (!granted) { effectiveReminderEnabled = false; toast.info(t("treatments.form.permissionDenied")); }
+        } else if (display === "denied") {
+          effectiveReminderEnabled = false;
+          toast.info(t("treatments.form.permissionDenied"));
+        }
+      }
     }
     onSubmit({
       label: label.trim(),
       frequency,
-      reminderEnabled,
-      reminderDay: reminderEnabled ? reminderDay : null,
-      reminderTime: reminderEnabled && time ? format(time, "HH:mm") : "08:00",
+      reminderEnabled: effectiveReminderEnabled,
+      reminderDay: effectiveReminderEnabled ? reminderDay : null,
+      reminderTime: effectiveReminderEnabled && time ? format(time, "HH:mm") : "08:00",
     });
     setLabel("");
     setFrequency("daily");

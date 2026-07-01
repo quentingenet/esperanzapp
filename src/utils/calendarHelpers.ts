@@ -1,4 +1,5 @@
 import type { DayStatus, HabitLog, TreatmentLog, TreatmentStatus } from "@/types";
+import { todayLocalDate } from "./dates";
 
 function addDays(dateStr: string, n: number): string {
   const [y, m, d] = dateStr.split("-").map(Number) as [number, number, number];
@@ -19,7 +20,7 @@ function fillActiveDays(
 
 export function buildDayStatusMap(
   logs: HabitLog[],
-  today = new Date().toISOString().slice(0, 10),
+  today = todayLocalDate(),
 ): Record<string, DayStatus> {
   const map: Record<string, DayStatus> = {};
   const sorted = [...logs].sort((a, b) => a.eventDate.localeCompare(b.eventDate));

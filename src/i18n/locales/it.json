@@ -21,7 +21,9 @@
     "name": "Nome",
     "saved": "Modifiche salvate",
     "deleted": "Eliminato",
-    "created": "Creato"
+    "created": "Creato",
+    "expand": "Espandi",
+    "collapse": "Comprimi"
   },
   "nav": {
     "home": "Home",
@@ -249,6 +251,7 @@
       "frequency": "Frequenza",
       "reminderTime": "Orario del promemoria",
       "enableReminder": "Attiva promemoria",
+      "permissionDenied": "Autorizzazione notifiche negata. Il promemoria è stato disattivato.",
       "reminderDay": "Giorno del promemoria",
       "dayOfMonth": "Il {{day}}",
       "firstDay": "Primo giorno del mese",

@@ -13,8 +13,10 @@ import type { TreatmentCardProps } from "@/types";
 
 const DELETE_PATH = "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z";
 const EDIT_PATH = "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z";
+const CHEVRON_DOWN = "M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z";
+const CHEVRON_UP = "M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6 1.41 1.41z";
 
-export function TreatmentCard({ treatment, todayLog, onLog, onDelete, onEdit }: TreatmentCardProps) {
+export function TreatmentCard({ treatment, todayLog, onLog, onDelete, onEdit, isExpanded, onToggle }: TreatmentCardProps) {
   const { t } = useTranslation();
   const dateLocale = useDateLocale();
 
@@ -47,7 +49,7 @@ export function TreatmentCard({ treatment, todayLog, onLog, onDelete, onEdit }: 
           <Chip label={t(`treatments.form.frequencies.${treatment.frequency}`)} size="small" sx={{ fontSize: "11px" }} />
           <IconButton
             size="small"
-            onClick={(e) => { e.stopPropagation(); onEdit(); }}
+            onClick={onEdit}
             aria-label={t("common.edit")}
             sx={{ color: "text.disabled", "&:hover": { color: "primary.main" } }}
           >
@@ -55,11 +57,22 @@ export function TreatmentCard({ treatment, todayLog, onLog, onDelete, onEdit }: 
           </IconButton>
           <IconButton
             size="small"
-            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+            onClick={onDelete}
             aria-label={t("common.delete")}
             sx={{ color: "text.disabled", "&:hover": { color: "error.main" } }}
           >
             <SvgIcon fontSize="small" aria-hidden="true"><path d={DELETE_PATH} /></SvgIcon>
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={onToggle}
+            aria-label={isExpanded ? t("common.collapse") : t("common.expand")}
+            aria-expanded={isExpanded}
+            sx={{ color: "text.disabled", "&:hover": { color: "primary.main" } }}
+          >
+            <SvgIcon fontSize="small" aria-hidden="true">
+              <path d={isExpanded ? CHEVRON_UP : CHEVRON_DOWN} />
+            </SvgIcon>
           </IconButton>
         </Box>
         <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1.5 }}>

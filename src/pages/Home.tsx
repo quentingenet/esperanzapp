@@ -7,6 +7,7 @@ import { useHabits, useHabitLogs } from "@/hooks";
 import { useOnboardingStore } from "@/store";
 import { toast } from "@/store/toastStore";
 import { getGrade, getNextGrade } from "@/utils/grades";
+import { todayLocalDate } from "@/utils";
 import type { Habit, HabitStats } from "@/types";
 
 export function Home() {
@@ -30,7 +31,7 @@ export function Home() {
   }, [habits, getStats]);
 
   const handleRelapse = (habit: Habit) => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayLocalDate();
     void addLog({ habitId: habit.id, eventType: "relapse", eventDate: today })
       .then(() => addLog({ habitId: habit.id, eventType: "start", eventDate: today }))
       .then(() => { void loadHabits(); setDetailHabit(null); });
@@ -50,7 +51,7 @@ export function Home() {
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
         {habits.map((h) => {
           const stats = statsMap[h.id];
-          if (!stats) return null;
+          if (!stats || !stats.startDate) return null;
           return (
             <HabitCard key={h.id} habit={h} stats={stats}
               grade={getGrade(stats.currentStreak)}

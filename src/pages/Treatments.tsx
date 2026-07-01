@@ -12,6 +12,7 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { format, parse } from "date-fns";
+import { todayLocalDate } from "@/utils";
 import { useTranslation } from "react-i18next";
 import { TreatmentCard, TreatmentCalendar, TreatmentForm } from "@/components/treatments";
 import { weekDayLabel } from "@/components/treatments/treatmentUtils";
@@ -45,7 +46,7 @@ export function Treatments() {
   useEffect(() => { void loadTreatments(); }, [loadTreatments]);
 
   useEffect(() => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayLocalDate();
     async function loadLogs() {
       const map: Record<string, TreatmentLog | null> = {};
       for (const tr of treatments) {
@@ -58,7 +59,7 @@ export function Treatments() {
   }, [treatments, getLogsByTreatment]);
 
   const handleLog = async (treatment: Treatment, status: TreatmentStatus) => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayLocalDate();
     const created = await logStatus({ treatmentId: treatment.id, scheduledAt: today, status });
     setLogsMap((prev) => ({ ...prev, [treatment.id]: created }));
     if (treatment.reminderEnabled) void scheduleReminder(treatment, true);
@@ -86,9 +87,16 @@ export function Treatments() {
     if (editReminderEnabled && editTarget.frequency !== "daily" && editReminderDay === null) return;
     const reminderTime = editReminderEnabled && editTime ? format(editTime, "HH:mm") : editTarget.reminderTime;
     const reminderDay = editReminderEnabled ? editReminderDay : null;
-    void editTreatment(editTarget.id, { label: editLabel.trim(), reminderTime, reminderEnabled: editReminderEnabled, reminderDay })
+    const updatedFields = { label: editLabel.trim(), reminderTime, reminderEnabled: editReminderEnabled, reminderDay };
+    void editTreatment(editTarget.id, updatedFields)
       .then(async () => {
-        if (!editReminderEnabled) await cancelReminder(editTarget.id);
+        const updatedTreatment = { ...editTarget, ...updatedFields };
+        if (editReminderEnabled) {
+          const status = await scheduleReminder(updatedTreatment);
+          if (status === "permission-denied") toast.info(t("treatments.form.permissionDenied"));
+        } else {
+          await cancelReminder(editTarget.id);
+        }
         toast.success(t("common.saved"));
         void loadTreatments();
         setEditTarget(null);
@@ -105,20 +113,21 @@ export function Treatments() {
         {treatments.length === 0 && <EmptyState emoji="💊" message={t("treatments.empty")} />}
         {treatments.map((tr) => (
           <Box key={tr.id}>
-            <Box onClick={() => { setSelectedId(tr.id === selectedId ? null : tr.id); }}>
-              <TreatmentCard
-                treatment={tr}
-                todayLog={logsMap[tr.id] ?? null}
-                onLog={(status) => { void handleLog(tr, status); }}
-                onDelete={() => { setDeleteTarget(tr); }}
-                onEdit={() => { openEdit(tr); }}
-              />
-            </Box>
+            <TreatmentCard
+              treatment={tr}
+              todayLog={logsMap[tr.id] ?? null}
+              onLog={(status) => { void handleLog(tr, status); }}
+              onDelete={() => { setDeleteTarget(tr); }}
+              onEdit={() => { openEdit(tr); }}
+              isExpanded={selectedId === tr.id}
+              onToggle={() => { setSelectedId(tr.id === selectedId ? null : tr.id); }}
+            />
             {selectedId === tr.id && (
               <TreatmentCalendar
                 treatmentId={tr.id}
                 frequency={tr.frequency}
                 reminderDay={tr.reminderDay}
+                createdAt={tr.createdAt}
                 onLogDate={(date, status) => logStatusForDate(tr.id, date, status)}
               />
             )}

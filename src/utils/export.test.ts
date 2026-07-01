@@ -25,6 +25,7 @@ vi.mock("@/db", () => ({
   createHabitLog: vi.fn().mockResolvedValue({ id: "20" }),
   createTreatment: vi.fn().mockResolvedValue({ id: "30" }),
   createTreatmentLog: vi.fn().mockResolvedValue({ id: "40" }),
+  runInTransaction: vi.fn().mockImplementation(async (fn: () => Promise<void>) => fn()),
 }));
 
 const mockHabit: Habit = {
@@ -57,7 +58,7 @@ const mockTreatment: Treatment = {
 const mockTreatmentLog: TreatmentLog = {
   id: "1",
   treatmentId: "1",
-  scheduledAt: "2024-01-01T08:00:00",
+  scheduledAt: "2024-01-01",
   status: "taken",
 };
 
@@ -117,6 +118,16 @@ describe("parseExportPayload", () => {
 
   it("throws on null input", () => {
     expect(() => parseExportPayload("null")).toThrow();
+  });
+
+  it("throws when required arrays are missing", () => {
+    const bad = JSON.stringify({ version: "1", exportedAt: "2024-01-01T00:00:00.000Z" });
+    expect(() => parseExportPayload(bad)).toThrow("Unsupported or invalid export format");
+  });
+
+  it("throws when habits array is missing", () => {
+    const bad = JSON.stringify({ version: "1", exportedAt: "", habitLogs: [], treatments: [], treatmentLogs: [] });
+    expect(() => parseExportPayload(bad)).toThrow("Unsupported or invalid export format");
   });
 });
 
@@ -190,10 +201,18 @@ describe("parseCSVPayload", () => {
     expect(parsed.treatments[0]?.reminderEnabled).toBe(false);
   });
 
-  it("returns empty arrays when sections are missing", () => {
+  it("returns empty arrays when a section is absent but other sections exist", () => {
     const parsed = parseCSVPayload("HABITS\nid,label,icon,color,bgColor,startDate,createdAt\n");
     expect(parsed.habitLogs).toEqual([]);
     expect(parsed.treatments).toEqual([]);
+  });
+
+  it("throws on non-empty content with no recognised section headers", () => {
+    expect(() => parseCSVPayload("name,email\njohn,doe")).toThrow("Unsupported or invalid CSV format");
+  });
+
+  it("throws on empty file", () => {
+    expect(() => parseCSVPayload("")).toThrow("Empty CSV file");
   });
 
   it("ignores rows with wrong column count", () => {
@@ -359,6 +378,18 @@ describe("importFromJSON", () => {
     await expect(importFromJSON(file)).rejects.toThrow();
   });
 
+  it("throws when JSON has missing required arrays", async () => {
+    const bad = JSON.stringify({ version: "1", exportedAt: "2024-01-01T00:00:00.000Z" });
+    const file = new File([bad], "export.json", { type: "application/json" });
+    await expect(importFromJSON(file)).rejects.toThrow("Unsupported or invalid export format");
+  });
+
+  it("throws when JSON version is wrong", async () => {
+    const bad = JSON.stringify({ version: "99", habits: [], habitLogs: [], treatments: [], treatmentLogs: [] });
+    const file = new File([bad], "export.json", { type: "application/json" });
+    await expect(importFromJSON(file)).rejects.toThrow("Unsupported or invalid export format");
+  });
+
   it("handles empty payload gracefully", async () => {
     const { createHabit } = await import("@/db");
     const payload = buildExportPayload([], [], [], [], "2024-01-01T00:00:00.000Z");
@@ -397,10 +428,13 @@ describe("importFromCSV", () => {
     );
   });
 
-  it("handles empty CSV gracefully", async () => {
-    const { createHabit } = await import("@/db");
+  it("throws on empty CSV file", async () => {
     const file = new File([""], "export.csv", { type: "text/csv" });
-    await importFromCSV(file);
-    expect(createHabit).not.toHaveBeenCalled();
+    await expect(importFromCSV(file)).rejects.toThrow("Empty CSV file");
+  });
+
+  it("throws on CSV with no recognised section headers", async () => {
+    const file = new File(["name,email\njohn,doe"], "bad.csv", { type: "text/csv" });
+    await expect(importFromCSV(file)).rejects.toThrow("Unsupported or invalid CSV format");
   });
 });

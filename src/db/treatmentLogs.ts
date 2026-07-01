@@ -1,4 +1,5 @@
 import type { TreatmentLog, TreatmentStatus } from "@/types";
+import { isTreatmentStatus } from "@/utils";
 import { withDb, withDbVoid } from "./client";
 
 type TreatmentLogRow = {
@@ -9,11 +10,12 @@ type TreatmentLogRow = {
 };
 
 function rowToTreatmentLog(row: TreatmentLogRow): TreatmentLog {
+  if (!isTreatmentStatus(row.status)) throw new Error(`Invalid status in DB: ${row.status}`);
   return {
     id: String(row.id),
     treatmentId: String(row.treatment_id),
     scheduledAt: row.scheduled_at,
-    status: row.status as TreatmentStatus,
+    status: row.status,
   };
 }
 

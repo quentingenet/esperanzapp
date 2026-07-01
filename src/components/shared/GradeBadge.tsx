@@ -29,7 +29,7 @@ export function GradeBadge({ grade, size = "md" }: GradeBadgeProps) {
         component="span"
         sx={{ fontSize: s.fontSize, lineHeight: 1.2, fontWeight: 600, color: "inherit" }}
       >
-        {grade.emoji} {t(grade.labelKey)}
+        <span aria-hidden="true">{grade.emoji}</span>{" "}{t(grade.labelKey)}
       </Typography>
     </Box>
   );

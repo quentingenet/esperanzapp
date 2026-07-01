@@ -1,4 +1,5 @@
-import type { HabitLog, EventType } from "@/types";
+import type { HabitLog } from "@/types";
+import { isEventType } from "@/utils";
 import { withDb, withDbVoid } from "./client";
 
 type HabitLogRow = {
@@ -9,10 +10,11 @@ type HabitLogRow = {
 };
 
 function rowToHabitLog(row: HabitLogRow): HabitLog {
+  if (!isEventType(row.event_type)) throw new Error(`Invalid event_type in DB: ${row.event_type}`);
   return {
     id: String(row.id),
     habitId: String(row.habit_id),
-    eventType: row.event_type as EventType,
+    eventType: row.event_type,
     eventDate: row.event_date,
   };
 }

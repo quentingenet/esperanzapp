@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import ButtonBase from "@mui/material/ButtonBase";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -11,7 +12,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { PickerDay } from "@mui/x-date-pickers/PickerDay";
 import type { PickerDayProps } from "@mui/x-date-pickers/PickerDay";
-import { format, isAfter, startOfDay, subDays, subWeeks, subMonths } from "date-fns";
+import { format, isAfter, isBefore, parseISO, startOfDay, subDays, subWeeks, subMonths } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { useCalendar, useDateLocale } from "@/hooks";
 import { COLORS } from "@/theme/tokens";
@@ -33,8 +34,9 @@ const LEGEND: { status: TreatmentStatus; labelKey: string }[] = [
 ];
 const STATUS_ORDER: TreatmentStatus[] = ["taken", "missed", "pending"];
 
-function getPastOccurrences(frequency: Frequency, reminderDay: number | null): Date[] {
+function getPastOccurrences(frequency: Frequency, reminderDay: number | null, createdAt: string): Date[] {
   const today = startOfDay(new Date());
+  const created = startOfDay(parseISO(createdAt.slice(0, 10)));
   const result: Date[] = [];
 
   if (frequency === "weekly" && reminderDay !== null) {
@@ -44,31 +46,32 @@ function getPastOccurrences(frequency: Frequency, reminderDay: number | null): D
       current = subDays(current, 1);
       safety++;
     }
-    for (let i = 0; i < 12; i++) {
+    while (!isBefore(current, created)) {
       result.push(current);
       current = subWeeks(current, 1);
     }
   } else if (frequency === "monthly") {
     const day = reminderDay ?? 1;
-    for (let i = 0; i < 12; i++) {
-      const monthBase = subMonths(today, i);
+    let monthOffset = 0;
+    while (monthOffset < 600) {
+      const monthBase = subMonths(today, monthOffset);
       let occurrence: Date;
       if (day === 0) {
         occurrence = new Date(monthBase.getFullYear(), monthBase.getMonth() + 1, 0);
       } else {
         occurrence = new Date(monthBase.getFullYear(), monthBase.getMonth(), day);
-        if (occurrence.getMonth() !== monthBase.getMonth()) continue;
+        if (occurrence.getMonth() !== monthBase.getMonth()) { monthOffset++; continue; }
       }
-      if (!isAfter(startOfDay(occurrence), today)) {
-        result.push(occurrence);
-      }
+      if (isBefore(startOfDay(occurrence), created)) break;
+      if (!isAfter(startOfDay(occurrence), today)) result.push(occurrence);
+      monthOffset++;
     }
   }
 
   return result;
 }
 
-export function TreatmentCalendar({ treatmentId, frequency, reminderDay, onLogDate }: TreatmentCalendarProps) {
+export function TreatmentCalendar({ treatmentId, frequency, reminderDay, createdAt, onLogDate }: TreatmentCalendarProps) {
   const { t } = useTranslation();
   const { getTreatmentStatusMap } = useCalendar();
   const dateLocale = useDateLocale();
@@ -97,8 +100,8 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, onLogDa
 
   const occurrences = useMemo(() => {
     if (frequency === "daily") return [];
-    return getPastOccurrences(frequency, reminderDay);
-  }, [frequency, reminderDay]);
+    return getPastOccurrences(frequency, reminderDay, createdAt);
+  }, [frequency, reminderDay, createdAt]);
 
   const CustomDay = useCallback((props: PickerDayProps) => {
     const dateStr = format(props.day, "yyyy-MM-dd");
@@ -110,7 +113,7 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, onLogDa
       <Box sx={{ position: "relative", borderRadius: "50%", bgcolor: bg ?? "transparent" }}>
         <PickerDay {...props} />
         {icon !== undefined && color !== undefined && (
-          <Box sx={{ position: "absolute", bottom: 1, right: 1, fontSize: "9px", lineHeight: 1 }}>
+          <Box aria-hidden="true" sx={{ position: "absolute", bottom: 1, right: 1, fontSize: "9px", lineHeight: 1 }}>
             {icon}
           </Box>
         )}
@@ -140,7 +143,7 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, onLogDa
                 "&:hover": { bgcolor: STATUS_BG[status] },
               }}
             >
-              <span style={{ fontSize: "1.1rem" }}>{STATUS_ICONS[status]}</span>
+              <span aria-hidden="true" style={{ fontSize: "1.1rem" }}>{STATUS_ICONS[status]}</span>
               {t(`treatments.${status}`)}
             </Button>
           ))}
@@ -163,19 +166,22 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, onLogDa
             const icon = STATUS_ICONS[status];
             const bg = STATUS_BG[status];
             return (
-              <Box
+              <ButtonBase
                 key={dateStr}
+                component="div"
                 onClick={() => { handleDaySelect(date); }}
+                disabled={!onLogDate}
+                aria-label={format(date, "P", { locale: dateLocale })}
                 sx={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
+                  width: "100%",
                   px: 2,
                   py: 1.25,
                   mb: 0.5,
                   borderRadius: 2,
                   bgcolor: bg ?? "action.hover",
-                  cursor: onLogDate ? "pointer" : "default",
                   "&:hover": onLogDate ? { opacity: 0.75 } : {},
                 }}
               >
@@ -185,10 +191,10 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, onLogDa
                 {color !== undefined && (
                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                     <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: color }} />
-                    <Typography variant="caption" sx={{ color }}>{icon}</Typography>
+                    <Typography aria-hidden="true" variant="caption" sx={{ color }}>{icon}</Typography>
                   </Box>
                 )}
-              </Box>
+              </ButtonBase>
             );
           })}
         </Box>
@@ -199,7 +205,7 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, onLogDa
             return (
               <Box key={status} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                 <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: color }} />
-                <Typography variant="caption" color="text.secondary">{icon} {t(labelKey)}</Typography>
+                <Typography variant="caption" color="text.secondary"><span aria-hidden="true">{icon}</span>{" "}{t(labelKey)}</Typography>
               </Box>
             );
           })}

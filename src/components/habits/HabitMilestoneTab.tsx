@@ -1,8 +1,9 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { format, parseISO } from "date-fns";
+import { addDays, format, parseISO } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { useDateLocale } from "@/hooks";
+import { todayLocalDate } from "@/utils";
 import { GradeBadge } from "@/components/shared";
 import { GRADES, getGrade } from "@/utils/grades";
 import type { HabitStats } from "@/types";
@@ -15,7 +16,7 @@ interface HabitMilestoneTabProps {
 export function HabitMilestoneTab({ stats, userName }: HabitMilestoneTabProps) {
   const { t } = useTranslation();
   const dateLocale = useDateLocale();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayLocalDate();
 
   return (
     <Box>
@@ -32,14 +33,10 @@ export function HabitMilestoneTab({ stats, userName }: HabitMilestoneTabProps) {
       {GRADES.map((grade) => {
         const unlocked = stats.currentStreak >= grade.days;
         const daysLeft = grade.days - stats.currentStreak;
-        const unlockDateStr = (() => {
-          const d = new Date(today);
-          d.setDate(d.getDate() - stats.currentStreak + grade.days);
-          return format(parseISO(d.toISOString().slice(0, 10)), "P", { locale: dateLocale });
-        })();
+        const unlockDateStr = format(addDays(parseISO(today), grade.days - stats.currentStreak), "P", { locale: dateLocale });
         return (
           <Box key={grade.days} sx={{ display: "flex", alignItems: "center", gap: 1.5, py: 0.75, opacity: unlocked ? 1 : 0.45 }}>
-            <Typography sx={{ fontSize: "1.4rem", width: 32 }}>{grade.emoji}</Typography>
+            <Typography aria-hidden="true" sx={{ fontSize: "1.4rem", width: 32 }}>{grade.emoji}</Typography>
             <Box sx={{ flex: 1 }}>
               <Typography variant="body2" sx={{ fontWeight: unlocked ? 600 : 400, color: unlocked ? grade.color : "text.disabled" }}>
                 {t(grade.labelKey)}

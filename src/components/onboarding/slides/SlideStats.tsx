@@ -16,7 +16,7 @@ export function SlideStats() {
           { emoji: "📊", value: "28", key: "stats.averageStreak" },
         ] as const).map(({ emoji, value, key }) => (
           <Box key={key} sx={{ p: 1.5, borderRadius: 2, bgcolor: "action.hover", textAlign: "center" }}>
-            <Typography sx={{ fontSize: "1.4rem" }}>{emoji}</Typography>
+            <Typography aria-hidden="true" sx={{ fontSize: "1.4rem" }}>{emoji}</Typography>
             <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>{value}</Typography>
             <Typography variant="caption" color="text.secondary">{t(key)}</Typography>
           </Box>

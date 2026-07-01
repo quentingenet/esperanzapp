@@ -2,41 +2,35 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useTreatmentLogs } from "./useTreatmentLogs";
 import { useTreatmentsStore } from "@/store/treatmentsStore";
-import { createTreatmentLog, getTreatmentLogsByTreatmentId } from "@/db";
+import { getTreatmentLogsByTreatmentId, upsertTreatmentLogForDate } from "@/db";
 import type { TreatmentLog } from "@/types";
 
 vi.mock("@/db", () => ({
-  createTreatmentLog: vi.fn(),
+  upsertTreatmentLogForDate: vi.fn(),
   getTreatmentLogsByTreatmentId: vi.fn(),
 }));
 
 const log: TreatmentLog = {
   id: "1",
   treatmentId: "1",
-  scheduledAt: "2024-01-15T08:00:00.000Z",
-  status: "taken",
-};
-
-const logData: Omit<TreatmentLog, "id"> = {
-  treatmentId: "1",
-  scheduledAt: "2024-01-15T08:00:00.000Z",
+  scheduledAt: "2024-01-15",
   status: "taken",
 };
 
 describe("useTreatmentLogs", () => {
   beforeEach(() => {
     useTreatmentsStore.setState({ treatments: [], logs: [], loading: false });
-    vi.mocked(createTreatmentLog).mockResolvedValue(log);
+    vi.mocked(upsertTreatmentLogForDate).mockResolvedValue(log);
     vi.mocked(getTreatmentLogsByTreatmentId).mockResolvedValue([]);
   });
 
-  it("logStatus creates log and adds to store", async () => {
+  it("logStatus upserts log and adds to store", async () => {
     const { result } = renderHook(() => useTreatmentLogs());
     let created: TreatmentLog | undefined;
     await act(async () => {
-      created = await result.current.logStatus(logData);
+      created = await result.current.logStatus({ treatmentId: "1", scheduledAt: "2024-01-15", status: "taken" });
     });
-    expect(createTreatmentLog).toHaveBeenCalledWith(logData);
+    expect(upsertTreatmentLogForDate).toHaveBeenCalledWith("1", "2024-01-15", "taken");
     expect(created).toEqual(log);
     expect(useTreatmentsStore.getState().logs).toHaveLength(1);
   });
@@ -54,12 +48,13 @@ describe("useTreatmentLogs", () => {
 
   it("logStatus status 'missed' is stored correctly", async () => {
     const missedLog: TreatmentLog = { ...log, id: "2", status: "missed" };
-    vi.mocked(createTreatmentLog).mockResolvedValueOnce(missedLog);
+    vi.mocked(upsertTreatmentLogForDate).mockResolvedValueOnce(missedLog);
     const { result } = renderHook(() => useTreatmentLogs());
     let created: TreatmentLog | undefined;
     await act(async () => {
-      created = await result.current.logStatus({ ...logData, status: "missed" });
+      created = await result.current.logStatus({ treatmentId: "1", scheduledAt: "2024-01-15", status: "missed" });
     });
+    expect(upsertTreatmentLogForDate).toHaveBeenCalledWith("1", "2024-01-15", "missed");
     expect(created?.status).toBe("missed");
   });
 });

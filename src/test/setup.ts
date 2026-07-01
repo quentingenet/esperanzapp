@@ -35,6 +35,7 @@ vi.mock("@capacitor/share", () => ({
 
 vi.mock("@capacitor/local-notifications", () => ({
   LocalNotifications: {
+    checkPermissions: vi.fn().mockResolvedValue({ display: "granted" }),
     requestPermissions: vi.fn().mockResolvedValue({ display: "granted" }),
     schedule: vi.fn().mockResolvedValue({}),
     cancel: vi.fn().mockResolvedValue({}),

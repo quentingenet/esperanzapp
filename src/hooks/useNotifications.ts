@@ -3,9 +3,16 @@ import { LocalNotifications } from "@capacitor/local-notifications";
 import i18n from "@/i18n";
 import type { Frequency, Treatment } from "@/types";
 
+function stableHash31(s: string): number {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  }
+  return (h & 0x7fffffff) || 1; // positive 31-bit, never 0
+}
+
 function treatmentToNotifId(treatmentId: string): number {
-  const n = parseInt(treatmentId, 10);
-  return Number.isFinite(n) ? n : 0;
+  return /^\d+$/.test(treatmentId) ? parseInt(treatmentId, 10) : stableHash31(treatmentId);
 }
 
 function frequencyToEvery(freq: Frequency): "day" | "week" | "month" {
@@ -32,12 +39,16 @@ function nextOccurrence(
     d.setDate(d.getDate() + daysUntil);
   } else if (frequency === "monthly" && reminderDay !== null) {
     if (reminderDay === 0) {
-      // dernier jour du mois
       d.setMonth(d.getMonth() + 1, 0);
       if (d <= now) { d.setMonth(d.getMonth() + 2, 0); }
     } else {
-      d.setDate(reminderDay);
-      if (d <= now) d.setMonth(d.getMonth() + 1);
+      const daysNow = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+      d.setDate(Math.min(reminderDay, daysNow));
+      if (d <= now) {
+        d.setMonth(d.getMonth() + 1);
+        const daysNext = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+        d.setDate(Math.min(reminderDay, daysNext));
+      }
     }
   } else {
     if (fromTomorrow) d.setDate(d.getDate() + 1);
@@ -53,25 +64,35 @@ export function useNotifications() {
     return display === "granted";
   }, []);
 
-  const scheduleReminder = useCallback(async (treatment: Treatment, fromTomorrow = false): Promise<void> => {
-    const id = treatmentToNotifId(treatment.id);
-    await LocalNotifications.cancel({ notifications: [{ id }] }).catch(() => {});
-    if (!treatment.reminderEnabled) return;
-    await LocalNotifications.schedule({
-      notifications: [
-        {
-          id,
-          title: "EsperanzApp",
-          body: i18n.t("notifications.genericReminder"),
-          schedule: {
-            at: nextOccurrence(treatment.reminderTime, treatment.frequency, treatment.reminderDay, fromTomorrow),
-            repeats: true,
-            every: frequencyToEvery(treatment.frequency),
-          },
-        },
-      ],
-    });
-  }, []);
+  const scheduleReminder = useCallback(
+    async (treatment: Treatment, fromTomorrow = false): Promise<"scheduled" | "permission-denied" | "disabled" | "error"> => {
+      const id = treatmentToNotifId(treatment.id);
+      await LocalNotifications.cancel({ notifications: [{ id }] }).catch(() => {});
+      if (!treatment.reminderEnabled) return "disabled";
+      const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
+      if (display !== "granted") return "permission-denied";
+      try {
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              id,
+              title: "EsperanzApp",
+              body: i18n.t("notifications.genericReminder"),
+              schedule: {
+                at: nextOccurrence(treatment.reminderTime, treatment.frequency, treatment.reminderDay, fromTomorrow),
+                repeats: true,
+                every: frequencyToEvery(treatment.frequency),
+              },
+            },
+          ],
+        });
+        return "scheduled";
+      } catch {
+        return "error";
+      }
+    },
+    [],
+  );
 
   const cancelReminder = useCallback(async (treatmentId: string): Promise<void> => {
     await LocalNotifications.cancel({

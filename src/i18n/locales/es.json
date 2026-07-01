@@ -21,7 +21,9 @@
     "name": "Nombre",
     "saved": "Cambios guardados",
     "deleted": "Eliminado",
-    "created": "Creado"
+    "created": "Creado",
+    "expand": "Expandir",
+    "collapse": "Contraer"
   },
   "nav": {
     "home": "Inicio",
@@ -249,6 +251,7 @@
       "frequency": "Frecuencia",
       "reminderTime": "Hora del recordatorio",
       "enableReminder": "Activar recordatorio",
+      "permissionDenied": "Permiso de notificación denegado. El recordatorio ha sido desactivado.",
       "reminderDay": "Día del recordatorio",
       "dayOfMonth": "El {{day}}",
       "firstDay": "Primer día del mes",

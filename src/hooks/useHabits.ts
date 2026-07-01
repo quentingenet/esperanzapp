@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { getAllHabits, createHabit as dbCreateHabit, deleteHabit as dbDeleteHabit } from "@/db";
 import { useHabitsStore } from "@/store/habitsStore";
-import { diffInDays } from "@/utils";
+import { diffInDays, todayLocalDate } from "@/utils";
 import type { Habit } from "@/types";
 
 export function useHabits() {
@@ -40,7 +40,7 @@ export function useHabits() {
     (habitId: string): number => {
       const habit = habits.find((h) => h.id === habitId);
       if (!habit) return 0;
-      return diffInDays(habit.startDate, new Date().toISOString().slice(0, 10));
+      return diffInDays(habit.startDate, todayLocalDate());
     },
     [habits],
   );

@@ -21,7 +21,9 @@
     "name": "Name",
     "saved": "Änderungen gespeichert",
     "deleted": "Gelöscht",
-    "created": "Erstellt"
+    "created": "Erstellt",
+    "expand": "Ausklappen",
+    "collapse": "Einklappen"
   },
   "nav": {
     "home": "Start",
@@ -249,6 +251,7 @@
       "frequency": "Häufigkeit",
       "reminderTime": "Erinnerungszeit",
       "enableReminder": "Erinnerung aktivieren",
+      "permissionDenied": "Benachrichtigungsberechtigung verweigert. Die Erinnerung wurde deaktiviert.",
       "reminderDay": "Erinnerungstag",
       "dayOfMonth": "Am {{day}}.",
       "firstDay": "Erster Tag des Monats",

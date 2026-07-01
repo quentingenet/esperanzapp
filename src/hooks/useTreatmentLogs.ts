@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { createTreatmentLog, getTreatmentLogsByTreatmentId, upsertTreatmentLogForDate } from "@/db";
+import { getTreatmentLogsByTreatmentId, upsertTreatmentLogForDate } from "@/db";
 import { useTreatmentsStore } from "@/store/treatmentsStore";
 import type { TreatmentLog, TreatmentStatus } from "@/types";
 
@@ -8,9 +8,9 @@ export function useTreatmentLogs() {
 
   const logStatus = useCallback(
     async (data: Omit<TreatmentLog, "id">): Promise<TreatmentLog> => {
-      const created = await createTreatmentLog(data);
-      addLog(created);
-      return created;
+      const log = await upsertTreatmentLogForDate(data.treatmentId, data.scheduledAt, data.status);
+      addLog(log);
+      return log;
     },
     [addLog],
   );

@@ -16,6 +16,69 @@ export function isTreatmentStatus(v: string): v is TreatmentStatus {
 
 export const EXPORT_VERSION = "1" as const;
 
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_RE = /^\d{2}:\d{2}$/;
+
+function isStr(v: unknown): v is string { return typeof v === "string" && v.length > 0; }
+
+function isDate(v: unknown): v is string {
+  if (typeof v !== "string" || !DATE_RE.test(v)) return false;
+  const [y, m, d] = v.split("-").map(Number) as [number, number, number];
+  const dt = new Date(y, m - 1, d);
+  return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
+}
+
+function isTime(v: unknown): v is string {
+  if (typeof v !== "string" || !TIME_RE.test(v)) return false;
+  const [h, min] = v.split(":").map(Number) as [number, number];
+  return h >= 0 && h <= 23 && min >= 0 && min <= 59;
+}
+
+function validateHabit(v: unknown): Habit {
+  if (typeof v !== "object" || v === null) throw new Error("habits: not an object");
+  const h = v as Record<string, unknown>;
+  if (!isStr(h.id) || !isStr(h.label) || !isStr(h.icon) || !isStr(h.color) || !isStr(h.bgColor) || !isDate(h.startDate) || !isStr(h.createdAt))
+    throw new Error("habits: missing or invalid fields");
+  return h as unknown as Habit;
+}
+
+function validateHabitLog(v: unknown): HabitLog {
+  if (typeof v !== "object" || v === null) throw new Error("habitLogs: not an object");
+  const l = v as Record<string, unknown>;
+  if (!isStr(l.id) || !isStr(l.habitId) || !isDate(l.eventDate))
+    throw new Error("habitLogs: missing or invalid fields");
+  if (!isStr(l.eventType) || !isEventType(l.eventType))
+    throw new Error(`habitLogs: invalid eventType "${String(l.eventType)}"`);
+  return l as unknown as HabitLog;
+}
+
+function validateTreatment(v: unknown): Treatment {
+  if (typeof v !== "object" || v === null) throw new Error("treatments: not an object");
+  const t = v as Record<string, unknown>;
+  if (!isStr(t.id) || !isStr(t.label) || !isStr(t.createdAt))
+    throw new Error("treatments: missing required string fields");
+  if (!isStr(t.frequency) || !isFrequency(t.frequency))
+    throw new Error(`treatments: invalid frequency "${String(t.frequency)}"`);
+  if (!isTime(t.reminderTime))
+    throw new Error("treatments: invalid reminderTime");
+  if (typeof t.reminderEnabled !== "boolean")
+    throw new Error("treatments: reminderEnabled must be boolean");
+  const day = t.reminderDay;
+  if (day !== null && (typeof day !== "number" || !Number.isInteger(day) || day < 0 || day > 31))
+    throw new Error("treatments: invalid reminderDay");
+  return t as unknown as Treatment;
+}
+
+function validateTreatmentLog(v: unknown): TreatmentLog {
+  if (typeof v !== "object" || v === null) throw new Error("treatmentLogs: not an object");
+  const l = v as Record<string, unknown>;
+  if (!isStr(l.id) || !isStr(l.treatmentId) || !isDate(l.scheduledAt))
+    throw new Error("treatmentLogs: missing or invalid fields");
+  if (!isStr(l.status) || !isTreatmentStatus(l.status))
+    throw new Error(`treatmentLogs: invalid status "${String(l.status)}"`);
+  return l as unknown as TreatmentLog;
+}
+
 export type ExportPayload = {
   version: typeof EXPORT_VERSION;
   exportedAt: string;
@@ -62,15 +125,29 @@ export function buildExportPayload(
 
 export function parseExportPayload(raw: string): ExportPayload {
   const parsed: unknown = JSON.parse(raw);
+  if (typeof parsed !== "object" || parsed === null) {
+    throw new Error("Unsupported or invalid export format");
+  }
+  const p = parsed as Record<string, unknown>;
+  if (p["version"] !== EXPORT_VERSION) {
+    throw new Error("Unsupported or invalid export format");
+  }
   if (
-    typeof parsed !== "object" ||
-    parsed === null ||
-    !("version" in parsed) ||
-    (parsed as Record<string, unknown>).version !== EXPORT_VERSION
+    !Array.isArray(p["habits"]) ||
+    !Array.isArray(p["habitLogs"]) ||
+    !Array.isArray(p["treatments"]) ||
+    !Array.isArray(p["treatmentLogs"])
   ) {
     throw new Error("Unsupported or invalid export format");
   }
-  return parsed as ExportPayload;
+  return {
+    version: EXPORT_VERSION,
+    exportedAt: typeof p["exportedAt"] === "string" ? p["exportedAt"] : "",
+    habits: (p["habits"] as unknown[]).map((v) => validateHabit(v)),
+    habitLogs: (p["habitLogs"] as unknown[]).map((v) => validateHabitLog(v)),
+    treatments: (p["treatments"] as unknown[]).map((v) => validateTreatment(v)),
+    treatmentLogs: (p["treatmentLogs"] as unknown[]).map((v) => validateTreatmentLog(v)),
+  };
 }
 
 export function payloadToCSV(payload: ExportPayload): string {
@@ -133,6 +210,13 @@ export function parseCSVPayload(raw: string): ExportPayload {
       if (values.length === cols.length) rows.push(values);
     }
     return rows;
+  }
+
+  const hasContent = lines.some((l) => l.length > 0);
+  if (!hasContent) throw new Error("Empty CSV file");
+  const hasAnySectionHeader = ["HABITS", "HABIT_LOGS", "TREATMENTS", "TREATMENT_LOGS"].some((h) => lines.includes(h));
+  if (!hasAnySectionHeader) {
+    throw new Error("Unsupported or invalid CSV format");
   }
 
   const habitRows = parseSection("HABITS");

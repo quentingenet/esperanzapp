@@ -26,6 +26,7 @@ describe("useNotifications", () => {
     vi.mocked(LocalNotifications.cancel).mockClear();
     vi.mocked(LocalNotifications.getPending).mockClear();
     vi.mocked(LocalNotifications.requestPermissions).mockClear();
+    vi.mocked(LocalNotifications.checkPermissions).mockClear();
   });
 
   it("requestPermission returns true when granted", async () => {
@@ -127,5 +128,36 @@ describe("useNotifications", () => {
     });
     expect(LocalNotifications.cancel).toHaveBeenCalledTimes(1);
     expect(LocalNotifications.schedule).toHaveBeenCalledTimes(1);
+  });
+
+  it("scheduleReminder returns 'scheduled' when permission is granted", async () => {
+    const { result } = renderHook(() => useNotifications());
+    let status: string | undefined;
+    await act(async () => {
+      status = await result.current.scheduleReminder(treatment);
+    });
+    expect(status).toBe("scheduled");
+  });
+
+  it("scheduleReminder returns 'permission-denied' when permission is denied", async () => {
+    vi.mocked(LocalNotifications.checkPermissions).mockResolvedValueOnce({ display: "denied" });
+    const { result } = renderHook(() => useNotifications());
+    let status: string | undefined;
+    await act(async () => {
+      status = await result.current.scheduleReminder(treatment);
+    });
+    expect(status).toBe("permission-denied");
+    expect(LocalNotifications.schedule).not.toHaveBeenCalled();
+  });
+
+  it("scheduleReminder returns 'disabled' when reminderEnabled is false", async () => {
+    const disabled: Treatment = { ...treatment, reminderEnabled: false };
+    const { result } = renderHook(() => useNotifications());
+    let status: string | undefined;
+    await act(async () => {
+      status = await result.current.scheduleReminder(disabled);
+    });
+    expect(status).toBe("disabled");
+    expect(LocalNotifications.schedule).not.toHaveBeenCalled();
   });
 });

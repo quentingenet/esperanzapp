@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import { addDays, format, parseISO } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { EmptyState, GradeBadge, PageHeader } from "@/components/shared";
 import { useHabits, useHabitLogs } from "@/hooks";
 import { GRADES } from "@/utils/grades";
+import { todayLocalDate } from "@/utils";
 import type { HabitStats } from "@/types";
 
 export function Milestones() {
@@ -24,7 +26,7 @@ export function Milestones() {
     void load();
   }, [habits, getStats]);
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayLocalDate();
 
   return (
     <Box sx={{ pb: "calc(96px + max(env(safe-area-inset-bottom), 28px))" }}>
@@ -42,14 +44,10 @@ export function Milestones() {
               {GRADES.map((grade) => {
                 const unlocked = streak >= grade.days;
                 const daysLeft = grade.days - streak;
-                const unlockDateStr = (() => {
-                  const d = new Date(today);
-                  d.setDate(d.getDate() - streak + grade.days);
-                  return d.toISOString().slice(0, 10);
-                })();
+                const unlockDateStr = format(addDays(parseISO(today), grade.days - streak), "yyyy-MM-dd");
                 return (
                   <Box key={grade.days} sx={{ display: "flex", alignItems: "center", gap: 1.5, py: 0.75, opacity: unlocked ? 1 : 0.45 }}>
-                    <Typography sx={{ fontSize: "1.4rem", width: 32 }}>{grade.emoji}</Typography>
+                    <Typography aria-hidden="true" sx={{ fontSize: "1.4rem", width: 32 }}>{grade.emoji}</Typography>
                     <Box sx={{ flex: 1 }}>
                       <Typography variant="body2" sx={{ fontWeight: unlocked ? 600 : 400, color: unlocked ? grade.color : "text.disabled" }}>
                         {t(grade.labelKey)}

@@ -167,6 +167,8 @@ export interface TreatmentCardProps {
   onLog: (status: TreatmentStatus) => void;
   onDelete: () => void;
   onEdit: () => void;
+  isExpanded: boolean;
+  onToggle: () => void;
 }
 
 export interface TreatmentFormProps {
@@ -177,5 +179,6 @@ export interface TreatmentCalendarProps {
   treatmentId: string;
   frequency: Frequency;
   reminderDay: number | null;
+  createdAt: string;
   onLogDate?: (date: string, status: TreatmentStatus) => Promise<void>;
 }

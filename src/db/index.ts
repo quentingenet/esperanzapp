@@ -1,4 +1,4 @@
-export { initDatabase, closeDatabase, getDb } from "./client";
+export { initDatabase, closeDatabase, getDb, runInTransaction } from "./client";
 export { runSchema } from "./schema";
 export * from "./habits";
 export * from "./habitLogs";

@@ -1,15 +1,36 @@
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
+import { Capacitor } from "@capacitor/core";
 import { AppToast, BottomNav } from "@/components/shared";
 import { LanguageSelector, PrivacyModal, OnboardingSlider, UserNameInput } from "@/components/onboarding";
 import { Home, Milestones, Treatments, History, Settings } from "@/pages";
-import { useOnboarding } from "@/hooks";
+import { useOnboarding, useNotifications } from "@/hooks";
+import { getAllTreatments } from "@/db";
 import { theme } from "@/theme";
 import type { SupportedLocale } from "@/i18n";
 import type { NavTab } from "@/types";
+
+function RebootRescheduler() {
+  const { scheduleReminder } = useNotifications();
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    void (async () => {
+      try {
+        const treatments = await getAllTreatments();
+        for (const t of treatments.filter((tr) => tr.reminderEnabled)) {
+          await scheduleReminder(t);
+        }
+      } catch {
+        // silently ignore — notifications are best-effort at reboot
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
+}
 
 function AppContent() {
   const { currentStep, acceptPrivacy, advanceLanguage, completeTutorial, saveName } = useOnboarding();
@@ -55,6 +76,7 @@ function AppContent() {
 
   return (
     <Box sx={{ minHeight: "100dvh", bgcolor: "background.default" }}>
+      <RebootRescheduler />
       {pages[activeTab]}
       <Box sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }}>
         <BottomNav activeTab={activeTab} onChange={setActiveTab} />

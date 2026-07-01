@@ -21,7 +21,9 @@
     "name": "Prénom",
     "saved": "Modifications enregistrées",
     "deleted": "Supprimé",
-    "created": "Créé"
+    "created": "Créé",
+    "expand": "Développer",
+    "collapse": "Réduire"
   },
   "nav": {
     "home": "Accueil",
@@ -249,6 +251,7 @@
       "frequency": "Fréquence",
       "reminderTime": "Heure du rappel",
       "enableReminder": "Activer le rappel",
+      "permissionDenied": "Permission de notification refusée. Le rappel a été désactivé.",
       "reminderDay": "Jour du rappel",
       "dayOfMonth": "Le {{day}}",
       "firstDay": "Premier jour du mois",

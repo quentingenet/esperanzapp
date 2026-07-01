@@ -1,4 +1,5 @@
-import type { Treatment, Frequency } from "@/types";
+import type { Treatment } from "@/types";
+import { isFrequency } from "@/utils";
 import { withDb, withDbVoid } from "./client";
 
 type TreatmentRow = {
@@ -12,10 +13,11 @@ type TreatmentRow = {
 };
 
 function rowToTreatment(row: TreatmentRow): Treatment {
+  if (!isFrequency(row.frequency)) throw new Error(`Invalid frequency in DB: ${row.frequency}`);
   return {
     id: String(row.id),
     label: row.label,
-    frequency: row.frequency as Frequency,
+    frequency: row.frequency,
     reminderTime: row.reminder_time,
     reminderEnabled: row.reminder_enabled !== 0,
     reminderDay: row.reminder_day ?? null,

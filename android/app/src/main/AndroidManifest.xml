@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
@@ -34,4 +35,8 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- Remove biometric permissions injected by capacitor-local-notifications (unused) -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" tools:node="remove" />
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" tools:node="remove" />
 </manifest>

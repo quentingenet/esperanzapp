@@ -5,6 +5,10 @@ export function diffInDays(from: string, to: string): number {
   return differenceInCalendarDays(parseISO(to), parseISO(from));
 }
 
+export function todayLocalDate(): string {
+  return format(new Date(), "yyyy-MM-dd");
+}
+
 export function formatDate(date: string, locale: Locale): string {
   return format(parseISO(date), "PPP", { locale });
 }

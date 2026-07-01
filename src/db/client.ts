@@ -42,6 +42,18 @@ export function getDb(): SQLiteDBConnection {
   return db;
 }
 
+export async function runInTransaction(fn: () => Promise<void>): Promise<void> {
+  if (!db) { await fn(); return; }
+  await db.execute("BEGIN TRANSACTION");
+  try {
+    await fn();
+    await db.execute("COMMIT");
+  } catch (e) {
+    await db.execute("ROLLBACK").catch(() => {});
+    throw e;
+  }
+}
+
 export async function closeDatabase(): Promise<void> {
   if (!db) return;
   await db.close();

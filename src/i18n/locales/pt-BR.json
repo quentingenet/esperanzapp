@@ -21,7 +21,9 @@
     "name": "Nome",
     "saved": "Alterações salvas",
     "deleted": "Excluído",
-    "created": "Criado"
+    "created": "Criado",
+    "expand": "Expandir",
+    "collapse": "Recolher"
   },
   "nav": {
     "home": "Início",
@@ -249,6 +251,7 @@
       "frequency": "Frequência",
       "reminderTime": "Horário do lembrete",
       "enableReminder": "Ativar lembrete",
+      "permissionDenied": "Permissão de notificação negada. O lembrete foi desativado.",
       "reminderDay": "Dia do lembrete",
       "dayOfMonth": "Dia {{day}}",
       "firstDay": "Primeiro dia do mês",

@@ -4,7 +4,8 @@ import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import { EmptyState, PageHeader } from "@/components/shared";
-import { useHabits, useHabitLogs } from "@/hooks";
+import { useHabits } from "@/hooks";
+import { getAllHabitLogs } from "@/db";
 import { COLORS } from "@/theme/tokens";
 import type { HabitLog } from "@/types";
 
@@ -19,20 +20,19 @@ const EVENT_COLORS = { start: COLORS.eventStart, relapse: COLORS.eventRelapse } 
 export function History() {
   const { t } = useTranslation();
   const { habits, loadHabits } = useHabits();
-  const { getLogsByHabit } = useHabitLogs();
   const [items, setItems] = useState<HistoryItem[]>([]);
 
   useEffect(() => { void loadHabits(); }, [loadHabits]);
 
   useEffect(() => {
     async function load() {
-      const all: HistoryItem[] = [];
-      for (const h of habits) {
-        const logs = await getLogsByHabit(h.id);
-        for (const log of logs) {
-          all.push({ ...log, habitLabel: h.label, habitColor: h.color });
-        }
-      }
+      const allLogs = await getAllHabitLogs();
+      const habitMap = new Map(habits.map((h) => [h.id, h]));
+      const all: HistoryItem[] = allLogs.flatMap((log) => {
+        const habit = habitMap.get(log.habitId);
+        if (!habit) return [];
+        return [{ ...log, habitLabel: habit.label, habitColor: habit.color }];
+      });
       all.sort((a, b) => b.eventDate.localeCompare(a.eventDate));
 
       // Merge relapse+start pairs on the same date into a single entry
@@ -49,7 +49,7 @@ export function History() {
       setItems(merged);
     }
     void load();
-  }, [habits, getLogsByHabit]);
+  }, [habits]);
 
   return (
     <Box sx={{ pb: "calc(96px + max(env(safe-area-inset-bottom), 28px))" }}>

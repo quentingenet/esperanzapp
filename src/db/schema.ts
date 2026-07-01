@@ -53,4 +53,17 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
   } catch {
     // column already exists
   }
+  try {
+    // Remove duplicate logs before adding unique constraint (keep oldest per treatment+date)
+    await db.execute(`
+      DELETE FROM treatment_logs WHERE id NOT IN (
+        SELECT MIN(id) FROM treatment_logs GROUP BY treatment_id, scheduled_at
+      )
+    `);
+    await db.execute(
+      "CREATE UNIQUE INDEX IF NOT EXISTS idx_treatment_logs_unique ON treatment_logs(treatment_id, scheduled_at)",
+    );
+  } catch {
+    // index already exists or migration already applied
+  }
 }

@@ -21,7 +21,9 @@
     "name": "Name",
     "saved": "Changes saved",
     "deleted": "Deleted",
-    "created": "Created"
+    "created": "Created",
+    "expand": "Expand",
+    "collapse": "Collapse"
   },
   "nav": {
     "home": "Home",
@@ -249,6 +251,7 @@
       "frequency": "Frequency",
       "reminderTime": "Reminder time",
       "enableReminder": "Enable reminder",
+      "permissionDenied": "Notification permission denied. The reminder has been disabled.",
       "reminderDay": "Reminder day",
       "dayOfMonth": "The {{day}}",
       "firstDay": "First day of the month",

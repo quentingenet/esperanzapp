@@ -21,7 +21,9 @@
     "name": "Naam",
     "saved": "Wijzigingen opgeslagen",
     "deleted": "Verwijderd",
-    "created": "Aangemaakt"
+    "created": "Aangemaakt",
+    "expand": "Uitklappen",
+    "collapse": "Inklappen"
   },
   "nav": {
     "home": "Home",
@@ -249,6 +251,7 @@
       "frequency": "Frequentie",
       "reminderTime": "Herinneringstijd",
       "enableReminder": "Herinnering inschakelen",
+      "permissionDenied": "Meldingsmachtiging geweigerd. De herinnering is uitgeschakeld.",
       "reminderDay": "Dag van herinnering",
       "dayOfMonth": "De {{day}}e",
       "firstDay": "Eerste dag van de maand",

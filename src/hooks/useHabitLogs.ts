@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { createHabitLog, getHabitLogsByHabitId } from "@/db";
-import { diffInDays } from "@/utils";
+import { diffInDays, todayLocalDate } from "@/utils";
 import type { HabitLog, HabitStats } from "@/types";
 
 export function useHabitLogs() {
@@ -17,7 +17,7 @@ export function useHabitLogs() {
   const getStats = useCallback(async (habitId: string): Promise<HabitStats> => {
     const logs = await getHabitLogsByHabitId(habitId);
     const sorted = [...logs].sort((a, b) => a.eventDate.localeCompare(b.eventDate));
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayLocalDate();
 
     let currentStreak = 0;
     let longestStreak = 0;

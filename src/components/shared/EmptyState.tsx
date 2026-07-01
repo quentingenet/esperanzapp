@@ -18,7 +18,7 @@ export function EmptyState({ emoji, message, ctaLabel, onCta }: EmptyStateProps)
       }}
     >
       {emoji && (
-        <Typography sx={{ fontSize: "3rem", lineHeight: 1 }}>{emoji}</Typography>
+        <Typography aria-hidden="true" sx={{ fontSize: "3rem", lineHeight: 1 }}>{emoji}</Typography>
       )}
       <Typography color="text.secondary" sx={{ fontSize: "1rem", maxWidth: 280 }}>
         {message}
