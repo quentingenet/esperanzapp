@@ -299,7 +299,9 @@
     "editName": "Mijn naam wijzigen",
     "privacyWarningTitle": "Deze gegevens zijn persoonlijk en gevoelig",
     "privacyWarningBody": "Het geëxporteerde bestand bevat gezondheidsgegevens. Eenmaal opgeslagen in Downloads kan het toegankelijk zijn voor andere apps of mensen met toegang tot dit toestel.",
-    "saveConfirmBody": "Het bestand wordt opgeslagen in de map Documenten van de app op uw telefoon (toegankelijk via de bestandsbeheerder)."
+    "saveConfirmBody": "Het bestand wordt opgeslagen in de map Documenten van de app op uw telefoon (toegankelijk via de bestandsbeheerder).",
+    "filesystemError": "Kan het bestand niet opslaan. Controleer de opslagruimte.",
+    "documentsUnavailable": "Opslaan in Documenten mislukt. Gebruik Delen in plaats daarvan."
   },
   "settings": {
     "title": "Instellingen",
@@ -346,5 +348,9 @@
   },
   "notifications": {
     "genericReminder": "Vergeet je behandeling niet"
+  },
+  "startup": {
+    "dbErrorTitle": "Opstartfout",
+    "dbErrorBody": "De database kon niet worden geïnitialiseerd. Herstart de app."
   }
 }

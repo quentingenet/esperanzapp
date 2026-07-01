@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useNotifications } from "./useNotifications";
+import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import type { Treatment } from "@/types";
 
@@ -18,10 +19,12 @@ describe("useNotifications", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2024-01-15T06:00:00.000Z"));
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
     vi.mocked(LocalNotifications.schedule).mockClear();
     vi.mocked(LocalNotifications.cancel).mockClear();
     vi.mocked(LocalNotifications.getPending).mockClear();
@@ -159,5 +162,27 @@ describe("useNotifications", () => {
     });
     expect(status).toBe("disabled");
     expect(LocalNotifications.schedule).not.toHaveBeenCalled();
+  });
+
+  it("scheduleReminder returns 'disabled' on non-native platform", async () => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
+    const { result } = renderHook(() => useNotifications());
+    let status: string | undefined;
+    await act(async () => {
+      status = await result.current.scheduleReminder(treatment);
+    });
+    expect(status).toBe("disabled");
+    expect(LocalNotifications.schedule).not.toHaveBeenCalled();
+  });
+
+  it("requestPermission returns false on non-native platform", async () => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
+    const { result } = renderHook(() => useNotifications());
+    let granted: boolean | undefined;
+    await act(async () => {
+      granted = await result.current.requestPermission();
+    });
+    expect(granted).toBe(false);
+    expect(LocalNotifications.requestPermissions).not.toHaveBeenCalled();
   });
 });

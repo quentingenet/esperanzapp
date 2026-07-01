@@ -21,6 +21,9 @@ export function useHabits() {
 
   const addHabit = useCallback(
     async (data: Omit<Habit, "id">): Promise<Habit> => {
+      if (data.startDate > todayLocalDate()) {
+        throw new Error("startDate cannot be in the future");
+      }
       const created = await dbCreateHabit(data);
       storeAdd(created);
       return created;
@@ -40,7 +43,7 @@ export function useHabits() {
     (habitId: string): number => {
       const habit = habits.find((h) => h.id === habitId);
       if (!habit) return 0;
-      return diffInDays(habit.startDate, todayLocalDate());
+      return Math.max(0, diffInDays(habit.startDate, todayLocalDate()));
     },
     [habits],
   );

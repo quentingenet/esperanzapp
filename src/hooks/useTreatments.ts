@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { useShallow } from "zustand/shallow";
 import {
   getAllTreatments,
   createTreatment as dbCreateTreatment,
@@ -10,7 +11,15 @@ import type { Treatment } from "@/types";
 
 export function useTreatments() {
   const { treatments, loading, setTreatments, addTreatment: storeAdd, removeTreatment } =
-    useTreatmentsStore();
+    useTreatmentsStore(
+      useShallow((s) => ({
+        treatments: s.treatments,
+        loading: s.loading,
+        setTreatments: s.setTreatments,
+        addTreatment: s.addTreatment,
+        removeTreatment: s.removeTreatment,
+      })),
+    );
 
   const loadTreatments = useCallback(async () => {
     useTreatmentsStore.setState({ loading: true });
@@ -34,6 +43,7 @@ export function useTreatments() {
   const editTreatment = useCallback(
     async (id: string, data: Pick<Treatment, "label" | "reminderTime" | "reminderEnabled" | "reminderDay">): Promise<void> => {
       await dbUpdateTreatment(id, data);
+      useTreatmentsStore.getState().updateTreatment(id, data);
     },
     [],
   );

@@ -20,13 +20,16 @@ export function DataExportSection() {
   const [saveConfirmOpen, setSaveConfirmOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [useCSVExport, setUseCSVExport] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importType, setImportType] = useState<"json" | "csv">("json");
   const [warnOpen, setWarnOpen] = useState(false);
 
   const handleShare = () => {
-    void (useCSVExport ? exportCSV() : exportJSON());
+    void (useCSVExport ? exportCSV() : exportJSON()).then((outcome) => {
+      if (outcome === "filesystem-error") toast.error(t("export.filesystemError"));
+    });
     setExportOpen(false);
   };
 
@@ -36,10 +39,11 @@ export function DataExportSection() {
   };
 
   const confirmSave = async () => {
-    const ok = await (useCSVExport ? saveCSV() : saveJSON());
+    const outcome = await (useCSVExport ? saveCSV() : saveJSON());
     setSaveConfirmOpen(false);
-    if (ok) toast.success(t("export.saveSuccess"));
-    else toast.error(t("export.error"));
+    if (outcome === "ok") toast.success(t("export.saveSuccess"));
+    else if (outcome === "documents-unavailable") toast.error(t("export.documentsUnavailable"));
+    else toast.error(t("export.filesystemError"));
   };
 
   const triggerImportFile = () => {
@@ -60,10 +64,12 @@ export function DataExportSection() {
   };
 
   const confirmImport = () => {
-    if (!importFile) return;
+    if (!importFile || isImporting) return;
+    setIsImporting(true);
     void (importType === "json" ? importJSON(importFile) : importCSV(importFile))
       .then(() => { toast.success(t("export.importSuccess")); })
-      .catch(() => { toast.error(t("common.error")); });
+      .catch(() => { toast.error(t("common.error")); })
+      .finally(() => { setIsImporting(false); });
     setWarnOpen(false);
     setImportFile(null);
   };
@@ -74,7 +80,7 @@ export function DataExportSection() {
         <Button variant="outlined" onClick={() => { setExportOpen(true); }} sx={{ minHeight: 52, minWidth: 130 }}>
           {t("export.exportBtn")}
         </Button>
-        <Button variant="outlined" onClick={() => { setImportOpen(true); }} sx={{ minHeight: 52, minWidth: 130 }}>
+        <Button variant="outlined" disabled={isImporting} onClick={() => { setImportOpen(true); }} sx={{ minHeight: 52, minWidth: 130 }}>
           {t("export.importBtn")}
         </Button>
       </Box>
@@ -126,7 +132,7 @@ export function DataExportSection() {
         <DialogContent><Typography>{t("export.importWarningBody")}</Typography></DialogContent>
         <DialogActions>
           <Button onClick={() => { setWarnOpen(false); }}>{t("common.cancel")}</Button>
-          <Button variant="outlined" color="warning" onClick={confirmImport}>{t("export.importConfirm")}</Button>
+          <Button variant="outlined" color="warning" disabled={isImporting} onClick={confirmImport}>{t("export.importConfirm")}</Button>
         </DialogActions>
       </Dialog>
     </>

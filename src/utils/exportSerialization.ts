@@ -207,16 +207,23 @@ export function parseCSVPayload(raw: string): ExportPayload {
     for (let i = start + 2; i < lines.length; i++) {
       if (!lines[i]) break;
       const values = parseCSVRow(lines[i]);
-      if (values.length === cols.length) rows.push(values);
+      if (values.length !== cols.length)
+        throw new Error(`CSV malformed row in ${header}: column count mismatch`);
+      rows.push(values);
     }
     return rows;
   }
 
   const hasContent = lines.some((l) => l.length > 0);
   if (!hasContent) throw new Error("Empty CSV file");
-  const hasAnySectionHeader = ["HABITS", "HABIT_LOGS", "TREATMENTS", "TREATMENT_LOGS"].some((h) => lines.includes(h));
-  if (!hasAnySectionHeader) {
+
+  const ALL_SECTIONS = ["HABITS", "HABIT_LOGS", "TREATMENTS", "TREATMENT_LOGS"] as const;
+  const missingSections = ALL_SECTIONS.filter((h) => !lines.includes(h));
+  if (missingSections.length === ALL_SECTIONS.length) {
     throw new Error("Unsupported or invalid CSV format");
+  }
+  if (missingSections.length > 0) {
+    throw new Error(`CSV missing required section(s): ${missingSections.join(", ")}`);
   }
 
   const habitRows = parseSection("HABITS");
@@ -224,24 +231,39 @@ export function parseCSVPayload(raw: string): ExportPayload {
   const treatmentRows = parseSection("TREATMENTS");
   const treatmentLogRows = parseSection("TREATMENT_LOGS");
 
-  const habits: Habit[] = habitRows.map(([id, label, icon, color, bgColor, startDate, createdAt]) => ({
-    id, label, icon, color, bgColor, startDate, createdAt,
-  }));
-
-  const habitLogs: HabitLog[] = logRows.flatMap(([id, habitId, eventType, eventDate]) => {
-    if (!isEventType(eventType)) return [];
-    return [{ id, habitId, eventType, eventDate }];
+  const habits: Habit[] = habitRows.map(([id, label, icon, color, bgColor, startDate, createdAt]) => {
+    if (!isStr(id) || !isStr(label) || !isStr(icon) || !isStr(color) || !isStr(bgColor) || !isDate(startDate) || !isStr(createdAt))
+      throw new Error("habits: missing or invalid fields");
+    return { id, label, icon, color, bgColor, startDate, createdAt };
   });
 
-  const treatments: Treatment[] = treatmentRows.flatMap(([id, label, frequency, reminderTime, reminderEnabledStr, reminderDayStr, createdAt]) => {
-    if (!isFrequency(frequency)) return [];
+  const habitLogs: HabitLog[] = logRows.map(([id, habitId, eventType, eventDate]) => {
+    if (!isStr(id) || !isStr(habitId) || !isDate(eventDate))
+      throw new Error("habitLogs: missing or invalid fields");
+    if (!isStr(eventType) || !isEventType(eventType))
+      throw new Error(`habitLogs: invalid eventType "${eventType}"`);
+    return { id, habitId, eventType, eventDate };
+  });
+
+  const treatments: Treatment[] = treatmentRows.map(([id, label, frequency, reminderTime, reminderEnabledStr, reminderDayStr, createdAt]) => {
+    if (!isStr(id) || !isStr(label) || !isStr(createdAt))
+      throw new Error("treatments: missing required string fields");
+    if (!isStr(frequency) || !isFrequency(frequency))
+      throw new Error(`treatments: invalid frequency "${frequency}"`);
+    if (!isTime(reminderTime))
+      throw new Error("treatments: invalid reminderTime");
     const reminderDay = reminderDayStr !== "" ? Number(reminderDayStr) : null;
-    return [{ id, label, frequency, reminderTime, reminderEnabled: reminderEnabledStr !== "0", reminderDay, createdAt }];
+    if (reminderDay !== null && (!Number.isInteger(reminderDay) || reminderDay < 0 || reminderDay > 31))
+      throw new Error("treatments: invalid reminderDay");
+    return { id, label, frequency, reminderTime, reminderEnabled: reminderEnabledStr !== "0", reminderDay, createdAt };
   });
 
-  const treatmentLogs: TreatmentLog[] = treatmentLogRows.flatMap(([id, treatmentId, scheduledAt, status]) => {
-    if (!isTreatmentStatus(status)) return [];
-    return [{ id, treatmentId, scheduledAt, status }];
+  const treatmentLogs: TreatmentLog[] = treatmentLogRows.map(([id, treatmentId, scheduledAt, status]) => {
+    if (!isStr(id) || !isStr(treatmentId) || !isDate(scheduledAt))
+      throw new Error("treatmentLogs: missing or invalid fields");
+    if (!isStr(status) || !isTreatmentStatus(status))
+      throw new Error(`treatmentLogs: invalid status "${status}"`);
+    return { id, treatmentId, scheduledAt, status };
   });
 
   return { version: EXPORT_VERSION, exportedAt: "", habits, habitLogs, treatments, treatmentLogs };

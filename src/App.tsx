@@ -24,7 +24,7 @@ function RebootRescheduler() {
           await scheduleReminder(t);
         }
       } catch {
-        // silently ignore — notifications are best-effort at reboot
+        // silently ignore notifications are best-effort at reboot
       }
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps

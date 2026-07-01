@@ -61,4 +61,44 @@ describe("treatmentsStore", () => {
     useTreatmentsStore.getState().addLog({ ...log1, id: "2" });
     expect(useTreatmentsStore.getState().logs).toHaveLength(2);
   });
+
+  it("updateTreatment updates matching treatment in place", () => {
+    useTreatmentsStore.getState().setTreatments([t1, t2]);
+    useTreatmentsStore.getState().updateTreatment("1", { label: "Updated" });
+    const { treatments } = useTreatmentsStore.getState();
+    expect(treatments[0]?.label).toBe("Updated");
+    expect(treatments[1]?.label).toBe("Metformin");
+  });
+
+  it("updateTreatment is a no-op for unknown id", () => {
+    useTreatmentsStore.getState().setTreatments([t1]);
+    useTreatmentsStore.getState().updateTreatment("999", { label: "Ghost" });
+    expect(useTreatmentsStore.getState().treatments[0]?.label).toBe("Sertraline");
+  });
+
+  it("upsertLog replaces existing log with same treatmentId + scheduledAt", () => {
+    const logA: TreatmentLog = { id: "1", treatmentId: "1", scheduledAt: "2024-01-15", status: "taken" };
+    const logB: TreatmentLog = { id: "2", treatmentId: "1", scheduledAt: "2024-01-15", status: "missed" };
+    useTreatmentsStore.getState().upsertLog(logA);
+    useTreatmentsStore.getState().upsertLog(logB);
+    const { logs } = useTreatmentsStore.getState();
+    expect(logs).toHaveLength(1);
+    expect(logs[0]?.status).toBe("missed");
+  });
+
+  it("upsertLog appends when treatmentId+scheduledAt differs", () => {
+    const logA: TreatmentLog = { id: "1", treatmentId: "1", scheduledAt: "2024-01-15", status: "taken" };
+    const logB: TreatmentLog = { id: "2", treatmentId: "1", scheduledAt: "2024-01-16", status: "missed" };
+    useTreatmentsStore.getState().upsertLog(logA);
+    useTreatmentsStore.getState().upsertLog(logB);
+    expect(useTreatmentsStore.getState().logs).toHaveLength(2);
+  });
+
+  it("upsertLog appends for different treatments on same date", () => {
+    const logA: TreatmentLog = { id: "1", treatmentId: "1", scheduledAt: "2024-01-15", status: "taken" };
+    const logB: TreatmentLog = { id: "2", treatmentId: "2", scheduledAt: "2024-01-15", status: "missed" };
+    useTreatmentsStore.getState().upsertLog(logA);
+    useTreatmentsStore.getState().upsertLog(logB);
+    expect(useTreatmentsStore.getState().logs).toHaveLength(2);
+  });
 });

@@ -118,5 +118,65 @@ describe("useHabitLogs", () => {
       });
       expect(stats).toMatchObject({ currentStreak: 0, totalRelapses: 0, startDate: "" });
     });
+
+    it("relapse same day as start: currentStreak = 0", async () => {
+      vi.mocked(getHabitLogsByHabitId).mockResolvedValue([
+        startLog("2024-01-01"),
+        relapseLog("2024-01-15"),
+        startLog("2024-01-15"),
+      ]);
+      const { result } = renderHook(() => useHabitLogs());
+      let stats;
+      await act(async () => {
+        stats = await result.current.getStats("1");
+      });
+      expect(stats).toMatchObject({ currentStreak: 0, totalRelapses: 1 });
+    });
+
+    it("relapse same day as new start: streak = 1 the next day", async () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2024-01-16T12:00:00.000Z"));
+      vi.mocked(getHabitLogsByHabitId).mockResolvedValue([
+        startLog("2024-01-01"),
+        relapseLog("2024-01-15"),
+        startLog("2024-01-15"),
+      ]);
+      const { result } = renderHook(() => useHabitLogs());
+      let stats;
+      await act(async () => {
+        stats = await result.current.getStats("1");
+      });
+      expect(stats).toMatchObject({ currentStreak: 1, totalRelapses: 1 });
+      vi.useRealTimers();
+    });
+
+    it("currentStreak is never negative", async () => {
+      vi.mocked(getHabitLogsByHabitId).mockResolvedValue([startLog("2024-01-01")]);
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2023-12-01T12:00:00.000Z"));
+      const { result } = renderHook(() => useHabitLogs());
+      let stats;
+      await act(async () => {
+        stats = await result.current.getStats("1");
+      });
+      expect((stats as unknown as { currentStreak: number }).currentStreak).toBeGreaterThanOrEqual(0);
+      vi.useRealTimers();
+    });
+
+    it("multiple relapses: correct streak after last one", async () => {
+      vi.mocked(getHabitLogsByHabitId).mockResolvedValue([
+        startLog("2024-01-01"),
+        relapseLog("2024-01-05"),
+        startLog("2024-01-06"),
+        relapseLog("2024-01-10"),
+        startLog("2024-01-10"),
+      ]);
+      const { result } = renderHook(() => useHabitLogs());
+      let stats;
+      await act(async () => {
+        stats = await result.current.getStats("1");
+      });
+      expect(stats).toMatchObject({ currentStreak: 5, totalRelapses: 2 });
+    });
   });
 });

@@ -299,7 +299,9 @@
     "editName": "Meinen Namen ändern",
     "privacyWarningTitle": "Diese Daten sind persönlich und sensibel",
     "privacyWarningBody": "Die exportierte Datei enthält Gesundheitsdaten. Einmal in den Downloads gespeichert, kann sie für andere Apps oder Personen mit Zugriff auf dieses Gerät zugänglich sein.",
-    "saveConfirmBody": "Die Datei wird im Ordner Dokumente der App auf Ihrem Telefon gespeichert (erreichbar über den Datei-Manager)."
+    "saveConfirmBody": "Die Datei wird im Ordner Dokumente der App auf Ihrem Telefon gespeichert (erreichbar über den Datei-Manager).",
+    "filesystemError": "Datei konnte nicht geschrieben werden. Speicher prüfen.",
+    "documentsUnavailable": "Speichern in Dokumente fehlgeschlagen. Bitte Teilen verwenden."
   },
   "settings": {
     "title": "Einstellungen",
@@ -346,5 +348,9 @@
   },
   "notifications": {
     "genericReminder": "Vergiss nicht deine Behandlung"
+  },
+  "startup": {
+    "dbErrorTitle": "Startfehler",
+    "dbErrorBody": "Die Datenbank konnte nicht initialisiert werden. Bitte starte die App neu."
   }
 }

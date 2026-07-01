@@ -7,6 +7,7 @@ import {
   getAllTreatmentLogs,
   deleteTreatmentLog,
   deleteTreatmentLogsByTreatmentId,
+  upsertTreatmentLogForDate,
 } from "./treatmentLogs";
 
 const mockDb = { run: vi.fn(), query: vi.fn() };
@@ -88,6 +89,36 @@ describe("deleteTreatmentLogsByTreatmentId", () => {
     expect(mockDb.run).toHaveBeenCalledWith(
       "DELETE FROM treatment_logs WHERE treatment_id = ?",
       ["3"],
+    );
+  });
+});
+
+describe("upsertTreatmentLogForDate", () => {
+  it("uses atomic ON CONFLICT upsert and returns the row", async () => {
+    mockDb.run.mockResolvedValue({});
+    mockDb.query.mockResolvedValue({ values: [ROW] });
+    const result = await upsertTreatmentLogForDate("3", "2024-06-01", "taken");
+    expect(result).toEqual(LOG);
+    expect(mockDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("ON CONFLICT"),
+      ["3", "2024-06-01", "taken"],
+    );
+    expect(mockDb.run).toHaveBeenCalledTimes(1);
+  });
+
+  it("reads back the row after upsert (single query)", async () => {
+    mockDb.run.mockResolvedValue({});
+    mockDb.query.mockResolvedValue({ values: [{ ...ROW, status: "missed" }] });
+    const result = await upsertTreatmentLogForDate("3", "2024-06-01", "missed");
+    expect(result.status).toBe("missed");
+    expect(mockDb.query).toHaveBeenCalledTimes(1);
+  });
+
+  it("throws when row not found after upsert", async () => {
+    mockDb.run.mockResolvedValue({});
+    mockDb.query.mockResolvedValue({ values: [] });
+    await expect(upsertTreatmentLogForDate("3", "2024-06-01", "taken")).rejects.toThrow(
+      "Failed to upsert treatment log",
     );
   });
 });

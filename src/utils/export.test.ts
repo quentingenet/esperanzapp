@@ -201,10 +201,10 @@ describe("parseCSVPayload", () => {
     expect(parsed.treatments[0]?.reminderEnabled).toBe(false);
   });
 
-  it("returns empty arrays when a section is absent but other sections exist", () => {
-    const parsed = parseCSVPayload("HABITS\nid,label,icon,color,bgColor,startDate,createdAt\n");
-    expect(parsed.habitLogs).toEqual([]);
-    expect(parsed.treatments).toEqual([]);
+  it("throws when one or more sections are missing from the CSV", () => {
+    expect(() =>
+      parseCSVPayload("HABITS\nid,label,icon,color,bgColor,startDate,createdAt\n"),
+    ).toThrow(/CSV missing required section/);
   });
 
   it("throws on non-empty content with no recognised section headers", () => {
@@ -215,10 +215,50 @@ describe("parseCSVPayload", () => {
     expect(() => parseCSVPayload("")).toThrow("Empty CSV file");
   });
 
-  it("ignores rows with wrong column count", () => {
+  it("throws on row with wrong column count", () => {
     const csv = "HABITS\nid,label,icon,color,bgColor,startDate,createdAt\n1,OnlyTwoFields\n";
-    const parsed = parseCSVPayload(csv);
-    expect(parsed.habits).toHaveLength(0);
+    expect(() => parseCSVPayload(csv)).toThrow();
+  });
+
+  // Helpers: section headers used to satisfy the "all 4 required" validation
+  const H = "HABITS\nid,label,icon,color,bgColor,startDate,createdAt";
+  const HL = "HABIT_LOGS\nid,habitId,eventType,eventDate";
+  const TR = "TREATMENTS\nid,label,frequency,reminderTime,reminderEnabled,reminderDay,createdAt";
+  const TL = "TREATMENT_LOGS\nid,treatmentId,scheduledAt,status";
+
+  it("throws on invalid startDate in HABITS", () => {
+    const csv = `HABITS\nid,label,icon,color,bgColor,startDate,createdAt\n1,Alcool,icon,#fff,#eee,not-a-date,2024-01-01T00:00:00Z\n\n${HL}\n\n${TR}\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow("habits: missing or invalid fields");
+  });
+
+  it("throws on invalid eventType in HABIT_LOGS", () => {
+    const csv = `${H}\n\nHABIT_LOGS\nid,habitId,eventType,eventDate\n1,1,unknown,2024-01-01\n\n${TR}\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow();
+  });
+
+  it("throws on invalid eventDate in HABIT_LOGS", () => {
+    const csv = `${H}\n\nHABIT_LOGS\nid,habitId,eventType,eventDate\n1,1,start,not-a-date\n\n${TR}\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow();
+  });
+
+  it("throws on invalid frequency in TREATMENTS", () => {
+    const csv = `${H}\n\n${HL}\n\nTREATMENTS\nid,label,frequency,reminderTime,reminderEnabled,reminderDay,createdAt\n1,Med,quarterly,08:00,1,,2024-01-01T00:00:00Z\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow();
+  });
+
+  it("throws on invalid reminderTime in TREATMENTS", () => {
+    const csv = `${H}\n\n${HL}\n\nTREATMENTS\nid,label,frequency,reminderTime,reminderEnabled,reminderDay,createdAt\n1,Med,daily,25:99,1,,2024-01-01T00:00:00Z\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow();
+  });
+
+  it("throws on invalid status in TREATMENT_LOGS", () => {
+    const csv = `${H}\n\n${HL}\n\n${TR}\n\nTREATMENT_LOGS\nid,treatmentId,scheduledAt,status\n1,1,2024-01-01,unknown\n`;
+    expect(() => parseCSVPayload(csv)).toThrow();
+  });
+
+  it("throws on invalid scheduledAt in TREATMENT_LOGS", () => {
+    const csv = `${H}\n\n${HL}\n\n${TR}\n\nTREATMENT_LOGS\nid,treatmentId,scheduledAt,status\n1,1,not-a-date,taken\n`;
+    expect(() => parseCSVPayload(csv)).toThrow();
   });
 });
 
@@ -364,13 +404,18 @@ describe("importFromJSON", () => {
     );
   });
 
-  it("skips habit logs with unknown habitId", async () => {
-    const { createHabitLog } = await import("@/db");
+  it("throws on orphan habitLog referencing unknown habitId", async () => {
     const orphanLog: HabitLog = { ...mockHabitLog, habitId: "999" };
     const payload = buildExportPayload([mockHabit], [orphanLog], [], [], "2024-01-01T00:00:00.000Z");
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
-    await importFromJSON(file);
-    expect(createHabitLog).not.toHaveBeenCalled();
+    await expect(importFromJSON(file)).rejects.toThrow(/references unknown habitId/);
+  });
+
+  it("throws on orphan treatmentLog referencing unknown treatmentId", async () => {
+    const orphanLog: TreatmentLog = { ...mockTreatmentLog, treatmentId: "999" };
+    const payload = buildExportPayload([], [], [mockTreatment], [orphanLog], "2024-01-01T00:00:00.000Z");
+    const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
+    await expect(importFromJSON(file)).rejects.toThrow(/references unknown treatmentId/);
   });
 
   it("throws on invalid JSON file", async () => {

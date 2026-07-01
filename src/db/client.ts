@@ -11,7 +11,7 @@ export async function initDatabase(): Promise<void> {
 
   if (Capacitor.getPlatform() === "web") {
     // jeep-sqlite WASM fails to link in browser dev (v2.8.0 packaging bug).
-    // App renders with empty state — use `npx cap run android` for full testing.
+    // App renders with empty state use `npx cap run android` for full testing.
     return;
   }
 
@@ -42,16 +42,24 @@ export function getDb(): SQLiteDBConnection {
   return db;
 }
 
-export async function runInTransaction(fn: () => Promise<void>): Promise<void> {
-  if (!db) { await fn(); return; }
-  await db.execute("BEGIN TRANSACTION");
-  try {
-    await fn();
-    await db.execute("COMMIT");
-  } catch (e) {
-    await db.execute("ROLLBACK").catch(() => {});
-    throw e;
-  }
+let txQueue: Promise<unknown> = Promise.resolve();
+
+export function runInTransaction(fn: () => Promise<void>): Promise<void> {
+  if (!db) return fn();
+  const capturedDb = db; // capture before async boundary db may be nulled by closeDatabase
+  const run = async (): Promise<void> => {
+    await capturedDb.execute("BEGIN TRANSACTION");
+    try {
+      await fn();
+      await capturedDb.execute("COMMIT");
+    } catch (e) {
+      await capturedDb.execute("ROLLBACK").catch(() => {});
+      throw e;
+    }
+  };
+  const chained = txQueue.then(run);
+  txQueue = chained.catch(() => {}); // keep queue alive even if transaction fails
+  return chained;
 }
 
 export async function closeDatabase(): Promise<void> {

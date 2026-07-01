@@ -299,7 +299,9 @@
     "editName": "Modifica il mio nome",
     "privacyWarningTitle": "Questi dati sono personali e sensibili",
     "privacyWarningBody": "Il file esportato contiene informazioni sulla salute. Una volta salvato nei Download, potrebbe essere accessibile da altre applicazioni o persone con accesso a questo dispositivo.",
-    "saveConfirmBody": "Il file verrà salvato nella cartella Documenti dell'app sul tuo telefono (accessibile tramite il gestore file)."
+    "saveConfirmBody": "Il file verrà salvato nella cartella Documenti dell'app sul tuo telefono (accessibile tramite il gestore file).",
+    "filesystemError": "Impossibile salvare il file. Controlla lo spazio di archiviazione.",
+    "documentsUnavailable": "Impossibile salvare in Documenti. Usa Condividi invece."
   },
   "settings": {
     "title": "Impostazioni",
@@ -346,5 +348,9 @@
   },
   "notifications": {
     "genericReminder": "Non dimenticare il tuo trattamento"
+  },
+  "startup": {
+    "dbErrorTitle": "Errore di avvio",
+    "dbErrorBody": "Il database non ha potuto essere inizializzato. Riavvia l'applicazione."
   }
 }

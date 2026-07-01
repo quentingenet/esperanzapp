@@ -299,7 +299,9 @@
     "editName": "Edit my name",
     "privacyWarningTitle": "This data is personal and sensitive",
     "privacyWarningBody": "The exported file contains health information. Once saved to Downloads, it may be accessible by other applications or anyone with access to this device.",
-    "saveConfirmBody": "The file will be saved to the app's Documents folder on your phone (accessible via the file manager)."
+    "saveConfirmBody": "The file will be saved to the app's Documents folder on your phone (accessible via the file manager).",
+    "filesystemError": "Unable to write file. Check your device storage.",
+    "documentsUnavailable": "Could not save to Documents. Try using Share instead."
   },
   "settings": {
     "title": "Settings",
@@ -346,5 +348,9 @@
   },
   "notifications": {
     "genericReminder": "Don't forget your treatment"
+  },
+  "startup": {
+    "dbErrorTitle": "Startup error",
+    "dbErrorBody": "The database could not be initialized. Please restart the app."
   }
 }

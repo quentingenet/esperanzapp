@@ -16,7 +16,12 @@ export function useHabitLogs() {
 
   const getStats = useCallback(async (habitId: string): Promise<HabitStats> => {
     const logs = await getHabitLogsByHabitId(habitId);
-    const sorted = [...logs].sort((a, b) => a.eventDate.localeCompare(b.eventDate));
+    const EVENT_ORDER: Record<string, number> = { relapse: 0, start: 1 };
+    const sorted = [...logs].sort((a, b) => {
+      const dateDiff = a.eventDate.localeCompare(b.eventDate);
+      if (dateDiff !== 0) return dateDiff;
+      return (EVENT_ORDER[a.eventType] ?? 0) - (EVENT_ORDER[b.eventType] ?? 0);
+    });
     const today = todayLocalDate();
 
     let currentStreak = 0;
@@ -43,7 +48,7 @@ export function useHabitLogs() {
     }
 
     if (streakStart) {
-      currentStreak = diffInDays(streakStart, today);
+      currentStreak = Math.max(0, diffInDays(streakStart, today));
       if (currentStreak > longestStreak) longestStreak = currentStreak;
       streaks.push(currentStreak);
     }

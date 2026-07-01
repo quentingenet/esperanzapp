@@ -17,8 +17,9 @@ import {
   exportTimestamp,
 } from "../utils/exportSerialization";
 import { shareFile, saveToFolder } from "./shareService";
+import type { ShareOutcome, SaveOutcome } from "./shareService";
 
-export async function exportToJSON(): Promise<boolean> {
+export async function exportToJSON(): Promise<ShareOutcome> {
   const [habits, habitLogs, treatments, treatmentLogs] = await Promise.all([
     getAllHabits(),
     getAllHabitLogs(),
@@ -36,7 +37,7 @@ export async function exportToJSON(): Promise<boolean> {
   );
 }
 
-export async function exportToCSV(): Promise<boolean> {
+export async function exportToCSV(): Promise<ShareOutcome> {
   const [habits, habitLogs, treatments, treatmentLogs] = await Promise.all([
     getAllHabits(),
     getAllHabitLogs(),
@@ -54,7 +55,7 @@ export async function exportToCSV(): Promise<boolean> {
   );
 }
 
-export async function saveJSONToFolder(): Promise<boolean> {
+export async function saveJSONToFolder(): Promise<SaveOutcome> {
   const [habits, habitLogs, treatments, treatmentLogs] = await Promise.all([
     getAllHabits(),
     getAllHabitLogs(),
@@ -72,7 +73,7 @@ export async function saveJSONToFolder(): Promise<boolean> {
   );
 }
 
-export async function saveCSVToFolder(): Promise<boolean> {
+export async function saveCSVToFolder(): Promise<SaveOutcome> {
   const [habits, habitLogs, treatments, treatmentLogs] = await Promise.all([
     getAllHabits(),
     getAllHabitLogs(),
@@ -88,9 +89,23 @@ export async function saveCSVToFolder(): Promise<boolean> {
     payloadToCSV(payload),
     "text/csv",
   );
+}
+
+function validateNoOrphans(payload: ReturnType<typeof parseExportPayload>): void {
+  const habitIds = new Set(payload.habits.map((h) => h.id));
+  for (const log of payload.habitLogs) {
+    if (!habitIds.has(log.habitId))
+      throw new Error(`import: habitLog "${log.id}" references unknown habitId "${log.habitId}"`);
+  }
+  const treatmentIds = new Set(payload.treatments.map((t) => t.id));
+  for (const log of payload.treatmentLogs) {
+    if (!treatmentIds.has(log.treatmentId))
+      throw new Error(`import: treatmentLog "${log.id}" references unknown treatmentId "${log.treatmentId}"`);
+  }
 }
 
 async function importPayload(payload: ReturnType<typeof parseExportPayload>): Promise<void> {
+  validateNoOrphans(payload);
   await runInTransaction(async () => {
     const habitIdMap = new Map<string, string>();
     for (const { id: oldId, ...data } of payload.habits) {
@@ -99,7 +114,7 @@ async function importPayload(payload: ReturnType<typeof parseExportPayload>): Pr
     }
     for (const { id: _id, habitId, ...data } of payload.habitLogs) {
       const newHabitId = habitIdMap.get(habitId);
-      if (!newHabitId) continue;
+      if (!newHabitId) throw new Error(`import: unexpected missing mapping for habitId "${habitId}"`);
       await createHabitLog({ ...data, habitId: newHabitId });
     }
     const treatmentIdMap = new Map<string, string>();
@@ -109,7 +124,7 @@ async function importPayload(payload: ReturnType<typeof parseExportPayload>): Pr
     }
     for (const { id: _id, treatmentId, ...data } of payload.treatmentLogs) {
       const newTreatmentId = treatmentIdMap.get(treatmentId);
-      if (!newTreatmentId) continue;
+      if (!newTreatmentId) throw new Error(`import: unexpected missing mapping for treatmentId "${treatmentId}"`);
       await createTreatmentLog({ ...data, treatmentId: newTreatmentId });
     }
   });

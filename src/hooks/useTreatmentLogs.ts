@@ -4,23 +4,23 @@ import { useTreatmentsStore } from "@/store/treatmentsStore";
 import type { TreatmentLog, TreatmentStatus } from "@/types";
 
 export function useTreatmentLogs() {
-  const { addLog } = useTreatmentsStore();
+  const upsertLog = useTreatmentsStore((s) => s.upsertLog);
 
   const logStatus = useCallback(
     async (data: Omit<TreatmentLog, "id">): Promise<TreatmentLog> => {
       const log = await upsertTreatmentLogForDate(data.treatmentId, data.scheduledAt, data.status);
-      addLog(log);
+      upsertLog(log);
       return log;
     },
-    [addLog],
+    [upsertLog],
   );
 
   const logStatusForDate = useCallback(
     async (treatmentId: string, date: string, status: TreatmentStatus): Promise<void> => {
       const log = await upsertTreatmentLogForDate(treatmentId, date, status);
-      addLog(log);
+      upsertLog(log);
     },
-    [addLog],
+    [upsertLog],
   );
 
   const getLogsByTreatment = useCallback(

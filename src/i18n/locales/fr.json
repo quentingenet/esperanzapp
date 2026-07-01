@@ -299,7 +299,9 @@
     "editName": "Modifier mon prénom",
     "privacyWarningTitle": "Ces données sont personnelles et sensibles",
     "privacyWarningBody": "Le fichier exporté contient des informations personnelles. Une fois enregistré sur votre téléphone il peut être accessible par d'autres applications ou personnes ayant accès à ce téléphone.",
-    "saveConfirmBody": "Le fichier sera enregistré dans le dossier Documents de l'application sur votre téléphone (accessible via l'explorateur de fichiers)."
+    "saveConfirmBody": "Le fichier sera enregistré dans le dossier Documents de l'application sur votre téléphone (accessible via l'explorateur de fichiers).",
+    "filesystemError": "Impossible d'écrire le fichier. Vérifiez l'espace de stockage.",
+    "documentsUnavailable": "Impossible d'enregistrer dans Documents. Utilisez Partager à la place."
   },
   "settings": {
     "title": "Paramètres",
@@ -346,5 +348,9 @@
   },
   "notifications": {
     "genericReminder": "N'oublie pas ton traitement"
+  },
+  "startup": {
+    "dbErrorTitle": "Erreur de démarrage",
+    "dbErrorBody": "La base de données n'a pas pu être initialisée. Veuillez redémarrer l'application."
   }
 }

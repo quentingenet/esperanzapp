@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Capacitor } from "@capacitor/core";
 import "@/i18n";
 import App from "./App";
+import { DbErrorScreen } from "./components/shared/DbErrorScreen";
 import { initDatabase } from "@/db/client";
 
 async function bootstrap() {
@@ -11,24 +12,15 @@ async function bootstrap() {
     await initDatabase();
   } catch {
     if (Capacitor.isNativePlatform()) dbFailed = true;
-    // on web: expected — SQLite WASM not available in browser dev
+    // on web: SQLite WASM not available in browser dev — expected
   }
 
   const root = document.getElementById("root");
   if (!root) throw new Error("Root element not found");
 
-  if (dbFailed) {
-    root.innerHTML =
-      '<div style="padding:32px;font-family:sans-serif;text-align:center">' +
-      "<h2>⚠️ Erreur de démarrage</h2>" +
-      "<p>La base de données n'a pas pu être initialisée.<br>Veuillez redémarrer l'application.</p>" +
-      "</div>";
-    return;
-  }
-
   createRoot(root).render(
     <StrictMode>
-      <App />
+      {dbFailed ? <DbErrorScreen /> : <App />}
     </StrictMode>,
   );
 }

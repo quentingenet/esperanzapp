@@ -14,10 +14,10 @@ vi.mock("@/services", () => ({
 
 describe("useExport", () => {
   beforeEach(() => {
-    vi.mocked(exportToJSON).mockResolvedValue(true);
-    vi.mocked(exportToCSV).mockResolvedValue(true);
-    vi.mocked(saveJSONToFolder).mockResolvedValue(true);
-    vi.mocked(saveCSVToFolder).mockResolvedValue(true);
+    vi.mocked(exportToJSON).mockResolvedValue("ok");
+    vi.mocked(exportToCSV).mockResolvedValue("ok");
+    vi.mocked(saveJSONToFolder).mockResolvedValue("ok");
+    vi.mocked(saveCSVToFolder).mockResolvedValue("ok");
     vi.mocked(importFromJSON).mockResolvedValue(undefined);
     vi.mocked(importFromCSV).mockResolvedValue(undefined);
   });

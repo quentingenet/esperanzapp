@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import ButtonBase from "@mui/material/ButtonBase";
+import Collapse from "@mui/material/Collapse";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -12,7 +13,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { PickerDay } from "@mui/x-date-pickers/PickerDay";
 import type { PickerDayProps } from "@mui/x-date-pickers/PickerDay";
-import { format, isAfter, isBefore, parseISO, startOfDay, subDays, subWeeks, subMonths } from "date-fns";
+import { format, isAfter, isBefore, parseISO, startOfDay, subDays, subWeeks, subMonths, subYears } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { useCalendar, useDateLocale } from "@/hooks";
 import { COLORS } from "@/theme/tokens";
@@ -77,6 +78,7 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, created
   const dateLocale = useDateLocale();
   const [statusMap, setStatusMap] = useState<Record<string, TreatmentStatus>>({});
   const [dialogDate, setDialogDate] = useState<Date | null>(null);
+  const [showAllOccurrences, setShowAllOccurrences] = useState(false);
 
   const refreshMap = useCallback(() => {
     void getTreatmentStatusMap(treatmentId).then(setStatusMap);
@@ -103,15 +105,26 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, created
     return getPastOccurrences(frequency, reminderDay, createdAt);
   }, [frequency, reminderDay, createdAt]);
 
+  const WINDOW_YEARS = 1;
+  const visibleOccurrences = useMemo(() => {
+    if (showAllOccurrences) return occurrences;
+    const cutoff = subYears(startOfDay(new Date()), WINDOW_YEARS);
+    return occurrences.filter((d) => !isBefore(d, cutoff));
+  }, [occurrences, showAllOccurrences]);
+
   const CustomDay = useCallback((props: PickerDayProps) => {
     const dateStr = format(props.day, "yyyy-MM-dd");
     const status = statusMap[dateStr];
     const color = STATUS_COLORS[status];
     const icon = STATUS_ICONS[status];
     const bg = STATUS_BG[status];
+    const hasStatus = STATUS_COLORS[status] !== undefined;
+    const statusLabel = hasStatus ? t(`treatments.${status}`) : undefined;
+    const dayLabel = format(props.day, "PP", { locale: dateLocale });
+    const ariaLabel = statusLabel !== undefined ? `${dayLabel} — ${statusLabel}` : dayLabel;
     return (
       <Box sx={{ position: "relative", borderRadius: "50%", bgcolor: bg ?? "transparent" }}>
-        <PickerDay {...props} />
+        <PickerDay {...props} aria-label={ariaLabel} />
         {icon !== undefined && color !== undefined && (
           <Box aria-hidden="true" sx={{ position: "absolute", bottom: 1, right: 1, fontSize: "9px", lineHeight: 1 }}>
             {icon}
@@ -119,7 +132,7 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, created
         )}
       </Box>
     );
-  }, [statusMap]);
+  }, [statusMap, t, dateLocale]);
 
   const statusDialog = (
     <Dialog open={dialogDate !== null} onClose={() => { setDialogDate(null); }} maxWidth="xs" fullWidth>
@@ -156,22 +169,26 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, created
   );
 
   if (frequency !== "daily") {
+    const hiddenCount = occurrences.length - visibleOccurrences.length;
     return (
       <Box>
         <Box sx={{ maxHeight: 320, overflow: "auto", px: 1, pt: 1 }}>
-          {occurrences.map((date) => {
+          {visibleOccurrences.map((date) => {
             const dateStr = format(date, "yyyy-MM-dd");
             const status = statusMap[dateStr];
             const color = STATUS_COLORS[status];
             const icon = STATUS_ICONS[status];
             const bg = STATUS_BG[status];
+            const formattedDate = format(date, "P", { locale: dateLocale });
+            const hasStatus = STATUS_COLORS[status] !== undefined;
+            const statusLabel = hasStatus ? t(`treatments.${status}`) : t("treatments.pending");
             return (
               <ButtonBase
                 key={dateStr}
                 component="div"
                 onClick={() => { handleDaySelect(date); }}
                 disabled={!onLogDate}
-                aria-label={format(date, "P", { locale: dateLocale })}
+                aria-label={`${formattedDate} — ${statusLabel}`}
                 sx={{
                   display: "flex",
                   alignItems: "center",
@@ -185,9 +202,7 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, created
                   "&:hover": onLogDate ? { opacity: 0.75 } : {},
                 }}
               >
-                <Typography variant="body2">
-                  {format(date, "P", { locale: dateLocale })}
-                </Typography>
+                <Typography variant="body2">{formattedDate}</Typography>
                 {color !== undefined && (
                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                     <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: color }} />
@@ -198,6 +213,22 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, created
             );
           })}
         </Box>
+        {hiddenCount > 0 && (
+          <Collapse in={!showAllOccurrences}>
+            <Box sx={{ textAlign: "center", pt: 0.5 }}>
+              <Button size="small" onClick={() => { setShowAllOccurrences(true); }}>
+                {"+ "}{hiddenCount}
+              </Button>
+            </Box>
+          </Collapse>
+        )}
+        {showAllOccurrences && hiddenCount > 0 && (
+          <Box sx={{ textAlign: "center", pt: 0.5 }}>
+            <Button size="small" onClick={() => { setShowAllOccurrences(false); }}>
+              {t("common.collapse")}
+            </Button>
+          </Box>
+        )}
         <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap", mt: 1, mb: 0.5 }}>
           {LEGEND.map(({ status, labelKey }) => {
             const color = STATUS_COLORS[status];

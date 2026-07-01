@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import i18n from "@/i18n";
 import type { Frequency, Treatment } from "@/types";
@@ -60,12 +61,14 @@ function nextOccurrence(
 
 export function useNotifications() {
   const requestPermission = useCallback(async (): Promise<boolean> => {
+    if (!Capacitor.isNativePlatform()) return false;
     const { display } = await LocalNotifications.requestPermissions();
     return display === "granted";
   }, []);
 
   const scheduleReminder = useCallback(
     async (treatment: Treatment, fromTomorrow = false): Promise<"scheduled" | "permission-denied" | "disabled" | "error"> => {
+      if (!Capacitor.isNativePlatform()) return "disabled";
       const id = treatmentToNotifId(treatment.id);
       await LocalNotifications.cancel({ notifications: [{ id }] }).catch(() => {});
       if (!treatment.reminderEnabled) return "disabled";
@@ -95,6 +98,7 @@ export function useNotifications() {
   );
 
   const cancelReminder = useCallback(async (treatmentId: string): Promise<void> => {
+    if (!Capacitor.isNativePlatform()) return;
     await LocalNotifications.cancel({
       notifications: [{ id: treatmentToNotifId(treatmentId) }],
     });
@@ -102,6 +106,7 @@ export function useNotifications() {
 
   const rescheduleAll = useCallback(
     async (treatments: Treatment[]): Promise<void> => {
+      if (!Capacitor.isNativePlatform()) return;
       const { notifications: pending } = await LocalNotifications.getPending();
       if (pending.length > 0) {
         await LocalNotifications.cancel({ notifications: pending.map((n) => ({ id: n.id })) });

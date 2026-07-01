@@ -100,6 +100,54 @@ describe("useHabits", () => {
     vi.useRealTimers();
   });
 
+  it("getDayCount never returns a negative value (future startDate in DB)", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2024-01-01T12:00:00.000Z"));
+    const futureHabit = { ...habit, startDate: "2024-12-31" };
+    useHabitsStore.setState({ habits: [futureHabit] });
+    const { result } = renderHook(() => useHabits());
+    expect(result.current.getDayCount("1")).toBe(0);
+    vi.useRealTimers();
+  });
+
+  it("addHabit rejects a future startDate", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2024-01-15T12:00:00.000Z"));
+    vi.mocked(createHabit).mockClear();
+    const { result } = renderHook(() => useHabits());
+    await expect(
+      act(async () => {
+        await result.current.addHabit({ ...habitData, startDate: "2024-12-31" });
+      }),
+    ).rejects.toThrow("startDate cannot be in the future");
+    expect(createHabit).not.toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
+  it("addHabit accepts today's date", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2024-01-01T12:00:00.000Z"));
+    vi.mocked(createHabit).mockClear();
+    const { result } = renderHook(() => useHabits());
+    await act(async () => {
+      await result.current.addHabit({ ...habitData, startDate: "2024-01-01" });
+    });
+    expect(createHabit).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+
+  it("addHabit accepts a past date", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2024-01-15T12:00:00.000Z"));
+    vi.mocked(createHabit).mockClear();
+    const { result } = renderHook(() => useHabits());
+    await act(async () => {
+      await result.current.addHabit({ ...habitData, startDate: "2024-01-01" });
+    });
+    expect(createHabit).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+
   afterEach(() => {
     vi.useRealTimers();
   });

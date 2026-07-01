@@ -30,7 +30,7 @@ export default tseslint.config(
         { varsIgnorePattern: "^_", argsIgnorePattern: "^_", ignoreRestSiblings: true },
       ],
       "no-console": "error",
-      // Zustand `=> set(...)` returns void — pattern is idiomatic and safe
+      // Zustand `=> set(...)` returns void pattern is idiomatic and safe
       "@typescript-eslint/no-confusing-void-expression": "off",
       // Async functions used for consistent API surface even without internal await
       "@typescript-eslint/require-await": "off",

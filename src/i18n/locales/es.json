@@ -299,7 +299,9 @@
     "editName": "Editar mi nombre",
     "privacyWarningTitle": "Estos datos son personales y sensibles",
     "privacyWarningBody": "El archivo exportado contiene información de salud. Una vez guardado en Descargas, puede ser accesible por otras aplicaciones o personas con acceso a este dispositivo.",
-    "saveConfirmBody": "El archivo se guardará en la carpeta Documentos de la aplicación en tu teléfono (accesible desde el explorador de archivos)."
+    "saveConfirmBody": "El archivo se guardará en la carpeta Documentos de la aplicación en tu teléfono (accesible desde el explorador de archivos).",
+    "filesystemError": "No se pudo guardar el archivo. Comprueba el almacenamiento.",
+    "documentsUnavailable": "No se pudo guardar en Documentos. Usa Compartir en su lugar."
   },
   "settings": {
     "title": "Ajustes",
@@ -346,5 +348,9 @@
   },
   "notifications": {
     "genericReminder": "No olvides tu tratamiento"
+  },
+  "startup": {
+    "dbErrorTitle": "Error de inicio",
+    "dbErrorBody": "La base de datos no pudo inicializarse. Por favor, reinicia la aplicación."
   }
 }

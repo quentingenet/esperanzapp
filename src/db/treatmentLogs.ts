@@ -78,21 +78,18 @@ export function upsertTreatmentLogForDate(
   status: TreatmentStatus,
 ): Promise<TreatmentLog> {
   return withDb(async (db) => {
-    const existing = await db.query(
+    await db.run(
+      `INSERT INTO treatment_logs (treatment_id, scheduled_at, status)
+       VALUES (?, ?, ?)
+       ON CONFLICT(treatment_id, scheduled_at) DO UPDATE SET status = excluded.status`,
+      [treatmentId, scheduledAt, status],
+    );
+    const result = await db.query(
       "SELECT * FROM treatment_logs WHERE treatment_id = ? AND scheduled_at = ?",
       [treatmentId, scheduledAt],
     );
-    const rows = (existing.values ?? []) as TreatmentLogRow[];
-    if (rows[0]) {
-      await db.run("UPDATE treatment_logs SET status = ? WHERE id = ?", [status, String(rows[0].id)]);
-      return rowToTreatmentLog({ ...rows[0], status });
-    }
-    const result = await db.run(
-      "INSERT INTO treatment_logs (treatment_id, scheduled_at, status) VALUES (?, ?, ?)",
-      [treatmentId, scheduledAt, status],
-    );
-    const lastId = result.changes?.lastId;
-    if (!lastId) throw new Error("Failed to insert treatment log");
-    return { id: String(lastId), treatmentId, scheduledAt, status };
+    const rows = (result.values ?? []) as TreatmentLogRow[];
+    if (!rows[0]) throw new Error("Failed to upsert treatment log");
+    return rowToTreatmentLog(rows[0]);
   }, { id: String(Date.now()), treatmentId, scheduledAt, status });
 }
