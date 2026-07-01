@@ -1,11 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useExport } from "./useExport";
-import { exportToJSON, exportToCSV, importFromJSON, importFromCSV } from "@/services";
+import { exportToJSON, exportToCSV, saveJSONToFolder, saveCSVToFolder, importFromJSON, importFromCSV } from "@/services";
 
 vi.mock("@/services", () => ({
   exportToJSON: vi.fn(),
   exportToCSV: vi.fn(),
+  saveJSONToFolder: vi.fn(),
+  saveCSVToFolder: vi.fn(),
   importFromJSON: vi.fn(),
   importFromCSV: vi.fn(),
 }));
@@ -14,6 +16,8 @@ describe("useExport", () => {
   beforeEach(() => {
     vi.mocked(exportToJSON).mockResolvedValue(true);
     vi.mocked(exportToCSV).mockResolvedValue(true);
+    vi.mocked(saveJSONToFolder).mockResolvedValue(true);
+    vi.mocked(saveCSVToFolder).mockResolvedValue(true);
     vi.mocked(importFromJSON).mockResolvedValue(undefined);
     vi.mocked(importFromCSV).mockResolvedValue(undefined);
   });
@@ -32,6 +36,22 @@ describe("useExport", () => {
       await result.current.exportCSV();
     });
     expect(exportToCSV).toHaveBeenCalledTimes(1);
+  });
+
+  it("saveJSON calls saveJSONToFolder", async () => {
+    const { result } = renderHook(() => useExport());
+    await act(async () => {
+      await result.current.saveJSON();
+    });
+    expect(saveJSONToFolder).toHaveBeenCalledTimes(1);
+  });
+
+  it("saveCSV calls saveCSVToFolder", async () => {
+    const { result } = renderHook(() => useExport());
+    await act(async () => {
+      await result.current.saveCSV();
+    });
+    expect(saveCSVToFolder).toHaveBeenCalledTimes(1);
   });
 
   it("importJSON calls importFromJSON with the file", async () => {

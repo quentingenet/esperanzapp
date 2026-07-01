@@ -29,8 +29,7 @@
     "treatments": "Behandelingen",
     "history": "Geschiedenis",
     "settings": "Instellingen",
-    "milestones": "Etappes",
-    "export": "Export"
+    "milestones": "Etappes"
   },
   "privacy": {
     "title": "Welkom bij EsperanzApp",
@@ -51,7 +50,7 @@
     "steps": {
       "counter": {
         "title": "EsperanzApp, jouw bondgenoot!",
-        "body": "Jezelf bevrijden van een gewoonte bouw je dag voor dag op. Elke dag zonder terugval is een kleine overwinning! EsperanzApp loopt met je mee."
+        "body": "Jezelf bevrijden van een gewoonte bouw je dag voor dag op.\nElke dag zonder terugval is een kleine overwinning!\nEsperanzApp loopt met je mee."
       },
       "relapse": {
         "title": "Een Terugval?",
@@ -167,6 +166,10 @@
       "substances": "Stoffen",
       "behaviours": "Gedragingen",
       "custom": "Aangepast"
+    },
+    "gambling": {
+      "label": "Gokken",
+      "desc": "Casino, sportweddenschappen, online spellen…"
     }
   },
   "grades": {
@@ -278,21 +281,22 @@
   },
   "export": {
     "title": "Gegevens",
-    "exportJSON": "Exporteren als JSON",
-    "exportCSV": "Exporteren als CSV",
-    "importJSON": "Importeren vanuit JSON",
-    "importCSV": "Importeren vanuit CSV",
-    "exportSuccess": "Export geslaagd",
+    "saveSuccess": "Bestand opgeslagen in Documenten",
+    "exportBtn": "Exporteren",
+    "importBtn": "Importeren",
+    "shareBtn": "Delen",
+    "saveBtn": "Opslaan op telefoon",
     "importSuccess": "Import geslaagd",
-    "importWarning": "De import voegt gegevens toe aan de bestaande.",
     "error": "Bewerking mislukt",
     "importWarningTitle": "Waarschuwing",
     "importWarningBody": "De import voegt gegevens toe zonder bestaande te overschrijven. Duplicaten kunnen verschijnen. Bestanden in Downloads zijn leesbaar voor andere apps.",
+    "importFileHint": "Selecteer een .json- of .csv-bestand.\nHet formaat wordt automatisch herkend.",
+    "chooseFileBtn": "Bestand kiezen",
     "importConfirm": "Toch importeren",
     "editName": "Mijn naam wijzigen",
-    "support": "EsperanzApp steunen",
     "privacyWarningTitle": "Deze gegevens zijn persoonlijk en gevoelig",
-    "privacyWarningBody": "Het geëxporteerde bestand bevat gezondheidsgegevens. Eenmaal opgeslagen in Downloads kan het toegankelijk zijn voor andere apps of mensen met toegang tot dit toestel."
+    "privacyWarningBody": "Het geëxporteerde bestand bevat gezondheidsgegevens. Eenmaal opgeslagen in Downloads kan het toegankelijk zijn voor andere apps of mensen met toegang tot dit toestel.",
+    "saveConfirmBody": "Het bestand wordt opgeslagen in de map Documenten van de app op uw telefoon (toegankelijk via de bestandsbeheerder)."
   },
   "settings": {
     "title": "Instellingen",
@@ -319,7 +323,7 @@
     "terms": "Voorwaarden & Privacy",
     "tabs": {
       "settings": "Instellingen",
-      "data": "Gegevens"
+      "data": "Mijn gegevens"
     }
   },
   "milestones": {

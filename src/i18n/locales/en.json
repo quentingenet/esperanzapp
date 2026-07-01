@@ -29,8 +29,7 @@
     "treatments": "Treatments",
     "history": "History",
     "settings": "Settings",
-    "milestones": "Milestones",
-    "export": "Export"
+    "milestones": "Milestones"
   },
   "privacy": {
     "title": "Welcome to EsperanzApp",
@@ -51,7 +50,7 @@
     "steps": {
       "counter": {
         "title": "EsperanzApp, your ally!",
-        "body": "Breaking a habit is built day by day. Every day without a relapse is a small victory! EsperanzApp walks with you."
+        "body": "Breaking a habit is built day by day.\nEvery day without a relapse is a small victory!\nEsperanzApp walks with you."
       },
       "relapse": {
         "title": "A Relapse?",
@@ -167,6 +166,10 @@
       "substances": "Substances",
       "behaviours": "Behaviours",
       "custom": "Custom"
+    },
+    "gambling": {
+      "label": "Gambling",
+      "desc": "Casino, sports betting, online games…"
     }
   },
   "grades": {
@@ -278,21 +281,22 @@
   },
   "export": {
     "title": "Data",
-    "exportJSON": "Export as JSON",
-    "exportCSV": "Export as CSV",
-    "importJSON": "Import from JSON",
-    "importCSV": "Import from CSV",
-    "exportSuccess": "Export successful",
+    "saveSuccess": "File saved to Documents",
+    "exportBtn": "Export",
+    "importBtn": "Import",
+    "shareBtn": "Share",
+    "saveBtn": "Save to phone",
     "importSuccess": "Import successful",
-    "importWarning": "Import will add data to what already exists.",
     "error": "Operation failed",
     "importWarningTitle": "Warning",
     "importWarningBody": "Import will add data without overwriting existing records. Duplicates may appear. Files saved in Downloads can be accessed by other apps.",
+    "importFileHint": "Select a .json or .csv file.\nThe format will be detected automatically.",
+    "chooseFileBtn": "Choose a file",
     "importConfirm": "Import anyway",
     "editName": "Edit my name",
-    "support": "Support EsperanzApp",
     "privacyWarningTitle": "This data is personal and sensitive",
-    "privacyWarningBody": "The exported file contains health information. Once saved to Downloads, it may be accessible by other applications or anyone with access to this device."
+    "privacyWarningBody": "The exported file contains health information. Once saved to Downloads, it may be accessible by other applications or anyone with access to this device.",
+    "saveConfirmBody": "The file will be saved to the app's Documents folder on your phone (accessible via the file manager)."
   },
   "settings": {
     "title": "Settings",
@@ -319,7 +323,7 @@
     "terms": "Terms & Privacy",
     "tabs": {
       "settings": "Settings",
-      "data": "Data"
+      "data": "My data"
     }
   },
   "milestones": {

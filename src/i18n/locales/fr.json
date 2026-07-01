@@ -29,8 +29,7 @@
     "treatments": "Traitements",
     "history": "Historique",
     "settings": "Paramètres",
-    "milestones": "Jalons",
-    "export": "Export"
+    "milestones": "Jalons"
   },
   "privacy": {
     "title": "Bienvenue sur EsperanzApp",
@@ -51,7 +50,7 @@
     "steps": {
       "counter": {
         "title": "EsperanzApp, ton allié !",
-        "body": "Se libérer d'une habitude, ça se construit jour après jour. Chaque jour sans rechute est une petite victoire ! EsperanzApp chemine avec toi."
+        "body": "Se libérer d'une habitude, ça se construit jour après jour.\nChaque jour sans rechute est une petite victoire !\nEsperanzApp chemine avec toi."
       },
       "relapse": {
         "title": "Une Rechute ?",
@@ -160,13 +159,17 @@
       "desc": "Usage excessif des écrans en général"
     },
     "custom": {
-      "label": "Personnalisé",
+      "label": "Personnalisée",
       "desc": "Définis ta propre habitude"
     },
     "groups": {
       "substances": "Substances",
       "behaviours": "Comportements",
-      "custom": "Personnalisé"
+      "custom": "Personnalisée"
+    },
+    "gambling": {
+      "label": "Jeux d'argent",
+      "desc": "Casino, paris sportifs, jeux en ligne…"
     }
   },
   "grades": {
@@ -278,21 +281,22 @@
   },
   "export": {
     "title": "Données",
-    "exportJSON": "Exporter en JSON",
-    "exportCSV": "Exporter en CSV",
-    "importJSON": "Importer depuis JSON",
-    "importCSV": "Importer depuis CSV",
-    "exportSuccess": "Export réussi",
+    "saveSuccess": "Fichier enregistré dans Documents",
+    "exportBtn": "Exporter",
+    "importBtn": "Importer",
+    "shareBtn": "Partager",
+    "saveBtn": "Enregistrer sur le téléphone",
     "importSuccess": "Import réussi",
-    "importWarning": "L'import ajoutera des données à celles existantes.",
     "error": "Erreur lors de l'opération",
     "importWarningTitle": "Attention",
     "importWarningBody": "L'import ajoutera des données sans écraser l'existant. Des doublons peuvent apparaître. Si le fichier est dans Téléchargements, d'autres apps peuvent y accéder.",
+    "importFileHint": "Sélectionne un fichier .json ou .csv.\nLe format sera détecté automatiquement.",
+    "chooseFileBtn": "Choisir un fichier",
     "importConfirm": "Importer quand même",
     "editName": "Modifier mon prénom",
-    "support": "Soutenir EsperanzApp",
     "privacyWarningTitle": "Ces données sont personnelles et sensibles",
-    "privacyWarningBody": "Le fichier exporté contient des informations personnelles. Une fois enregistré sur votre téléphone il peut être accessible par d'autres applications ou personnes ayant accès à ce téléphone."
+    "privacyWarningBody": "Le fichier exporté contient des informations personnelles. Une fois enregistré sur votre téléphone il peut être accessible par d'autres applications ou personnes ayant accès à ce téléphone.",
+    "saveConfirmBody": "Le fichier sera enregistré dans le dossier Documents de l'application sur votre téléphone (accessible via l'explorateur de fichiers)."
   },
   "settings": {
     "title": "Paramètres",
@@ -316,10 +320,10 @@
       "it": "Italiano"
     },
     "replayTutorial": "Revoir le tutoriel",
-    "terms": "Mentions légales & Vie privée",
+    "terms": "Mentions légales & vie privée",
     "tabs": {
       "settings": "Paramètres",
-      "data": "Données"
+      "data": "Mes données"
     }
   },
   "milestones": {

@@ -56,6 +56,22 @@ export function HabitDropdown({ selectedId, customLabel, onSelect, onCustomChang
   return (
     <Box>
       <Typography variant="overline" color="text.secondary" sx={{ px: 1 }}>
+        {t("habitTypes.groups.custom")}
+      </Typography>
+      {CUSTOM_CONFIG && <TypeItem config={CUSTOM_CONFIG} selected={selectedId === "custom"} onSelect={onSelect} />}
+      {selectedId === "custom" && (
+        <Box sx={{ px: 1, mt: 1, mb: 1 }}>
+          <TextField
+            fullWidth
+            autoFocus
+            value={customLabel}
+            onChange={(e) => { onCustomChange(e.target.value); }}
+            placeholder={t("habits.form.namePlaceholder")}
+            slotProps={{ htmlInput: { "aria-label": t("habitTypes.groups.custom"), maxLength: 60 } }}
+          />
+        </Box>
+      )}
+      <Typography variant="overline" color="text.secondary" sx={{ px: 1, mt: 1, display: "block" }}>
         {t("habitTypes.groups.substances")}
       </Typography>
       <List dense disablePadding>
@@ -71,22 +87,6 @@ export function HabitDropdown({ selectedId, customLabel, onSelect, onCustomChang
           <TypeItem key={ht.id} config={ht} selected={selectedId === ht.id} onSelect={onSelect} />
         ))}
       </List>
-      <Typography variant="overline" color="text.secondary" sx={{ px: 1, mt: 1, display: "block" }}>
-        {t("habitTypes.groups.custom")}
-      </Typography>
-      {CUSTOM_CONFIG && <TypeItem config={CUSTOM_CONFIG} selected={selectedId === "custom"} onSelect={onSelect} />}
-      {selectedId === "custom" && (
-        <Box sx={{ px: 1, mt: 1 }}>
-          <TextField
-            fullWidth
-            autoFocus
-            value={customLabel}
-            onChange={(e) => { onCustomChange(e.target.value); }}
-            placeholder={t("habits.form.namePlaceholder")}
-            slotProps={{ htmlInput: { "aria-label": t("habitTypes.groups.custom"), maxLength: 60 } }}
-          />
-        </Box>
-      )}
     </Box>
   );
 }

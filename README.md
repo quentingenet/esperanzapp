@@ -10,7 +10,7 @@
 ![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/quentingenet/esperanzapp/main/assets/logo_app_store.png" alt="EsperanzApp" width="720"/>
+  <img src="https://raw.githubusercontent.com/quentingenet/esperanzapp/main/assets/logo-app-store.png" alt="EsperanzApp" width="720"/>
 </p>
 
 **EsperanzApp** is a free, open-source, and privacy-first mobile application to help you break free from toxic habits and addictions, one day at a time.
@@ -18,10 +18,6 @@
 No account. No server. No tracking. Everything stays on your device.
 
 > *Esperanza* : hope, in Spanish.
-
-<p align="center">
-  <img src="assets/icon.png" alt="EsperanzApp icon" width="120"/>
-</p>
 
 ---
 

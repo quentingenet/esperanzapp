@@ -10,6 +10,8 @@ import {
 import {
   exportToJSON,
   exportToCSV,
+  saveJSONToFolder,
+  saveCSVToFolder,
   importFromJSON,
   importFromCSV,
 } from "../services/exportService";
@@ -249,6 +251,60 @@ describe("exportToCSV", () => {
     await exportToCSV();
     const call = (Filesystem.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][0] as { data: string };
     expect(call.data).toContain("HABITS");
+  });
+});
+
+describe("saveJSONToFolder", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+  });
+  afterEach(() => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
+  });
+
+  it("calls Filesystem.writeFile with Documents directory and .json path", async () => {
+    const { Filesystem, Directory } = await import("@capacitor/filesystem");
+    await saveJSONToFolder();
+    expect(Filesystem.writeFile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: expect.stringMatching(/^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}\.json$/),
+        directory: Directory.Documents,
+      }),
+    );
+  });
+
+  it("does not call Share.share", async () => {
+    const { Share } = await import("@capacitor/share");
+    await saveJSONToFolder();
+    expect(Share.share).not.toHaveBeenCalled();
+  });
+});
+
+describe("saveCSVToFolder", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+  });
+  afterEach(() => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
+  });
+
+  it("calls Filesystem.writeFile with Documents directory and .csv path", async () => {
+    const { Filesystem, Directory } = await import("@capacitor/filesystem");
+    await saveCSVToFolder();
+    expect(Filesystem.writeFile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: expect.stringMatching(/^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}\.csv$/),
+        directory: Directory.Documents,
+      }),
+    );
+  });
+
+  it("does not call Share.share", async () => {
+    const { Share } = await import("@capacitor/share");
+    await saveCSVToFolder();
+    expect(Share.share).not.toHaveBeenCalled();
   });
 });
 

@@ -117,6 +117,8 @@ export function Treatments() {
             {selectedId === tr.id && (
               <TreatmentCalendar
                 treatmentId={tr.id}
+                frequency={tr.frequency}
+                reminderDay={tr.reminderDay}
                 onLogDate={(date, status) => logStatusForDate(tr.id, date, status)}
               />
             )}
@@ -165,7 +167,14 @@ export function Treatments() {
               <TimePicker value={editTime} onChange={setEditTime} label={t("treatments.form.reminderTime")} sx={{ width: "100%", mb: 2 }} />
             )}
             {showEditDaySelect && (
-              <Select fullWidth value={editReminderDay ?? ""} onChange={(e) => { setEditReminderDay(e.target.value as number); }} sx={{ mb: 2 }} displayEmpty>
+              <Select
+                fullWidth
+                value={editReminderDay ?? ""}
+                onChange={(e) => { setEditReminderDay(e.target.value); }}
+                sx={{ mb: 2 }}
+                displayEmpty
+                MenuProps={{ slotProps: { paper: { sx: { maxHeight: "50vh", pb: "env(safe-area-inset-bottom)" } } } }}
+              >
                 <MenuItem value="" disabled>{t("treatments.form.reminderDay")}</MenuItem>
                 {editTarget.frequency === "weekly"
                   ? WEEK_DAYS.map((d) => <MenuItem key={d} value={d}>{weekDayLabel(d, dateLocale)}</MenuItem>)

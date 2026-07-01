@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -11,11 +11,11 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { PickerDay } from "@mui/x-date-pickers/PickerDay";
 import type { PickerDayProps } from "@mui/x-date-pickers/PickerDay";
-import { format, isAfter, startOfDay } from "date-fns";
+import { format, isAfter, startOfDay, subDays, subWeeks, subMonths } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { useCalendar, useDateLocale } from "@/hooks";
 import { COLORS } from "@/theme/tokens";
-import type { TreatmentCalendarProps, TreatmentStatus } from "@/types";
+import type { Frequency, TreatmentCalendarProps, TreatmentStatus } from "@/types";
 
 const STATUS_COLORS: Partial<Record<TreatmentStatus, string>> = {
   taken: "#5aaa7e", missed: COLORS.eventRelapse, pending: "#89afc4",
@@ -33,7 +33,42 @@ const LEGEND: { status: TreatmentStatus; labelKey: string }[] = [
 ];
 const STATUS_ORDER: TreatmentStatus[] = ["taken", "missed", "pending"];
 
-export function TreatmentCalendar({ treatmentId, onLogDate }: TreatmentCalendarProps) {
+function getPastOccurrences(frequency: Frequency, reminderDay: number | null): Date[] {
+  const today = startOfDay(new Date());
+  const result: Date[] = [];
+
+  if (frequency === "weekly" && reminderDay !== null) {
+    let current = today;
+    let safety = 0;
+    while (current.getDay() !== reminderDay && safety < 7) {
+      current = subDays(current, 1);
+      safety++;
+    }
+    for (let i = 0; i < 12; i++) {
+      result.push(current);
+      current = subWeeks(current, 1);
+    }
+  } else if (frequency === "monthly") {
+    const day = reminderDay ?? 1;
+    for (let i = 0; i < 12; i++) {
+      const monthBase = subMonths(today, i);
+      let occurrence: Date;
+      if (day === 0) {
+        occurrence = new Date(monthBase.getFullYear(), monthBase.getMonth() + 1, 0);
+      } else {
+        occurrence = new Date(monthBase.getFullYear(), monthBase.getMonth(), day);
+        if (occurrence.getMonth() !== monthBase.getMonth()) continue;
+      }
+      if (!isAfter(startOfDay(occurrence), today)) {
+        result.push(occurrence);
+      }
+    }
+  }
+
+  return result;
+}
+
+export function TreatmentCalendar({ treatmentId, frequency, reminderDay, onLogDate }: TreatmentCalendarProps) {
   const { t } = useTranslation();
   const { getTreatmentStatusMap } = useCalendar();
   const dateLocale = useDateLocale();
@@ -60,6 +95,11 @@ export function TreatmentCalendar({ treatmentId, onLogDate }: TreatmentCalendarP
     refreshMap();
   };
 
+  const occurrences = useMemo(() => {
+    if (frequency === "daily") return [];
+    return getPastOccurrences(frequency, reminderDay);
+  }, [frequency, reminderDay]);
+
   const CustomDay = useCallback((props: PickerDayProps) => {
     const dateStr = format(props.day, "yyyy-MM-dd");
     const status = statusMap[dateStr];
@@ -77,6 +117,97 @@ export function TreatmentCalendar({ treatmentId, onLogDate }: TreatmentCalendarP
       </Box>
     );
   }, [statusMap]);
+
+  const statusDialog = (
+    <Dialog open={dialogDate !== null} onClose={() => { setDialogDate(null); }} maxWidth="xs" fullWidth>
+      <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>
+        {dialogDate ? format(dialogDate, "PP", { locale: dateLocale }) : ""}
+      </DialogTitle>
+      <DialogContent sx={{ pt: 0 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          {STATUS_ORDER.map((status) => (
+            <Button
+              key={status}
+              fullWidth
+              variant="outlined"
+              onClick={() => { void handleStatus(status); }}
+              sx={{
+                minHeight: 48,
+                justifyContent: "flex-start",
+                gap: 1.5,
+                borderColor: STATUS_COLORS[status],
+                color: STATUS_COLORS[status],
+                "&:hover": { bgcolor: STATUS_BG[status] },
+              }}
+            >
+              <span style={{ fontSize: "1.1rem" }}>{STATUS_ICONS[status]}</span>
+              {t(`treatments.${status}`)}
+            </Button>
+          ))}
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => { setDialogDate(null); }}>{t("common.cancel")}</Button>
+      </DialogActions>
+    </Dialog>
+  );
+
+  if (frequency !== "daily") {
+    return (
+      <Box>
+        <Box sx={{ maxHeight: 320, overflow: "auto", px: 1, pt: 1 }}>
+          {occurrences.map((date) => {
+            const dateStr = format(date, "yyyy-MM-dd");
+            const status = statusMap[dateStr];
+            const color = STATUS_COLORS[status];
+            const icon = STATUS_ICONS[status];
+            const bg = STATUS_BG[status];
+            return (
+              <Box
+                key={dateStr}
+                onClick={() => { handleDaySelect(date); }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  px: 2,
+                  py: 1.25,
+                  mb: 0.5,
+                  borderRadius: 2,
+                  bgcolor: bg ?? "action.hover",
+                  cursor: onLogDate ? "pointer" : "default",
+                  "&:hover": onLogDate ? { opacity: 0.75 } : {},
+                }}
+              >
+                <Typography variant="body2">
+                  {format(date, "P", { locale: dateLocale })}
+                </Typography>
+                {color !== undefined && (
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: color }} />
+                    <Typography variant="caption" sx={{ color }}>{icon}</Typography>
+                  </Box>
+                )}
+              </Box>
+            );
+          })}
+        </Box>
+        <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap", mt: 1, mb: 0.5 }}>
+          {LEGEND.map(({ status, labelKey }) => {
+            const color = STATUS_COLORS[status];
+            const icon = STATUS_ICONS[status];
+            return (
+              <Box key={status} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: color }} />
+                <Typography variant="caption" color="text.secondary">{icon} {t(labelKey)}</Typography>
+              </Box>
+            );
+          })}
+        </Box>
+        {statusDialog}
+      </Box>
+    );
+  }
 
   return (
     <Box>
@@ -102,37 +233,7 @@ export function TreatmentCalendar({ treatmentId, onLogDate }: TreatmentCalendarP
         })}
       </Box>
 
-      <Dialog open={dialogDate !== null} onClose={() => { setDialogDate(null); }} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>
-          {dialogDate ? format(dialogDate, "PP", { locale: dateLocale }) : ""}
-        </DialogTitle>
-        <DialogContent sx={{ pt: 0 }}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {STATUS_ORDER.map((status) => (
-              <Button
-                key={status}
-                fullWidth
-                variant="outlined"
-                onClick={() => { void handleStatus(status); }}
-                sx={{
-                  minHeight: 48,
-                  justifyContent: "flex-start",
-                  gap: 1.5,
-                  borderColor: STATUS_COLORS[status],
-                  color: STATUS_COLORS[status],
-                  "&:hover": { bgcolor: STATUS_BG[status] },
-                }}
-              >
-                <span style={{ fontSize: "1.1rem" }}>{STATUS_ICONS[status]}</span>
-                {t(`treatments.${status}`)}
-              </Button>
-            ))}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => { setDialogDate(null); }}>{t("common.cancel")}</Button>
-        </DialogActions>
-      </Dialog>
+      {statusDialog}
     </Box>
   );
 }

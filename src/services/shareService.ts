@@ -32,3 +32,21 @@ export async function shareFile(filename: string, content: string, mime: string)
     return false;
   }
 }
+
+export async function saveToFolder(filename: string, content: string, mime: string): Promise<boolean> {
+  if (!Capacitor.isNativePlatform()) {
+    downloadBlobWeb(content, filename, mime);
+    return true;
+  }
+  try {
+    await Filesystem.writeFile({
+      path: filename,
+      data: content,
+      directory: Directory.Documents,
+      encoding: Encoding.UTF8,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}

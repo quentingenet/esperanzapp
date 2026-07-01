@@ -29,8 +29,7 @@
     "treatments": "Trattamenti",
     "history": "Cronologia",
     "settings": "Impostazioni",
-    "milestones": "Tappe",
-    "export": "Export"
+    "milestones": "Tappe"
   },
   "privacy": {
     "title": "Benvenuto su EsperanzApp",
@@ -51,7 +50,7 @@
     "steps": {
       "counter": {
         "title": "EsperanzApp, il tuo alleato!",
-        "body": "Liberarsi da un'abitudine si costruisce giorno per giorno. Ogni giorno senza ricaduta è una piccola vittoria! EsperanzApp cammina con te."
+        "body": "Liberarsi da un'abitudine si costruisce giorno per giorno.\nOgni giorno senza ricaduta è una piccola vittoria!\nEsperanzApp cammina con te."
       },
       "relapse": {
         "title": "Una Ricaduta?",
@@ -167,6 +166,10 @@
       "substances": "Sostanze",
       "behaviours": "Comportamenti",
       "custom": "Personalizzato"
+    },
+    "gambling": {
+      "label": "Gioco d'azzardo",
+      "desc": "Casino, scommesse sportive, giochi online…"
     }
   },
   "grades": {
@@ -278,21 +281,22 @@
   },
   "export": {
     "title": "Dati",
-    "exportJSON": "Esporta come JSON",
-    "exportCSV": "Esporta come CSV",
-    "importJSON": "Importa da JSON",
-    "importCSV": "Importa da CSV",
-    "exportSuccess": "Esportazione riuscita",
+    "saveSuccess": "File salvato in Documenti",
+    "exportBtn": "Esporta",
+    "importBtn": "Importa",
+    "shareBtn": "Condividi",
+    "saveBtn": "Salva sul telefono",
     "importSuccess": "Importazione riuscita",
-    "importWarning": "L'importazione aggiungerà dati a quelli esistenti.",
     "error": "Operazione non riuscita",
     "importWarningTitle": "Attenzione",
     "importWarningBody": "L'import aggiungerà dati senza sovrascrivere quelli esistenti. Potrebbero apparire duplicati. I file in Download sono accessibili ad altre app.",
+    "importFileHint": "Seleziona un file .json o .csv.\nIl formato verrà rilevato automaticamente.",
+    "chooseFileBtn": "Scegli un file",
     "importConfirm": "Importa comunque",
     "editName": "Modifica il mio nome",
-    "support": "Supporta EsperanzApp",
     "privacyWarningTitle": "Questi dati sono personali e sensibili",
-    "privacyWarningBody": "Il file esportato contiene informazioni sulla salute. Una volta salvato nei Download, potrebbe essere accessibile da altre applicazioni o persone con accesso a questo dispositivo."
+    "privacyWarningBody": "Il file esportato contiene informazioni sulla salute. Una volta salvato nei Download, potrebbe essere accessibile da altre applicazioni o persone con accesso a questo dispositivo.",
+    "saveConfirmBody": "Il file verrà salvato nella cartella Documenti dell'app sul tuo telefono (accessibile tramite il gestore file)."
   },
   "settings": {
     "title": "Impostazioni",
@@ -319,7 +323,7 @@
     "terms": "Termini e Privacy",
     "tabs": {
       "settings": "Impostazioni",
-      "data": "Dati"
+      "data": "I miei dati"
     }
   },
   "milestones": {

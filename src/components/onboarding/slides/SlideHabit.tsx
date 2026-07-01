@@ -44,7 +44,7 @@ export function SlideHabit() {
         ))}
       </Box>
       <HabitWordCloud />
-      <Typography color="text.secondary">{t("tutorial.steps.counter.body")}</Typography>
+      <Typography color="text.secondary" sx={{ whiteSpace: "pre-line" }}>{t("tutorial.steps.counter.body")}</Typography>
     </Box>
   );
 }

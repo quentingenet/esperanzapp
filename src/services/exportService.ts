@@ -15,7 +15,7 @@ import {
   parseCSVPayload,
   exportTimestamp,
 } from "../utils/exportSerialization";
-import { shareFile } from "./shareService";
+import { shareFile, saveToFolder } from "./shareService";
 
 export async function exportToJSON(): Promise<boolean> {
   const [habits, habitLogs, treatments, treatmentLogs] = await Promise.all([
@@ -47,6 +47,42 @@ export async function exportToCSV(): Promise<boolean> {
   const payload = buildExportPayload(habits, habitLogs, treatments, treatmentLogs, now);
 
   return shareFile(
+    `esperanzapp_export_${exportTimestamp()}.csv`,
+    payloadToCSV(payload),
+    "text/csv",
+  );
+}
+
+export async function saveJSONToFolder(): Promise<boolean> {
+  const [habits, habitLogs, treatments, treatmentLogs] = await Promise.all([
+    getAllHabits(),
+    getAllHabitLogs(),
+    getAllTreatments(),
+    getAllTreatmentLogs(),
+  ]);
+
+  const now = new Date().toISOString();
+  const payload = buildExportPayload(habits, habitLogs, treatments, treatmentLogs, now);
+
+  return saveToFolder(
+    `esperanzapp_export_${exportTimestamp()}.json`,
+    JSON.stringify(payload, null, 2),
+    "application/json",
+  );
+}
+
+export async function saveCSVToFolder(): Promise<boolean> {
+  const [habits, habitLogs, treatments, treatmentLogs] = await Promise.all([
+    getAllHabits(),
+    getAllHabitLogs(),
+    getAllTreatments(),
+    getAllTreatmentLogs(),
+  ]);
+
+  const now = new Date().toISOString();
+  const payload = buildExportPayload(habits, habitLogs, treatments, treatmentLogs, now);
+
+  return saveToFolder(
     `esperanzapp_export_${exportTimestamp()}.csv`,
     payloadToCSV(payload),
     "text/csv",

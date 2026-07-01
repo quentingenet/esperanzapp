@@ -106,7 +106,14 @@ export function TreatmentForm({ onSubmit }: TreatmentFormProps) {
               <TimePicker value={time} onChange={setTime} label={t("treatments.form.reminderTime")} sx={{ width: "100%", mb: 2 }} />
             )}
             {showDaySelect && (
-              <Select fullWidth value={reminderDay ?? ""} onChange={(e) => { setReminderDay(e.target.value as number); }} sx={{ mb: 2 }} displayEmpty>
+              <Select
+                fullWidth
+                value={reminderDay ?? ""}
+                onChange={(e) => { setReminderDay(e.target.value); }}
+                sx={{ mb: 2 }}
+                displayEmpty
+                MenuProps={{ slotProps: { paper: { sx: { maxHeight: "50vh", pb: "env(safe-area-inset-bottom)" } } } }}
+              >
                 <MenuItem value="" disabled>{t("treatments.form.reminderDay")}</MenuItem>
                 {frequency === "weekly"
                   ? WEEK_DAYS.map((d) => <MenuItem key={d} value={d}>{weekDayLabel(d, dateLocale)}</MenuItem>)

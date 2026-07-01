@@ -107,7 +107,7 @@ export interface UserNameInputProps {
 export type HabitTypeId =
   | "alcohol" | "tobacco" | "sugar" | "cannabis"
   | "social_media" | "gaming" | "fast_food" | "adult_content"
-  | "shopping" | "caffeine" | "screens" | "custom";
+  | "shopping" | "caffeine" | "screens" | "gambling" | "custom";
 
 export interface HabitTypeConfig {
   id: HabitTypeId;
@@ -175,5 +175,7 @@ export interface TreatmentFormProps {
 
 export interface TreatmentCalendarProps {
   treatmentId: string;
+  frequency: Frequency;
+  reminderDay: number | null;
   onLogDate?: (date: string, status: TreatmentStatus) => Promise<void>;
 }

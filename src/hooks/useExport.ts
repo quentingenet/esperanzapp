@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { exportToJSON, exportToCSV, importFromJSON, importFromCSV } from "@/services";
+import { exportToJSON, exportToCSV, saveJSONToFolder, saveCSVToFolder, importFromJSON, importFromCSV } from "@/services";
 
 export function useExport() {
   const exportJSON = useCallback(async (): Promise<boolean> => {
@@ -10,6 +10,14 @@ export function useExport() {
     return exportToCSV();
   }, []);
 
+  const saveJSON = useCallback(async (): Promise<boolean> => {
+    return saveJSONToFolder();
+  }, []);
+
+  const saveCSV = useCallback(async (): Promise<boolean> => {
+    return saveCSVToFolder();
+  }, []);
+
   const importJSON = useCallback(async (file: File): Promise<void> => {
     await importFromJSON(file);
   }, []);
@@ -18,5 +26,5 @@ export function useExport() {
     await importFromCSV(file);
   }, []);
 
-  return { exportJSON, exportCSV, importJSON, importCSV };
+  return { exportJSON, exportCSV, saveJSON, saveCSV, importJSON, importCSV };
 }
