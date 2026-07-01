@@ -298,7 +298,7 @@
     "importConfirm": "Trotzdem importieren",
     "editName": "Meinen Namen ändern",
     "privacyWarningTitle": "Diese Daten sind persönlich und sensibel",
-    "privacyWarningBody": "Die exportierte Datei enthält Gesundheitsdaten. Einmal in den Downloads gespeichert, kann sie für andere Apps oder Personen mit Zugriff auf dieses Gerät zugänglich sein.",
+    "privacyWarningBody": "Die exportierte Datei enthält Gesundheitsinformationen. Einmal im Ordner Dokumente gespeichert, kann sie von anderen Apps oder Personen mit Gerätezugang eingesehen werden.",
     "saveConfirmBody": "Die Datei wird im Ordner Dokumente der App auf Ihrem Telefon gespeichert (erreichbar über den Datei-Manager).",
     "filesystemError": "Datei konnte nicht geschrieben werden. Speicher prüfen.",
     "documentsUnavailable": "Speichern in Dokumente fehlgeschlagen. Bitte Teilen verwenden."

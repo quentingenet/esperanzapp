@@ -60,8 +60,8 @@ function getPastOccurrences(frequency: Frequency, reminderDay: number | null, cr
       if (day === 0) {
         occurrence = new Date(monthBase.getFullYear(), monthBase.getMonth() + 1, 0);
       } else {
-        occurrence = new Date(monthBase.getFullYear(), monthBase.getMonth(), day);
-        if (occurrence.getMonth() !== monthBase.getMonth()) { monthOffset++; continue; }
+        const daysInMonth = new Date(monthBase.getFullYear(), monthBase.getMonth() + 1, 0).getDate();
+        occurrence = new Date(monthBase.getFullYear(), monthBase.getMonth(), Math.min(day, daysInMonth));
       }
       if (isBefore(startOfDay(occurrence), created)) break;
       if (!isAfter(startOfDay(occurrence), today)) result.push(occurrence);
@@ -84,7 +84,13 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, created
     void getTreatmentStatusMap(treatmentId).then(setStatusMap);
   }, [treatmentId, getTreatmentStatusMap]);
 
-  useEffect(() => { refreshMap(); }, [refreshMap]);
+  useEffect(() => {
+    const guard = { cancelled: false };
+    void getTreatmentStatusMap(treatmentId).then((map) => {
+      if (!guard.cancelled) setStatusMap(map);
+    });
+    return () => { guard.cancelled = true; };
+  }, [treatmentId, getTreatmentStatusMap]);
 
   const handleDaySelect = (date: Date | null) => {
     if (!date || !onLogDate) return;

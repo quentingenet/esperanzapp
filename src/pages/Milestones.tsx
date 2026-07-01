@@ -12,19 +12,18 @@ import type { HabitStats } from "@/types";
 export function Milestones() {
   const { t } = useTranslation();
   const { habits, loadHabits } = useHabits();
-  const { getStats } = useHabitLogs();
+  const { getStatsBatch } = useHabitLogs();
   const [statsMap, setStatsMap] = useState<Partial<Record<string, HabitStats>>>({});
 
   useEffect(() => { void loadHabits(); }, [loadHabits]);
 
   useEffect(() => {
-    async function load() {
-      const map: Record<string, HabitStats> = {};
-      for (const h of habits) { map[h.id] = await getStats(h.id); }
-      setStatsMap(map);
-    }
-    void load();
-  }, [habits, getStats]);
+    const guard = { cancelled: false };
+    void getStatsBatch(habits.map((h) => h.id)).then((map) => {
+      if (!guard.cancelled) setStatsMap(map);
+    });
+    return () => { guard.cancelled = true; };
+  }, [habits, getStatsBatch]);
 
   const today = todayLocalDate();
 

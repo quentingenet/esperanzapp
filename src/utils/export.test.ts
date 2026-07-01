@@ -129,6 +129,38 @@ describe("parseExportPayload", () => {
     const bad = JSON.stringify({ version: "1", exportedAt: "", habitLogs: [], treatments: [], treatmentLogs: [] });
     expect(() => parseExportPayload(bad)).toThrow("Unsupported or invalid export format");
   });
+
+  it("throws when habit has invalid hex color", () => {
+    const bad = JSON.stringify({
+      version: "1", exportedAt: "", habitLogs: [], treatments: [], treatmentLogs: [],
+      habits: [{ ...mockHabit, color: "notahex" }],
+    });
+    expect(() => parseExportPayload(bad)).toThrow("habits: color must be a hex color");
+  });
+
+  it("throws when habit has invalid createdAt", () => {
+    const bad = JSON.stringify({
+      version: "1", exportedAt: "", habitLogs: [], treatments: [], treatmentLogs: [],
+      habits: [{ ...mockHabit, createdAt: "not-a-datetime" }],
+    });
+    expect(() => parseExportPayload(bad)).toThrow("habits: createdAt must be a valid date-time");
+  });
+
+  it("throws when daily treatment has non-null reminderDay", () => {
+    const bad = JSON.stringify({
+      version: "1", exportedAt: "", habits: [], habitLogs: [], treatmentLogs: [],
+      treatments: [{ ...mockTreatment, frequency: "daily", reminderDay: 3 }],
+    });
+    expect(() => parseExportPayload(bad)).toThrow("treatments: daily frequency must have null reminderDay");
+  });
+
+  it("throws when weekly treatment has out-of-range reminderDay", () => {
+    const bad = JSON.stringify({
+      version: "1", exportedAt: "", habits: [], habitLogs: [], treatmentLogs: [],
+      treatments: [{ ...mockTreatment, frequency: "weekly", reminderDay: 8 }],
+    });
+    expect(() => parseExportPayload(bad)).toThrow("treatments: weekly frequency must have reminderDay 0-6");
+  });
 });
 
 describe("payloadToCSV", () => {
@@ -227,8 +259,48 @@ describe("parseCSVPayload", () => {
   const TL = "TREATMENT_LOGS\nid,treatmentId,scheduledAt,status";
 
   it("throws on invalid startDate in HABITS", () => {
-    const csv = `HABITS\nid,label,icon,color,bgColor,startDate,createdAt\n1,Alcool,icon,#fff,#eee,not-a-date,2024-01-01T00:00:00Z\n\n${HL}\n\n${TR}\n\n${TL}`;
-    expect(() => parseCSVPayload(csv)).toThrow("habits: missing or invalid fields");
+    const csv = `HABITS\nid,label,icon,color,bgColor,startDate,createdAt\n1,Alcool,icon,#3a8fd1,#e8f4fd,not-a-date,2024-01-01T00:00:00Z\n\n${HL}\n\n${TR}\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow("habits: startDate must be YYYY-MM-DD");
+  });
+
+  it("throws when HABITS columns are renamed", () => {
+    const csv = `HABITS\nidentifier,label,icon,color,bgColor,startDate,createdAt\n\n${HL}\n\n${TR}\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow(/CSV section HABITS: expected columns/);
+  });
+
+  it("throws when HABITS columns are in wrong order", () => {
+    const csv = `HABITS\nlabel,id,icon,color,bgColor,startDate,createdAt\n\n${HL}\n\n${TR}\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow(/CSV section HABITS: expected columns/);
+  });
+
+  it("throws when HABITS has extra columns", () => {
+    const csv = `HABITS\nid,label,icon,color,bgColor,startDate,createdAt,extra\n\n${HL}\n\n${TR}\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow(/CSV section HABITS: expected columns/);
+  });
+
+  it("throws when HABIT_LOGS columns are renamed", () => {
+    const csv = `${H}\n\nHABIT_LOGS\nidentifier,habitId,eventType,eventDate\n\n${TR}\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow(/CSV section HABIT_LOGS: expected columns/);
+  });
+
+  it("throws on invalid hex color in HABITS", () => {
+    const csv = `HABITS\nid,label,icon,color,bgColor,startDate,createdAt\n1,Alcool,icon,notahex,#e8f4fd,2024-01-01,2024-01-01T00:00:00Z\n\n${HL}\n\n${TR}\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow("habits: color must be a hex color");
+  });
+
+  it("throws on invalid createdAt in HABITS", () => {
+    const csv = `HABITS\nid,label,icon,color,bgColor,startDate,createdAt\n1,Alcool,icon,#3a8fd1,#e8f4fd,2024-01-01,not-a-datetime\n\n${HL}\n\n${TR}\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow("habits: createdAt must be a valid date-time");
+  });
+
+  it("throws on daily treatment with non-null reminderDay", () => {
+    const csv = `${H}\n\n${HL}\n\nTREATMENTS\nid,label,frequency,reminderTime,reminderEnabled,reminderDay,createdAt\n1,Med,daily,08:00,1,3,2024-01-01T00:00:00Z\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow("treatments: daily frequency must have null reminderDay");
+  });
+
+  it("throws on weekly treatment with out-of-range reminderDay", () => {
+    const csv = `${H}\n\n${HL}\n\nTREATMENTS\nid,label,frequency,reminderTime,reminderEnabled,reminderDay,createdAt\n1,Med,weekly,08:00,1,8,2024-01-01T00:00:00Z\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow("treatments: weekly frequency must have reminderDay 0-6");
   });
 
   it("throws on invalid eventType in HABIT_LOGS", () => {

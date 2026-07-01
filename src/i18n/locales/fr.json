@@ -298,7 +298,7 @@
     "importConfirm": "Importer quand même",
     "editName": "Modifier mon prénom",
     "privacyWarningTitle": "Ces données sont personnelles et sensibles",
-    "privacyWarningBody": "Le fichier exporté contient des informations personnelles. Une fois enregistré sur votre téléphone il peut être accessible par d'autres applications ou personnes ayant accès à ce téléphone.",
+    "privacyWarningBody": "Le fichier exporté contient des informations de santé. Une fois enregistré dans le dossier Documents, il peut être accessible à d'autres applications ou à toute personne ayant accès à cet appareil.",
     "saveConfirmBody": "Le fichier sera enregistré dans le dossier Documents de l'application sur votre téléphone (accessible via l'explorateur de fichiers).",
     "filesystemError": "Impossible d'écrire le fichier. Vérifiez l'espace de stockage.",
     "documentsUnavailable": "Impossible d'enregistrer dans Documents. Utilisez Partager à la place."

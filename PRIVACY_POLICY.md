@@ -27,11 +27,13 @@ Your data is never sold, shared, or automatically transmitted to any third party
 
 ## 5. Data Export
 
-EsperanzApp allows you to export your data as a JSON or CSV file and share it with other applications via the Android Share Sheet. When you use this feature:
+EsperanzApp lets you export your data as a JSON or CSV file. The exported file contains all your habits, treatments, and logs. EsperanzApp never transmits this file to any server; it always stays on your device until you decide otherwise.
 
-- The exported file contains all your habits, treatments, and logs.
-- The file is temporarily written to your device's cache before being shared.
-- Once shared, the destination application or service is entirely outside EsperanzApp's control. EsperanzApp is not responsible for how third-party applications handle data you voluntarily share with them.
+The app offers two export paths. The **Share** option writes the file to the app's private cache directory, a temporary folder that only EsperanzApp can access, then opens the Android Share Sheet so you can choose where to send it. Once you make that choice, EsperanzApp hands the file off and immediately loses access to it. It has no knowledge of where the file ends up, and is not responsible for how the application or service you selected handles the data.
+
+The **Save to phone** option writes the file directly to the `Documents` folder on your device, where it can be found using a file manager. Unlike the private cache, this folder may be accessible to other apps depending on your Android version and any permissions you have granted. EsperanzApp is not responsible for access granted to that folder by the operating system or by apps you have authorized.
+
+In both cases, the exported file contains personal health information. We recommend treating it accordingly.
 
 ## 6. Storage and Security
 

@@ -25,8 +25,10 @@ export function History() {
   useEffect(() => { void loadHabits(); }, [loadHabits]);
 
   useEffect(() => {
+    const guard = { cancelled: false };
     async function load() {
       const allLogs = await getAllHabitLogs();
+      if (guard.cancelled) return;
       const habitMap = new Map(habits.map((h) => [h.id, h]));
       const all: HistoryItem[] = allLogs.flatMap((log) => {
         const habit = habitMap.get(log.habitId);
@@ -49,6 +51,7 @@ export function History() {
       setItems(merged);
     }
     void load();
+    return () => { guard.cancelled = true; };
   }, [habits]);
 
   return (

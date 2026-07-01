@@ -36,7 +36,11 @@ export function HabitDetailModal({ habit, stats, userName, onClose, onRelapse }:
   const [rawLogs, setRawLogs] = useState<HabitLog[]>([]);
 
   useEffect(() => {
-    void getLogsByHabit(habit.id).then(setRawLogs);
+    const guard = { cancelled: false };
+    void getLogsByHabit(habit.id).then((logs) => {
+      if (!guard.cancelled) setRawLogs(logs);
+    });
+    return () => { guard.cancelled = true; };
   }, [habit.id, getLogsByHabit]);
 
   const sorted = [...rawLogs].sort((a, b) => b.eventDate.localeCompare(a.eventDate));

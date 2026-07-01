@@ -13,7 +13,7 @@ import type { Habit, HabitStats } from "@/types";
 export function Home() {
   const { t } = useTranslation();
   const { habits, loadHabits, addHabit, deleteHabit } = useHabits();
-  const { getStats, addLog } = useHabitLogs();
+  const { getStatsBatch, addLog } = useHabitLogs();
   const userName = useOnboardingStore((s) => s.userName);
   const [statsMap, setStatsMap] = useState<Partial<Record<string, HabitStats>>>({});
   const [detailHabit, setDetailHabit] = useState<{ habit: Habit; stats: HabitStats } | null>(null);
@@ -22,13 +22,12 @@ export function Home() {
   useEffect(() => { void loadHabits(); }, [loadHabits]);
 
   useEffect(() => {
-    async function load() {
-      const map: Record<string, HabitStats> = {};
-      for (const h of habits) { map[h.id] = await getStats(h.id); }
-      setStatsMap(map);
-    }
-    void load();
-  }, [habits, getStats]);
+    const guard = { cancelled: false };
+    void getStatsBatch(habits.map((h) => h.id)).then((map) => {
+      if (!guard.cancelled) setStatsMap(map);
+    });
+    return () => { guard.cancelled = true; };
+  }, [habits, getStatsBatch]);
 
   const handleRelapse = (habit: Habit) => {
     const today = todayLocalDate();

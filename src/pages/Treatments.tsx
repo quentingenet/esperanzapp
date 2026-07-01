@@ -32,7 +32,7 @@ export function Treatments() {
   const { t } = useTranslation();
   const dateLocale = useDateLocale();
   const { treatments, loadTreatments, addTreatment, editTreatment, deleteTreatment } = useTreatments();
-  const { logStatus, logStatusForDate, getLogsByTreatment } = useTreatmentLogs();
+  const { logStatus, logStatusForDate, getLogsByDate } = useTreatmentLogs();
   const { scheduleReminder, cancelReminder } = useNotifications();
   const [logsMap, setLogsMap] = useState<Record<string, TreatmentLog | null>>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -46,17 +46,18 @@ export function Treatments() {
   useEffect(() => { void loadTreatments(); }, [loadTreatments]);
 
   useEffect(() => {
+    const guard = { cancelled: false };
     const today = todayLocalDate();
-    async function loadLogs() {
-      const map: Record<string, TreatmentLog | null> = {};
-      for (const tr of treatments) {
-        const logs = await getLogsByTreatment(tr.id);
-        map[tr.id] = logs.find((l) => l.scheduledAt.slice(0, 10) === today) ?? null;
-      }
+    void getLogsByDate(today).then((todayLogs) => {
+      if (guard.cancelled) return;
+      const map: Record<string, TreatmentLog | null> = Object.fromEntries(
+        treatments.map((tr) => [tr.id, null]),
+      );
+      for (const log of todayLogs) { map[log.treatmentId] = log; }
       setLogsMap(map);
-    }
-    void loadLogs();
-  }, [treatments, getLogsByTreatment]);
+    });
+    return () => { guard.cancelled = true; };
+  }, [treatments, getLogsByDate]);
 
   const handleLog = async (treatment: Treatment, status: TreatmentStatus) => {
     const today = todayLocalDate();

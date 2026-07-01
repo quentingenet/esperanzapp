@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { getTreatmentLogsByTreatmentId, upsertTreatmentLogForDate } from "@/db";
+import { getTreatmentLogsByTreatmentId, getTreatmentLogsByDate, upsertTreatmentLogForDate } from "@/db";
 import { useTreatmentsStore } from "@/store/treatmentsStore";
 import type { TreatmentLog, TreatmentStatus } from "@/types";
 
@@ -29,5 +29,10 @@ export function useTreatmentLogs() {
     [],
   );
 
-  return { logStatus, logStatusForDate, getLogsByTreatment };
+  const getLogsByDate = useCallback(
+    async (date: string): Promise<TreatmentLog[]> => getTreatmentLogsByDate(date),
+    [],
+  );
+
+  return { logStatus, logStatusForDate, getLogsByTreatment, getLogsByDate };
 }

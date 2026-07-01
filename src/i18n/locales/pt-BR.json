@@ -298,7 +298,7 @@
     "importConfirm": "Importar assim mesmo",
     "editName": "Editar meu nome",
     "privacyWarningTitle": "Estes dados são pessoais e sensíveis",
-    "privacyWarningBody": "O arquivo exportado contém informações de saúde. Uma vez salvo nos Downloads, pode ser acessado por outros aplicativos ou pessoas com acesso a este dispositivo.",
+    "privacyWarningBody": "O arquivo exportado contém informações de saúde. Uma vez salvo na pasta Documentos, pode ser acessível por outros aplicativos ou por qualquer pessoa com acesso ao dispositivo.",
     "saveConfirmBody": "O arquivo será salvo na pasta Documentos do aplicativo no seu telefone (acessível pelo gerenciador de arquivos).",
     "filesystemError": "Não foi possível salvar o arquivo. Verifique o armazenamento.",
     "documentsUnavailable": "Não foi possível salvar em Documentos. Tente usar Compartilhar."

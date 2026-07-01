@@ -166,17 +166,13 @@ EsperanzApp requests the **minimum permissions necessary** to function. No inter
 
 **No** `INTERNET`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`, `ACCESS_FINE_LOCATION`, `READ_CONTACTS`, or any other sensitive permission is requested.
 
-### How file export works (Capacitor Share)
+### How file export works
 
-When you export your data as JSON or CSV, the following happens:
+The app offers two export paths.
 
-1. The file is written to the **app's private cache directory**, a temporary folder only EsperanzApp can access. No storage permission is required for this.
-2. The Android **Share Sheet** opens, letting you choose where to send the file: a file manager, cloud storage (Nextcloud, etc.), email, USB transfer, etc.
-3. EsperanzApp **hands off the file** to the app you choose and immediately loses access to it.
+**Share** writes the file to the app's private cache, a temporary folder only EsperanzApp can access, then opens the Android Share Sheet so you pick the destination (file manager, cloud storage, email, USB, etc.). The app hands the file off to your chosen app and immediately loses access to it.
 
-The app never writes directly to your Downloads folder or any shared storage. It never sees where the file ends up. The Share Sheet is the user's explicit choice of destination, by design.
-
-> This means even if you share your export to a cloud service, EsperanzApp has no knowledge of it and no connection to that service.
+**Save to phone** writes the file directly to the `Documents` folder on the device, accessible through any file manager. This folder is not private app storage: on Android 9 and earlier it may be readable by other apps with storage permissions, and on Android 10+ scoped storage applies but the folder remains browsable. The in-app warning shown before saving makes this explicit.
 
 ---
 
