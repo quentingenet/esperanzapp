@@ -111,9 +111,7 @@ export function useNotifications() {
       if (pending.length > 0) {
         await LocalNotifications.cancel({ notifications: pending.map((n) => ({ id: n.id })) });
       }
-      for (const treatment of treatments) {
-        await scheduleReminder(treatment);
-      }
+      await Promise.allSettled(treatments.map((t) => scheduleReminder(t)));
     },
     [scheduleReminder],
   );

@@ -35,7 +35,7 @@ describe("setOnboardingValue", () => {
       expect.stringContaining("INSERT INTO onboarding"),
       ["user_name", "Alice"],
     );
-    expect(mockDb.run.mock.calls[0][0]).toContain("ON CONFLICT");
+    expect(mockDb.run.mock.calls[0]![0]).toContain("ON CONFLICT");
   });
 
   it("upserts tutorial_completed", async () => {

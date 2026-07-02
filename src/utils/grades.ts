@@ -1,6 +1,6 @@
 import type { Grade } from "@/types";
 
-export const GRADES: Grade[] = [
+export const GRADES: [Grade, ...Grade[]] = [
   { days: 1,   labelKey: "grades.awakening.label",          emoji: "🌱", messageKey: "grades.messages.awakening",          color: "#2e7d32", bgColor: "#e8f5e9" },
   { days: 7,   labelKey: "grades.firstBreath.label",        emoji: "🌿", messageKey: "grades.messages.firstBreath",        color: "#558b2f", bgColor: "#f1f8e9" },
   { days: 14,  labelKey: "grades.anchoring.label",          emoji: "🪨", messageKey: "grades.messages.anchoring",          color: "#5d4037", bgColor: "#efebe9" },

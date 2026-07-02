@@ -42,7 +42,7 @@ describe("habitsStore", () => {
     useHabitsStore.getState().removeHabit("1");
     const habits = useHabitsStore.getState().habits;
     expect(habits).toHaveLength(1);
-    expect(habits[0].id).toBe("2");
+    expect(habits[0]!.id).toBe("2");
   });
 
   it("removeHabit with unknown id leaves state unchanged", () => {
@@ -54,7 +54,7 @@ describe("habitsStore", () => {
   it("updateHabit merges patch", () => {
     useHabitsStore.getState().setHabits([h1]);
     useHabitsStore.getState().updateHabit("1", { label: "Sucre" });
-    const updated = useHabitsStore.getState().habits[0];
+    const updated = useHabitsStore.getState().habits[0]!;
     expect(updated.label).toBe("Sucre");
     expect(updated.icon).toBe(h1.icon);
   });
@@ -62,6 +62,6 @@ describe("habitsStore", () => {
   it("updateHabit with unknown id leaves state unchanged", () => {
     useHabitsStore.getState().setHabits([h1]);
     useHabitsStore.getState().updateHabit("999", { label: "Other" });
-    expect(useHabitsStore.getState().habits[0].label).toBe("Alcool");
+    expect(useHabitsStore.getState().habits[0]!.label).toBe("Alcool");
   });
 });

@@ -45,7 +45,7 @@ describe("useHabits", () => {
       await result.current.loadHabits();
     });
     expect(result.current.habits).toHaveLength(1);
-    expect(result.current.habits[0].label).toBe("Alcool");
+    expect(result.current.habits[0]!.label).toBe("Alcool");
   });
 
   it("loadHabits sets error on DB failure", async () => {

@@ -33,7 +33,8 @@ export function Home() {
     const today = todayLocalDate();
     void addLog({ habitId: habit.id, eventType: "relapse", eventDate: today })
       .then(() => addLog({ habitId: habit.id, eventType: "start", eventDate: today }))
-      .then(() => { void loadHabits(); setDetailHabit(null); });
+      .then(() => { void loadHabits(); setDetailHabit(null); })
+      .catch(() => { toast.error(t("common.error")); });
   };
 
   const handleDeleteConfirmed = () => {

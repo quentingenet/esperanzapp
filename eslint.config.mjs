@@ -43,4 +43,10 @@ export default tseslint.config(
       "@typescript-eslint/no-unsafe-return": "off",
     },
   },
+  {
+    files: ["**/*.test.ts", "**/*.test.tsx"],
+    rules: {
+      "@typescript-eslint/no-non-null-assertion": "off",
+    },
+  },
 );

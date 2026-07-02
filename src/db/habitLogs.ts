@@ -1,3 +1,4 @@
+import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import type { HabitLog } from "@/types";
 import { isEventType } from "@/utils";
 import { withDb, withDbVoid } from "./client";
@@ -19,8 +20,8 @@ function rowToHabitLog(row: HabitLogRow): HabitLog {
   };
 }
 
-export function createHabitLog(data: Omit<HabitLog, "id">): Promise<HabitLog> {
-  return withDb(async (db) => {
+export function createHabitLog(data: Omit<HabitLog, "id">, dbConn?: SQLiteDBConnection | null): Promise<HabitLog> {
+  const fn = async (db: SQLiteDBConnection): Promise<HabitLog> => {
     const result = await db.run(
       "INSERT INTO habit_logs (habit_id, event_type, event_date) VALUES (?, ?, ?)",
       [data.habitId, data.eventType, data.eventDate],
@@ -28,7 +29,9 @@ export function createHabitLog(data: Omit<HabitLog, "id">): Promise<HabitLog> {
     const lastId = result.changes?.lastId;
     if (!lastId) throw new Error("Failed to insert habit log");
     return { ...data, id: String(lastId) };
-  }, { ...data, id: String(Date.now()) });
+  };
+  if (dbConn) return fn(dbConn);
+  return withDb(fn, { ...data, id: String(Date.now()) });
 }
 
 export function getHabitLogsByHabitId(habitId: string): Promise<HabitLog[]> {

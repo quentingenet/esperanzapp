@@ -45,7 +45,7 @@ describe("useTreatments", () => {
       await result.current.loadTreatments();
     });
     expect(result.current.treatments).toHaveLength(1);
-    expect(result.current.treatments[0].label).toBe("Sertraline");
+    expect(result.current.treatments[0]!.label).toBe("Sertraline");
   });
 
   it("loadTreatments resets loading to false", async () => {

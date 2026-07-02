@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import ButtonBase from "@mui/material/ButtonBase";
@@ -16,6 +16,7 @@ import type { PickerDayProps } from "@mui/x-date-pickers/PickerDay";
 import { format, isAfter, isBefore, parseISO, startOfDay, subDays, subWeeks, subMonths, subYears } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { useCalendar, useDateLocale } from "@/hooks";
+import { toast } from "@/store/toastStore";
 import { COLORS } from "@/theme/tokens";
 import type { Frequency, TreatmentCalendarProps, TreatmentStatus } from "@/types";
 
@@ -79,9 +80,13 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, created
   const [statusMap, setStatusMap] = useState<Record<string, TreatmentStatus>>({});
   const [dialogDate, setDialogDate] = useState<Date | null>(null);
   const [showAllOccurrences, setShowAllOccurrences] = useState(false);
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
 
   const refreshMap = useCallback(() => {
-    void getTreatmentStatusMap(treatmentId).then(setStatusMap);
+    void getTreatmentStatusMap(treatmentId)
+      .then((map) => { if (mountedRef.current) setStatusMap(map); })
+      .catch(() => {});
   }, [treatmentId, getTreatmentStatusMap]);
 
   useEffect(() => {
@@ -102,8 +107,12 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, created
     if (!dialogDate || !onLogDate) return;
     const dateStr = format(dialogDate, "yyyy-MM-dd");
     setDialogDate(null);
-    await onLogDate(dateStr, status);
-    refreshMap();
+    try {
+      await onLogDate(dateStr, status);
+      refreshMap();
+    } catch {
+      toast.error(t("common.error"));
+    }
   };
 
   const occurrences = useMemo(() => {
@@ -121,10 +130,10 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, created
   const CustomDay = useCallback((props: PickerDayProps) => {
     const dateStr = format(props.day, "yyyy-MM-dd");
     const status = statusMap[dateStr];
-    const color = STATUS_COLORS[status];
-    const icon = STATUS_ICONS[status];
-    const bg = STATUS_BG[status];
-    const hasStatus = STATUS_COLORS[status] !== undefined;
+    const color = status !== undefined ? STATUS_COLORS[status] : undefined;
+    const icon = status !== undefined ? STATUS_ICONS[status] : undefined;
+    const bg = status !== undefined ? STATUS_BG[status] : undefined;
+    const hasStatus = status !== undefined && STATUS_COLORS[status] !== undefined;
     const statusLabel = hasStatus ? t(`treatments.${status}`) : undefined;
     const dayLabel = format(props.day, "PP", { locale: dateLocale });
     const ariaLabel = statusLabel !== undefined ? `${dayLabel} — ${statusLabel}` : dayLabel;
@@ -182,11 +191,11 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, created
           {visibleOccurrences.map((date) => {
             const dateStr = format(date, "yyyy-MM-dd");
             const status = statusMap[dateStr];
-            const color = STATUS_COLORS[status];
-            const icon = STATUS_ICONS[status];
-            const bg = STATUS_BG[status];
+            const color = status !== undefined ? STATUS_COLORS[status] : undefined;
+            const icon = status !== undefined ? STATUS_ICONS[status] : undefined;
+            const bg = status !== undefined ? STATUS_BG[status] : undefined;
             const formattedDate = format(date, "P", { locale: dateLocale });
-            const hasStatus = STATUS_COLORS[status] !== undefined;
+            const hasStatus = status !== undefined && STATUS_COLORS[status] !== undefined;
             const statusLabel = hasStatus ? t(`treatments.${status}`) : t("treatments.pending");
             return (
               <ButtonBase

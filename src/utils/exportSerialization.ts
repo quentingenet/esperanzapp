@@ -150,7 +150,7 @@ export function parseCSVRow(line: string): string[] {
       while (i < line.length) {
         if (line[i] === '"' && line[i + 1] === '"') { field += '"'; i += 2; }
         else if (line[i] === '"') { i++; break; }
-        else { field += line[i++]; }
+        else { field += (line[i++] ?? ""); }
       }
       result.push(field);
       if (line[i] === ",") i++;
@@ -305,8 +305,8 @@ export function parseCSVPayload(raw: string): ExportPayload {
   const habitLogs: HabitLog[] = logRows.map(([id, habitId, eventType, eventDate]) => {
     if (!isStr(id)) throw new Error("habitLogs: id must be a non-empty string");
     if (!isStr(habitId)) throw new Error("habitLogs: habitId must be a non-empty string");
-    if (!isStr(eventType) || !isEventType(eventType))
-      throw new Error(`habitLogs: invalid eventType "${eventType}"`);
+    if (!isStr(eventType)) throw new Error("habitLogs: eventType must be a string");
+    if (!isEventType(eventType)) throw new Error(`habitLogs: invalid eventType "${eventType}"`);
     if (!isDate(eventDate)) throw new Error("habitLogs: eventDate must be YYYY-MM-DD");
     return { id, habitId, eventType, eventDate };
   });
@@ -314,8 +314,8 @@ export function parseCSVPayload(raw: string): ExportPayload {
   const treatments: Treatment[] = treatmentRows.map(([id, label, frequency, reminderTime, reminderEnabledStr, reminderDayStr, createdAt]) => {
     if (!isStr(id)) throw new Error("treatments: id must be a non-empty string");
     if (!isStr(label)) throw new Error("treatments: label must be a non-empty string");
-    if (!isStr(frequency) || !isFrequency(frequency))
-      throw new Error(`treatments: invalid frequency "${frequency}"`);
+    if (!isStr(frequency)) throw new Error("treatments: frequency must be a string");
+    if (!isFrequency(frequency)) throw new Error(`treatments: invalid frequency "${frequency}"`);
     if (!isTime(reminderTime)) throw new Error("treatments: invalid reminderTime");
     if (!isISODateTime(createdAt)) throw new Error("treatments: createdAt must be a valid date-time");
     const reminderDay = reminderDayStr !== "" ? Number(reminderDayStr) : null;
@@ -330,14 +330,16 @@ export function parseCSVPayload(raw: string): ExportPayload {
       if (reminderDay === null || reminderDay < 0 || reminderDay > 31)
         throw new Error("treatments: monthly frequency must have reminderDay 0-31");
     }
-    return { id, label, frequency, reminderTime, reminderEnabled: reminderEnabledStr !== "0", reminderDay, createdAt };
+    if (reminderEnabledStr !== "0" && reminderEnabledStr !== "1")
+      throw new Error(`treatments: reminderEnabled must be "0" or "1", got "${reminderEnabledStr ?? ""}"`);
+    return { id, label, frequency, reminderTime, reminderEnabled: reminderEnabledStr === "1", reminderDay, createdAt };
   });
 
   const treatmentLogs: TreatmentLog[] = treatmentLogRows.map(([id, treatmentId, scheduledAt, status]) => {
     if (!isStr(id)) throw new Error("treatmentLogs: id must be a non-empty string");
     if (!isStr(treatmentId)) throw new Error("treatmentLogs: treatmentId must be a non-empty string");
-    if (!isStr(status) || !isTreatmentStatus(status))
-      throw new Error(`treatmentLogs: invalid status "${status}"`);
+    if (!isStr(status)) throw new Error("treatmentLogs: status must be a string");
+    if (!isTreatmentStatus(status)) throw new Error(`treatmentLogs: invalid status "${status}"`);
     if (!isDate(scheduledAt)) throw new Error("treatmentLogs: scheduledAt must be YYYY-MM-DD");
     return { id, treatmentId, scheduledAt, status };
   });

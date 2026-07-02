@@ -1,3 +1,4 @@
+import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import type { Treatment } from "@/types";
 import { isFrequency } from "@/utils";
 import { withDb, withDbVoid } from "./client";
@@ -25,8 +26,8 @@ function rowToTreatment(row: TreatmentRow): Treatment {
   };
 }
 
-export function createTreatment(data: Omit<Treatment, "id">): Promise<Treatment> {
-  return withDb(async (db) => {
+export function createTreatment(data: Omit<Treatment, "id">, dbConn?: SQLiteDBConnection | null): Promise<Treatment> {
+  const fn = async (db: SQLiteDBConnection): Promise<Treatment> => {
     const result = await db.run(
       "INSERT INTO treatments (label, frequency, reminder_time, reminder_enabled, reminder_day, created_at) VALUES (?, ?, ?, ?, ?, ?)",
       [data.label, data.frequency, data.reminderTime, data.reminderEnabled ? 1 : 0, data.reminderDay ?? null, data.createdAt],
@@ -34,7 +35,9 @@ export function createTreatment(data: Omit<Treatment, "id">): Promise<Treatment>
     const lastId = result.changes?.lastId;
     if (!lastId) throw new Error("Failed to insert treatment");
     return { ...data, id: String(lastId) };
-  }, { ...data, id: String(Date.now()) });
+  };
+  if (dbConn) return fn(dbConn);
+  return withDb(fn, { ...data, id: String(Date.now()) });
 }
 
 export function getTreatmentById(id: string): Promise<Treatment | null> {

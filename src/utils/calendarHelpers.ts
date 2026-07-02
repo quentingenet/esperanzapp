@@ -27,6 +27,7 @@ export function buildDayStatusMap(
 
   for (let i = 0; i < sorted.length; i++) {
     const log = sorted[i];
+    if (!log) continue;
     const dateKey = log.eventDate.slice(0, 10);
 
     if (log.eventType === "start") {

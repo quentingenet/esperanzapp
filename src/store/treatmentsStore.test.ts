@@ -48,7 +48,7 @@ describe("treatmentsStore", () => {
     useTreatmentsStore.getState().setTreatments([t1, t2]);
     useTreatmentsStore.getState().removeTreatment("1");
     expect(useTreatmentsStore.getState().treatments).toHaveLength(1);
-    expect(useTreatmentsStore.getState().treatments[0].id).toBe("2");
+    expect(useTreatmentsStore.getState().treatments[0]!.id).toBe("2");
   });
 
   it("setLogs replaces logs", () => {

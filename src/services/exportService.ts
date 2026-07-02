@@ -106,26 +106,26 @@ function validateNoOrphans(payload: ReturnType<typeof parseExportPayload>): void
 
 async function importPayload(payload: ReturnType<typeof parseExportPayload>): Promise<void> {
   validateNoOrphans(payload);
-  await runInTransaction(async () => {
+  await runInTransaction(async (db) => {
     const habitIdMap = new Map<string, string>();
     for (const { id: oldId, ...data } of payload.habits) {
-      const created = await createHabit(data);
+      const created = await createHabit(data, db);
       habitIdMap.set(oldId, created.id);
     }
     for (const { id: _id, habitId, ...data } of payload.habitLogs) {
       const newHabitId = habitIdMap.get(habitId);
       if (!newHabitId) throw new Error(`import: unexpected missing mapping for habitId "${habitId}"`);
-      await createHabitLog({ ...data, habitId: newHabitId });
+      await createHabitLog({ ...data, habitId: newHabitId }, db);
     }
     const treatmentIdMap = new Map<string, string>();
     for (const { id: oldId, ...data } of payload.treatments) {
-      const created = await createTreatment(data);
+      const created = await createTreatment(data, db);
       treatmentIdMap.set(oldId, created.id);
     }
     for (const { id: _id, treatmentId, ...data } of payload.treatmentLogs) {
       const newTreatmentId = treatmentIdMap.get(treatmentId);
       if (!newTreatmentId) throw new Error(`import: unexpected missing mapping for treatmentId "${treatmentId}"`);
-      await createTreatmentLog({ ...data, treatmentId: newTreatmentId });
+      await createTreatmentLog({ ...data, treatmentId: newTreatmentId }, db);
     }
   });
 }

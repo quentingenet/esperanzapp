@@ -19,14 +19,14 @@ CREATE TABLE IF NOT EXISTS habits (
 CREATE TABLE IF NOT EXISTS habit_logs (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
   habit_id   INTEGER NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
-  event_type TEXT NOT NULL,
+  event_type TEXT NOT NULL CHECK(event_type IN ('start', 'relapse')),
   event_date TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS treatments (
   id               INTEGER PRIMARY KEY AUTOINCREMENT,
   label            TEXT NOT NULL,
-  frequency        TEXT NOT NULL,
+  frequency        TEXT NOT NULL CHECK(frequency IN ('daily', 'weekly', 'monthly')),
   reminder_time    TEXT NOT NULL DEFAULT '08:00',
   reminder_enabled INTEGER NOT NULL DEFAULT 1,
   reminder_day     INTEGER DEFAULT NULL,
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS treatment_logs (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   treatment_id INTEGER NOT NULL REFERENCES treatments(id) ON DELETE CASCADE,
   scheduled_at TEXT NOT NULL,
-  status       TEXT NOT NULL
+  status       TEXT NOT NULL CHECK(status IN ('taken', 'missed', 'pending'))
 );
 `;
 
@@ -65,5 +65,10 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
     );
   } catch {
     // index already exists or migration already applied
+  }
+  try {
+    await db.execute("CREATE INDEX IF NOT EXISTS idx_habit_logs_habit_id ON habit_logs(habit_id)");
+  } catch {
+    // index already exists
   }
 }

@@ -9,12 +9,14 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Switch from "@mui/material/Switch";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { useExport } from "@/hooks";
+import { useExport, useHabits, useTreatments } from "@/hooks";
 import { toast } from "@/store/toastStore";
 
 export function DataExportSection() {
   const { t } = useTranslation();
   const { exportJSON, exportCSV, saveJSON, saveCSV, importJSON, importCSV } = useExport();
+  const { loadHabits } = useHabits();
+  const { loadTreatments } = useTreatments();
 
   const [exportOpen, setExportOpen] = useState(false);
   const [saveConfirmOpen, setSaveConfirmOpen] = useState(false);
@@ -27,9 +29,11 @@ export function DataExportSection() {
   const [warnOpen, setWarnOpen] = useState(false);
 
   const handleShare = () => {
-    void (useCSVExport ? exportCSV() : exportJSON()).then((outcome) => {
-      if (outcome === "filesystem-error") toast.error(t("export.filesystemError"));
-    });
+    void (useCSVExport ? exportCSV() : exportJSON())
+      .then((outcome) => {
+        if (outcome === "filesystem-error") toast.error(t("export.filesystemError"));
+      })
+      .catch(() => { toast.error(t("export.filesystemError")); });
     setExportOpen(false);
   };
 
@@ -63,15 +67,22 @@ export function DataExportSection() {
     input.click();
   };
 
-  const confirmImport = () => {
+  const confirmImport = async () => {
     if (!importFile || isImporting) return;
+    const file = importFile;
+    const type = importType;
     setIsImporting(true);
-    void (importType === "json" ? importJSON(importFile) : importCSV(importFile))
-      .then(() => { toast.success(t("export.importSuccess")); })
-      .catch(() => { toast.error(t("common.error")); })
-      .finally(() => { setIsImporting(false); });
     setWarnOpen(false);
     setImportFile(null);
+    try {
+      await (type === "json" ? importJSON(file) : importCSV(file));
+      await Promise.all([loadHabits(), loadTreatments()]);
+      toast.success(t("export.importSuccess"));
+    } catch {
+      toast.error(t("common.error"));
+    } finally {
+      setIsImporting(false);
+    }
   };
 
   return (
@@ -132,7 +143,7 @@ export function DataExportSection() {
         <DialogContent><Typography>{t("export.importWarningBody")}</Typography></DialogContent>
         <DialogActions>
           <Button onClick={() => { setWarnOpen(false); }}>{t("common.cancel")}</Button>
-          <Button variant="outlined" color="warning" disabled={isImporting} onClick={confirmImport}>{t("export.importConfirm")}</Button>
+          <Button variant="outlined" color="warning" disabled={isImporting} onClick={() => { void confirmImport(); }}>{t("export.importConfirm")}</Button>
         </DialogActions>
       </Dialog>
     </>

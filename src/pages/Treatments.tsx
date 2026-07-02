@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Drawer from "@mui/material/Drawer";
@@ -34,6 +34,9 @@ export function Treatments() {
   const { treatments, loadTreatments, addTreatment, editTreatment, deleteTreatment } = useTreatments();
   const { logStatus, logStatusForDate, getLogsByDate } = useTreatmentLogs();
   const { scheduleReminder, cancelReminder } = useNotifications();
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
+
   const [logsMap, setLogsMap] = useState<Record<string, TreatmentLog | null>>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Treatment | null>(null);
@@ -61,9 +64,14 @@ export function Treatments() {
 
   const handleLog = async (treatment: Treatment, status: TreatmentStatus) => {
     const today = todayLocalDate();
-    const created = await logStatus({ treatmentId: treatment.id, scheduledAt: today, status });
-    setLogsMap((prev) => ({ ...prev, [treatment.id]: created }));
-    if (treatment.reminderEnabled) void scheduleReminder(treatment, true);
+    try {
+      const created = await logStatus({ treatmentId: treatment.id, scheduledAt: today, status });
+      if (!mountedRef.current) return;
+      setLogsMap((prev) => ({ ...prev, [treatment.id]: created }));
+      if (treatment.reminderEnabled) void scheduleReminder(treatment, true);
+    } catch {
+      toast.error(t("common.error"));
+    }
   };
 
   const handleDeleteConfirmed = () => {

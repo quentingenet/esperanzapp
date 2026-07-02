@@ -58,14 +58,14 @@ export function OnboardingSlider({ onComplete, onSkip }: OnboardingSliderProps) 
 
         <Box
           sx={{ flex: 1, px: 3, overflowY: "auto" }}
-          onTouchStart={(e) => { startX.current = e.touches[0].clientX; }}
+          onTouchStart={(e) => { startX.current = e.touches[0]?.clientX ?? 0; }}
           onTouchEnd={(e) => {
-            const delta = e.changedTouches[0].clientX - startX.current;
+            const delta = (e.changedTouches[0]?.clientX ?? startX.current) - startX.current;
             if (delta < -50 && step < SLIDE_COUNT - 1) setStep((s) => s + 1);
             if (delta > 50 && step > 0) setStep((s) => s - 1);
           }}
         >
-          <Slide />
+          {Slide && <Slide />}
         </Box>
 
         {!isLast && (

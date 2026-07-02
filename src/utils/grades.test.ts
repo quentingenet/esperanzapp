@@ -8,13 +8,13 @@ describe("GRADES", () => {
 
   it("is sorted by days ascending", () => {
     for (let i = 1; i < GRADES.length; i++) {
-      expect(GRADES[i].days).toBeGreaterThan(GRADES[i - 1].days);
+      expect(GRADES[i]!.days).toBeGreaterThan(GRADES[i - 1]!.days);
     }
   });
 
   it("starts at day 1 and ends at day 730", () => {
     expect(GRADES[0].days).toBe(1);
-    expect(GRADES[GRADES.length - 1].days).toBe(730);
+    expect(GRADES[GRADES.length - 1]!.days).toBe(730);
   });
 
   it("every entry has all required fields", () => {

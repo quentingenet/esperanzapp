@@ -85,5 +85,13 @@ describe("runInTransaction", () => {
       // The body must run serialization tests already prove ordering is correct
       expect(order).toEqual(["body"]);
     });
+
+    it("passes captured db connection to callback", async () => {
+      const { runInTransaction } = await import("./client");
+      let receivedDb: unknown = undefined;
+      await runInTransaction(async (db) => { receivedDb = db; });
+      expect(receivedDb).not.toBeNull();
+      expect(receivedDb).not.toBeUndefined();
+    });
   });
 });

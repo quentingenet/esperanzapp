@@ -25,7 +25,7 @@ vi.mock("@/db", () => ({
   createHabitLog: vi.fn().mockResolvedValue({ id: "20" }),
   createTreatment: vi.fn().mockResolvedValue({ id: "30" }),
   createTreatmentLog: vi.fn().mockResolvedValue({ id: "40" }),
-  runInTransaction: vi.fn().mockImplementation(async (fn: () => Promise<void>) => fn()),
+  runInTransaction: vi.fn().mockImplementation(async (fn: (db: null) => Promise<void>) => fn(null)),
 }));
 
 const mockHabit: Habit = {
@@ -323,6 +323,11 @@ describe("parseCSVPayload", () => {
     expect(() => parseCSVPayload(csv)).toThrow();
   });
 
+  it("throws on invalid reminderEnabled value in TREATMENTS", () => {
+    const csv = `${H}\n\n${HL}\n\nTREATMENTS\nid,label,frequency,reminderTime,reminderEnabled,reminderDay,createdAt\n1,Med,daily,08:00,true,,2024-01-01T00:00:00Z\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow(/reminderEnabled must be "0" or "1"/);
+  });
+
   it("throws on invalid status in TREATMENT_LOGS", () => {
     const csv = `${H}\n\n${HL}\n\n${TR}\n\nTREATMENT_LOGS\nid,treatmentId,scheduledAt,status\n1,1,2024-01-01,unknown\n`;
     expect(() => parseCSVPayload(csv)).toThrow();
@@ -354,7 +359,7 @@ describe("exportToJSON", () => {
   it("writes valid JSON content", async () => {
     const { Filesystem } = await import("@capacitor/filesystem");
     await exportToJSON();
-    const call = (Filesystem.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][0] as { data: string };
+    const call = (Filesystem.writeFile as ReturnType<typeof vi.fn>).mock.calls[0]![0] as { data: string };
     const parsed: unknown = JSON.parse(call.data);
     expect(parsed).toHaveProperty("version", "1");
   });
@@ -380,7 +385,7 @@ describe("exportToCSV", () => {
   it("writes content containing HABITS section", async () => {
     const { Filesystem } = await import("@capacitor/filesystem");
     await exportToCSV();
-    const call = (Filesystem.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][0] as { data: string };
+    const call = (Filesystem.writeFile as ReturnType<typeof vi.fn>).mock.calls[0]![0] as { data: string };
     expect(call.data).toContain("HABITS");
   });
 });
@@ -456,6 +461,7 @@ describe("importFromJSON", () => {
     expect(createHabit).toHaveBeenCalledTimes(1);
     expect(createHabitLog).toHaveBeenCalledWith(
       expect.objectContaining({ habitId: "10" }),
+      null,
     );
   });
 
@@ -473,6 +479,7 @@ describe("importFromJSON", () => {
     expect(createTreatment).toHaveBeenCalledTimes(1);
     expect(createTreatmentLog).toHaveBeenCalledWith(
       expect.objectContaining({ treatmentId: "30" }),
+      null,
     );
   });
 
@@ -542,6 +549,7 @@ describe("importFromCSV", () => {
     await importFromCSV(file);
     expect(createHabitLog).toHaveBeenCalledWith(
       expect.objectContaining({ habitId: "10" }),
+      null,
     );
   });
 

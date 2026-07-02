@@ -32,7 +32,7 @@ export function HabitCalendar({ habitId }: HabitCalendarProps) {
   const CustomDay = useCallback((props: PickerDayProps) => {
     const dateStr = format(props.day, "yyyy-MM-dd");
     const status = statusMap[dateStr];
-    const dotColor = DOT_COLORS[status];
+    const dotColor = status !== undefined ? DOT_COLORS[status] : undefined;
     return (
       <Box sx={{ position: "relative" }}>
         <PickerDay {...props} />

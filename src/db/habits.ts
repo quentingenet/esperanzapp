@@ -1,3 +1,4 @@
+import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import type { Habit } from "@/types";
 import { withDb, withDbVoid } from "./client";
 
@@ -23,8 +24,8 @@ function rowToHabit(row: HabitRow): Habit {
   };
 }
 
-export function createHabit(data: Omit<Habit, "id">): Promise<Habit> {
-  return withDb(async (db) => {
+export function createHabit(data: Omit<Habit, "id">, dbConn?: SQLiteDBConnection | null): Promise<Habit> {
+  const fn = async (db: SQLiteDBConnection): Promise<Habit> => {
     const result = await db.run(
       "INSERT INTO habits (label, icon, color, bg_color, start_date, created_at) VALUES (?, ?, ?, ?, ?, ?)",
       [data.label, data.icon, data.color, data.bgColor, data.startDate, data.createdAt],
@@ -32,7 +33,9 @@ export function createHabit(data: Omit<Habit, "id">): Promise<Habit> {
     const lastId = result.changes?.lastId;
     if (!lastId) throw new Error("Failed to insert habit");
     return { ...data, id: String(lastId) };
-  }, { ...data, id: String(Date.now()) });
+  };
+  if (dbConn) return fn(dbConn);
+  return withDb(fn, { ...data, id: String(Date.now()) });
 }
 
 export function getHabitById(id: string): Promise<Habit | null> {
