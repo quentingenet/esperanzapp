@@ -6,6 +6,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { PickerDay } from "@mui/x-date-pickers/PickerDay";
 import type { PickerDayProps } from "@mui/x-date-pickers/PickerDay";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
 import { useCalendar, useDateLocale } from "@/hooks";
 import { COLORS } from "@/theme/tokens";
 import type { DayStatus, HabitCalendarProps } from "@/types";
@@ -17,6 +18,7 @@ const DOT_COLORS: Partial<Record<DayStatus, string>> = {
 };
 
 export function HabitCalendar({ habitId }: HabitCalendarProps) {
+  const { t } = useTranslation();
   const { getHabitDayStatusMap } = useCalendar();
   const dateLocale = useDateLocale();
   const [statusMap, setStatusMap] = useState<Record<string, DayStatus>>({});
@@ -33,11 +35,14 @@ export function HabitCalendar({ habitId }: HabitCalendarProps) {
     const dateStr = format(props.day, "yyyy-MM-dd");
     const status = statusMap[dateStr];
     const dotColor = status !== undefined ? DOT_COLORS[status] : undefined;
+    const dayLabel = format(props.day, "PP", { locale: dateLocale });
+    const ariaLabel = status !== undefined ? `${dayLabel}, ${t(`history.${status}`)}` : dayLabel;
     return (
       <Box sx={{ position: "relative" }}>
-        <PickerDay {...props} />
+        <PickerDay {...props} aria-label={ariaLabel} />
         {dotColor !== undefined && (
           <Box
+            aria-hidden="true"
             sx={{
               position: "absolute",
               bottom: 2,
@@ -53,7 +58,7 @@ export function HabitCalendar({ habitId }: HabitCalendarProps) {
         )}
       </Box>
     );
-  }, [statusMap]);
+  }, [statusMap, t, dateLocale]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={dateLocale}>

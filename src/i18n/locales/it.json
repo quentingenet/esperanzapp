@@ -276,6 +276,7 @@
     "title": "Cronologia",
     "empty": "Nessun evento registrato",
     "start": "Inizio",
+    "active": "Attivo",
     "relapse": "Ricaduta",
     "relapseRestart": "Ricaduta, nuovo inizio",
     "calendar": "Calendario",

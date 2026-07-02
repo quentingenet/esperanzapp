@@ -21,6 +21,7 @@ export async function initDatabase(): Promise<void> {
     : await sqlite.createConnection(DB_NAME, false, "no-encryption", 1, false);
 
   await db.open();
+  await db.execute("PRAGMA foreign_keys = ON");
   await runSchema(db);
 }
 

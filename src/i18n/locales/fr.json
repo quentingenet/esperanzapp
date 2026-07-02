@@ -276,6 +276,7 @@
     "title": "Historique",
     "empty": "Aucun événement enregistré",
     "start": "Démarrage",
+    "active": "Actif",
     "relapse": "Rechute",
     "relapseRestart": "Rechute, nouveau départ",
     "calendar": "Calendrier",

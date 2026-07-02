@@ -34,6 +34,16 @@ describe("diffInDays", () => {
   it("counts full calendar days", () => {
     expect(diffInDays("2024-01-01", "2024-12-31")).toBe(365);
   });
+
+  it("ignores time and timezone component in ISO datetime strings", () => {
+    expect(diffInDays("2024-01-01T00:00:00.000Z", "2024-01-08T23:59:59.000Z")).toBe(7);
+  });
+
+  it("produces the same result for date-only and datetime inputs on the same day", () => {
+    expect(diffInDays("2024-06-01", "2024-06-15")).toBe(
+      diffInDays("2024-06-01T10:30:00.000Z", "2024-06-15T22:45:00.000Z"),
+    );
+  });
 });
 
 describe("formatDate", () => {

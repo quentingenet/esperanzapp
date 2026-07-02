@@ -276,6 +276,7 @@
     "title": "History",
     "empty": "No events recorded",
     "start": "Started",
+    "active": "Active",
     "relapse": "Relapse",
     "relapseRestart": "Relapse, new start",
     "calendar": "Calendar",

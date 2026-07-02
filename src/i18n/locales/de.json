@@ -276,6 +276,7 @@
     "title": "Verlauf",
     "empty": "Keine Ereignisse aufgezeichnet",
     "start": "Gestartet",
+    "active": "Aktiv",
     "relapse": "Rückfall",
     "relapseRestart": "Rückfall, Neustart",
     "calendar": "Kalender",

@@ -119,6 +119,51 @@ describe("useHabitLogs", () => {
       expect(stats).toMatchObject({ currentStreak: 0, totalRelapses: 0, startDate: "" });
     });
 
+    it("ignores multiple relapses before any start", async () => {
+      vi.mocked(getHabitLogsByHabitId).mockResolvedValue([
+        relapseLog("2024-01-03"),
+        relapseLog("2024-01-05"),
+        startLog("2024-01-10"),
+      ]);
+      const { result } = renderHook(() => useHabitLogs());
+      let stats;
+      await act(async () => {
+        stats = await result.current.getStats("1");
+      });
+      expect(stats).toMatchObject({ currentStreak: 5, totalRelapses: 0, startDate: "2024-01-10" });
+    });
+
+    it("consecutive starts without relapse keep the first start date for the streak", async () => {
+      vi.mocked(getHabitLogsByHabitId).mockResolvedValue([
+        startLog("2024-01-01"),
+        startLog("2024-01-05"),
+        relapseLog("2024-01-10"),
+      ]);
+      const { result } = renderHook(() => useHabitLogs());
+      let stats;
+      await act(async () => {
+        stats = await result.current.getStats("1");
+      });
+      // streak from Jan 1 to Jan 10 = 9 days, not 5 (from Jan 5)
+      expect(stats).toMatchObject({ currentStreak: 0, longestStreak: 9, totalRelapses: 1 });
+    });
+
+    it("consecutive starts after restart keep the post-relapse start", async () => {
+      vi.mocked(getHabitLogsByHabitId).mockResolvedValue([
+        startLog("2024-01-01"),
+        relapseLog("2024-01-05"),
+        startLog("2024-01-06"),
+        startLog("2024-01-08"),
+      ]);
+      const { result } = renderHook(() => useHabitLogs());
+      let stats;
+      await act(async () => {
+        stats = await result.current.getStats("1");
+      });
+      // active streak from Jan 6 (not Jan 8), today=Jan 15 → 9 days
+      expect(stats).toMatchObject({ currentStreak: 9, longestStreak: 9, totalRelapses: 1 });
+    });
+
     it("relapse same day as start: currentStreak = 0", async () => {
       vi.mocked(getHabitLogsByHabitId).mockResolvedValue([
         startLog("2024-01-01"),

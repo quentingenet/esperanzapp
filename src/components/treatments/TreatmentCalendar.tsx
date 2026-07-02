@@ -136,7 +136,7 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, created
     const hasStatus = status !== undefined && STATUS_COLORS[status] !== undefined;
     const statusLabel = hasStatus ? t(`treatments.${status}`) : undefined;
     const dayLabel = format(props.day, "PP", { locale: dateLocale });
-    const ariaLabel = statusLabel !== undefined ? `${dayLabel} — ${statusLabel}` : dayLabel;
+    const ariaLabel = statusLabel !== undefined ? `${dayLabel}, ${statusLabel}` : dayLabel;
     return (
       <Box sx={{ position: "relative", borderRadius: "50%", bgcolor: bg ?? "transparent" }}>
         <PickerDay {...props} aria-label={ariaLabel} />
@@ -203,7 +203,7 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, created
                 component="div"
                 onClick={() => { handleDaySelect(date); }}
                 disabled={!onLogDate}
-                aria-label={`${formattedDate} — ${statusLabel}`}
+                aria-label={`${formattedDate}, ${statusLabel}`}
                 sx={{
                   display: "flex",
                   alignItems: "center",

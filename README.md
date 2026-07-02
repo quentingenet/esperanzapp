@@ -161,7 +161,7 @@ EsperanzApp requests the **minimum permissions necessary** to function. No inter
 |---|---|---|---|
 | `POST_NOTIFICATIONS` | **Yes** (Android 13+) | You, when adding your first treatment | To send daily reminders to take your medication. You can decline: the app works fully, you just won't receive notifications. |
 | `RECEIVE_BOOT_COMPLETED` | No (automatic) | `@capacitor/local-notifications` | Re-schedules your treatment reminders after a phone restart, so they don't disappear when you reboot. |
-| `WAKE_LOCK` | No (automatic) | `@capacitor/local-notifications` | Allows the system to briefly wake the screen to display a notification. Standard for any reminder app. |
+| `WAKE_LOCK` | No (automatic) | `@capacitor/local-notifications` | Allows the system to briefly wake the CPU to deliver a notification on time. Not declared in the app's own `AndroidManifest.xml` — injected by the library's manifest during Gradle's merge phase. |
 | `VIBRATE` | No (automatic) | App | Allows notifications to vibrate. No prompt, no personal data. |
 
 **No** `INTERNET`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`, `ACCESS_FINE_LOCATION`, `READ_CONTACTS`, or any other sensitive permission is requested.

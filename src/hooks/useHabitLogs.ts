@@ -22,8 +22,8 @@ function computeStats(logs: HabitLog[]): HabitStats {
 
   for (const log of sorted) {
     if (log.eventType === "start") {
-      streakStart = log.eventDate.slice(0, 10);
-      if (!startDate) startDate = streakStart;
+      if (!startDate) startDate = log.eventDate.slice(0, 10);
+      if (!streakStart) streakStart = log.eventDate.slice(0, 10);
     } else {
       if (!startDate) continue;
       totalRelapses++;
