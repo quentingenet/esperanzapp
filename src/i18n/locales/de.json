@@ -51,8 +51,8 @@
     "start": "Loslegen",
     "steps": {
       "counter": {
-        "title": "EsperanzApp, dein Verbündeter!",
-        "body": "Die Befreiung von einer Gewohnheit wird Tag für Tag aufgebaut.\nJeder Tag ohne Rückfall ist ein kleiner Sieg!\nEsperanzApp begleitet dich."
+        "title": "Übernimm die Kontrolle über deine Gewohnheiten",
+        "body": "Begleite die Gewohnheiten, von denen du dich befreien möchtest, und zähle jeden rückfallfreien Tag.\n\nSich von einer Gewohnheit zu befreien, baut sich Tag für Tag auf.\nJeder Tag ohne Rückfall ist ein kleiner Sieg!\nEsperanzApp begleitet dich."
       },
       "relapse": {
         "title": "Ein Rückfall?",
@@ -293,16 +293,26 @@
     "importSuccess": "Import erfolgreich",
     "error": "Vorgang fehlgeschlagen",
     "importWarningTitle": "Achtung",
-    "importWarningBody": "Der Import fügt Daten hinzu, ohne bestehende zu überschreiben. Duplikate können entstehen. Dateien im Download-Ordner sind für andere Apps zugänglich.",
+    "importWarningBody": "Diese Aktion löscht ALLE vorhandenen Daten unwiderruflich und ersetzt sie durch den Inhalt der importierten Datei.",
     "importFileHint": "Wähle eine .json- oder .csv-Datei.\nDas Format wird automatisch erkannt.",
     "chooseFileBtn": "Datei auswählen",
-    "importConfirm": "Trotzdem importieren",
+    "importConfirm": "Ersetzen",
     "editName": "Meinen Namen ändern",
     "privacyWarningTitle": "Diese Daten sind persönlich und sensibel",
     "privacyWarningBody": "Die exportierte Datei enthält Gesundheitsinformationen. Einmal im Ordner Dokumente gespeichert, kann sie von anderen Apps oder Personen mit Gerätezugang eingesehen werden.",
     "saveConfirmBody": "Die Datei wird im Ordner Dokumente der App auf Ihrem Telefon gespeichert (erreichbar über den Datei-Manager).",
     "filesystemError": "Datei konnte nicht geschrieben werden. Speicher prüfen.",
-    "documentsUnavailable": "Speichern in Dokumente fehlgeschlagen. Bitte Teilen verwenden."
+    "documentsUnavailable": "Speichern in Dokumente fehlgeschlagen. Bitte Teilen verwenden.",
+    "encryptSwitch": "Mit Passwort verschlüsseln",
+    "encryptPassword": "Passwort",
+    "encryptPasswordConfirm": "Passwort bestätigen",
+    "encryptWarning": "Dieses Passwort kann nicht wiederhergestellt werden. Bewahren Sie es sorgfältig auf : es wird zum Reimportieren dieser Daten benötigt.",
+    "encryptPasswordMinLength": "Mindestens 8 Zeichen",
+    "encryptPasswordMismatch": "Passwörter stimmen nicht überein",
+    "encryptedImportTitle": "Verschlüsselte Datei",
+    "encryptedImportHint": "Geben Sie das beim Export verwendete Passwort ein.",
+    "encryptedImportError": "Falsches Passwort",
+    "importReschedulePermissionDenied": "Berechtigung verweigert : importierte Erinnerungen werden nicht geplant."
   },
   "settings": {
     "title": "Einstellungen",
@@ -352,6 +362,8 @@
   },
   "startup": {
     "dbErrorTitle": "Startfehler",
-    "dbErrorBody": "Die Datenbank konnte nicht initialisiert werden. Bitte starte die App neu."
+    "dbErrorBody": "Die Datenbank konnte nicht geöffnet werden. Dies kann nach einem Update passieren. Du kannst die App zurücksetzen: lokale Daten werden gelöscht, können aber aus einer Exportdatei wiederhergestellt werden.",
+    "dbErrorReset": "App zurücksetzen",
+    "dbErrorResetFailed": "Zurücksetzen fehlgeschlagen. Deinstalliere die App und installiere sie neu, um den Zugriff wiederherzustellen."
   }
 }

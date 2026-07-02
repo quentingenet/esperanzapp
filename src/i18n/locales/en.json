@@ -51,8 +51,8 @@
     "start": "Get started",
     "steps": {
       "counter": {
-        "title": "EsperanzApp, your ally!",
-        "body": "Breaking a habit is built day by day.\nEvery day without a relapse is a small victory!\nEsperanzApp walks with you."
+        "title": "Take back control of your habits",
+        "body": "Track the habits you want to break free from and count each day without relapse.\n\nBreaking free from a habit is built one day at a time.\nEvery day without relapse is a small victory!\nEsperanzApp walks with you."
       },
       "relapse": {
         "title": "A Relapse?",
@@ -293,16 +293,26 @@
     "importSuccess": "Import successful",
     "error": "Operation failed",
     "importWarningTitle": "Warning",
-    "importWarningBody": "Import will add data without overwriting existing records. Duplicates may appear. Files saved in Downloads can be accessed by other apps.",
+    "importWarningBody": "This will permanently delete ALL your existing data and replace it with the contents of the imported file. This cannot be undone.",
     "importFileHint": "Select a .json or .csv file.\nThe format will be detected automatically.",
     "chooseFileBtn": "Choose a file",
-    "importConfirm": "Import anyway",
+    "importConfirm": "Replace",
     "editName": "Edit my name",
     "privacyWarningTitle": "This data is personal and sensitive",
     "privacyWarningBody": "The exported file contains health information. Once saved to the Documents folder, it may be accessible by other applications or anyone with access to this device.",
     "saveConfirmBody": "The file will be saved to the app's Documents folder on your phone (accessible via the file manager).",
     "filesystemError": "Unable to write file. Check your device storage.",
-    "documentsUnavailable": "Could not save to Documents. Try using Share instead."
+    "documentsUnavailable": "Could not save to Documents. Try using Share instead.",
+    "encryptSwitch": "Encrypt with a password",
+    "encryptPassword": "Password",
+    "encryptPasswordConfirm": "Confirm password",
+    "encryptWarning": "This password cannot be recovered. Keep it safe : it will be required to reimport this data.",
+    "encryptPasswordMinLength": "Minimum 8 characters",
+    "encryptPasswordMismatch": "Passwords do not match",
+    "encryptedImportTitle": "Encrypted file",
+    "encryptedImportHint": "Enter the password used when exporting.",
+    "encryptedImportError": "Incorrect password",
+    "importReschedulePermissionDenied": "Permission denied : imported reminders will not be scheduled."
   },
   "settings": {
     "title": "Settings",
@@ -352,6 +362,8 @@
   },
   "startup": {
     "dbErrorTitle": "Startup error",
-    "dbErrorBody": "The database could not be initialized. Please restart the app."
+    "dbErrorBody": "The database could not be opened. This can happen after an update. You can reset the app: local data will be erased, but you can restore it from an export file.",
+    "dbErrorReset": "Reset the app",
+    "dbErrorResetFailed": "Reset failed. Uninstall and reinstall the app to recover access."
   }
 }

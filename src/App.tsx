@@ -13,7 +13,12 @@ import { theme } from "@/theme";
 import type { SupportedLocale } from "@/i18n";
 import type { NavTab } from "@/types";
 
-function RebootRescheduler() {
+// On Android, @capacitor/local-notifications ships a native LocalNotificationRestoreReceiver
+// that reschedules stored notifications on BOOT_COMPLETED without requiring the app to open.
+// This component is a complementary safeguard: it re-syncs reminders against the current DB
+// state every time the app is opened, catching any drift (e.g. after a data import or if the
+// plugin's SharedPreferences were cleared). It is NOT a substitute for the native receiver.
+function AppStartRescheduler() {
   const { scheduleReminder } = useNotifications();
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -24,12 +29,36 @@ function RebootRescheduler() {
           await scheduleReminder(t);
         }
       } catch {
-        // silently ignore notifications are best-effort at reboot
+        // Notifications are best-effort: scheduling failure must not crash the app.
       }
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return null;
+}
+
+// Visible only when running in a browser (Capacitor platform "web").
+// On any native Android/iOS build, getPlatform() returns "android" or "ios" and this
+// component renders nothing. Never add a production-only gate here: "web" already
+// guarantees we are not on a native build.
+function DevWebBanner() {
+  if (Capacitor.getPlatform() !== "web") return null;
+  return (
+    <Box
+      role="status"
+      sx={{
+        bgcolor: "warning.main",
+        color: "warning.contrastText",
+        px: 2,
+        py: 0.5,
+        fontSize: 11,
+        textAlign: "center",
+        letterSpacing: 0.2,
+      }}
+    >
+      Web mode - no real persistence. Use a native Android build to validate data storage.
+    </Box>
+  );
 }
 
 function AppContent() {
@@ -76,7 +105,8 @@ function AppContent() {
 
   return (
     <Box sx={{ minHeight: "100dvh", bgcolor: "background.default" }}>
-      <RebootRescheduler />
+      <DevWebBanner />
+      <AppStartRescheduler />
       {pages[activeTab]}
       <Box sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }}>
         <BottomNav activeTab={activeTab} onChange={setActiveTab} />

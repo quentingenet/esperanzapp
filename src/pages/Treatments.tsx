@@ -74,12 +74,18 @@ export function Treatments() {
     }
   };
 
-  const handleDeleteConfirmed = () => {
+  const handleDeleteConfirmed = async () => {
     if (!deleteTarget) return;
-    void deleteTreatment(deleteTarget.id)
-      .then(() => { toast.success(t("common.deleted")); void loadTreatments(); })
-      .catch(() => { toast.error(t("common.error")); });
+    const target = deleteTarget;
     setDeleteTarget(null);
+    try {
+      await deleteTreatment(target.id);
+      await cancelReminder(target.id);
+      toast.success(t("common.deleted"));
+      void loadTreatments();
+    } catch {
+      toast.error(t("common.error"));
+    }
   };
 
   const openEdit = (tr: Treatment) => {
@@ -156,7 +162,7 @@ export function Treatments() {
       <ConfirmDialog
         open={deleteTarget !== null}
         title={t("treatments.deleteConfirm")}
-        onConfirm={handleDeleteConfirmed}
+        onConfirm={() => { void handleDeleteConfirmed(); }}
         onCancel={() => { setDeleteTarget(null); }}
       />
 

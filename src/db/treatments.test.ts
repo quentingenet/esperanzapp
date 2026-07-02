@@ -72,9 +72,21 @@ describe("updateTreatment", () => {
 });
 
 describe("deleteTreatment", () => {
-  it("calls DELETE with correct id", async () => {
+  it("deletes associated treatment_logs before deleting the treatment", async () => {
     mockDb.run.mockResolvedValue({});
+    const order: string[] = [];
+    mockDb.run.mockImplementation(async (sql: string) => {
+      if (sql.includes("treatment_logs")) order.push("logs");
+      else if (sql.includes("treatments")) order.push("treatment");
+    });
     await deleteTreatment("3");
-    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM treatments WHERE id = ?", ["3"]);
+    expect(order).toEqual(["logs", "treatment"]);
+  });
+
+  it("passes correct id to both DELETE statements", async () => {
+    mockDb.run.mockResolvedValue({});
+    await deleteTreatment("7");
+    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM treatment_logs WHERE treatment_id = ?", ["7"]);
+    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM treatments WHERE id = ?", ["7"]);
   });
 });

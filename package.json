@@ -1,6 +1,6 @@
 {
   "name": "esperanzapp",
-  "version": "1.1.7",
+  "version": "1.1.10",
   "private": true,
   "description": "EsperanzApp - Private - Free - Liberating",
   "author": "Quentin Genet <contact@quentingenet.fr>",
@@ -10,7 +10,7 @@
     "postinstall": "mkdir -p public/assets && cp node_modules/sql.js/dist/sql-wasm.wasm public/assets/",
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:release": "npm version $(git describe --tags --abbrev=0) --no-git-tag-version && npm run build",
+    "build:release": "node -e \"const t=require('child_process').execSync('git describe --tags --abbrev=0').toString().trim().replace(/^v/,''),p=require('./package.json').version;if(t!==p){require('child_process').execSync('npm version '+t+' --no-git-tag-version',{stdio:'inherit'})}\" && npm run build",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",

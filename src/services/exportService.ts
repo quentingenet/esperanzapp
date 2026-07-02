@@ -8,6 +8,7 @@ import {
   createTreatment,
   createTreatmentLog,
   runInTransaction,
+  clearAllData,
 } from "@/db";
 import {
   buildExportPayload,
@@ -15,80 +16,65 @@ import {
   payloadToCSV,
   parseCSVPayload,
   exportTimestamp,
+  encryptPayload,
+  decryptPayload,
+  isEncryptedEnvelope,
+  WrongPasswordError,
 } from "../utils/exportSerialization";
 import { shareFile, saveToFolder } from "./shareService";
 import type { ShareOutcome, SaveOutcome } from "./shareService";
 
-export async function exportToJSON(): Promise<ShareOutcome> {
+async function buildPayload() {
   const [habits, habitLogs, treatments, treatmentLogs] = await Promise.all([
     getAllHabits(),
     getAllHabitLogs(),
     getAllTreatments(),
     getAllTreatmentLogs(),
   ]);
+  return buildExportPayload(habits, habitLogs, treatments, treatmentLogs, new Date().toISOString());
+}
 
-  const now = new Date().toISOString();
-  const payload = buildExportPayload(habits, habitLogs, treatments, treatmentLogs, now);
-
+export async function exportToJSON(password?: string): Promise<ShareOutcome> {
+  const payload = await buildPayload();
+  const serialized = JSON.stringify(payload, null, 2);
+  const content = password ? await encryptPayload(serialized, password, "json") : serialized;
   return shareFile(
     `esperanzapp_export_${exportTimestamp()}.json`,
-    JSON.stringify(payload, null, 2),
+    content,
     "application/json",
   );
 }
 
-export async function exportToCSV(): Promise<ShareOutcome> {
-  const [habits, habitLogs, treatments, treatmentLogs] = await Promise.all([
-    getAllHabits(),
-    getAllHabitLogs(),
-    getAllTreatments(),
-    getAllTreatmentLogs(),
-  ]);
-
-  const now = new Date().toISOString();
-  const payload = buildExportPayload(habits, habitLogs, treatments, treatmentLogs, now);
-
-  return shareFile(
-    `esperanzapp_export_${exportTimestamp()}.csv`,
-    payloadToCSV(payload),
-    "text/csv",
-  );
+export async function exportToCSV(password?: string): Promise<ShareOutcome> {
+  const payload = await buildPayload();
+  const csvContent = payloadToCSV(payload);
+  if (password) {
+    // Encrypted exports are always wrapped as JSON regardless of original format
+    const content = await encryptPayload(csvContent, password, "csv");
+    return shareFile(`esperanzapp_export_${exportTimestamp()}.json`, content, "application/json");
+  }
+  return shareFile(`esperanzapp_export_${exportTimestamp()}.csv`, csvContent, "text/csv");
 }
 
-export async function saveJSONToFolder(): Promise<SaveOutcome> {
-  const [habits, habitLogs, treatments, treatmentLogs] = await Promise.all([
-    getAllHabits(),
-    getAllHabitLogs(),
-    getAllTreatments(),
-    getAllTreatmentLogs(),
-  ]);
-
-  const now = new Date().toISOString();
-  const payload = buildExportPayload(habits, habitLogs, treatments, treatmentLogs, now);
-
+export async function saveJSONToFolder(password?: string): Promise<SaveOutcome> {
+  const payload = await buildPayload();
+  const serialized = JSON.stringify(payload, null, 2);
+  const content = password ? await encryptPayload(serialized, password, "json") : serialized;
   return saveToFolder(
     `esperanzapp_export_${exportTimestamp()}.json`,
-    JSON.stringify(payload, null, 2),
+    content,
     "application/json",
   );
 }
 
-export async function saveCSVToFolder(): Promise<SaveOutcome> {
-  const [habits, habitLogs, treatments, treatmentLogs] = await Promise.all([
-    getAllHabits(),
-    getAllHabitLogs(),
-    getAllTreatments(),
-    getAllTreatmentLogs(),
-  ]);
-
-  const now = new Date().toISOString();
-  const payload = buildExportPayload(habits, habitLogs, treatments, treatmentLogs, now);
-
-  return saveToFolder(
-    `esperanzapp_export_${exportTimestamp()}.csv`,
-    payloadToCSV(payload),
-    "text/csv",
-  );
+export async function saveCSVToFolder(password?: string): Promise<SaveOutcome> {
+  const payload = await buildPayload();
+  const csvContent = payloadToCSV(payload);
+  if (password) {
+    const content = await encryptPayload(csvContent, password, "csv");
+    return saveToFolder(`esperanzapp_export_${exportTimestamp()}.json`, content, "application/json");
+  }
+  return saveToFolder(`esperanzapp_export_${exportTimestamp()}.csv`, csvContent, "text/csv");
 }
 
 function validateNoOrphans(payload: ReturnType<typeof parseExportPayload>): void {
@@ -107,6 +93,7 @@ function validateNoOrphans(payload: ReturnType<typeof parseExportPayload>): void
 async function importPayload(payload: ReturnType<typeof parseExportPayload>): Promise<void> {
   validateNoOrphans(payload);
   await runInTransaction(async (db) => {
+    await clearAllData(db);
     const habitIdMap = new Map<string, string>();
     for (const { id: oldId, ...data } of payload.habits) {
       const created = await createHabit(data, db);
@@ -130,12 +117,35 @@ async function importPayload(payload: ReturnType<typeof parseExportPayload>): Pr
   });
 }
 
-export async function importFromJSON(file: File): Promise<void> {
-  const payload = parseExportPayload(await file.text());
+async function resolveImportContent(
+  raw: string,
+  password: string | undefined,
+): Promise<{ content: string; format: "json" | "csv" }> {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return { content: raw, format: "csv" };
+  }
+  if (isEncryptedEnvelope(parsed)) {
+    if (!password) throw new WrongPasswordError();
+    return decryptPayload(raw, password);
+  }
+  return { content: raw, format: "json" };
+}
+
+export async function importFromJSON(file: File, password?: string): Promise<void> {
+  const raw = await file.text();
+  const { content, format } = await resolveImportContent(raw, password);
+  const payload = format === "csv" ? parseCSVPayload(content) : parseExportPayload(content);
   await importPayload(payload);
 }
 
-export async function importFromCSV(file: File): Promise<void> {
-  const payload = parseCSVPayload(await file.text());
+export async function importFromCSV(file: File, password?: string): Promise<void> {
+  const raw = await file.text();
+  const { content, format } = await resolveImportContent(raw, password);
+  const payload = format === "csv" ? parseCSVPayload(content) : parseExportPayload(content);
   await importPayload(payload);
 }
+
+export { WrongPasswordError };

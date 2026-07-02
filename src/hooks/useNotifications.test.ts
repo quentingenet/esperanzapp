@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useNotifications } from "./useNotifications";
+import { useNotifications, getNotificationId, NOTIF_DOMAIN_OFFSET } from "./useNotifications";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import type { Treatment } from "@/types";
@@ -14,6 +14,34 @@ const treatment: Treatment = {
   reminderDay: null,
   createdAt: "2024-01-01T10:00:00.000Z",
 };
+
+const TREATMENT_3_NOTIF_ID = getNotificationId("treatments", "3");
+
+describe("getNotificationId", () => {
+  it("returns different IDs for different domains with same id", () => {
+    expect(getNotificationId("treatments", "1")).not.toBe(getNotificationId("milestones", "1"));
+  });
+
+  it("treatment IDs are in [1_000_000, 2_000_000)", () => {
+    expect(getNotificationId("treatments", "abc")).toBeGreaterThanOrEqual(NOTIF_DOMAIN_OFFSET.treatments);
+    expect(getNotificationId("treatments", "abc")).toBeLessThan(NOTIF_DOMAIN_OFFSET.milestones);
+  });
+
+  it("milestone IDs are in [2_000_000, 3_000_000)", () => {
+    expect(getNotificationId("milestones", "abc")).toBeGreaterThanOrEqual(NOTIF_DOMAIN_OFFSET.milestones);
+    expect(getNotificationId("milestones", "abc")).toBeLessThan(3_000_000);
+  });
+
+  it("is deterministic for the same input", () => {
+    expect(getNotificationId("treatments", "my-id")).toBe(getNotificationId("treatments", "my-id"));
+  });
+
+  it("produces no collisions across 50 sequential treatment IDs", () => {
+    const ids = Array.from({ length: 50 }, (_, i) => getNotificationId("treatments", String(i + 1)));
+    const unique = new Set(ids);
+    expect(unique.size).toBe(50);
+  });
+});
 
 describe("useNotifications", () => {
   beforeEach(() => {
@@ -52,7 +80,7 @@ describe("useNotifications", () => {
     expect(granted).toBe(false);
   });
 
-  it("scheduleReminder calls LocalNotifications.schedule with correct id and frequency", async () => {
+  it("scheduleReminder calls LocalNotifications.schedule with namespaced id and frequency", async () => {
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.scheduleReminder(treatment);
@@ -61,7 +89,7 @@ describe("useNotifications", () => {
       expect.objectContaining({
         notifications: expect.arrayContaining([
           expect.objectContaining({
-            id: 3,
+            id: TREATMENT_3_NOTIF_ID,
             title: "EsperanzApp",
             schedule: expect.objectContaining({ every: "day", repeats: true }),
           }),
@@ -100,35 +128,62 @@ describe("useNotifications", () => {
     );
   });
 
-  it("cancelReminder calls cancel with numeric id", async () => {
+  it("cancelReminder calls cancel with namespaced treatment id", async () => {
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.cancelReminder("3");
     });
-    expect(LocalNotifications.cancel).toHaveBeenCalledWith({ notifications: [{ id: 3 }] });
+    expect(LocalNotifications.cancel).toHaveBeenCalledWith({
+      notifications: [{ id: TREATMENT_3_NOTIF_ID }],
+    });
   });
 
-  it("rescheduleAll cancels pending then reschedules all", async () => {
+  it("rescheduleAll cancels treatment-domain pending notifications then reschedules", async () => {
     type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
+    const inDomain1 = NOTIF_DOMAIN_OFFSET.treatments + 1;
+    const inDomain2 = NOTIF_DOMAIN_OFFSET.treatments + 500;
     vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
-      notifications: [{ id: 1 }, { id: 2 }],
+      notifications: [{ id: inDomain1 }, { id: inDomain2 }],
     } as PendingResult);
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.rescheduleAll([treatment]);
     });
     expect(LocalNotifications.cancel).toHaveBeenCalledWith(
-      expect.objectContaining({ notifications: [{ id: 1 }, { id: 2 }] }),
+      expect.objectContaining({ notifications: [{ id: inDomain1 }, { id: inDomain2 }] }),
     );
     expect(LocalNotifications.schedule).toHaveBeenCalledTimes(1);
   });
 
-  it("rescheduleAll skips bulk-cancel when no pending notifications but still pre-cancels per treatment", async () => {
-    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({ notifications: [] });
+  it("rescheduleAll does NOT cancel notifications outside the treatment domain", async () => {
+    type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
+    const outsideDomain = 42; // not in treatment domain
+    const inDomain = NOTIF_DOMAIN_OFFSET.treatments + 1;
+    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
+      notifications: [{ id: outsideDomain }, { id: inDomain }],
+    } as PendingResult);
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.rescheduleAll([treatment]);
     });
+    expect(LocalNotifications.cancel).toHaveBeenCalledWith(
+      expect.objectContaining({ notifications: [{ id: inDomain }] }),
+    );
+    expect(LocalNotifications.cancel).not.toHaveBeenCalledWith(
+      expect.objectContaining({ notifications: expect.arrayContaining([{ id: outsideDomain }]) }),
+    );
+  });
+
+  it("rescheduleAll skips bulk-cancel when no treatment-domain notifications are pending", async () => {
+    type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
+    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
+      notifications: [{ id: 42 }], // outside treatment domain
+    } as PendingResult);
+    const { result } = renderHook(() => useNotifications());
+    await act(async () => {
+      await result.current.rescheduleAll([treatment]);
+    });
+    // Only the pre-cancel inside scheduleReminder fires (1 call), bulk-cancel is skipped
     expect(LocalNotifications.cancel).toHaveBeenCalledTimes(1);
     expect(LocalNotifications.schedule).toHaveBeenCalledTimes(1);
   });

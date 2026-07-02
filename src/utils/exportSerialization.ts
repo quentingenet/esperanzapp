@@ -140,30 +140,6 @@ export type ExportPayload = {
   treatmentLogs: TreatmentLog[];
 };
 
-export function parseCSVRow(line: string): string[] {
-  const result: string[] = [];
-  let i = 0;
-  while (i < line.length) {
-    if (line[i] === '"') {
-      let field = "";
-      i++;
-      while (i < line.length) {
-        if (line[i] === '"' && line[i + 1] === '"') { field += '"'; i += 2; }
-        else if (line[i] === '"') { i++; break; }
-        else { field += (line[i++] ?? ""); }
-      }
-      result.push(field);
-      if (line[i] === ",") i++;
-    } else {
-      const end = line.indexOf(",", i);
-      if (end === -1) { result.push(line.slice(i)); break; }
-      result.push(line.slice(i, end));
-      i = end + 1;
-    }
-  }
-  if (line.endsWith(",")) result.push("");
-  return result;
-}
 
 export function buildExportPayload(
   habits: Habit[],
@@ -251,39 +227,95 @@ const HABIT_LOG_COLS = ["id", "habitId", "eventType", "eventDate"] as const;
 const TREATMENT_COLS = ["id", "label", "frequency", "reminderTime", "reminderEnabled", "reminderDay", "createdAt"] as const;
 const TREATMENT_LOG_COLS = ["id", "treatmentId", "scheduledAt", "status"] as const;
 
-export function parseCSVPayload(raw: string): ExportPayload {
-  const lines = raw.split(/\r?\n/).map((l) => l.trim());
+// Character-by-character CSV tokenizer that correctly handles quoted fields containing
+// embedded newlines, double-quote escapes (""), and carriage-return/newline line endings.
+// Each element of the returned array is one logical row (itself an array of field strings).
+function tokenizeCSV(raw: string): string[][] {
+  const result: string[][] = [];
+  let row: string[] = [];
+  let field = "";
+  let i = 0;
 
-  function parseSection(header: string, expectedCols: readonly string[]): string[][] {
-    const start = lines.indexOf(header);
-    if (start === -1) return [];
-    const colLine = lines[start + 1];
-    if (!colLine) throw new Error(`CSV section ${header}: missing column header row`);
-    const cols = parseCSVRow(colLine);
-    if (cols.join(",") !== expectedCols.join(","))
-      throw new Error(`CSV section ${header}: expected columns "${expectedCols.join(",")}", got "${cols.join(",")}"`);
-    const rows: string[][] = [];
-    for (let i = start + 2; i < lines.length; i++) {
-      const line = lines[i] ?? "";
-      if (!line) break;
-      const values = parseCSVRow(line);
-      if (values.length !== cols.length)
-        throw new Error(`CSV malformed row in ${header}: column count mismatch`);
-      rows.push(values);
+  while (i < raw.length) {
+    const ch = raw[i] ?? "";
+    if (ch === '"') {
+      i++;
+      while (i < raw.length) {
+        if (raw[i] === '"') {
+          if (raw[i + 1] === '"') { field += '"'; i += 2; }
+          else { i++; break; }
+        } else {
+          field += raw[i++] ?? "";
+        }
+      }
+    } else if (ch === ',') {
+      row.push(field);
+      field = "";
+      i++;
+    } else if (ch === '\r') {
+      row.push(field);
+      field = "";
+      result.push(row);
+      row = [];
+      i++;
+      if (raw[i] === '\n') i++;
+    } else if (ch === '\n') {
+      row.push(field);
+      field = "";
+      result.push(row);
+      row = [];
+      i++;
+    } else {
+      field += ch;
+      i++;
     }
-    return rows;
   }
 
-  const hasContent = lines.some((l) => l.length > 0);
+  if (field || row.length > 0) {
+    row.push(field);
+    result.push(row);
+  }
+
+  return result;
+}
+
+export function parseCSVPayload(raw: string): ExportPayload {
+  const rows = tokenizeCSV(raw);
+
+  const hasContent = rows.some((r) => r.some((f) => f.length > 0));
   if (!hasContent) throw new Error("Empty CSV file");
 
   const ALL_SECTIONS = ["HABITS", "HABIT_LOGS", "TREATMENTS", "TREATMENT_LOGS"] as const;
-  const missingSections = ALL_SECTIONS.filter((h) => !lines.includes(h));
+
+  function isSectionHeader(r: string[]): r is [string] {
+    return r.length === 1 && r[0] !== "";
+  }
+
+  const sectionNames = new Set(rows.filter(isSectionHeader).map((r) => r[0]));
+  const missingSections = ALL_SECTIONS.filter((h) => !sectionNames.has(h));
   if (missingSections.length === ALL_SECTIONS.length) {
     throw new Error("Unsupported or invalid CSV format");
   }
   if (missingSections.length > 0) {
     throw new Error(`CSV missing required section(s): ${missingSections.join(", ")}`);
+  }
+
+  function parseSection(header: string, expectedCols: readonly string[]): string[][] {
+    const start = rows.findIndex((r) => r.length === 1 && r[0] === header);
+    if (start === -1) return [];
+    const colRow = rows[start + 1];
+    if (!colRow) throw new Error(`CSV section ${header}: missing column header row`);
+    if (colRow.join(",") !== expectedCols.join(","))
+      throw new Error(`CSV section ${header}: expected columns "${expectedCols.join(",")}", got "${colRow.join(",")}"`);
+    const data: string[][] = [];
+    for (let i = start + 2; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r || r.length <= 1) break; // empty row or next section header
+      if (r.length !== colRow.length)
+        throw new Error(`CSV malformed row in ${header}: column count mismatch`);
+      data.push(r);
+    }
+    return data;
   }
 
   const habitRows = parseSection("HABITS", HABIT_COLS);
@@ -345,6 +377,128 @@ export function parseCSVPayload(raw: string): ExportPayload {
   });
 
   return { version: EXPORT_VERSION, exportedAt: "", habits, habitLogs, treatments, treatmentLogs };
+}
+
+// OWASP recommendation for PBKDF2-HMAC-SHA256 as of 2023.
+// This constant is intentionally named and stored in exported files so it can be raised
+// in future versions without breaking backward compatibility of existing encrypted exports.
+export const PBKDF2_ITERATIONS = 600_000;
+
+export class WrongPasswordError extends Error {
+  constructor() {
+    super("Wrong password");
+    this.name = "WrongPasswordError";
+  }
+}
+
+export type EncryptedEnvelope = {
+  encrypted: true;
+  format: "json" | "csv";
+  salt: string;
+  iv: string;
+  iterations: number;
+  data: string;
+};
+
+export function isEncryptedEnvelope(v: unknown): v is EncryptedEnvelope {
+  if (typeof v !== "object" || v === null) return false;
+  const e = v as Record<string, unknown>;
+  return (
+    e["encrypted"] === true &&
+    (e["format"] === "json" || e["format"] === "csv") &&
+    typeof e["salt"] === "string" &&
+    typeof e["iv"] === "string" &&
+    typeof e["iterations"] === "number" &&
+    (e["iterations"] as number) >= 600_000 &&
+    (e["iterations"] as number) <= 10_000_000 &&
+    typeof e["data"] === "string"
+  );
+}
+
+function toBase64(buf: ArrayBuffer | Uint8Array): string {
+  const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+  let binary = "";
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary);
+}
+
+function fromBase64(s: string): Uint8Array<ArrayBuffer> {
+  const binary = atob(s);
+  const bytes = new Uint8Array(new ArrayBuffer(binary.length));
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+async function deriveKey(password: string, salt: Uint8Array<ArrayBuffer>, iterations: number): Promise<CryptoKey> {
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(password),
+    "PBKDF2",
+    false,
+    ["deriveKey"],
+  );
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt, iterations, hash: "SHA-256" },
+    keyMaterial,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"],
+  );
+}
+
+export async function encryptPayload(
+  serialized: string,
+  password: string,
+  format: "json" | "csv",
+): Promise<string> {
+  const salt = new Uint8Array(new ArrayBuffer(16));
+  const iv = new Uint8Array(new ArrayBuffer(12));
+  crypto.getRandomValues(salt);
+  crypto.getRandomValues(iv);
+  const key = await deriveKey(password, salt, PBKDF2_ITERATIONS);
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    new TextEncoder().encode(serialized),
+  );
+  const envelope: EncryptedEnvelope = {
+    encrypted: true,
+    format,
+    salt: toBase64(salt),
+    iv: toBase64(iv),
+    iterations: PBKDF2_ITERATIONS,
+    data: toBase64(encrypted),
+  };
+  return JSON.stringify(envelope);
+}
+
+export async function decryptPayload(envelopeJson: string, password: string): Promise<{ content: string; format: "json" | "csv" }> {
+  const parsed: unknown = JSON.parse(envelopeJson);
+  if (!isEncryptedEnvelope(parsed)) throw new Error("Invalid encrypted envelope");
+  const salt = fromBase64(parsed.salt);
+  const iv = fromBase64(parsed.iv);
+  const data = fromBase64(parsed.data);
+  const key = await deriveKey(password, salt, parsed.iterations);
+  try {
+    const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data);
+    return { content: new TextDecoder().decode(decrypted), format: parsed.format };
+  } catch {
+    throw new WrongPasswordError();
+  }
+}
+
+export async function peekIsEncrypted(file: File): Promise<boolean> {
+  try {
+    const text = await file.text();
+    const parsed: unknown = JSON.parse(text);
+    return isEncryptedEnvelope(parsed);
+  } catch {
+    return false;
+  }
 }
 
 export function exportTimestamp(): string {

@@ -51,8 +51,8 @@
     "start": "Inizia",
     "steps": {
       "counter": {
-        "title": "EsperanzApp, il tuo alleato!",
-        "body": "Liberarsi da un'abitudine si costruisce giorno per giorno.\nOgni giorno senza ricaduta è una piccola vittoria!\nEsperanzApp cammina con te."
+        "title": "Riprendi il controllo delle tue abitudini",
+        "body": "Tieni traccia delle abitudini da cui vuoi liberarti e conta ogni giorno senza ricaduta.\n\nLiberarsi da un'abitudine si costruisce giorno per giorno.\nOgni giorno senza ricaduta è una piccola vittoria!\nEsperanzApp cammina con te."
       },
       "relapse": {
         "title": "Una Ricaduta?",
@@ -293,16 +293,26 @@
     "importSuccess": "Importazione riuscita",
     "error": "Operazione non riuscita",
     "importWarningTitle": "Attenzione",
-    "importWarningBody": "L'import aggiungerà dati senza sovrascrivere quelli esistenti. Potrebbero apparire duplicati. I file in Download sono accessibili ad altre app.",
+    "importWarningBody": "Questa azione eliminerà TUTTI i dati esistenti e li sostituirà con il contenuto del file importato. L'operazione è irreversibile.",
     "importFileHint": "Seleziona un file .json o .csv.\nIl formato verrà rilevato automaticamente.",
     "chooseFileBtn": "Scegli un file",
-    "importConfirm": "Importa comunque",
+    "importConfirm": "Sostituisci",
     "editName": "Modifica il mio nome",
     "privacyWarningTitle": "Questi dati sono personali e sensibili",
     "privacyWarningBody": "Il file esportato contiene informazioni sulla salute. Una volta salvato nella cartella Documenti, potrebbe essere accessibile ad altre applicazioni o a chiunque abbia accesso al dispositivo.",
     "saveConfirmBody": "Il file verrà salvato nella cartella Documenti dell'app sul tuo telefono (accessibile tramite il gestore file).",
     "filesystemError": "Impossibile salvare il file. Controlla lo spazio di archiviazione.",
-    "documentsUnavailable": "Impossibile salvare in Documenti. Usa Condividi invece."
+    "documentsUnavailable": "Impossibile salvare in Documenti. Usa Condividi invece.",
+    "encryptSwitch": "Cifra con password",
+    "encryptPassword": "Password",
+    "encryptPasswordConfirm": "Conferma password",
+    "encryptWarning": "Questa password non può essere recuperata. Conservarla con cura : sarà necessaria per reimportare questi dati.",
+    "encryptPasswordMinLength": "Minimo 8 caratteri",
+    "encryptPasswordMismatch": "Le password non corrispondono",
+    "encryptedImportTitle": "File cifrato",
+    "encryptedImportHint": "Inserisci la password usata durante l'esportazione.",
+    "encryptedImportError": "Password errata",
+    "importReschedulePermissionDenied": "Autorizzazione negata : i promemoria importati non saranno pianificati."
   },
   "settings": {
     "title": "Impostazioni",
@@ -352,6 +362,8 @@
   },
   "startup": {
     "dbErrorTitle": "Errore di avvio",
-    "dbErrorBody": "Il database non ha potuto essere inizializzato. Riavvia l'applicazione."
+    "dbErrorBody": "Il database non ha potuto essere aperto. Questo può accadere dopo un aggiornamento. Puoi reimpostare l'app: i dati locali verranno eliminati, ma potranno essere ripristinati da un file di esportazione.",
+    "dbErrorReset": "Reimposta l'app",
+    "dbErrorResetFailed": "Reimpostazione fallita. Disinstalla e reinstalla l'app per recuperare l'accesso."
   }
 }

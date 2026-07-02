@@ -77,12 +77,21 @@ describe("updateHabit", () => {
 });
 
 describe("deleteHabit", () => {
-  it("calls DELETE with correct id", async () => {
+  it("deletes associated habit_logs before deleting the habit", async () => {
     mockDb.run.mockResolvedValue({});
+    const order: string[] = [];
+    mockDb.run.mockImplementation(async (sql: string) => {
+      if (sql.includes("habit_logs")) order.push("logs");
+      else if (sql.includes("habits")) order.push("habit");
+    });
     await deleteHabit("1");
-    expect(mockDb.run).toHaveBeenCalledWith(
-      "DELETE FROM habits WHERE id = ?",
-      ["1"],
-    );
+    expect(order).toEqual(["logs", "habit"]);
+  });
+
+  it("passes correct id to both DELETE statements", async () => {
+    mockDb.run.mockResolvedValue({});
+    await deleteHabit("42");
+    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM habit_logs WHERE habit_id = ?", ["42"]);
+    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM habits WHERE id = ?", ["42"]);
   });
 });

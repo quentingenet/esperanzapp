@@ -60,7 +60,7 @@ describe("useExport", () => {
     await act(async () => {
       await result.current.importJSON(file);
     });
-    expect(importFromJSON).toHaveBeenCalledWith(file);
+    expect(importFromJSON).toHaveBeenCalledWith(file, undefined);
   });
 
   it("importCSV calls importFromCSV with the file", async () => {
@@ -69,6 +69,6 @@ describe("useExport", () => {
     await act(async () => {
       await result.current.importCSV(file);
     });
-    expect(importFromCSV).toHaveBeenCalledWith(file);
+    expect(importFromCSV).toHaveBeenCalledWith(file, undefined);
   });
 });

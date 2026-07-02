@@ -12,7 +12,7 @@ async function bootstrap() {
     await initDatabase();
   } catch {
     if (Capacitor.isNativePlatform()) dbFailed = true;
-    // on web: SQLite WASM not available in browser dev — expected
+    // on web: SQLite WASM not available in browser dev
   }
 
   const root = document.getElementById("root");

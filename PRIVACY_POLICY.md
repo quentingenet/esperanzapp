@@ -1,6 +1,6 @@
 # Privacy Policy for EsperanzApp
 
-*Last updated: July 1, 2026*
+*Last updated: July 2, 2026*
 
 ## 1. Overview
 
@@ -37,7 +37,11 @@ In both cases, the exported file contains personal health information. We recomm
 
 ## 6. Storage and Security
 
-Data is stored locally on your device in a database protected by the Android operating system. Uninstalling the application permanently deletes all your data.
+Data is stored locally on your device in a SQLite database encrypted at rest using AES-256 (SQLCipher). The encryption key is generated randomly at first launch and stored via the Android Keystore system (iOS Keychain on iOS), the platform's standard secure credential storage. Where supported by the device hardware, the Keystore provides an additional layer of hardware-level protection; on devices without dedicated security hardware, protection is software-based. The stored key is not accessible to other applications.
+
+**Uninstalling the application permanently and irreversibly deletes both the database and the Keystore-backed encryption key.** Any data on the device is then permanently lost and unrecoverable. The only way to preserve your data across uninstalls, device changes, or resets is to export it beforehand using the in-app export feature.
+
+The optional export encryption feature (described in Section 5) uses a separate password chosen by you and processed entirely on-device via the Web Crypto API (PBKDF2-HMAC-SHA256 + AES-GCM). This password is never stored by EsperanzApp.
 
 We recommend making regular backups using the export feature available in the application.
 

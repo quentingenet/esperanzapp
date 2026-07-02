@@ -4,6 +4,13 @@ import { LocalNotifications } from "@capacitor/local-notifications";
 import i18n from "@/i18n";
 import type { Frequency, Treatment } from "@/types";
 
+export const NOTIF_DOMAIN_OFFSET = {
+  treatments: 1_000_000,
+  milestones: 2_000_000, // reserved for future milestone notifications
+} as const;
+
+export type NotifDomain = keyof typeof NOTIF_DOMAIN_OFFSET;
+
 function stableHash31(s: string): number {
   let h = 5381;
   for (let i = 0; i < s.length; i++) {
@@ -12,8 +19,10 @@ function stableHash31(s: string): number {
   return (h & 0x7fffffff) || 1; // positive 31-bit, never 0
 }
 
-function treatmentToNotifId(treatmentId: string): number {
-  return /^\d+$/.test(treatmentId) ? parseInt(treatmentId, 10) : stableHash31(treatmentId);
+export function getNotificationId(domain: NotifDomain, id: string): number {
+  const offset = NOTIF_DOMAIN_OFFSET[domain];
+  const hash = stableHash31(id) % 999_999; // keeps result in [0, 999_998]
+  return offset + hash;
 }
 
 function frequencyToEvery(freq: Frequency): "day" | "week" | "month" {
@@ -69,7 +78,7 @@ export function useNotifications() {
   const scheduleReminder = useCallback(
     async (treatment: Treatment, fromTomorrow = false): Promise<"scheduled" | "permission-denied" | "disabled" | "error"> => {
       if (!Capacitor.isNativePlatform()) return "disabled";
-      const id = treatmentToNotifId(treatment.id);
+      const id = getNotificationId("treatments", treatment.id);
       await LocalNotifications.cancel({ notifications: [{ id }] }).catch(() => {});
       if (!treatment.reminderEnabled) return "disabled";
       const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
@@ -100,7 +109,7 @@ export function useNotifications() {
   const cancelReminder = useCallback(async (treatmentId: string): Promise<void> => {
     if (!Capacitor.isNativePlatform()) return;
     await LocalNotifications.cancel({
-      notifications: [{ id: treatmentToNotifId(treatmentId) }],
+      notifications: [{ id: getNotificationId("treatments", treatmentId) }],
     });
   }, []);
 
@@ -108,8 +117,11 @@ export function useNotifications() {
     async (treatments: Treatment[]): Promise<void> => {
       if (!Capacitor.isNativePlatform()) return;
       const { notifications: pending } = await LocalNotifications.getPending();
-      if (pending.length > 0) {
-        await LocalNotifications.cancel({ notifications: pending.map((n) => ({ id: n.id })) });
+      const treatmentPending = pending.filter(
+        (n) => n.id >= NOTIF_DOMAIN_OFFSET.treatments && n.id < NOTIF_DOMAIN_OFFSET.milestones,
+      );
+      if (treatmentPending.length > 0) {
+        await LocalNotifications.cancel({ notifications: treatmentPending.map((n) => ({ id: n.id })) });
       }
       await Promise.allSettled(treatments.map((t) => scheduleReminder(t)));
     },

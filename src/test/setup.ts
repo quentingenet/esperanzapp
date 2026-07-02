@@ -4,6 +4,7 @@ import { vi } from "vitest";
 const mockDb = {
   open: vi.fn().mockResolvedValue(undefined),
   close: vi.fn().mockResolvedValue(undefined),
+  delete: vi.fn().mockResolvedValue(undefined),
   execute: vi.fn().mockResolvedValue({ changes: { changes: 0 } }),
   run: vi.fn().mockResolvedValue({ changes: { changes: 1, lastId: 1 } }),
   query: vi.fn().mockResolvedValue({ values: [] }),
@@ -14,9 +15,12 @@ vi.mock("@capacitor-community/sqlite", () => ({
   // Must use `function` (not arrow) so Vitest 4 allows `new SQLiteConnection()`
   SQLiteConnection: vi.fn().mockImplementation(function () {
     return {
+      isSecretStored: vi.fn().mockResolvedValue({ result: true }),
+      setEncryptionSecret: vi.fn().mockResolvedValue(undefined),
       isConnection: vi.fn().mockResolvedValue({ result: false }),
       createConnection: vi.fn().mockResolvedValue(mockDb),
       retrieveConnection: vi.fn().mockResolvedValue(mockDb),
+      closeConnection: vi.fn().mockResolvedValue(undefined),
       initWebStore: vi.fn().mockResolvedValue(undefined),
     };
   }),

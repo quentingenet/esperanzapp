@@ -51,8 +51,8 @@
     "start": "Empezar",
     "steps": {
       "counter": {
-        "title": "EsperanzApp, ¡tu aliado!",
-        "body": "Liberarse de un hábito se construye día a día.\n¡Cada día sin recaída es una pequeña victoria!\nEsperanzApp camina contigo."
+        "title": "Recupera el control de tus hábitos",
+        "body": "Haz un seguimiento de los hábitos de los que quieres liberarte y cuenta cada día sin recaída.\n\nLiberarse de un hábito se construye día a día.\n¡Cada día sin recaída es una pequeña victoria!\nEsperanzApp camina contigo."
       },
       "relapse": {
         "title": "¿Una Recaída?",
@@ -293,16 +293,26 @@
     "importSuccess": "Importación realizada",
     "error": "Error en la operación",
     "importWarningTitle": "Atención",
-    "importWarningBody": "La importación añadirá datos sin borrar los existentes. Pueden aparecer duplicados. Los archivos en Descargas son accesibles a otras apps.",
+    "importWarningBody": "Esta acción eliminará TODOS los datos existentes y los reemplazará por el contenido del archivo importado. Esta operación es irreversible.",
     "importFileHint": "Selecciona un archivo .json o .csv.\nEl formato se detectará automáticamente.",
     "chooseFileBtn": "Elegir un archivo",
-    "importConfirm": "Importar de todas formas",
+    "importConfirm": "Reemplazar",
     "editName": "Editar mi nombre",
     "privacyWarningTitle": "Estos datos son personales y sensibles",
     "privacyWarningBody": "El archivo exportado contiene información de salud. Una vez guardado en la carpeta Documentos, puede ser accesible por otras aplicaciones o por cualquier persona con acceso al dispositivo.",
     "saveConfirmBody": "El archivo se guardará en la carpeta Documentos de la aplicación en tu teléfono (accesible desde el explorador de archivos).",
     "filesystemError": "No se pudo guardar el archivo. Comprueba el almacenamiento.",
-    "documentsUnavailable": "No se pudo guardar en Documentos. Usa Compartir en su lugar."
+    "documentsUnavailable": "No se pudo guardar en Documentos. Usa Compartir en su lugar.",
+    "encryptSwitch": "Cifrar con contraseña",
+    "encryptPassword": "Contraseña",
+    "encryptPasswordConfirm": "Confirmar contraseña",
+    "encryptWarning": "Esta contraseña no se puede recuperar. Guárdela bien : será necesaria para reimportar estos datos.",
+    "encryptPasswordMinLength": "Mínimo 8 caracteres",
+    "encryptPasswordMismatch": "Las contraseñas no coinciden",
+    "encryptedImportTitle": "Archivo cifrado",
+    "encryptedImportHint": "Introduce la contraseña usada al exportar.",
+    "encryptedImportError": "Contraseña incorrecta",
+    "importReschedulePermissionDenied": "Permiso denegado : los recordatorios importados no se programarán."
   },
   "settings": {
     "title": "Ajustes",
@@ -352,6 +362,8 @@
   },
   "startup": {
     "dbErrorTitle": "Error de inicio",
-    "dbErrorBody": "La base de datos no pudo inicializarse. Por favor, reinicia la aplicación."
+    "dbErrorBody": "La base de datos no pudo abrirse. Esto puede ocurrir tras una actualización. Puedes restablecer la aplicación: los datos locales se eliminarán, pero podrás restaurarlos desde un archivo de exportación.",
+    "dbErrorReset": "Restablecer la aplicación",
+    "dbErrorResetFailed": "El restablecimiento falló. Desinstala y reinstala la aplicación para recuperar el acceso."
   }
 }

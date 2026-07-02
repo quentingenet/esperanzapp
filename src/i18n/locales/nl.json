@@ -51,8 +51,8 @@
     "start": "Beginnen",
     "steps": {
       "counter": {
-        "title": "EsperanzApp, jouw bondgenoot!",
-        "body": "Jezelf bevrijden van een gewoonte bouw je dag voor dag op.\nElke dag zonder terugval is een kleine overwinning!\nEsperanzApp loopt met je mee."
+        "title": "Neem de controle over je gewoonten terug",
+        "body": "Volg de gewoonten waarvan je je wilt bevrijden en tel elke dag zonder terugval.\n\nJe bevrijden van een gewoonte bouw je dag na dag op.\nElke dag zonder terugval is een kleine overwinning!\nEsperanzApp loopt met je mee."
       },
       "relapse": {
         "title": "Een Terugval?",
@@ -293,16 +293,26 @@
     "importSuccess": "Import geslaagd",
     "error": "Bewerking mislukt",
     "importWarningTitle": "Waarschuwing",
-    "importWarningBody": "De import voegt gegevens toe zonder bestaande te overschrijven. Duplicaten kunnen verschijnen. Bestanden in Downloads zijn leesbaar voor andere apps.",
+    "importWarningBody": "Deze actie verwijdert ALLE bestaande gegevens en vervangt ze door de inhoud van het geïmporteerde bestand. Dit kan niet ongedaan worden gemaakt.",
     "importFileHint": "Selecteer een .json- of .csv-bestand.\nHet formaat wordt automatisch herkend.",
     "chooseFileBtn": "Bestand kiezen",
-    "importConfirm": "Toch importeren",
+    "importConfirm": "Vervangen",
     "editName": "Mijn naam wijzigen",
     "privacyWarningTitle": "Deze gegevens zijn persoonlijk en gevoelig",
     "privacyWarningBody": "Het geëxporteerde bestand bevat gezondheidsinformatie. Eenmaal opgeslagen in de map Documenten kan het toegankelijk zijn voor andere apps of voor iedereen met toegang tot dit apparaat.",
     "saveConfirmBody": "Het bestand wordt opgeslagen in de map Documenten van de app op uw telefoon (toegankelijk via de bestandsbeheerder).",
     "filesystemError": "Kan het bestand niet opslaan. Controleer de opslagruimte.",
-    "documentsUnavailable": "Opslaan in Documenten mislukt. Gebruik Delen in plaats daarvan."
+    "documentsUnavailable": "Opslaan in Documenten mislukt. Gebruik Delen in plaats daarvan.",
+    "encryptSwitch": "Versleutelen met wachtwoord",
+    "encryptPassword": "Wachtwoord",
+    "encryptPasswordConfirm": "Wachtwoord bevestigen",
+    "encryptWarning": "Dit wachtwoord kan niet worden hersteld. Bewaar het zorgvuldig : het is nodig om deze gegevens opnieuw te importeren.",
+    "encryptPasswordMinLength": "Minimaal 8 tekens",
+    "encryptPasswordMismatch": "Wachtwoorden komen niet overeen",
+    "encryptedImportTitle": "Versleuteld bestand",
+    "encryptedImportHint": "Voer het wachtwoord in dat bij het exporteren is gebruikt.",
+    "encryptedImportError": "Onjuist wachtwoord",
+    "importReschedulePermissionDenied": "Toestemming geweigerd : geïmporteerde herinneringen worden niet gepland."
   },
   "settings": {
     "title": "Instellingen",
@@ -352,6 +362,8 @@
   },
   "startup": {
     "dbErrorTitle": "Opstartfout",
-    "dbErrorBody": "De database kon niet worden geïnitialiseerd. Herstart de app."
+    "dbErrorBody": "De database kon niet worden geopend. Dit kan gebeuren na een update. Je kunt de app opnieuw instellen: lokale gegevens worden gewist, maar je kunt ze herstellen vanuit een exportbestand.",
+    "dbErrorReset": "App opnieuw instellen",
+    "dbErrorResetFailed": "Opnieuw instellen mislukt. Verwijder de app en installeer hem opnieuw om toegang te herstellen."
   }
 }

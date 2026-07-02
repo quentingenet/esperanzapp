@@ -12,6 +12,9 @@ const config: CapacitorConfig = {
       androidSplashResourceName: 'splash',
       showSpinner: false,
     },
+    CapacitorSQLite: {
+      androidIsEncryption: true,
+    },
   },
 };
 

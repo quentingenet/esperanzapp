@@ -26,6 +26,8 @@ export function useTreatments() {
     try {
       const data = await getAllTreatments();
       setTreatments(data);
+    } catch {
+      // DB errors are surfaced at app level, don't propagate here
     } finally {
       useTreatmentsStore.setState({ loading: false });
     }

@@ -71,5 +71,11 @@ export function updateHabit(
 }
 
 export function deleteHabit(id: string): Promise<void> {
-  return withDbVoid(async (db) => { await db.run("DELETE FROM habits WHERE id = ?", [id]); });
+  return withDbVoid(async (db) => {
+    // Explicit deletion of associated logs before the parent row, complementing the
+    // ON DELETE CASCADE FK constraint. This guards against scenarios where PRAGMA
+    // foreign_keys is not yet active (e.g. connection race on startup).
+    await db.run("DELETE FROM habit_logs WHERE habit_id = ?", [id]);
+    await db.run("DELETE FROM habits WHERE id = ?", [id]);
+  });
 }

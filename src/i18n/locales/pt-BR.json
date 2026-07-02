@@ -51,8 +51,8 @@
     "start": "Começar",
     "steps": {
       "counter": {
-        "title": "EsperanzApp, seu aliado!",
-        "body": "Libertar-se de um hábito é construído dia a dia.\nCada dia sem recaída é uma pequena vitória!\nEsperanzApp caminha com você."
+        "title": "Retome o controle dos seus hábitos",
+        "body": "Acompanhe os hábitos dos quais você quer se libertar e conte cada dia sem recaída.\n\nSe libertar de um hábito se constrói dia a dia.\nCada dia sem recaída é uma pequena vitória!\nEsperanzApp caminha com você."
       },
       "relapse": {
         "title": "Uma Recaída?",
@@ -293,16 +293,26 @@
     "importSuccess": "Importação concluída",
     "error": "Erro na operação",
     "importWarningTitle": "Atenção",
-    "importWarningBody": "A importação adicionará dados sem apagar os existentes. Duplicatas podem aparecer. Arquivos em Downloads podem ser acessados por outros apps.",
+    "importWarningBody": "Esta ação excluirá TODOS os dados existentes e os substituirá pelo conteúdo do arquivo importado. Esta operação é irreversível.",
     "importFileHint": "Selecione um arquivo .json ou .csv.\nO formato será detectado automaticamente.",
     "chooseFileBtn": "Escolher um arquivo",
-    "importConfirm": "Importar assim mesmo",
+    "importConfirm": "Substituir",
     "editName": "Editar meu nome",
     "privacyWarningTitle": "Estes dados são pessoais e sensíveis",
     "privacyWarningBody": "O arquivo exportado contém informações de saúde. Uma vez salvo na pasta Documentos, pode ser acessível por outros aplicativos ou por qualquer pessoa com acesso ao dispositivo.",
     "saveConfirmBody": "O arquivo será salvo na pasta Documentos do aplicativo no seu telefone (acessível pelo gerenciador de arquivos).",
     "filesystemError": "Não foi possível salvar o arquivo. Verifique o armazenamento.",
-    "documentsUnavailable": "Não foi possível salvar em Documentos. Tente usar Compartilhar."
+    "documentsUnavailable": "Não foi possível salvar em Documentos. Tente usar Compartilhar.",
+    "encryptSwitch": "Criptografar com senha",
+    "encryptPassword": "Senha",
+    "encryptPasswordConfirm": "Confirmar senha",
+    "encryptWarning": "Esta senha não pode ser recuperada. Guarde-a com cuidado : ela será necessária para reimportar esses dados.",
+    "encryptPasswordMinLength": "Mínimo de 8 caracteres",
+    "encryptPasswordMismatch": "As senhas não coincidem",
+    "encryptedImportTitle": "Arquivo criptografado",
+    "encryptedImportHint": "Digite a senha usada ao exportar.",
+    "encryptedImportError": "Senha incorreta",
+    "importReschedulePermissionDenied": "Permissão negada : os lembretes importados não serão agendados."
   },
   "settings": {
     "title": "Configurações",
@@ -352,6 +362,8 @@
   },
   "startup": {
     "dbErrorTitle": "Erro de inicialização",
-    "dbErrorBody": "O banco de dados não pôde ser inicializado. Por favor, reinicie o aplicativo."
+    "dbErrorBody": "O banco de dados não pôde ser aberto. Isso pode acontecer após uma atualização. Você pode redefinir o aplicativo: os dados locais serão apagados, mas podem ser restaurados a partir de um arquivo de exportação.",
+    "dbErrorReset": "Redefinir o aplicativo",
+    "dbErrorResetFailed": "Redefinição falhou. Desinstale e reinstale o aplicativo para recuperar o acesso."
   }
 }
