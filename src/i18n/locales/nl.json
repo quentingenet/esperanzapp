@@ -365,5 +365,15 @@
     "dbErrorBody": "De database kon niet worden geopend. Dit kan gebeuren na een update. Je kunt de app opnieuw instellen: lokale gegevens worden gewist, maar je kunt ze herstellen vanuit een exportbestand.",
     "dbErrorReset": "App opnieuw instellen",
     "dbErrorResetFailed": "Opnieuw instellen mislukt. Verwijder de app en installeer hem opnieuw om toegang te herstellen."
+  },
+  "update": {
+    "available": "Update beschikbaar",
+    "availableBody": "Er is een nieuwe versie van EsperanzApp beschikbaar. Werk nu bij om te genieten van de nieuwste verbeteringen.",
+    "updateNow": "Nu bijwerken",
+    "later": "Later",
+    "checkBtn": "Controleer op updates",
+    "checking": "Controleren...",
+    "upToDate": "De app is up-to-date",
+    "updateError": "Kan niet controleren op updates"
   }
 }

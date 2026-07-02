@@ -365,5 +365,15 @@
     "dbErrorBody": "Die Datenbank konnte nicht geöffnet werden. Dies kann nach einem Update passieren. Du kannst die App zurücksetzen: lokale Daten werden gelöscht, können aber aus einer Exportdatei wiederhergestellt werden.",
     "dbErrorReset": "App zurücksetzen",
     "dbErrorResetFailed": "Zurücksetzen fehlgeschlagen. Deinstalliere die App und installiere sie neu, um den Zugriff wiederherzustellen."
+  },
+  "update": {
+    "available": "Update verfügbar",
+    "availableBody": "Eine neue Version von EsperanzApp ist verfügbar. Aktualisiere jetzt, um die neuesten Verbesserungen zu nutzen.",
+    "updateNow": "Jetzt aktualisieren",
+    "later": "Später",
+    "checkBtn": "Nach Updates suchen",
+    "checking": "Suche...",
+    "upToDate": "Die App ist aktuell",
+    "updateError": "Updates können nicht überprüft werden"
   }
 }

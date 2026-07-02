@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import Link from "@mui/material/Link";
 import MenuItem from "@mui/material/MenuItem";
@@ -8,7 +9,7 @@ import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { useOnboarding } from "@/hooks";
+import { useOnboarding, useAppUpdate } from "@/hooks";
 import { useOnboardingStore } from "@/store";
 import { toast } from "@/store/toastStore";
 import { SUPPORTED_LOCALES } from "@/i18n";
@@ -29,6 +30,7 @@ interface SettingsGeneralSectionProps {
 export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: SettingsGeneralSectionProps) {
   const { t, i18n } = useTranslation();
   const { saveName } = useOnboarding();
+  const { status: updateStatus, checkForUpdate, openUpdate } = useAppUpdate();
   const userName = useOnboardingStore((s) => s.userName);
   const [editName, setEditName] = useState(userName);
 
@@ -36,6 +38,19 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
     void saveName(editName)
       .then(() => { toast.success(t("common.saved")); })
       .catch(() => { toast.error(t("common.error")); });
+  };
+
+  const handleCheckUpdate = () => {
+    void checkForUpdate().then((available) => {
+      if (available) {
+        toast.success(t("update.available"));
+        void openUpdate();
+      } else if (updateStatus !== "error") {
+        toast.success(t("update.upToDate"));
+      } else {
+        toast.error(t("update.updateError"));
+      }
+    });
   };
 
   const handleLanguageChange = (value: string) => {
@@ -84,6 +99,15 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
           {t("settings.sourceCode")}
         </Link>
         <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>{t("settings.version")} {APP_VERSION}</Typography>
+        <Button
+          variant="text"
+          disabled={updateStatus === "checking"}
+          onClick={handleCheckUpdate}
+          sx={{ justifyContent: "flex-start", px: 0, minHeight: 36, textTransform: "none", fontWeight: 400, color: "text.secondary", fontSize: "0.75rem" }}
+          startIcon={updateStatus === "checking" ? <CircularProgress size={12} /> : null}
+        >
+          {updateStatus === "checking" ? t("update.checking") : t("update.checkBtn")}
+        </Button>
         <Typography variant="caption" color="text.secondary">{t("settings.license")} · {t("app.by")} Quentin Genet</Typography>
       </Box>
     </Box>

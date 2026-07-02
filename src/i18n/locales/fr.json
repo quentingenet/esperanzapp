@@ -365,5 +365,15 @@
     "dbErrorBody": "La base de données ne peut pas être ouverte. Cela peut arriver après une mise à jour. Vous pouvez réinitialiser l'application : les données locales seront supprimées, mais vous pourrez les restaurer depuis un fichier d'export.",
     "dbErrorReset": "Réinitialiser l'application",
     "dbErrorResetFailed": "La réinitialisation a échoué. Désinstallez et réinstallez l'application pour récupérer l'accès."
+  },
+  "update": {
+    "available": "Mise à jour disponible",
+    "availableBody": "Une nouvelle version d'EsperanzApp est disponible. Mets à jour pour profiter des dernières améliorations.",
+    "updateNow": "Mettre à jour",
+    "later": "Plus tard",
+    "checkBtn": "Vérifier les mises à jour",
+    "checking": "Vérification...",
+    "upToDate": "L'application est à jour",
+    "updateError": "Impossible de vérifier les mises à jour"
   }
 }

@@ -365,5 +365,15 @@
     "dbErrorBody": "The database could not be opened. This can happen after an update. You can reset the app: local data will be erased, but you can restore it from an export file.",
     "dbErrorReset": "Reset the app",
     "dbErrorResetFailed": "Reset failed. Uninstall and reinstall the app to recover access."
+  },
+  "update": {
+    "available": "Update available",
+    "availableBody": "A new version of EsperanzApp is available. Update now to enjoy the latest improvements.",
+    "updateNow": "Update now",
+    "later": "Later",
+    "checkBtn": "Check for updates",
+    "checking": "Checking...",
+    "upToDate": "The app is up to date",
+    "updateError": "Unable to check for updates"
   }
 }

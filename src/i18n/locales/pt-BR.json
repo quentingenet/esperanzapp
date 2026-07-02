@@ -365,5 +365,15 @@
     "dbErrorBody": "O banco de dados não pôde ser aberto. Isso pode acontecer após uma atualização. Você pode redefinir o aplicativo: os dados locais serão apagados, mas podem ser restaurados a partir de um arquivo de exportação.",
     "dbErrorReset": "Redefinir o aplicativo",
     "dbErrorResetFailed": "Redefinição falhou. Desinstale e reinstale o aplicativo para recuperar o acesso."
+  },
+  "update": {
+    "available": "Atualização disponível",
+    "availableBody": "Uma nova versão do EsperanzApp está disponível. Atualize agora para aproveitar as últimas melhorias.",
+    "updateNow": "Atualizar agora",
+    "later": "Mais tarde",
+    "checkBtn": "Verificar atualizações",
+    "checking": "Verificando...",
+    "upToDate": "O aplicativo está atualizado",
+    "updateError": "Não é possível verificar atualizações"
   }
 }

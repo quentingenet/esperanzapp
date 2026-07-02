@@ -1,13 +1,20 @@
 import { Suspense, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import CssBaseline from "@mui/material/CssBaseline";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import Typography from "@mui/material/Typography";
 import { ThemeProvider } from "@mui/material/styles";
 import { Capacitor } from "@capacitor/core";
+import { useTranslation } from "react-i18next";
 import { AppToast, BottomNav } from "@/components/shared";
 import { LanguageSelector, PrivacyModal, OnboardingSlider, UserNameInput } from "@/components/onboarding";
 import { Home, Milestones, Treatments, History, Settings } from "@/pages";
-import { useOnboarding, useNotifications } from "@/hooks";
+import { useOnboarding, useNotifications, useAppUpdate } from "@/hooks";
 import { getAllTreatments } from "@/db";
 import { theme } from "@/theme";
 import type { SupportedLocale } from "@/i18n";
@@ -35,6 +42,36 @@ function AppStartRescheduler() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return null;
+}
+
+function AppUpdateChecker() {
+  const { t } = useTranslation();
+  const { checkForUpdate, openUpdate } = useAppUpdate();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    const timer = setTimeout(() => {
+      void checkForUpdate().then((available) => { if (available) setOpen(true); });
+    }, 3000);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <Dialog open={open} maxWidth="xs" fullWidth>
+      <DialogTitle sx={{ fontWeight: 700 }}>{t("update.available")}</DialogTitle>
+      <DialogContent>
+        <Typography variant="body2" color="text.secondary">{t("update.availableBody")}</Typography>
+      </DialogContent>
+      <DialogActions sx={{ px: 2, pb: 2, gap: 1 }}>
+        <Button onClick={() => { setOpen(false); }}>{t("update.later")}</Button>
+        <Button variant="contained" onClick={() => { setOpen(false); void openUpdate(); }}>
+          {t("update.updateNow")}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 }
 
 // Visible only when running in a browser (Capacitor platform "web").
@@ -107,6 +144,7 @@ function AppContent() {
     <Box sx={{ minHeight: "100dvh", bgcolor: "background.default" }}>
       <DevWebBanner />
       <AppStartRescheduler />
+      <AppUpdateChecker />
       {pages[activeTab]}
       <Box sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }}>
         <BottomNav activeTab={activeTab} onChange={setActiveTab} />

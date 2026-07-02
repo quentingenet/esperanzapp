@@ -365,5 +365,15 @@
     "dbErrorBody": "La base de datos no pudo abrirse. Esto puede ocurrir tras una actualización. Puedes restablecer la aplicación: los datos locales se eliminarán, pero podrás restaurarlos desde un archivo de exportación.",
     "dbErrorReset": "Restablecer la aplicación",
     "dbErrorResetFailed": "El restablecimiento falló. Desinstala y reinstala la aplicación para recuperar el acceso."
+  },
+  "update": {
+    "available": "Actualización disponible",
+    "availableBody": "Hay una nueva versión de EsperanzApp disponible. Actualiza para disfrutar de las últimas mejoras.",
+    "updateNow": "Actualizar ahora",
+    "later": "Más tarde",
+    "checkBtn": "Buscar actualizaciones",
+    "checking": "Comprobando...",
+    "upToDate": "La aplicación está actualizada",
+    "updateError": "No se puede comprobar actualizaciones"
   }
 }
