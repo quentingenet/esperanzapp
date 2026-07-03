@@ -408,9 +408,9 @@ export function isEncryptedEnvelope(v: unknown): v is EncryptedEnvelope {
     (e["format"] === "json" || e["format"] === "csv") &&
     typeof e["salt"] === "string" &&
     typeof e["iv"] === "string" &&
-    typeof e["iterations"] === "number" &&
-    e["iterations"] >= 600_000 &&
-    e["iterations"] <= 10_000_000 &&
+    Number.isInteger(e["iterations"]) &&
+    (e["iterations"] as number) >= 600_000 &&
+    (e["iterations"] as number) <= 10_000_000 &&
     typeof e["data"] === "string"
   );
 }

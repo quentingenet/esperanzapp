@@ -71,7 +71,7 @@ function nextOccurrence(
 export function useNotifications() {
   const requestPermission = useCallback(async (): Promise<boolean> => {
     if (!Capacitor.isNativePlatform()) return false;
-    const { display } = await LocalNotifications.requestPermissions();
+    const { display } = await LocalNotifications.requestPermissions().catch(() => ({ display: "denied" as const }));
     return display === "granted";
   }, []);
 
@@ -116,12 +116,12 @@ export function useNotifications() {
   const rescheduleAll = useCallback(
     async (treatments: Treatment[]): Promise<void> => {
       if (!Capacitor.isNativePlatform()) return;
-      const { notifications: pending } = await LocalNotifications.getPending();
-      const treatmentPending = pending.filter(
+      const pending = await LocalNotifications.getPending().catch(() => ({ notifications: [] }));
+      const treatmentPending = pending.notifications.filter(
         (n) => n.id >= NOTIF_DOMAIN_OFFSET.treatments && n.id < NOTIF_DOMAIN_OFFSET.milestones,
       );
       if (treatmentPending.length > 0) {
-        await LocalNotifications.cancel({ notifications: treatmentPending.map((n) => ({ id: n.id })) });
+        await LocalNotifications.cancel({ notifications: treatmentPending.map((n) => ({ id: n.id })) }).catch(() => {});
       }
       await Promise.allSettled(treatments.map((t) => scheduleReminder(t)));
     },

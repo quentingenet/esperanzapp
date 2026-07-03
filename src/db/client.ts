@@ -58,8 +58,16 @@ async function doInitDatabase(): Promise<void> {
     throw new Error("Database file could not be opened with the current encryption key.", { cause });
   }
 
-  await db.execute("PRAGMA foreign_keys = ON");
-  await runSchema(db);
+  try {
+    await db.execute("PRAGMA foreign_keys = ON");
+    await runSchema(db);
+  } catch (e) {
+    const staleDb = db;
+    db = null;
+    try { await staleDb.close(); } catch { /* ignore */ }
+    try { await sqlite.closeConnection(DB_NAME, false); } catch { /* ignore */ }
+    throw e;
+  }
 }
 
 export function withDb<T>(fn: (db: SQLiteDBConnection) => Promise<T>, fallback: T): Promise<T> {
@@ -120,6 +128,7 @@ export function clearAllData(dbConn?: SQLiteDBConnection | null): Promise<void> 
 
 export async function closeDatabase(): Promise<void> {
   if (!db) return;
+  await txQueue.catch(() => {}); // drain pending transactions before closing
   await db.close();
   db = null;
   initPromise = null; // allow re-initialization after an explicit close
@@ -138,6 +147,9 @@ export async function deleteStaleDatabase(): Promise<void> {
   // Do NOT catch the delete() error: if it fails, the caller must NOT reload
   // (that would cause an infinite reset loop). Defensive closes stay silent.
   const conn = await sqlite.createConnection(DB_NAME, false, "no-encryption", 1, false);
-  await conn.delete();
-  try { await sqlite.closeConnection(DB_NAME, false); } catch { /* ignore */ }
+  try {
+    await conn.delete();
+  } finally {
+    try { await sqlite.closeConnection(DB_NAME, false); } catch { /* ignore */ }
+  }
 }

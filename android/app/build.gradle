@@ -18,10 +18,17 @@ def getGitVersionName = { ->
 def getGitVersionCode = { ->
     try {
         def tag = "git describe --tags --abbrev=0".execute([], rootProject.rootDir).text.trim()
+        if (tag.isEmpty()) throw new GradleException("No git tag found. Tag the commit before building a release.")
         def parts = tag.replaceAll("[^0-9.]", "").split("\\.")
-        return parts[0].toInteger() * 10000 + parts[1].toInteger() * 100 + parts[2].toInteger()
+        def major = parts[0].toInteger()
+        def minor = parts[1].toInteger()
+        def patch = parts[2].toInteger()
+        if (patch >= 100) throw new GradleException("Patch version ${patch} >= 100 would cause versionCode collision. Bump minor.")
+        return major * 10000 + minor * 100 + patch
+    } catch (GradleException e) {
+        throw e
     } catch (Exception e) {
-        return 10000
+        throw new GradleException("Cannot compute versionCode from git tag: ${e.message}")
     }
 }
 
@@ -43,19 +50,18 @@ android {
     }
     signingConfigs {
         release {
-            if (keystorePropertiesFile.exists()) {
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
-                storeFile file(keystoreProperties['storeFile'])
-                storePassword keystoreProperties['storePassword']
+            if (!keystorePropertiesFile.exists()) {
+                throw new GradleException("keystore.properties not found. Cannot sign release build.")
             }
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
         }
     }
     buildTypes {
         release {
-            if (keystorePropertiesFile.exists()) {
-                signingConfig signingConfigs.release
-            }
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
