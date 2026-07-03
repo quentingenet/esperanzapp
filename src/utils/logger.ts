@@ -7,8 +7,8 @@
  * is included only when it belongs to the known-safe allowlist below (i.e. an
  * internal applicative message that cannot contain a habit label or treatment name).
  *
- * The full error (with stack) goes ONLY to console.error, visible in logcat via
- * `npx cap run android --livereload` but never surfaced in the UI.
+ * console.error receives only the context, error name, and a sanitized stack
+ * whose original first line is removed so raw error messages cannot reach logcat.
  */
 
 export type LogEntry = {
@@ -38,11 +38,18 @@ const SAFE_MESSAGES = new Set([
   "Database file could not be opened with the current encryption key.",
 ]);
 
+function sanitizeStack(stack: string | undefined, name: string): string | undefined {
+  if (!stack) return undefined;
+  const [, ...frames] = stack.split("\n");
+  return frames.length > 0 ? [name, ...frames].join("\n") : name;
+}
+
 export function logError(context: string, error: unknown): void {
   const e = error as { name?: string; message?: string } | null;
   const name = e?.name && typeof e.name === "string" ? e.name : "Error";
   const rawMsg = e?.message && typeof e.message === "string" ? e.message : "";
   const safeMsg = SAFE_MESSAGES.has(rawMsg) ? rawMsg.slice(0, 200) : undefined;
+  const stack = sanitizeStack(error instanceof Error ? error.stack : undefined, name);
 
   const entry: LogEntry = { time: new Date().toISOString(), context, name };
   if (safeMsg !== undefined) entry.message = safeMsg;
@@ -50,9 +57,9 @@ export function logError(context: string, error: unknown): void {
   if (ring.length >= RING_SIZE) ring.shift();
   ring.push(entry);
 
-  // Full stack visible in logcat (npx cap run android), never surfaces in UI.
+  // Only sanitized error metadata is visible in logcat.
   // eslint-disable-next-line no-console
-  console.error(`[${context}]`, error);
+  console.error(`[${context}]`, { name, stack });
 }
 
 export function getLogEntries(): readonly LogEntry[] {

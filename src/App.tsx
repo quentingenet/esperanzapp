@@ -9,7 +9,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Typography from "@mui/material/Typography";
 import { ThemeProvider } from "@mui/material/styles";
+import { App as CapApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
+import type { PluginListenerHandle } from "@capacitor/core";
 import { useTranslation } from "react-i18next";
 import { AppToast, BottomNav } from "@/components/shared";
 import { LanguageSelector, PrivacyModal, OnboardingSlider, UserNameInput } from "@/components/onboarding";
@@ -17,6 +19,7 @@ import { Home, Milestones, Treatments, History, Settings } from "@/pages";
 import { useOnboarding, useNotifications, useAppUpdate } from "@/hooks";
 import { getAllTreatments } from "@/db";
 import { theme } from "@/theme";
+import { logError } from "@/utils/logger";
 import type { SupportedLocale } from "@/i18n";
 import type { NavTab } from "@/types";
 
@@ -94,6 +97,44 @@ function DevWebBanner() {
 function AppContent() {
   const { currentStep, acceptPrivacy, advanceLanguage, completeTutorial, saveName } = useOnboarding();
   const [activeTab, setActiveTab] = useState<NavTab>("home");
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    let listener: PluginListenerHandle | undefined;
+    let disposed = false;
+
+    void CapApp.addListener("backButton", ({ canGoBack }) => {
+      if (activeTab !== "home") {
+        setActiveTab("home");
+      } else if (canGoBack) {
+        window.history.back();
+      } else {
+        void CapApp.exitApp().catch((e: unknown) => {
+          logError("AppContent.backButton.exitApp", e);
+        });
+      }
+    }).then((handle) => {
+      if (disposed) {
+        void handle.remove().catch((e: unknown) => {
+          logError("AppContent.backButton.removeDisposed", e);
+        });
+      } else {
+        listener = handle;
+      }
+    }).catch((e: unknown) => {
+      logError("AppContent.backButton.addListener", e);
+    });
+
+    return () => {
+      disposed = true;
+      if (listener) {
+        void listener.remove().catch((e: unknown) => {
+          logError("AppContent.backButton.removeListener", e);
+        });
+      }
+    };
+  }, [activeTab]);
 
   if (currentStep === "privacy") {
     return <PrivacyModal open onAccept={() => { void acceptPrivacy(); }} />;
