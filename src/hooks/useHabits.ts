@@ -1,6 +1,11 @@
 import { useCallback } from "react";
 import { useShallow } from "zustand/shallow";
-import { getAllHabits, createHabit as dbCreateHabit, deleteHabit as dbDeleteHabit } from "@/db";
+import {
+  createHabit as dbCreateHabit,
+  createHabitWithInitialLog as dbCreateHabitWithInitialLog,
+  deleteHabit as dbDeleteHabit,
+  getAllHabits,
+} from "@/db";
 import { useHabitsStore } from "@/store/habitsStore";
 import { diffInDays, todayLocalDate } from "@/utils";
 import type { Habit } from "@/types";
@@ -41,6 +46,18 @@ export function useHabits() {
     [storeAdd],
   );
 
+  const addHabitWithInitialLog = useCallback(
+    async (data: Omit<Habit, "id">): Promise<Habit> => {
+      if (data.startDate > todayLocalDate()) {
+        throw new Error("startDate cannot be in the future");
+      }
+      const created = await dbCreateHabitWithInitialLog(data, data.startDate);
+      storeAdd(created);
+      return created;
+    },
+    [storeAdd],
+  );
+
   const deleteHabit = useCallback(
     async (id: string): Promise<void> => {
       await dbDeleteHabit(id);
@@ -58,5 +75,5 @@ export function useHabits() {
     [habits],
   );
 
-  return { habits, loading, error, loadHabits, addHabit, deleteHabit, getDayCount };
+  return { habits, loading, error, loadHabits, addHabit, addHabitWithInitialLog, deleteHabit, getDayCount };
 }

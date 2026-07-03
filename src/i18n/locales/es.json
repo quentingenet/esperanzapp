@@ -65,8 +65,8 @@
         "body": "1 día, 7, 30, 90 o más... Cada etapa superada te ayudará en tu camino."
       },
       "private": {
-        "title": "100 % privado",
-        "body": "Nada sale de tu dispositivo. Sin cuenta, sin servidor, sin miradas ajenas."
+        "title": "Privacidad desde el diseño",
+        "body": "Tus datos permanecen en tu dispositivo, salvo que decidas exportarlos o compartirlos. Sin cuenta, sin servidor remoto y sin seguimiento."
       },
       "stats": {
         "title": "Sigue tu progreso",
@@ -314,6 +314,10 @@
     "encryptedImportTitle": "Archivo cifrado",
     "encryptedImportHint": "Introduce la contraseña usada al exportar.",
     "encryptedImportError": "Contraseña incorrecta",
+    "importInvalidFile": "Este archivo no es una exportación válida de EsperanzApp.",
+    "importUnsupportedVersion": "Este archivo procede de una versión incompatible de EsperanzApp.",
+    "importInconsistentData": "El archivo contiene datos incoherentes y no se puede importar.",
+    "importStorageError": "La importación falló durante el guardado. Tus datos existentes se conservaron.",
     "importReschedulePermissionDenied": "Permiso denegado : los recordatorios importados no se programarán."
   },
   "settings": {

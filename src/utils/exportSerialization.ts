@@ -16,6 +16,13 @@ export function isTreatmentStatus(v: string): v is TreatmentStatus {
 
 export const EXPORT_VERSION = "1" as const;
 
+export class UnsupportedExportVersionError extends Error {
+  constructor() {
+    super("Unsupported export version");
+    this.name = "UnsupportedExportVersionError";
+  }
+}
+
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
 
@@ -158,6 +165,7 @@ export function parseExportPayload(raw: string): ExportPayload {
   }
   const p = parsed as Record<string, unknown>;
   if (p["version"] !== EXPORT_VERSION) {
+    if (typeof p["version"] === "string") throw new UnsupportedExportVersionError();
     throw new Error("Unsupported or invalid export format");
   }
   if (
@@ -504,10 +512,13 @@ export async function peekIsEncrypted(file: File): Promise<boolean> {
 export function exportTimestamp(): string {
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
+  const padMilliseconds = (n: number) => String(n).padStart(3, "0");
   const y = String(now.getFullYear());
   const m = pad(now.getMonth() + 1);
   const d = pad(now.getDate());
   const h = pad(now.getHours());
   const min = pad(now.getMinutes());
-  return `${y}-${m}-${d}_${h}-${min}`;
+  const sec = pad(now.getSeconds());
+  const ms = padMilliseconds(now.getMilliseconds());
+  return `${y}-${m}-${d}_${h}-${min}-${sec}-${ms}`;
 }

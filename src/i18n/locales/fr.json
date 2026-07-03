@@ -65,8 +65,8 @@
         "body": "1 jour, 7, 30, 90 ou plus... Chaque palier est un cap franchi qui t'aidera dans ton cheminement."
       },
       "private": {
-        "title": "100 % privé",
-        "body": "Rien ne quitte ton appareil. Pas de compte, pas de serveur, pas d'œil extérieur."
+        "title": "Conçue pour la vie privée",
+        "body": "Tes données restent sur ton appareil, sauf si tu choisis de les exporter ou de les partager. Pas de compte, pas de serveur distant, pas de suivi."
       },
       "stats": {
         "title": "Suis ta progression",
@@ -314,6 +314,10 @@
     "encryptedImportTitle": "Fichier chiffré",
     "encryptedImportHint": "Saisissez le mot de passe utilisé lors de l'export.",
     "encryptedImportError": "Mot de passe incorrect",
+    "importInvalidFile": "Ce fichier n'est pas un export EsperanzApp valide.",
+    "importUnsupportedVersion": "Ce fichier provient d'une version incompatible d'EsperanzApp.",
+    "importInconsistentData": "Le fichier contient des données incohérentes et ne peut pas être importé.",
+    "importStorageError": "L'import a échoué pendant l'enregistrement. Tes données existantes ont été conservées.",
     "importReschedulePermissionDenied": "Permission refusée : les rappels importés ne seront pas planifiés."
   },
   "settings": {

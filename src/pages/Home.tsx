@@ -13,8 +13,8 @@ import type { Habit, HabitStats } from "@/types";
 
 export function Home() {
   const { t } = useTranslation();
-  const { habits, loadHabits, addHabit, deleteHabit } = useHabits();
-  const { getStatsBatch, addLog } = useHabitLogs();
+  const { habits, loadHabits, addHabitWithInitialLog, deleteHabit } = useHabits();
+  const { getStatsBatch, recordRelapse } = useHabitLogs();
   const userName = useOnboardingStore((s) => s.userName);
   const [statsMap, setStatsMap] = useState<Partial<Record<string, HabitStats>>>({});
   const [detailHabit, setDetailHabit] = useState<{ habit: Habit; stats: HabitStats } | null>(null);
@@ -32,8 +32,7 @@ export function Home() {
 
   const handleRelapse = (habit: Habit) => {
     const today = todayLocalDate();
-    void addLog({ habitId: habit.id, eventType: "relapse", eventDate: today })
-      .then(() => addLog({ habitId: habit.id, eventType: "start", eventDate: today }))
+    void recordRelapse(habit.id, today)
       .then(() => { void loadHabits(); setDetailHabit(null); })
       .catch((e: unknown) => { logError("Home.handleRelapse", e); toast.error(t("common.error")); });
   };
@@ -64,8 +63,7 @@ export function Home() {
         })}
       </Box>
       <HabitForm existingHabits={habits} onSubmit={(data) => {
-        void addHabit({ ...data, createdAt: new Date().toISOString() })
-          .then((created) => addLog({ habitId: created.id, eventType: "start", eventDate: data.startDate }))
+        void addHabitWithInitialLog({ ...data, createdAt: new Date().toISOString() })
           .then(() => { void loadHabits(); toast.success(t("common.created")); })
           .catch((e: unknown) => { logError("Home.addHabit", e); toast.error(t("common.error")); });
       }} />

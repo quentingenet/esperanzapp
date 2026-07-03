@@ -39,6 +39,7 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
   const userName = useOnboardingStore((s) => s.userName);
   const [editName, setEditName] = useState(userName);
   const [diagOpen, setDiagOpen] = useState(false);
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const versionTapCount = useRef(0);
   const versionTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -51,8 +52,7 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
   const handleCheckUpdate = () => {
     void checkForUpdate().then((result) => {
       if (result === "available") {
-        toast.success(t("update.available"));
-        void openUpdate();
+        setUpdateDialogOpen(true);
       } else if (result === "error") {
         toast.error(t("update.updateError"));
       } else {
@@ -151,6 +151,19 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
         </Typography>
       </Box>
     </Box>
+
+    <Dialog open={updateDialogOpen} onClose={() => { setUpdateDialogOpen(false); }} maxWidth="xs" fullWidth>
+      <DialogTitle sx={{ fontWeight: 700 }}>{t("update.available")}</DialogTitle>
+      <DialogContent>
+        <Typography variant="body2" color="text.secondary">{t("update.availableBody")}</Typography>
+      </DialogContent>
+      <DialogActions sx={{ px: 2, pb: 2, gap: 1 }}>
+        <Button onClick={() => { setUpdateDialogOpen(false); }}>{t("update.later")}</Button>
+        <Button variant="contained" onClick={() => { setUpdateDialogOpen(false); void openUpdate(); }}>
+          {t("update.updateNow")}
+        </Button>
+      </DialogActions>
+    </Dialog>
 
     <Dialog open={diagOpen} onClose={() => { setDiagOpen(false); }} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ fontWeight: 700 }}>Diagnostics</DialogTitle>

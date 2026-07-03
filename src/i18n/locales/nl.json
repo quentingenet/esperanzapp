@@ -65,8 +65,8 @@
         "body": "1 dag, 7, 30, 90 of meer... Elke bereikta etappe helpt je verder op je weg."
       },
       "private": {
-        "title": "100% privé",
-        "body": "Niets verlaat jouw apparaat. Geen account, geen server, geen vreemde ogen."
+        "title": "Ontworpen met privacy voorop",
+        "body": "Je gegevens blijven op je apparaat, tenzij je ervoor kiest ze te exporteren of te delen. Geen account, geen externe server en geen tracking."
       },
       "stats": {
         "title": "Volg je voortgang",
@@ -314,6 +314,10 @@
     "encryptedImportTitle": "Versleuteld bestand",
     "encryptedImportHint": "Voer het wachtwoord in dat bij het exporteren is gebruikt.",
     "encryptedImportError": "Onjuist wachtwoord",
+    "importInvalidFile": "Dit bestand is geen geldige EsperanzApp-export.",
+    "importUnsupportedVersion": "Dit bestand komt uit een incompatibele versie van EsperanzApp.",
+    "importInconsistentData": "Het bestand bevat inconsistente gegevens en kan niet worden geïmporteerd.",
+    "importStorageError": "Het importeren is mislukt tijdens het opslaan. Je bestaande gegevens zijn behouden.",
     "importReschedulePermissionDenied": "Toestemming geweigerd : geïmporteerde herinneringen worden niet gepland."
   },
   "settings": {

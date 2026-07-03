@@ -2,12 +2,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useHabits } from "./useHabits";
 import { useHabitsStore } from "@/store/habitsStore";
-import { getAllHabits, createHabit, deleteHabit } from "@/db";
+import { getAllHabits, createHabit, createHabitWithInitialLog, deleteHabit } from "@/db";
 import type { Habit } from "@/types";
 
 vi.mock("@/db", () => ({
   getAllHabits: vi.fn(),
   createHabit: vi.fn(),
+  createHabitWithInitialLog: vi.fn(),
   deleteHabit: vi.fn(),
 }));
 
@@ -35,6 +36,7 @@ describe("useHabits", () => {
     useHabitsStore.setState({ habits: [], loading: false, error: null });
     vi.mocked(getAllHabits).mockResolvedValue([]);
     vi.mocked(createHabit).mockResolvedValue(habit);
+    vi.mocked(createHabitWithInitialLog).mockResolvedValue(habit);
     vi.mocked(deleteHabit).mockResolvedValue(undefined);
   });
 
@@ -74,6 +76,17 @@ describe("useHabits", () => {
     expect(createHabit).toHaveBeenCalledWith(habitData);
     expect(created).toEqual(habit);
     expect(result.current.habits).toHaveLength(1);
+  });
+
+  it("addHabitWithInitialLog creates both records atomically and updates the store", async () => {
+    const { result } = renderHook(() => useHabits());
+    let created: Habit | undefined;
+    await act(async () => {
+      created = await result.current.addHabitWithInitialLog(habitData);
+    });
+    expect(createHabitWithInitialLog).toHaveBeenCalledWith(habitData, habitData.startDate);
+    expect(created).toEqual(habit);
+    expect(result.current.habits).toEqual([habit]);
   });
 
   it("deleteHabit removes from DB and store", async () => {

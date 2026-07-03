@@ -97,34 +97,36 @@ export function getDb(): SQLiteDBConnection {
 
 let txQueue: Promise<unknown> = Promise.resolve();
 
-export function runInTransaction(fn: (db: SQLiteDBConnection | null) => Promise<void>): Promise<void> {
+export function runInTransaction<T>(
+  fn: (db: SQLiteDBConnection | null) => Promise<T>,
+): Promise<T> {
   if (!db) return fn(null);
-  const capturedDb = db; // capture before async boundary db may be nulled by closeDatabase
-  const run = async (): Promise<void> => {
-    // Use the plugin's native transaction API instead of raw SQL via execute().
-    // execute("BEGIN TRANSACTION") can conflict with the plugin's internal connection
-    // management on Android, causing each run()/query() bridge call to lose the
-    // last_insert_rowid() context between calls.
+  const capturedDb = db;
+  const run = async (): Promise<T> => {
     await capturedDb.beginTransaction();
     try {
-      await fn(capturedDb);
+      const result = await fn(capturedDb);
       await capturedDb.commitTransaction();
+      return result;
     } catch (e) {
       await capturedDb.rollbackTransaction().catch(() => {});
       throw e;
     }
   };
   const chained = txQueue.then(run);
-  txQueue = chained.catch(() => {}); // keep queue alive even if transaction fails
+  txQueue = chained.catch(() => {});
   return chained;
 }
 
-export function clearAllData(dbConn?: SQLiteDBConnection | null): Promise<void> {
+export function clearAllData(
+  dbConn?: SQLiteDBConnection | null,
+  transaction = true,
+): Promise<void> {
   const fn = async (db: SQLiteDBConnection) => {
-    await db.execute("DELETE FROM treatment_logs");
-    await db.execute("DELETE FROM habit_logs");
-    await db.execute("DELETE FROM treatments");
-    await db.execute("DELETE FROM habits");
+    await db.execute("DELETE FROM treatment_logs", transaction);
+    await db.execute("DELETE FROM habit_logs", transaction);
+    await db.execute("DELETE FROM treatments", transaction);
+    await db.execute("DELETE FROM habits", transaction);
   };
   if (dbConn) return fn(dbConn);
   return withDbVoid(fn);

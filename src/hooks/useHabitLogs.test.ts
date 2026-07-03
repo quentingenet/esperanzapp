@@ -1,12 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useHabitLogs } from "./useHabitLogs";
-import { createHabitLog, getHabitLogsByHabitId } from "@/db";
+import { createHabitLog, getHabitLogsByHabitId, recordHabitRelapse } from "@/db";
 import type { HabitLog } from "@/types";
 
 vi.mock("@/db", () => ({
   createHabitLog: vi.fn(),
   getHabitLogsByHabitId: vi.fn(),
+  getAllHabitLogs: vi.fn().mockResolvedValue([]),
+  recordHabitRelapse: vi.fn(),
 }));
 
 const startLog = (date: string): HabitLog => ({
@@ -29,6 +31,7 @@ describe("useHabitLogs", () => {
     vi.setSystemTime(new Date("2024-01-15T12:00:00.000Z"));
     vi.mocked(createHabitLog).mockResolvedValue(startLog("2024-01-01"));
     vi.mocked(getHabitLogsByHabitId).mockResolvedValue([]);
+    vi.mocked(recordHabitRelapse).mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -54,6 +57,14 @@ describe("useHabitLogs", () => {
       logs = await result.current.getLogsByHabit("1");
     });
     expect(logs).toHaveLength(1);
+  });
+
+  it("recordRelapse delegates the atomic relapse operation", async () => {
+    const { result } = renderHook(() => useHabitLogs());
+    await act(async () => {
+      await result.current.recordRelapse("1", "2024-01-15");
+    });
+    expect(recordHabitRelapse).toHaveBeenCalledWith("1", "2024-01-15");
   });
 
   describe("getStats", () => {

@@ -37,7 +37,6 @@ export function History() {
       });
       all.sort((a, b) => b.eventDate.localeCompare(a.eventDate));
 
-      // Merge relapse+start pairs on the same date into a single entry
       const relapseKeys = new Set(
         all.filter((i) => i.eventType === "relapse").map((i) => `${i.habitId}:${i.eventDate}`),
       );

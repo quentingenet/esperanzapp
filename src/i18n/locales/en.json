@@ -65,8 +65,8 @@
         "body": "1 day, 7, 30, 90 or more... Each milestone is a step forward that will help you on your journey."
       },
       "private": {
-        "title": "100% private",
-        "body": "Nothing leaves your device. No account, no server, no outside eyes."
+        "title": "Private by design",
+        "body": "Your data stays on your device unless you choose to export or share it. No account, no remote server, no tracking."
       },
       "stats": {
         "title": "Track your progress",
@@ -314,6 +314,10 @@
     "encryptedImportTitle": "Encrypted file",
     "encryptedImportHint": "Enter the password used when exporting.",
     "encryptedImportError": "Incorrect password",
+    "importInvalidFile": "This file is not a valid EsperanzApp export.",
+    "importUnsupportedVersion": "This file comes from an incompatible version of EsperanzApp.",
+    "importInconsistentData": "The file contains inconsistent data and cannot be imported.",
+    "importStorageError": "The import failed while saving. Your existing data was preserved.",
     "importReschedulePermissionDenied": "Permission denied : imported reminders will not be scheduled."
   },
   "settings": {

@@ -49,8 +49,8 @@ Charts, streaks, history timeline: visualize your progress and understand your p
 🌍 **7 languages**
 French · English · Spanish · German · Portuguese (BR) · Dutch · Italian, with full i18n support.
 
-🔒 **100% private by design**
-No account required. No internet connection needed. All data lives in a local SQLite database on your device. Nothing ever leaves your phone.
+🔒 **Private by design**
+No account required. No internet connection needed. Your data is stored in a local SQLite database and leaves your device only when you explicitly export or share it.
 
 📤 **Export your data**
 Export your history as JSON or CSV at any time, and save it wherever you want. Your data belongs to you.

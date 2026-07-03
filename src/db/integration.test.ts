@@ -71,7 +71,7 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     await conn.close();
   });
 
-  // ─── CRUD: last_insert_rowid pattern ───────────────────────────────────────
+  // CRUD using the last_insert_rowid pattern
 
   it("createHabit returns a valid numeric id via last_insert_rowid", async () => {
     const habit = await createHabit(HABIT_DATA, asConn(conn));
@@ -118,7 +118,7 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     expect(+h2.id).toBeGreaterThan(+h1.id);
   });
 
-  // ─── Transactions (using plugin native API: beginTransaction/commit/rollback) ─
+  // Native transaction API
 
   it("beginTransaction + commitTransaction persists data", async () => {
     await conn.beginTransaction();
@@ -144,7 +144,7 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     expect(await countRows(conn, "habits")).toBe(0);
   });
 
-  // ─── clearAllData ──────────────────────────────────────────────────────────
+  // Data clearing
 
   it("clearAllData removes all rows from all tables", async () => {
     const habit = await createHabit(HABIT_DATA, asConn(conn));
@@ -160,7 +160,7 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     expect(await countRows(conn, "treatment_logs")).toBe(0);
   });
 
-  // ─── Constraints ───────────────────────────────────────────────────────────
+  // Database constraints
 
   it("UNIQUE index rejects duplicate treatment_log for same (treatment_id, scheduled_at)", async () => {
     const treatment = await createTreatment(TREATMENT_DATA, asConn(conn));
@@ -194,7 +194,7 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     ).rejects.toThrow();
   });
 
-  // ─── Round-trip: JSON export then import ───────────────────────────────────
+  // JSON export and import round trip
   // Uses direct INSERT with original IDs, exactly as exportService.importPayload.
   // This approach requires no last_insert_rowid() and no ID remapping.
 
@@ -276,7 +276,7 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     expect(tlogRows[0]?.treatment_id).toBe(Number(treatment.id));
   });
 
-  // ─── Round-trip: CSV export then import ────────────────────────────────────
+  // CSV export and import round trip
 
   it("CSV round-trip preserves all entities", async () => {
     const habit = await createHabit(HABIT_DATA, asConn(conn));
@@ -305,7 +305,7 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     expect(tlogRows[0]?.treatment_id).toBe(Number(treatment.id));
   });
 
-  // ─── Round-trip: encrypted JSON ────────────────────────────────────────────
+  // Encrypted JSON round trip
 
   it("encrypted round-trip: encrypt then decrypt recovers original payload", async () => {
     const habit = await createHabit(HABIT_DATA, asConn(conn));

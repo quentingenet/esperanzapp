@@ -20,11 +20,8 @@ import { theme } from "@/theme";
 import type { SupportedLocale } from "@/i18n";
 import type { NavTab } from "@/types";
 
-// On Android, @capacitor/local-notifications ships a native LocalNotificationRestoreReceiver
-// that reschedules stored notifications on BOOT_COMPLETED without requiring the app to open.
-// This component is a complementary safeguard: it re-syncs reminders against the current DB
-// state every time the app is opened, catching any drift (e.g. after a data import or if the
-// plugin's SharedPreferences were cleared). It is NOT a substitute for the native receiver.
+// The native receiver restores notifications after reboot. This sync also repairs drift
+// between the database and the notification plugin whenever the app starts.
 function AppStartRescheduler() {
   const { scheduleReminder } = useNotifications();
   useEffect(() => {
@@ -36,7 +33,7 @@ function AppStartRescheduler() {
           await scheduleReminder(t);
         }
       } catch {
-        // Notifications are best-effort: scheduling failure must not crash the app.
+        // Notification failures must not prevent the app from starting.
       }
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -74,10 +71,6 @@ function AppUpdateChecker() {
   );
 }
 
-// Visible only when running in a browser (Capacitor platform "web").
-// On any native Android/iOS build, getPlatform() returns "android" or "ios" and this
-// component renders nothing. Never add a production-only gate here: "web" already
-// guarantees we are not on a native build.
 function DevWebBanner() {
   if (Capacitor.getPlatform() !== "web") return null;
   return (

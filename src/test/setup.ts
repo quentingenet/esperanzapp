@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
 
-const mockDb = {
+export const sqliteTestDb = {
   open: vi.fn().mockResolvedValue(undefined),
   close: vi.fn().mockResolvedValue(undefined),
   delete: vi.fn().mockResolvedValue(undefined),
@@ -21,8 +21,8 @@ vi.mock("@capacitor-community/sqlite", () => ({
       isSecretStored: vi.fn().mockResolvedValue({ result: true }),
       setEncryptionSecret: vi.fn().mockResolvedValue(undefined),
       isConnection: vi.fn().mockResolvedValue({ result: false }),
-      createConnection: vi.fn().mockResolvedValue(mockDb),
-      retrieveConnection: vi.fn().mockResolvedValue(mockDb),
+      createConnection: vi.fn().mockResolvedValue(sqliteTestDb),
+      retrieveConnection: vi.fn().mockResolvedValue(sqliteTestDb),
       closeConnection: vi.fn().mockResolvedValue(undefined),
       initWebStore: vi.fn().mockResolvedValue(undefined),
     };

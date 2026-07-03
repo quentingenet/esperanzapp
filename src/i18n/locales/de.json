@@ -65,8 +65,8 @@
         "body": "1 Tag, 7, 30, 90 oder mehr... Jede erreichte Etappe wird dir auf deinem Weg helfen."
       },
       "private": {
-        "title": "100 % privat",
-        "body": "Nichts verlässt dein Gerät. Kein Konto, kein Server, keine fremden Augen."
+        "title": "Datenschutzfreundlich entwickelt",
+        "body": "Deine Daten bleiben auf deinem Gerät, sofern du sie nicht selbst exportierst oder teilst. Kein Konto, kein externer Server, kein Tracking."
       },
       "stats": {
         "title": "Verfolge deinen Fortschritt",
@@ -314,6 +314,10 @@
     "encryptedImportTitle": "Verschlüsselte Datei",
     "encryptedImportHint": "Geben Sie das beim Export verwendete Passwort ein.",
     "encryptedImportError": "Falsches Passwort",
+    "importInvalidFile": "Diese Datei ist kein gültiger EsperanzApp-Export.",
+    "importUnsupportedVersion": "Diese Datei stammt aus einer inkompatiblen Version von EsperanzApp.",
+    "importInconsistentData": "Die Datei enthält inkonsistente Daten und kann nicht importiert werden.",
+    "importStorageError": "Der Import ist beim Speichern fehlgeschlagen. Deine vorhandenen Daten wurden beibehalten.",
     "importReschedulePermissionDenied": "Berechtigung verweigert : importierte Erinnerungen werden nicht geplant."
   },
   "settings": {

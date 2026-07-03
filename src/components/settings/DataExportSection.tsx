@@ -16,8 +16,8 @@ import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import { useExport, useHabits, useNotifications, useTreatments } from "@/hooks";
 import { useTreatmentsStore } from "@/store/treatmentsStore";
-import { WrongPasswordError } from "@/services/exportService";
 import { toast } from "@/store/toastStore";
+import { getImportErrorTranslationKey } from "@/utils/importErrorMessage";
 import { logError } from "@/utils/logger";
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -42,16 +42,13 @@ export function DataExportSection() {
   const [importType, setImportType] = useState<"json" | "csv">("json");
   const [warnOpen, setWarnOpen] = useState(false);
 
-  // Export encryption state
   const [encryptExport, setEncryptExport] = useState(false);
   const [exportPassword, setExportPassword] = useState("");
   const [exportPasswordConfirm, setExportPasswordConfirm] = useState("");
 
-  // Import encryption state
   const [importPasswordOpen, setImportPasswordOpen] = useState(false);
   const [importPassword, setImportPassword] = useState("");
 
-  // Password visibility toggles
   const [showExportPwd, setShowExportPwd] = useState(false);
   const [showExportPwdConfirm, setShowExportPwdConfirm] = useState(false);
   const [showImportPwd, setShowImportPwd] = useState(false);
@@ -157,12 +154,8 @@ export function DataExportSection() {
         // Do not rethrow: import succeeded, only the UI refresh failed.
       }
     } catch (e) {
-      if (e instanceof WrongPasswordError) {
-        toast.error(t("export.encryptedImportError"));
-      } else {
-        logError("DataExportSection.confirmImport", e);
-        toast.error(t("common.error"));
-      }
+      logError("DataExportSection.confirmImport", e);
+      toast.error(t(getImportErrorTranslationKey(e)));
     } finally {
       setIsImporting(false);
     }
@@ -179,7 +172,6 @@ export function DataExportSection() {
         </Button>
       </Box>
 
-      {/* Export dialog */}
       <Dialog open={exportOpen} onClose={() => { setExportOpen(false); resetExportEncryptState(); }} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 700 }}>{t("export.exportBtn")}</DialogTitle>
         <DialogContent>
@@ -260,7 +252,6 @@ export function DataExportSection() {
         </DialogActions>
       </Dialog>
 
-      {/* Save confirm dialog */}
       <Dialog open={saveConfirmOpen} onClose={() => { setSaveConfirmOpen(false); }} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 700 }}>{t("export.saveBtn")}</DialogTitle>
         <DialogContent>
@@ -272,7 +263,6 @@ export function DataExportSection() {
         </DialogActions>
       </Dialog>
 
-      {/* Import: choose file dialog */}
       <Dialog open={importOpen} onClose={() => { setImportOpen(false); }} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 700 }}>{t("export.importBtn")}</DialogTitle>
         <DialogContent>
@@ -284,7 +274,6 @@ export function DataExportSection() {
         </DialogActions>
       </Dialog>
 
-      {/* Import: password dialog (encrypted files only) */}
       <Dialog open={importPasswordOpen} onClose={() => { setImportPasswordOpen(false); setImportFile(null); setShowImportPwd(false); }} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 700 }}>{t("export.encryptedImportTitle")}</DialogTitle>
         <DialogContent>
@@ -314,7 +303,6 @@ export function DataExportSection() {
         </DialogActions>
       </Dialog>
 
-      {/* Import: data overwrite warning dialog */}
       <Dialog open={warnOpen} onClose={() => { setWarnOpen(false); }}>
         <DialogTitle>{t("export.importWarningTitle")}</DialogTitle>
         <DialogContent><Typography>{t("export.importWarningBody")}</Typography></DialogContent>

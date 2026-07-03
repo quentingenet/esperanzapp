@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createHabit,
+  createHabitWithInitialLog,
+  recordHabitRelapse,
   getHabitById,
   getAllHabits,
   updateHabit,
@@ -8,7 +10,11 @@ import {
 } from "./habits";
 
 const mockDb = { run: vi.fn(), query: vi.fn() };
-vi.mock("./client", () => ({ withDb: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb), withDbVoid: (fn: (db: typeof mockDb) => Promise<void>) => fn(mockDb) }));
+vi.mock("./client", () => ({
+  withDb: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb),
+  withDbVoid: (fn: (db: typeof mockDb) => Promise<void>) => fn(mockDb),
+  runInTransaction: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb),
+}));
 
 const ROW = { id: 1, label: "Alcool", icon: "🍺", color: "#3a8fd1", bg_color: "#e8f4ff", start_date: "2024-01-01", created_at: "2024-01-01T10:00:00Z" };
 const HABIT = { id: "1", label: "Alcool", icon: "🍺", color: "#3a8fd1", bgColor: "#e8f4ff", startDate: "2024-01-01", createdAt: "2024-01-01T10:00:00Z" };
@@ -25,6 +31,7 @@ describe("createHabit", () => {
     expect(mockDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO habits"),
       expect.arrayContaining([data.label]),
+      true,
     );
   });
 
@@ -33,6 +40,61 @@ describe("createHabit", () => {
     mockDb.query.mockResolvedValueOnce({ values: [{ id: 0 }] });
     const { id, ...data } = HABIT;
     await expect(createHabit(data)).rejects.toThrow("Failed to insert habit");
+  });
+});
+
+describe("atomic habit operations", () => {
+  it("creates the habit and initial log in the same transaction", async () => {
+    mockDb.run.mockResolvedValue({});
+    mockDb.query.mockResolvedValueOnce({ values: [{ id: 1 }] });
+    const { id, ...data } = HABIT;
+
+    await expect(createHabitWithInitialLog(data, data.startDate)).resolves.toEqual(HABIT);
+    expect(mockDb.run).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("INSERT INTO habits"),
+      expect.any(Array),
+      false,
+    );
+    expect(mockDb.run).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("INSERT INTO habit_logs"),
+      ["1", data.startDate],
+      false,
+    );
+  });
+
+  it("propagates an initial log failure so the transaction can roll back", async () => {
+    mockDb.run.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error("log failed"));
+    mockDb.query.mockResolvedValueOnce({ values: [{ id: 1 }] });
+    const { id, ...data } = HABIT;
+
+    await expect(createHabitWithInitialLog(data, data.startDate)).rejects.toThrow("log failed");
+  });
+
+  it("records relapse and restart in the same transaction", async () => {
+    mockDb.run.mockResolvedValue({});
+
+    await recordHabitRelapse("1", "2024-02-01");
+
+    expect(mockDb.run).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("'relapse'"),
+      ["1", "2024-02-01"],
+      false,
+    );
+    expect(mockDb.run).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("'start'"),
+      ["1", "2024-02-01"],
+      false,
+    );
+  });
+
+  it("propagates a restart failure so the relapse transaction can roll back", async () => {
+    mockDb.run.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error("restart failed"));
+
+    await expect(recordHabitRelapse("1", "2024-02-01")).rejects.toThrow("restart failed");
   });
 });
 
@@ -93,7 +155,12 @@ describe("deleteHabit", () => {
   it("passes correct id to both DELETE statements", async () => {
     mockDb.run.mockResolvedValue({});
     await deleteHabit("42");
-    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM habit_logs WHERE habit_id = ?", ["42"]);
-    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM habits WHERE id = ?", ["42"]);
+    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM habit_logs WHERE habit_id = ?", ["42"], false);
+    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM habits WHERE id = ?", ["42"], false);
+  });
+
+  it("propagates a parent deletion failure so log deletion can roll back", async () => {
+    mockDb.run.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error("delete failed"));
+    await expect(deleteHabit("42")).rejects.toThrow("delete failed");
   });
 });

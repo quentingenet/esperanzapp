@@ -12,6 +12,7 @@ import {
   WrongPasswordError,
   PBKDF2_ITERATIONS,
   peekIsEncrypted,
+  exportTimestamp,
 } from "./exportSerialization";
 import {
   exportToJSON,
@@ -20,6 +21,10 @@ import {
   saveCSVToFolder,
   importFromJSON,
   importFromCSV,
+  ImportStorageError,
+  InconsistentImportDataError,
+  InvalidImportFileError,
+  UnsupportedImportVersionError,
 } from "../services/exportService";
 
 const { mockTransactionDb } = vi.hoisted(() => ({
@@ -97,6 +102,21 @@ describe("buildExportPayload", () => {
   });
 });
 
+describe("exportTimestamp", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("distinguishes exports created milliseconds apart", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-03T12:00:00.001Z"));
+    const first = exportTimestamp();
+    vi.setSystemTime(new Date("2026-07-03T12:00:00.002Z"));
+    const second = exportTimestamp();
+    expect(first).not.toBe(second);
+  });
+});
+
 describe("parseExportPayload", () => {
   it("parses valid JSON payload", () => {
     const payload = buildExportPayload(
@@ -117,7 +137,7 @@ describe("parseExportPayload", () => {
 
   it("throws on wrong version", () => {
     const bad = JSON.stringify({ version: "99", exportedAt: "", habits: [], habitLogs: [], treatments: [], treatmentLogs: [] });
-    expect(() => parseExportPayload(bad)).toThrow("Unsupported or invalid export format");
+    expect(() => parseExportPayload(bad)).toThrow("Unsupported export version");
   });
 
   it("throws when version is missing", () => {
@@ -406,7 +426,7 @@ describe("exportToJSON", () => {
     const { Filesystem } = await import("@capacitor/filesystem");
     await exportToJSON();
     expect(Filesystem.writeFile).toHaveBeenCalledWith(
-      expect.objectContaining({ path: expect.stringMatching(/^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}\.json$/) }),
+      expect.objectContaining({ path: expect.stringMatching(/^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}\.json$/) }),
     );
   });
 
@@ -432,7 +452,7 @@ describe("exportToCSV", () => {
     const { Filesystem } = await import("@capacitor/filesystem");
     await exportToCSV();
     expect(Filesystem.writeFile).toHaveBeenCalledWith(
-      expect.objectContaining({ path: expect.stringMatching(/^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}\.csv$/) }),
+      expect.objectContaining({ path: expect.stringMatching(/^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}\.csv$/) }),
     );
   });
 
@@ -458,7 +478,7 @@ describe("saveJSONToFolder", () => {
     await saveJSONToFolder();
     expect(Filesystem.writeFile).toHaveBeenCalledWith(
       expect.objectContaining({
-        path: expect.stringMatching(/^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}\.json$/),
+        path: expect.stringMatching(/^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}\.json$/),
         directory: Directory.Documents,
       }),
     );
@@ -485,7 +505,7 @@ describe("saveCSVToFolder", () => {
     await saveCSVToFolder();
     expect(Filesystem.writeFile).toHaveBeenCalledWith(
       expect.objectContaining({
-        path: expect.stringMatching(/^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}\.csv$/),
+        path: expect.stringMatching(/^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}\.csv$/),
         directory: Directory.Documents,
       }),
     );
@@ -508,10 +528,12 @@ describe("importFromJSON", () => {
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO habits"),
       expect.arrayContaining([mockHabit.id]),
+      false,
     );
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO habit_logs"),
       expect.arrayContaining([mockHabitLog.habitId]),
+      false,
     );
   });
 
@@ -522,10 +544,12 @@ describe("importFromJSON", () => {
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO treatments"),
       expect.arrayContaining([mockTreatment.id]),
+      false,
     );
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO treatment_logs"),
       expect.arrayContaining([mockTreatmentLog.treatmentId]),
+      false,
     );
   });
 
@@ -533,31 +557,31 @@ describe("importFromJSON", () => {
     const orphanLog: HabitLog = { ...mockHabitLog, habitId: "999" };
     const payload = buildExportPayload([mockHabit], [orphanLog], [], [], "2024-01-01T00:00:00.000Z");
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
-    await expect(importFromJSON(file)).rejects.toThrow(/references unknown habitId/);
+    await expect(importFromJSON(file)).rejects.toBeInstanceOf(InconsistentImportDataError);
   });
 
   it("throws on orphan treatmentLog referencing unknown treatmentId", async () => {
     const orphanLog: TreatmentLog = { ...mockTreatmentLog, treatmentId: "999" };
     const payload = buildExportPayload([], [], [mockTreatment], [orphanLog], "2024-01-01T00:00:00.000Z");
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
-    await expect(importFromJSON(file)).rejects.toThrow(/references unknown treatmentId/);
+    await expect(importFromJSON(file)).rejects.toBeInstanceOf(InconsistentImportDataError);
   });
 
   it("throws on invalid JSON file", async () => {
     const file = new File(["not valid json"], "export.json", { type: "application/json" });
-    await expect(importFromJSON(file)).rejects.toThrow();
+    await expect(importFromJSON(file)).rejects.toBeInstanceOf(InvalidImportFileError);
   });
 
   it("throws when JSON has missing required arrays", async () => {
     const bad = JSON.stringify({ version: "1", exportedAt: "2024-01-01T00:00:00.000Z" });
     const file = new File([bad], "export.json", { type: "application/json" });
-    await expect(importFromJSON(file)).rejects.toThrow("Unsupported or invalid export format");
+    await expect(importFromJSON(file)).rejects.toBeInstanceOf(InvalidImportFileError);
   });
 
   it("throws when JSON version is wrong", async () => {
     const bad = JSON.stringify({ version: "99", habits: [], habitLogs: [], treatments: [], treatmentLogs: [] });
     const file = new File([bad], "export.json", { type: "application/json" });
-    await expect(importFromJSON(file)).rejects.toThrow("Unsupported or invalid export format");
+    await expect(importFromJSON(file)).rejects.toBeInstanceOf(UnsupportedImportVersionError);
   });
 
   it("handles empty payload gracefully", async () => {
@@ -579,6 +603,7 @@ describe("importFromCSV", () => {
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO habits"),
       expect.any(Array),
+      false,
     );
   });
 
@@ -590,17 +615,18 @@ describe("importFromCSV", () => {
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO habit_logs"),
       expect.arrayContaining([mockHabitLog.habitId]),
+      false,
     );
   });
 
   it("throws on empty CSV file", async () => {
     const file = new File([""], "export.csv", { type: "text/csv" });
-    await expect(importFromCSV(file)).rejects.toThrow("Empty CSV file");
+    await expect(importFromCSV(file)).rejects.toBeInstanceOf(InvalidImportFileError);
   });
 
   it("throws on CSV with no recognised section headers", async () => {
     const file = new File(["name,email\njohn,doe"], "bad.csv", { type: "text/csv" });
-    await expect(importFromCSV(file)).rejects.toThrow("Unsupported or invalid CSV format");
+    await expect(importFromCSV(file)).rejects.toBeInstanceOf(InvalidImportFileError);
   });
 });
 
@@ -617,6 +643,7 @@ describe("import replace mode", () => {
     await importFromJSON(file);
     expect(order[0]).toBe("clear");
     expect(order[1]).toBe("insert");
+    expect(vi.mocked(clearAllData)).toHaveBeenCalledWith(mockTransactionDb, false);
   });
 
   it("importing the same file twice calls clearAllData each time (no duplicates)", async () => {
@@ -632,7 +659,7 @@ describe("import replace mode", () => {
     mockTransactionDb.run.mockRejectedValueOnce(new Error("insert failed"));
     const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
-    await expect(importFromJSON(file)).rejects.toThrow("insert failed");
+    await expect(importFromJSON(file)).rejects.toBeInstanceOf(ImportStorageError);
   });
 
   it("clearAllData is called even when payload is empty", async () => {
@@ -766,6 +793,7 @@ describe("encryption: full round-trip through importFromJSON", () => {
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO habits"),
       expect.any(Array),
+      false,
     );
   });
 
@@ -785,6 +813,7 @@ describe("encryption: full round-trip through importFromJSON", () => {
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO habits"),
       expect.any(Array),
+      false,
     );
   });
 
@@ -795,6 +824,7 @@ describe("encryption: full round-trip through importFromJSON", () => {
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO habits"),
       expect.any(Array),
+      false,
     );
   });
 
@@ -806,6 +836,7 @@ describe("encryption: full round-trip through importFromJSON", () => {
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO habits"),
       expect.any(Array),
+      false,
     );
   });
 });

@@ -5,6 +5,25 @@ import { Share } from "@capacitor/share";
 export type ShareOutcome = "ok" | "filesystem-error" | "share-cancelled";
 export type SaveOutcome = "ok" | "filesystem-error" | "documents-unavailable";
 
+const CACHE_CLEANUP_DELAY_MS = 5 * 60 * 1000;
+
+async function deleteCachedExport(filename: string): Promise<void> {
+  try {
+    await Filesystem.deleteFile({
+      path: filename,
+      directory: Directory.Cache,
+    });
+  } catch {
+    // Cache cleanup is best-effort and must not change the share outcome.
+  }
+}
+
+function scheduleCachedExportDeletion(filename: string): void {
+  setTimeout(() => {
+    void deleteCachedExport(filename);
+  }, CACHE_CLEANUP_DELAY_MS);
+}
+
 export function downloadBlobWeb(content: string, filename: string, mime: string): void {
   const blob = new Blob([content], { type: mime });
   const url = URL.createObjectURL(blob);
@@ -35,8 +54,10 @@ export async function shareFile(filename: string, content: string, mime: string)
   }
   try {
     await Share.share({ url: result.uri, title: filename, dialogTitle: filename });
+    scheduleCachedExportDeletion(filename);
     return "ok";
   } catch {
+    await deleteCachedExport(filename);
     return "share-cancelled";
   }
 }

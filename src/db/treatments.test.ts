@@ -8,7 +8,11 @@ import {
 } from "./treatments";
 
 const mockDb = { run: vi.fn(), query: vi.fn() };
-vi.mock("./client", () => ({ withDb: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb), withDbVoid: (fn: (db: typeof mockDb) => Promise<void>) => fn(mockDb) }));
+vi.mock("./client", () => ({
+  withDb: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb),
+  withDbVoid: (fn: (db: typeof mockDb) => Promise<void>) => fn(mockDb),
+  runInTransaction: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb),
+}));
 
 const ROW = { id: 3, label: "Metformine", frequency: "daily", reminder_time: "08:00", reminder_enabled: 1, reminder_day: null, created_at: "2024-06-01T09:00:00Z" };
 const TREATMENT = { id: "3", label: "Metformine", frequency: "daily" as const, reminderTime: "08:00", reminderEnabled: true, reminderDay: null, createdAt: "2024-06-01T09:00:00Z" };
@@ -88,7 +92,12 @@ describe("deleteTreatment", () => {
   it("passes correct id to both DELETE statements", async () => {
     mockDb.run.mockResolvedValue({});
     await deleteTreatment("7");
-    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM treatment_logs WHERE treatment_id = ?", ["7"]);
-    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM treatments WHERE id = ?", ["7"]);
+    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM treatment_logs WHERE treatment_id = ?", ["7"], false);
+    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM treatments WHERE id = ?", ["7"], false);
+  });
+
+  it("propagates a parent deletion failure so log deletion can roll back", async () => {
+    mockDb.run.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error("delete failed"));
+    await expect(deleteTreatment("7")).rejects.toThrow("delete failed");
   });
 });

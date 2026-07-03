@@ -16,9 +16,38 @@ import {
   decryptPayload,
   isEncryptedEnvelope,
   WrongPasswordError,
+  UnsupportedExportVersionError,
 } from "../utils/exportSerialization";
 import { shareFile, saveToFolder } from "./shareService";
 import type { ShareOutcome, SaveOutcome } from "./shareService";
+
+export class InvalidImportFileError extends Error {
+  constructor(cause?: unknown) {
+    super("Invalid import file", { cause });
+    this.name = "InvalidImportFileError";
+  }
+}
+
+export class UnsupportedImportVersionError extends Error {
+  constructor() {
+    super("Unsupported import version");
+    this.name = "UnsupportedImportVersionError";
+  }
+}
+
+export class InconsistentImportDataError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InconsistentImportDataError";
+  }
+}
+
+export class ImportStorageError extends Error {
+  constructor(cause?: unknown) {
+    super("Import could not be written to storage", { cause });
+    this.name = "ImportStorageError";
+  }
+}
 
 async function buildPayload() {
   const [habits, habitLogs, treatments, treatmentLogs] = await Promise.all([
@@ -77,50 +106,57 @@ function validateNoOrphans(payload: ReturnType<typeof parseExportPayload>): void
   const habitIds = new Set(payload.habits.map((h) => h.id));
   for (const log of payload.habitLogs) {
     if (!habitIds.has(log.habitId))
-      throw new Error(`import: habitLog "${log.id}" references unknown habitId "${log.habitId}"`);
+      throw new InconsistentImportDataError(`import: habitLog "${log.id}" references unknown habitId "${log.habitId}"`);
   }
   const treatmentIds = new Set(payload.treatments.map((t) => t.id));
   for (const log of payload.treatmentLogs) {
     if (!treatmentIds.has(log.treatmentId))
-      throw new Error(`import: treatmentLog "${log.id}" references unknown treatmentId "${log.treatmentId}"`);
+      throw new InconsistentImportDataError(`import: treatmentLog "${log.id}" references unknown treatmentId "${log.treatmentId}"`);
   }
 }
 
 async function importPayload(payload: ReturnType<typeof parseExportPayload>): Promise<void> {
   validateNoOrphans(payload);
-  await runInTransaction(async (db) => {
-    // Web dev mode: db is null, nothing to do.
-    if (!db) return;
-    await clearAllData(db);
-    // Insert with original IDs so foreign-key relationships are preserved without
-    // needing to remap IDs. This also avoids any reliance on last_insert_rowid()
-    // or changes.lastId, both of which are unreliable in the Capacitor SQLite
-    // Android bridge when called as separate run()/query() round-trips.
-    for (const h of payload.habits) {
-      await db.run(
-        "INSERT INTO habits (id, label, icon, color, bg_color, start_date, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [h.id, h.label, h.icon, h.color, h.bgColor, h.startDate, h.createdAt],
-      );
-    }
-    for (const l of payload.habitLogs) {
-      await db.run(
-        "INSERT INTO habit_logs (id, habit_id, event_type, event_date) VALUES (?, ?, ?, ?)",
-        [l.id, l.habitId, l.eventType, l.eventDate],
-      );
-    }
-    for (const t of payload.treatments) {
-      await db.run(
-        "INSERT INTO treatments (id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [t.id, t.label, t.frequency, t.reminderTime, t.reminderEnabled ? 1 : 0, t.reminderDay ?? null, t.createdAt],
-      );
-    }
-    for (const tl of payload.treatmentLogs) {
-      await db.run(
-        "INSERT INTO treatment_logs (id, treatment_id, scheduled_at, status) VALUES (?, ?, ?, ?)",
-        [tl.id, tl.treatmentId, tl.scheduledAt, tl.status],
-      );
-    }
-  });
+  try {
+    await runInTransaction(async (db) => {
+      // Web dev mode: db is null, nothing to do.
+      if (!db) return;
+      // Every statement must opt out of the plugin's implicit transaction because
+      // runInTransaction already opened one. Android rejects nested transactions.
+      await clearAllData(db, false);
+      // Insert with original IDs so foreign-key relationships are preserved.
+      for (const h of payload.habits) {
+        await db.run(
+          "INSERT INTO habits (id, label, icon, color, bg_color, start_date, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          [h.id, h.label, h.icon, h.color, h.bgColor, h.startDate, h.createdAt],
+          false,
+        );
+      }
+      for (const l of payload.habitLogs) {
+        await db.run(
+          "INSERT INTO habit_logs (id, habit_id, event_type, event_date) VALUES (?, ?, ?, ?)",
+          [l.id, l.habitId, l.eventType, l.eventDate],
+          false,
+        );
+      }
+      for (const t of payload.treatments) {
+        await db.run(
+          "INSERT INTO treatments (id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          [t.id, t.label, t.frequency, t.reminderTime, t.reminderEnabled ? 1 : 0, t.reminderDay ?? null, t.createdAt],
+          false,
+        );
+      }
+      for (const tl of payload.treatmentLogs) {
+        await db.run(
+          "INSERT INTO treatment_logs (id, treatment_id, scheduled_at, status) VALUES (?, ?, ?, ?)",
+          [tl.id, tl.treatmentId, tl.scheduledAt, tl.status],
+          false,
+        );
+      }
+    });
+  } catch (cause) {
+    throw new ImportStorageError(cause);
+  }
 }
 
 async function resolveImportContent(
@@ -143,15 +179,26 @@ async function resolveImportContent(
 export async function importFromJSON(file: File, password?: string): Promise<void> {
   const raw = await file.text();
   const { content, format } = await resolveImportContent(raw, password);
-  const payload = format === "csv" ? parseCSVPayload(content) : parseExportPayload(content);
+  const payload = parseImportContent(content, format);
   await importPayload(payload);
 }
 
 export async function importFromCSV(file: File, password?: string): Promise<void> {
   const raw = await file.text();
   const { content, format } = await resolveImportContent(raw, password);
-  const payload = format === "csv" ? parseCSVPayload(content) : parseExportPayload(content);
+  const payload = parseImportContent(content, format);
   await importPayload(payload);
+}
+
+function parseImportContent(content: string, format: "json" | "csv") {
+  try {
+    return format === "csv" ? parseCSVPayload(content) : parseExportPayload(content);
+  } catch (cause) {
+    if (cause instanceof UnsupportedExportVersionError) {
+      throw new UnsupportedImportVersionError();
+    }
+    throw new InvalidImportFileError(cause);
+  }
 }
 
 export { WrongPasswordError };

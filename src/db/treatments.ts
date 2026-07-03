@@ -1,7 +1,7 @@
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import type { Treatment } from "@/types";
 import { isFrequency } from "@/utils";
-import { withDb, withDbVoid } from "./client";
+import { runInTransaction, withDb, withDbVoid } from "./client";
 
 type TreatmentRow = {
   id: number;
@@ -74,11 +74,9 @@ export function updateTreatment(
 }
 
 export function deleteTreatment(id: string): Promise<void> {
-  return withDbVoid(async (db) => {
-    // Explicit deletion of associated logs before the parent row, complementing the
-    // ON DELETE CASCADE FK constraint. This guards against scenarios where PRAGMA
-    // foreign_keys is not yet active (e.g. connection race on startup).
-    await db.run("DELETE FROM treatment_logs WHERE treatment_id = ?", [id]);
-    await db.run("DELETE FROM treatments WHERE id = ?", [id]);
+  return runInTransaction(async (database) => {
+    if (!database) return;
+    await database.run("DELETE FROM treatment_logs WHERE treatment_id = ?", [id], false);
+    await database.run("DELETE FROM treatments WHERE id = ?", [id], false);
   });
 }

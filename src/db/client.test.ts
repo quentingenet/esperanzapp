@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Capacitor } from "@capacitor/core";
-
-// Runs with the real client module (not mocked), using the global sqlite/capacitor mocks
-// from test/setup.ts.
+import { sqliteTestDb } from "@/test/setup";
 
 describe("runInTransaction", () => {
   afterEach(async () => {
@@ -27,6 +25,7 @@ describe("runInTransaction", () => {
 
   describe("with initialized db", () => {
     beforeEach(async () => {
+      vi.clearAllMocks();
       vi.mocked(Capacitor.getPlatform).mockReturnValue("android");
       const { initDatabase } = await import("./client");
       await initDatabase();
@@ -82,8 +81,29 @@ describe("runInTransaction", () => {
       const { runInTransaction } = await import("./client");
       const order: string[] = [];
       await runInTransaction(async () => { order.push("body"); });
-      // The body must run serialization tests already prove ordering is correct
       expect(order).toEqual(["body"]);
+      expect(sqliteTestDb.beginTransaction).toHaveBeenCalledTimes(1);
+      expect(sqliteTestDb.commitTransaction).toHaveBeenCalledTimes(1);
+      expect(sqliteTestDb.rollbackTransaction).not.toHaveBeenCalled();
+    });
+
+    it("rolls back when the transaction body fails", async () => {
+      const { runInTransaction } = await import("./client");
+
+      await expect(
+        runInTransaction(async () => {
+          throw new Error("write failed");
+        }),
+      ).rejects.toThrow("write failed");
+
+      expect(sqliteTestDb.beginTransaction).toHaveBeenCalledTimes(1);
+      expect(sqliteTestDb.commitTransaction).not.toHaveBeenCalled();
+      expect(sqliteTestDb.rollbackTransaction).toHaveBeenCalledTimes(1);
+    });
+
+    it("returns the transaction body result", async () => {
+      const { runInTransaction } = await import("./client");
+      await expect(runInTransaction(async () => "saved")).resolves.toBe("saved");
     });
 
     it("passes captured db connection to callback", async () => {
