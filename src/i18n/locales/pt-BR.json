@@ -23,7 +23,8 @@
     "deleted": "Excluído",
     "created": "Criado",
     "expand": "Expandir",
-    "collapse": "Recolher"
+    "collapse": "Recolher",
+    "showPassword": "Mostrar senha"
   },
   "nav": {
     "home": "Início",
@@ -346,7 +347,9 @@
     "tabs": {
       "settings": "Configurações",
       "data": "Meus dados"
-    }
+    },
+    "diagCopied": "Copiado",
+    "diagNoEntries": "Sem entradas"
   },
   "milestones": {
     "title": "Marcos",

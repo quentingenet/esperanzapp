@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -15,7 +15,11 @@ import type { PluginListenerHandle } from "@capacitor/core";
 import { useTranslation } from "react-i18next";
 import { AppToast, BottomNav } from "@/components/shared";
 import { LanguageSelector, PrivacyModal, OnboardingSlider, UserNameInput } from "@/components/onboarding";
-import { Home, Milestones, Treatments, History, Settings } from "@/pages";
+const Home = lazy(() => import("@/pages/Home").then((m) => ({ default: m.Home })));
+const Milestones = lazy(() => import("@/pages/Milestones").then((m) => ({ default: m.Milestones })));
+const Treatments = lazy(() => import("@/pages/Treatments").then((m) => ({ default: m.Treatments })));
+const History = lazy(() => import("@/pages/History").then((m) => ({ default: m.History })));
+const Settings = lazy(() => import("@/pages/Settings").then((m) => ({ default: m.Settings })));
 import { useOnboarding, useNotifications, useAppUpdate } from "@/hooks";
 import { getAllTreatments } from "@/db";
 import { theme } from "@/theme";

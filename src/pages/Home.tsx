@@ -26,7 +26,7 @@ export function Home() {
     const guard = { cancelled: false };
     void getStatsBatch(habits.map((h) => h.id)).then((map) => {
       if (!guard.cancelled) setStatsMap(map);
-    });
+    }).catch((e: unknown) => { logError("Home.getStatsBatch", e); });
     return () => { guard.cancelled = true; };
   }, [habits, getStatsBatch]);
 

@@ -211,7 +211,7 @@ export function DataExportSection() {
                 size="small"
                 slotProps={{ input: { endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton onClick={() => { setShowExportPwd((v) => !v); }} onMouseDown={(e) => { e.preventDefault(); }} edge="end" size="small">
+                    <IconButton onClick={() => { setShowExportPwd((v) => !v); }} onMouseDown={(e) => { e.preventDefault(); }} edge="end" size="small" aria-label={t("common.showPassword")}>
                       <SvgIcon fontSize="small" aria-hidden="true"><path d={showExportPwd ? EYE_OFF_PATH : EYE_PATH} /></SvgIcon>
                     </IconButton>
                   </InputAdornment>
@@ -228,7 +228,7 @@ export function DataExportSection() {
                 size="small"
                 slotProps={{ input: { endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton onClick={() => { setShowExportPwdConfirm((v) => !v); }} onMouseDown={(e) => { e.preventDefault(); }} edge="end" size="small">
+                    <IconButton onClick={() => { setShowExportPwdConfirm((v) => !v); }} onMouseDown={(e) => { e.preventDefault(); }} edge="end" size="small" aria-label={t("common.showPassword")}>
                       <SvgIcon fontSize="small" aria-hidden="true"><path d={showExportPwdConfirm ? EYE_OFF_PATH : EYE_PATH} /></SvgIcon>
                     </IconButton>
                   </InputAdornment>
@@ -288,7 +288,7 @@ export function DataExportSection() {
             autoFocus
             slotProps={{ input: { endAdornment: (
               <InputAdornment position="end">
-                <IconButton onClick={() => { setShowImportPwd((v) => !v); }} onMouseDown={(e) => { e.preventDefault(); }} edge="end" size="small">
+                <IconButton onClick={() => { setShowImportPwd((v) => !v); }} onMouseDown={(e) => { e.preventDefault(); }} edge="end" size="small" aria-label={t("common.showPassword")}>
                   <SvgIcon fontSize="small" aria-hidden="true"><path d={showImportPwd ? EYE_OFF_PATH : EYE_PATH} /></SvgIcon>
                 </IconButton>
               </InputAdornment>

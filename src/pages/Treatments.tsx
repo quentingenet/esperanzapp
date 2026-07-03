@@ -19,6 +19,7 @@ import { weekDayLabel } from "@/components/treatments/treatmentUtils";
 import { ConfirmDialog, EmptyState, PageHeader } from "@/components/shared";
 import { useTreatments, useTreatmentLogs, useNotifications, useDateLocale } from "@/hooks";
 import { toast } from "@/store/toastStore";
+import { logError } from "@/utils/logger";
 import type { Treatment, TreatmentLog, TreatmentStatus } from "@/types";
 
 const WEEK_DAYS = [1, 2, 3, 4, 5, 6, 0];
@@ -58,7 +59,7 @@ export function Treatments() {
       );
       for (const log of todayLogs) { map[log.treatmentId] = log; }
       setLogsMap(map);
-    });
+    }).catch((e: unknown) => { logError("Treatments.getLogsByDate", e); });
     return () => { guard.cancelled = true; };
   }, [treatments, getLogsByDate]);
 

@@ -23,7 +23,8 @@
     "deleted": "Supprimé",
     "created": "Créé",
     "expand": "Développer",
-    "collapse": "Réduire"
+    "collapse": "Réduire",
+    "showPassword": "Afficher le mot de passe"
   },
   "nav": {
     "home": "Accueil",
@@ -346,7 +347,9 @@
     "tabs": {
       "settings": "Paramètres",
       "data": "Mes données"
-    }
+    },
+    "diagCopied": "Copié",
+    "diagNoEntries": "Aucune entrée"
   },
   "milestones": {
     "title": "Jalons",

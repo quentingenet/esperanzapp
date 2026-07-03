@@ -23,7 +23,8 @@
     "deleted": "Gelöscht",
     "created": "Erstellt",
     "expand": "Ausklappen",
-    "collapse": "Einklappen"
+    "collapse": "Einklappen",
+    "showPassword": "Passwort anzeigen"
   },
   "nav": {
     "home": "Start",
@@ -346,7 +347,9 @@
     "tabs": {
       "settings": "Einstellungen",
       "data": "Meine Daten"
-    }
+    },
+    "diagCopied": "Kopiert",
+    "diagNoEntries": "Keine Einträge"
   },
   "milestones": {
     "title": "Meilensteine",

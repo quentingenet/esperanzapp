@@ -23,7 +23,8 @@
     "deleted": "Verwijderd",
     "created": "Aangemaakt",
     "expand": "Uitklappen",
-    "collapse": "Inklappen"
+    "collapse": "Inklappen",
+    "showPassword": "Wachtwoord weergeven"
   },
   "nav": {
     "home": "Home",
@@ -346,7 +347,9 @@
     "tabs": {
       "settings": "Instellingen",
       "data": "Mijn gegevens"
-    }
+    },
+    "diagCopied": "Gekopieerd",
+    "diagNoEntries": "Geen vermeldingen"
   },
   "milestones": {
     "title": "Mijlpalen",

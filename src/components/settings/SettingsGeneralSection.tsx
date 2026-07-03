@@ -17,7 +17,7 @@ import { useOnboarding, useAppUpdate } from "@/hooks";
 import { useOnboardingStore } from "@/store";
 import { toast } from "@/store/toastStore";
 import { SUPPORTED_LOCALES } from "@/i18n";
-import { getLogEntries } from "@/utils/logger";
+import { getLogEntries, logError } from "@/utils/logger";
 
 declare const __APP_VERSION__: string;
 const APP_VERSION = __APP_VERSION__;
@@ -79,11 +79,13 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
 
   const diagEntries = getLogEntries();
   const diagText = diagEntries.length === 0
-    ? "No entries."
+    ? t("settings.diagNoEntries")
     : diagEntries.map((e) => `${e.time} [${e.context}] ${e.name}${e.message ? `: ${e.message}` : ""}`).join("\n");
 
   const handleCopyDiag = () => {
-    void navigator.clipboard.writeText(diagText).then(() => { toast.success("Copied"); });
+    void navigator.clipboard.writeText(diagText)
+      .then(() => { toast.success(t("settings.diagCopied")); })
+      .catch((e: unknown) => { logError("SettingsGeneralSection.copyDiag", e); toast.error(t("common.error")); });
   };
 
   return (
@@ -179,7 +181,7 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => { setDiagOpen(false); }}>Close</Button>
+        <Button onClick={() => { setDiagOpen(false); }}>{t("common.close")}</Button>
         <Button variant="contained" onClick={handleCopyDiag}>Copy</Button>
       </DialogActions>
     </Dialog>

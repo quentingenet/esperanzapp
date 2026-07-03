@@ -112,4 +112,11 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
     }
     await markApplied(db, "idx_habit_logs_habit_id");
   }
+
+  if (!(await isApplied(db, "idx_treatment_logs_scheduled_at"))) {
+    if (!(await indexExists(db, "idx_treatment_logs_scheduled_at"))) {
+      await db.execute("CREATE INDEX IF NOT EXISTS idx_treatment_logs_scheduled_at ON treatment_logs(scheduled_at)");
+    }
+    await markApplied(db, "idx_treatment_logs_scheduled_at");
+  }
 }

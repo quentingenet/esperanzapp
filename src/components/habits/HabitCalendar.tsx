@@ -8,6 +8,7 @@ import type { PickerDayProps } from "@mui/x-date-pickers/PickerDay";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { useCalendar, useDateLocale } from "@/hooks";
+import { logError } from "@/utils/logger";
 import { COLORS } from "@/theme/tokens";
 import type { DayStatus, HabitCalendarProps } from "@/types";
 
@@ -27,7 +28,7 @@ export function HabitCalendar({ habitId }: HabitCalendarProps) {
     const guard = { cancelled: false };
     void getHabitDayStatusMap(habitId).then((map) => {
       if (!guard.cancelled) setStatusMap(map);
-    });
+    }).catch((e: unknown) => { logError("HabitCalendar.getHabitDayStatusMap", e); });
     return () => { guard.cancelled = true; };
   }, [habitId, getHabitDayStatusMap]);
 

@@ -23,7 +23,8 @@
     "deleted": "Deleted",
     "created": "Created",
     "expand": "Expand",
-    "collapse": "Collapse"
+    "collapse": "Collapse",
+    "showPassword": "Show password"
   },
   "nav": {
     "home": "Home",
@@ -346,7 +347,9 @@
     "tabs": {
       "settings": "Settings",
       "data": "My data"
-    }
+    },
+    "diagCopied": "Copied",
+    "diagNoEntries": "No entries"
   },
   "milestones": {
     "title": "Milestones",

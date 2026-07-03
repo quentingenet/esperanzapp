@@ -23,7 +23,8 @@
     "deleted": "Eliminato",
     "created": "Creato",
     "expand": "Espandi",
-    "collapse": "Comprimi"
+    "collapse": "Comprimi",
+    "showPassword": "Mostra password"
   },
   "nav": {
     "home": "Home",
@@ -346,7 +347,9 @@
     "tabs": {
       "settings": "Impostazioni",
       "data": "I miei dati"
-    }
+    },
+    "diagCopied": "Copiato",
+    "diagNoEntries": "Nessuna voce"
   },
   "milestones": {
     "title": "Traguardi",

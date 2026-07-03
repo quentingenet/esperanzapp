@@ -5,6 +5,7 @@ import { addDays, format, parseISO } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { EmptyState, GradeBadge, PageHeader } from "@/components/shared";
 import { useHabits, useHabitLogs } from "@/hooks";
+import { logError } from "@/utils/logger";
 import { GRADES } from "@/utils/grades";
 import { todayLocalDate } from "@/utils";
 import type { HabitStats } from "@/types";
@@ -21,7 +22,7 @@ export function Milestones() {
     const guard = { cancelled: false };
     void getStatsBatch(habits.map((h) => h.id)).then((map) => {
       if (!guard.cancelled) setStatsMap(map);
-    });
+    }).catch((e: unknown) => { logError("Milestones.getStatsBatch", e); });
     return () => { guard.cancelled = true; };
   }, [habits, getStatsBatch]);
 

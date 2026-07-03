@@ -14,6 +14,7 @@ import { HabitMilestoneTab } from "./HabitMilestoneTab";
 import { HabitHistoryTab } from "./HabitHistoryTab";
 import { HabitStatsTab } from "./HabitStatsTab";
 import { useHabitLogs } from "@/hooks";
+import { logError } from "@/utils/logger";
 import type { Habit, HabitLog, HabitStats } from "@/types";
 
 export interface HistoryEntry extends HabitLog {
@@ -39,7 +40,7 @@ export function HabitDetailModal({ habit, stats, userName, onClose, onRelapse }:
     const guard = { cancelled: false };
     void getLogsByHabit(habit.id).then((logs) => {
       if (!guard.cancelled) setRawLogs(logs);
-    });
+    }).catch((e: unknown) => { logError("HabitDetailModal.getLogsByHabit", e); });
     return () => { guard.cancelled = true; };
   }, [habit.id, getLogsByHabit]);
 
