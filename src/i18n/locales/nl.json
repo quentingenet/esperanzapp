@@ -319,7 +319,8 @@
     "importUnsupportedVersion": "Dit bestand komt uit een incompatibele versie van EsperanzApp.",
     "importInconsistentData": "Het bestand bevat inconsistente gegevens en kan niet worden geïmporteerd.",
     "importStorageError": "Het importeren is mislukt tijdens het opslaan. Je bestaande gegevens zijn behouden.",
-    "importReschedulePermissionDenied": "Toestemming geweigerd : geïmporteerde herinneringen worden niet gepland."
+    "importReschedulePermissionDenied": "Toestemming geweigerd : geïmporteerde herinneringen worden niet gepland.",
+    "importFileTooLarge": "Bestand te groot. Maximale grootte: 10 MB."
   },
   "settings": {
     "title": "Instellingen",

@@ -319,7 +319,8 @@
     "importUnsupportedVersion": "Este archivo procede de una versión incompatible de EsperanzApp.",
     "importInconsistentData": "El archivo contiene datos incoherentes y no se puede importar.",
     "importStorageError": "La importación falló durante el guardado. Tus datos existentes se conservaron.",
-    "importReschedulePermissionDenied": "Permiso denegado : los recordatorios importados no se programarán."
+    "importReschedulePermissionDenied": "Permiso denegado : los recordatorios importados no se programarán.",
+    "importFileTooLarge": "Archivo demasiado grande. Tamaño máximo: 10 MB."
   },
   "settings": {
     "title": "Ajustes",

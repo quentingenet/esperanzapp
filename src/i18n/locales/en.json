@@ -319,7 +319,8 @@
     "importUnsupportedVersion": "This file comes from an incompatible version of EsperanzApp.",
     "importInconsistentData": "The file contains inconsistent data and cannot be imported.",
     "importStorageError": "The import failed while saving. Your existing data was preserved.",
-    "importReschedulePermissionDenied": "Permission denied : imported reminders will not be scheduled."
+    "importReschedulePermissionDenied": "Permission denied : imported reminders will not be scheduled.",
+    "importFileTooLarge": "File too large. Maximum allowed size: 10 MB."
   },
   "settings": {
     "title": "Settings",

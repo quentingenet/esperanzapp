@@ -1,6 +1,6 @@
 # Privacy Policy for EsperanzApp
 
-*Last updated: July 2, 2026*
+*Last updated: July 3, 2026*
 
 ## 1. Overview
 
@@ -8,18 +8,19 @@ EsperanzApp is a personal wellness mobile application designed to help users tra
 
 ## 2. Data Collection
 
-EsperanzApp does **not collect any personal data** through an external server.
+EsperanzApp does not collect personal data through any external server. There is no backend, no user account, and no mechanism for EsperanzApp to receive or store data about you.
 
-All data you enter in the application (habits, treatments, logs) is stored **exclusively on your device**, in a local SQLite database. **No data is automatically transmitted by EsperanzApp.** Data may leave the device only if you explicitly export or share it using the built-in export feature.
+All health data you enter in the application (habits, treatments, logs) is stored exclusively on your device in a local SQLite database. No health data is automatically transmitted by EsperanzApp. Health data may leave the device only if you explicitly export or share it using the built-in export feature.
+
+Two non-medical items are stored in your browser's `localStorage`: your language preference and your onboarding completion status. These items remain on your device, are not transmitted to any server, and do not contain personal health information.
+
+**Update check.** The application checks at startup whether a newer version is available, using the Google Play In-App Updates API (`@capawesome/capacitor-app-update`). This call is made through Google Play Services and does not transmit any health data. The information exchanged is limited to identifying the current installed version of the application and retrieving the latest available version from the Play Store. This call is subject to Google's own privacy practices for the Google Play platform. The same check is also available manually via the "Check for updates" button in Settings.
 
 ## 3. Data We Do Not Collect
 
-No user account or authentication is required.
-No email address or identifier is collected.
-No location data is collected.
-No biometric data is collected.
-No cookies or trackers are used.
-No analytics or behavioral tracking tools are integrated.
+No user account or authentication is required. No email address or identifier is collected. No location data is collected. No biometric data is collected. No cookies or third-party trackers are used. No analytics or behavioral tracking SDK is integrated in the application itself.
+
+Note that downloading EsperanzApp through Google Play is subject to Google's data practices for the Play Store platform. EsperanzApp has no control over and no visibility into the metadata that Google may collect at the platform level (such as install counts, device model, or country). These practices are governed by Google's own privacy policy.
 
 ## 4. Data Sharing
 
@@ -33,7 +34,7 @@ The app offers two export paths. The **Share** option writes the file to the app
 
 The **Save to phone** option writes the file to the app's private Documents folder on your device (`Android/data/com.quentingenet.esperanzapp/files/Documents/`). On Android 11 and later, this folder is not accessible to third-party file managers due to system scoped-storage restrictions; it can be browsed using your device's built-in Files app or accessed via USB. EsperanzApp is not responsible for access granted to that folder by the operating system or by apps you have authorized.
 
-In both cases, the exported file contains personal health information. We recommend treating it accordingly.
+In both cases, the exported file contains personal health information. We recommend using the password-protected encryption option available in the export dialog, which encrypts the file with AES-GCM before it leaves the application. This password is never stored by EsperanzApp; keep it safe, as it will be required to reimport the file.
 
 ## 6. Storage and Security
 

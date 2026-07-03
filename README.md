@@ -166,6 +166,8 @@ EsperanzApp requests the **minimum permissions necessary** to function. No inter
 
 **No** `INTERNET`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`, `ACCESS_FINE_LOCATION`, `READ_CONTACTS`, or any other sensitive permission is requested.
 
+One note on the update check: the app uses the Google Play In-App Updates API (`@capawesome/capacitor-app-update`) to check whether a newer version is available. This call goes through Google Play Services and does not require the `INTERNET` permission to be declared by the app itself. No health data is involved in this exchange. See the privacy section below for more detail.
+
 ### How file export works
 
 The app offers two export paths.
@@ -178,9 +180,17 @@ The app offers two export paths.
 
 ## Privacy policy
 
-EsperanzApp collects **no data whatsoever**. There is no backend, no analytics, no crash reporting, no third-party SDK that phones home.
+EsperanzApp does not collect personal data and has no backend server. There are no analytics, no crash reporting service, and no advertising SDK.
 
-The only storage used is the local SQLite database on your device, and `localStorage` for your language preference.
+All health data (habits, treatments, logs) is stored exclusively in a local SQLite database on your device, encrypted at rest with AES-256 (SQLCipher). It never leaves your device automatically.
+
+Two non-medical items are stored in `localStorage`: your language preference and your onboarding completion status. These remain on your device and are never transmitted.
+
+The app includes one outbound call that does not carry health data: at startup, it queries the Google Play In-App Updates API to check whether a newer version is available. This is handled by Google Play Services. If you do not want this behavior, the manual "Check for updates" button in Settings performs the same check on demand; the startup check can be disabled in a future version if there is demand for it.
+
+Downloading EsperanzApp through Google Play is subject to Google's own data practices for the Play Store platform. EsperanzApp itself has no control over, and no visibility into, the metadata Google collects at the platform level.
+
+The full privacy policy is available in [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 
 ---
 
