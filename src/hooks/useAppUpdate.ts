@@ -7,17 +7,19 @@ export type UpdateCheckStatus = "idle" | "checking" | "available" | "up-to-date"
 export function useAppUpdate() {
   const [status, setStatus] = useState<UpdateCheckStatus>("idle");
 
-  const checkForUpdate = useCallback(async (): Promise<boolean> => {
-    if (!Capacitor.isNativePlatform()) return false;
+  const checkForUpdate = useCallback(async (): Promise<UpdateCheckStatus> => {
+    if (!Capacitor.isNativePlatform()) return "up-to-date";
     setStatus("checking");
     try {
       const info = await AppUpdate.getAppUpdateInfo();
-      const available = info.updateAvailability === AppUpdateAvailability.UPDATE_AVAILABLE;
-      setStatus(available ? "available" : "up-to-date");
-      return available;
+      const result: UpdateCheckStatus = info.updateAvailability === AppUpdateAvailability.UPDATE_AVAILABLE
+        ? "available"
+        : "up-to-date";
+      setStatus(result);
+      return result;
     } catch {
       setStatus("error");
-      return false;
+      return "error";
     }
   }, []);
 

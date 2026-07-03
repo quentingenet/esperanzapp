@@ -31,7 +31,7 @@ EsperanzApp lets you export your data as a JSON or CSV file. The exported file c
 
 The app offers two export paths. The **Share** option writes the file to the app's private cache directory, a temporary folder that only EsperanzApp can access, then opens the Android Share Sheet so you can choose where to send it. Once you make that choice, EsperanzApp hands the file off and immediately loses access to it. It has no knowledge of where the file ends up, and is not responsible for how the application or service you selected handles the data.
 
-The **Save to phone** option writes the file directly to the `Documents` folder on your device, where it can be found using a file manager. Unlike the private cache, this folder may be accessible to other apps depending on your Android version and any permissions you have granted. EsperanzApp is not responsible for access granted to that folder by the operating system or by apps you have authorized.
+The **Save to phone** option writes the file to the app's private Documents folder on your device (`Android/data/com.quentingenet.esperanzapp/files/Documents/`). On Android 11 and later, this folder is not accessible to third-party file managers due to system scoped-storage restrictions; it can be browsed using your device's built-in Files app or accessed via USB. EsperanzApp is not responsible for access granted to that folder by the operating system or by apps you have authorized.
 
 In both cases, the exported file contains personal health information. We recommend treating it accordingly.
 

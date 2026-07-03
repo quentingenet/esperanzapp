@@ -41,14 +41,14 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
   };
 
   const handleCheckUpdate = () => {
-    void checkForUpdate().then((available) => {
-      if (available) {
+    void checkForUpdate().then((result) => {
+      if (result === "available") {
         toast.success(t("update.available"));
         void openUpdate();
-      } else if (updateStatus !== "error") {
-        toast.success(t("update.upToDate"));
-      } else {
+      } else if (result === "error") {
         toast.error(t("update.updateError"));
+      } else {
+        toast.success(t("update.upToDate"));
       }
     });
   };

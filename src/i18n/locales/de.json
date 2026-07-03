@@ -300,7 +300,7 @@
     "editName": "Meinen Namen ändern",
     "privacyWarningTitle": "Diese Daten sind persönlich und sensibel",
     "privacyWarningBody": "Die exportierte Datei enthält Gesundheitsinformationen. Einmal im Ordner Dokumente gespeichert, kann sie von anderen Apps oder Personen mit Gerätezugang eingesehen werden.",
-    "saveConfirmBody": "Die Datei wird im Ordner Dokumente der App auf Ihrem Telefon gespeichert (erreichbar über den Datei-Manager).",
+    "saveConfirmBody": "Die Datei wird im Ordner Dokumente der App auf Ihrem Telefon gespeichert. Ab Android 11 nur über die integrierte Dateien-App oder USB zugänglich.",
     "filesystemError": "Datei konnte nicht geschrieben werden. Speicher prüfen.",
     "documentsUnavailable": "Speichern in Dokumente fehlgeschlagen. Bitte Teilen verwenden.",
     "encryptSwitch": "Mit Passwort verschlüsseln",

@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { HabitCard, HabitDetailModal, HabitForm } from "@/components/habits";
 import { ConfirmDialog, EmptyState } from "@/components/shared";
 import { useHabits, useHabitLogs } from "@/hooks";
-import { runInTransaction, createHabit as dbCreateHabit, createHabitLog as dbCreateHabitLog } from "@/db";
 import { useOnboardingStore } from "@/store";
 import { toast } from "@/store/toastStore";
 import { getGrade, getNextGrade } from "@/utils/grades";
@@ -13,8 +12,8 @@ import type { Habit, HabitStats } from "@/types";
 
 export function Home() {
   const { t } = useTranslation();
-  const { habits, loadHabits, deleteHabit } = useHabits();
-  const { getStatsBatch } = useHabitLogs();
+  const { habits, loadHabits, addHabit, deleteHabit } = useHabits();
+  const { getStatsBatch, addLog } = useHabitLogs();
   const userName = useOnboardingStore((s) => s.userName);
   const [statsMap, setStatsMap] = useState<Partial<Record<string, HabitStats>>>({});
   const [detailHabit, setDetailHabit] = useState<{ habit: Habit; stats: HabitStats } | null>(null);
@@ -32,10 +31,8 @@ export function Home() {
 
   const handleRelapse = (habit: Habit) => {
     const today = todayLocalDate();
-    void runInTransaction(async (db) => {
-      await dbCreateHabitLog({ habitId: habit.id, eventType: "relapse", eventDate: today }, db);
-      await dbCreateHabitLog({ habitId: habit.id, eventType: "start", eventDate: today }, db);
-    })
+    void addLog({ habitId: habit.id, eventType: "relapse", eventDate: today })
+      .then(() => addLog({ habitId: habit.id, eventType: "start", eventDate: today }))
       .then(() => { void loadHabits(); setDetailHabit(null); })
       .catch(() => { toast.error(t("common.error")); });
   };
@@ -66,10 +63,8 @@ export function Home() {
         })}
       </Box>
       <HabitForm existingHabits={habits} onSubmit={(data) => {
-        void runInTransaction(async (db) => {
-          const created = await dbCreateHabit({ ...data, createdAt: new Date().toISOString() }, db);
-          await dbCreateHabitLog({ habitId: created.id, eventType: "start", eventDate: data.startDate }, db);
-        })
+        void addHabit({ ...data, createdAt: new Date().toISOString() })
+          .then((created) => addLog({ habitId: created.id, eventType: "start", eventDate: data.startDate }))
           .then(() => { void loadHabits(); toast.success(t("common.created")); })
           .catch(() => { toast.error(t("common.error")); });
       }} />

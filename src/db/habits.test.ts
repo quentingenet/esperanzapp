@@ -17,7 +17,8 @@ beforeEach(() => { vi.clearAllMocks(); });
 
 describe("createHabit", () => {
   it("inserts and returns habit with id", async () => {
-    mockDb.run.mockResolvedValue({ changes: { lastId: 1 } });
+    mockDb.run.mockResolvedValue({});
+    mockDb.query.mockResolvedValueOnce({ values: [{ id: 1 }] });
     const { id, ...data } = HABIT;
     const result = await createHabit(data);
     expect(result).toEqual(HABIT);
@@ -27,8 +28,9 @@ describe("createHabit", () => {
     );
   });
 
-  it("throws when lastId is missing", async () => {
-    mockDb.run.mockResolvedValue({ changes: {} });
+  it("throws when last_insert_rowid returns 0", async () => {
+    mockDb.run.mockResolvedValue({});
+    mockDb.query.mockResolvedValueOnce({ values: [{ id: 0 }] });
     const { id, ...data } = HABIT;
     await expect(createHabit(data)).rejects.toThrow("Failed to insert habit");
   });

@@ -9,9 +9,12 @@ if (keystorePropertiesFile.exists()) {
 def getGitVersionName = { ->
     try {
         def tag = "git describe --tags --abbrev=0".execute([], rootProject.rootDir).text.trim()
-        return tag.startsWith("v") ? tag.substring(1) : (tag ?: "1.0.0")
+        if (tag.isEmpty()) throw new GradleException("No git tag found. Tag the commit before building a release.")
+        return tag.startsWith("v") ? tag.substring(1) : tag
+    } catch (GradleException e) {
+        throw e
     } catch (Exception e) {
-        return "1.0.0"
+        throw new GradleException("Cannot compute versionName from git tag: ${e.message}")
     }
 }
 

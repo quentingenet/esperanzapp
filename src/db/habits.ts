@@ -26,11 +26,12 @@ function rowToHabit(row: HabitRow): Habit {
 
 export function createHabit(data: Omit<Habit, "id">, dbConn?: SQLiteDBConnection | null): Promise<Habit> {
   const fn = async (db: SQLiteDBConnection): Promise<Habit> => {
-    const result = await db.run(
+    await db.run(
       "INSERT INTO habits (label, icon, color, bg_color, start_date, created_at) VALUES (?, ?, ?, ?, ?, ?)",
       [data.label, data.icon, data.color, data.bgColor, data.startDate, data.createdAt],
     );
-    const lastId = result.changes?.lastId;
+    const idRow = await db.query("SELECT last_insert_rowid() AS id");
+    const lastId = (idRow.values?.[0] as { id?: number } | undefined)?.id;
     if (!lastId) throw new Error("Failed to insert habit");
     return { ...data, id: String(lastId) };
   };

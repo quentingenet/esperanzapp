@@ -52,7 +52,7 @@ function AppUpdateChecker() {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const timer = setTimeout(() => {
-      void checkForUpdate().then((available) => { if (available) setOpen(true); });
+      void checkForUpdate().then((result) => { if (result === "available") setOpen(true); });
     }, 3000);
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps

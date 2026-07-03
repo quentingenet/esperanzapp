@@ -22,11 +22,12 @@ function rowToHabitLog(row: HabitLogRow): HabitLog {
 
 export function createHabitLog(data: Omit<HabitLog, "id">, dbConn?: SQLiteDBConnection | null): Promise<HabitLog> {
   const fn = async (db: SQLiteDBConnection): Promise<HabitLog> => {
-    const result = await db.run(
+    await db.run(
       "INSERT INTO habit_logs (habit_id, event_type, event_date) VALUES (?, ?, ?)",
       [data.habitId, data.eventType, data.eventDate],
     );
-    const lastId = result.changes?.lastId;
+    const idRow = await db.query("SELECT last_insert_rowid() AS id");
+    const lastId = (idRow.values?.[0] as { id?: number } | undefined)?.id;
     if (!lastId) throw new Error("Failed to insert habit log");
     return { ...data, id: String(lastId) };
   };

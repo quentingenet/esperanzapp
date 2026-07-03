@@ -300,7 +300,7 @@
     "editName": "Modifier mon prénom",
     "privacyWarningTitle": "Ces données sont personnelles et sensibles",
     "privacyWarningBody": "Le fichier exporté contient des informations de santé. Une fois enregistré dans le dossier Documents, il peut être accessible à d'autres applications ou à toute personne ayant accès à cet appareil.",
-    "saveConfirmBody": "Le fichier sera enregistré dans le dossier Documents de l'application sur votre téléphone (accessible via l'explorateur de fichiers).",
+    "saveConfirmBody": "Le fichier sera enregistré dans le dossier Documents de l'app sur votre téléphone. Sur Android 11+, accessible via l'appli Fichiers intégrée ou USB uniquement.",
     "filesystemError": "Impossible d'écrire le fichier. Vérifiez l'espace de stockage.",
     "documentsUnavailable": "Impossible d'enregistrer dans Documents. Utilisez Partager à la place.",
     "encryptSwitch": "Chiffrer avec un mot de passe",

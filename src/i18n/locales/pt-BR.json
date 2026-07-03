@@ -300,7 +300,7 @@
     "editName": "Editar meu nome",
     "privacyWarningTitle": "Estes dados são pessoais e sensíveis",
     "privacyWarningBody": "O arquivo exportado contém informações de saúde. Uma vez salvo na pasta Documentos, pode ser acessível por outros aplicativos ou por qualquer pessoa com acesso ao dispositivo.",
-    "saveConfirmBody": "O arquivo será salvo na pasta Documentos do aplicativo no seu telefone (acessível pelo gerenciador de arquivos).",
+    "saveConfirmBody": "O arquivo será salvo na pasta Documentos do aplicativo no seu telefone. No Android 11+, acessível apenas pelo app Arquivos integrado ou por USB.",
     "filesystemError": "Não foi possível salvar o arquivo. Verifique o armazenamento.",
     "documentsUnavailable": "Não foi possível salvar em Documentos. Tente usar Compartilhar.",
     "encryptSwitch": "Criptografar com senha",
