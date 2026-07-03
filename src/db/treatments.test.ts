@@ -17,7 +17,8 @@ beforeEach(() => { vi.clearAllMocks(); });
 
 describe("createTreatment", () => {
   it("inserts and returns treatment with id", async () => {
-    mockDb.run.mockResolvedValue({ changes: { lastId: 3 } });
+    mockDb.run.mockResolvedValue({});
+    mockDb.query.mockResolvedValueOnce({ values: [{ id: 3 }] });
     const { id, ...data } = TREATMENT;
     const result = await createTreatment(data);
     expect(result).toEqual(TREATMENT);
@@ -27,8 +28,9 @@ describe("createTreatment", () => {
     );
   });
 
-  it("throws when lastId missing", async () => {
-    mockDb.run.mockResolvedValue({ changes: {} });
+  it("throws when last_insert_rowid returns 0", async () => {
+    mockDb.run.mockResolvedValue({});
+    mockDb.query.mockResolvedValueOnce({ values: [{ id: 0 }] });
     const { id, ...data } = TREATMENT;
     await expect(createTreatment(data)).rejects.toThrow("Failed to insert treatment");
   });

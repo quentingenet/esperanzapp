@@ -10,7 +10,7 @@ import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import type { PrivacyModalProps } from "@/types";
 
-const POINTS = ["noAccount", "noServer", "noTracking", "openSource"] as const;
+const POINTS = ["noAccount", "noServer", "localEncryption", "encryptedExport", "noTracking", "openSource"] as const;
 
 export function PrivacyModal({ open, onAccept, readOnly = false }: PrivacyModalProps) {
   const { t } = useTranslation();

@@ -39,11 +39,13 @@
     "points": {
       "noAccount": "Kein Konto erforderlich",
       "noServer": "Deine Daten bleiben auf deinem Gerät",
+      "localEncryption": "Daten lokal verschlüsselt (SQLCipher)",
+      "encryptedExport": "Exporte optional mit Passwort schützbar",
       "noTracking": "Keine Werbung, kein Tracking",
       "openSource": "Öffentlicher und prüfbarer Quellcode (GPL-3.0)"
     },
     "accept": "Loslegen",
-    "license": "GPL-3.0"
+    "license": "Lizenz GPL-3.0"
   },
   "tutorial": {
     "skip": "Überspringen",

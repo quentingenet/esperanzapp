@@ -22,11 +22,12 @@ function rowToTreatmentLog(row: TreatmentLogRow): TreatmentLog {
 
 export function createTreatmentLog(data: Omit<TreatmentLog, "id">, dbConn?: SQLiteDBConnection | null): Promise<TreatmentLog> {
   const fn = async (db: SQLiteDBConnection): Promise<TreatmentLog> => {
-    const result = await db.run(
+    await db.run(
       "INSERT INTO treatment_logs (treatment_id, scheduled_at, status) VALUES (?, ?, ?)",
       [data.treatmentId, data.scheduledAt, data.status],
     );
-    const lastId = result.changes?.lastId;
+    const idRow = await db.query("SELECT last_insert_rowid() AS id");
+    const lastId = (idRow.values?.[0] as { id?: number } | undefined)?.id;
     if (!lastId) throw new Error("Failed to insert treatment log");
     return { ...data, id: String(lastId) };
   };

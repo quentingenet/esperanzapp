@@ -28,11 +28,12 @@ function rowToTreatment(row: TreatmentRow): Treatment {
 
 export function createTreatment(data: Omit<Treatment, "id">, dbConn?: SQLiteDBConnection | null): Promise<Treatment> {
   const fn = async (db: SQLiteDBConnection): Promise<Treatment> => {
-    const result = await db.run(
+    await db.run(
       "INSERT INTO treatments (label, frequency, reminder_time, reminder_enabled, reminder_day, created_at) VALUES (?, ?, ?, ?, ?, ?)",
       [data.label, data.frequency, data.reminderTime, data.reminderEnabled ? 1 : 0, data.reminderDay ?? null, data.createdAt],
     );
-    const lastId = result.changes?.lastId;
+    const idRow = await db.query("SELECT last_insert_rowid() AS id");
+    const lastId = (idRow.values?.[0] as { id?: number } | undefined)?.id;
     if (!lastId) throw new Error("Failed to insert treatment");
     return { ...data, id: String(lastId) };
   };

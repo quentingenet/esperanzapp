@@ -15,6 +15,7 @@ import { useExport, useHabits, useNotifications, useTreatments } from "@/hooks";
 import { useTreatmentsStore } from "@/store/treatmentsStore";
 import { WrongPasswordError } from "@/services/exportService";
 import { toast } from "@/store/toastStore";
+import { logError } from "@/utils/logger";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -57,7 +58,7 @@ export function DataExportSection() {
       .then((outcome) => {
         if (outcome === "filesystem-error") toast.error(t("export.filesystemError"));
       })
-      .catch(() => { toast.error(t("export.filesystemError")); });
+      .catch((e: unknown) => { logError("DataExportSection.share", e); toast.error(t("export.filesystemError")); });
     setExportOpen(false);
     resetExportEncryptState();
   };
@@ -140,6 +141,7 @@ export function DataExportSection() {
       if (e instanceof WrongPasswordError) {
         toast.error(t("export.encryptedImportError"));
       } else {
+        logError("DataExportSection.confirmImport", e);
         toast.error(t("common.error"));
       }
     } finally {

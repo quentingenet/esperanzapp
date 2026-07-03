@@ -20,7 +20,8 @@ beforeEach(() => { vi.clearAllMocks(); });
 
 describe("createTreatmentLog", () => {
   it("inserts and returns log with id", async () => {
-    mockDb.run.mockResolvedValue({ changes: { lastId: 7 } });
+    mockDb.run.mockResolvedValue({});
+    mockDb.query.mockResolvedValueOnce({ values: [{ id: 7 }] });
     const { id, ...data } = LOG;
     const result = await createTreatmentLog(data);
     expect(result).toEqual(LOG);
@@ -30,8 +31,9 @@ describe("createTreatmentLog", () => {
     );
   });
 
-  it("throws when lastId missing", async () => {
-    mockDb.run.mockResolvedValue({ changes: {} });
+  it("throws when last_insert_rowid returns 0", async () => {
+    mockDb.run.mockResolvedValue({});
+    mockDb.query.mockResolvedValueOnce({ values: [{ id: 0 }] });
     const { id, ...data } = LOG;
     await expect(createTreatmentLog(data)).rejects.toThrow("Failed to insert treatment log");
   });

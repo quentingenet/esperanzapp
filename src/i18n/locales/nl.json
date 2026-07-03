@@ -39,11 +39,13 @@
     "points": {
       "noAccount": "Geen account nodig",
       "noServer": "Je gegevens blijven op je apparaat",
+      "localEncryption": "Gegevens lokaal versleuteld (SQLCipher)",
+      "encryptedExport": "Exports optioneel te beveiligen met wachtwoord",
       "noTracking": "Geen advertenties, geen tracking",
       "openSource": "Publieke en controleerbare broncode (GPL-3.0)"
     },
     "accept": "Beginnen",
-    "license": "GPL-3.0"
+    "license": "Licentie GPL-3.0"
   },
   "tutorial": {
     "skip": "Overslaan",

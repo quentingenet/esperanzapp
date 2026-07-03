@@ -8,6 +8,7 @@ import { useOnboardingStore } from "@/store";
 import { toast } from "@/store/toastStore";
 import { getGrade, getNextGrade } from "@/utils/grades";
 import { todayLocalDate } from "@/utils";
+import { logError } from "@/utils/logger";
 import type { Habit, HabitStats } from "@/types";
 
 export function Home() {
@@ -34,14 +35,14 @@ export function Home() {
     void addLog({ habitId: habit.id, eventType: "relapse", eventDate: today })
       .then(() => addLog({ habitId: habit.id, eventType: "start", eventDate: today }))
       .then(() => { void loadHabits(); setDetailHabit(null); })
-      .catch(() => { toast.error(t("common.error")); });
+      .catch((e: unknown) => { logError("Home.handleRelapse", e); toast.error(t("common.error")); });
   };
 
   const handleDeleteConfirmed = () => {
     if (!deleteTarget) return;
     void deleteHabit(deleteTarget.id)
       .then(() => { toast.success(t("common.deleted")); void loadHabits(); })
-      .catch(() => { toast.error(t("common.error")); });
+      .catch((e: unknown) => { logError("Home.handleDelete", e); toast.error(t("common.error")); });
     setDeleteTarget(null);
   };
 
@@ -66,7 +67,7 @@ export function Home() {
         void addHabit({ ...data, createdAt: new Date().toISOString() })
           .then((created) => addLog({ habitId: created.id, eventType: "start", eventDate: data.startDate }))
           .then(() => { void loadHabits(); toast.success(t("common.created")); })
-          .catch(() => { toast.error(t("common.error")); });
+          .catch((e: unknown) => { logError("Home.addHabit", e); toast.error(t("common.error")); });
       }} />
 
       {detailHabit && (
