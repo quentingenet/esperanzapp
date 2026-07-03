@@ -22,17 +22,19 @@ import {
   importFromCSV,
 } from "../services/exportService";
 
+const { mockTransactionDb } = vi.hoisted(() => ({
+  mockTransactionDb: {
+    run: vi.fn().mockResolvedValue({ changes: { changes: 1 } }),
+  },
+}));
+
 vi.mock("@/db", () => ({
   getAllHabits: vi.fn().mockResolvedValue([]),
   getAllHabitLogs: vi.fn().mockResolvedValue([]),
   getAllTreatments: vi.fn().mockResolvedValue([]),
   getAllTreatmentLogs: vi.fn().mockResolvedValue([]),
-  createHabit: vi.fn().mockResolvedValue({ id: "10" }),
-  createHabitLog: vi.fn().mockResolvedValue({ id: "20" }),
-  createTreatment: vi.fn().mockResolvedValue({ id: "30" }),
-  createTreatmentLog: vi.fn().mockResolvedValue({ id: "40" }),
   clearAllData: vi.fn().mockResolvedValue(undefined),
-  runInTransaction: vi.fn().mockImplementation(async (fn: (db: null) => Promise<void>) => fn(null)),
+  runInTransaction: vi.fn().mockImplementation(async (fn: (db: typeof mockTransactionDb) => Promise<void>) => fn(mockTransactionDb)),
 }));
 
 const mockHabit: Habit = {
@@ -499,39 +501,31 @@ describe("saveCSVToFolder", () => {
 describe("importFromJSON", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("imports habits and maps IDs for habit logs", async () => {
-    const { createHabit, createHabitLog } = await import("@/db");
-    const payload = buildExportPayload(
-      [mockHabit],
-      [mockHabitLog],
-      [],
-      [],
-      "2024-01-01T00:00:00.000Z",
-    );
+  it("inserts habits and habit logs with their original IDs", async () => {
+    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await importFromJSON(file);
-    expect(createHabit).toHaveBeenCalledTimes(1);
-    expect(createHabitLog).toHaveBeenCalledWith(
-      expect.objectContaining({ habitId: "10" }),
-      null,
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO habits"),
+      expect.arrayContaining([mockHabit.id]),
+    );
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO habit_logs"),
+      expect.arrayContaining([mockHabitLog.habitId]),
     );
   });
 
-  it("imports treatments and maps IDs for treatment logs", async () => {
-    const { createTreatment, createTreatmentLog } = await import("@/db");
-    const payload = buildExportPayload(
-      [],
-      [],
-      [mockTreatment],
-      [mockTreatmentLog],
-      "2024-01-01T00:00:00.000Z",
-    );
+  it("inserts treatments and treatment logs with their original IDs", async () => {
+    const payload = buildExportPayload([], [], [mockTreatment], [mockTreatmentLog], "2024-01-01T00:00:00.000Z");
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await importFromJSON(file);
-    expect(createTreatment).toHaveBeenCalledTimes(1);
-    expect(createTreatmentLog).toHaveBeenCalledWith(
-      expect.objectContaining({ treatmentId: "30" }),
-      null,
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO treatments"),
+      expect.arrayContaining([mockTreatment.id]),
+    );
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO treatment_logs"),
+      expect.arrayContaining([mockTreatmentLog.treatmentId]),
     );
   });
 
@@ -567,11 +561,10 @@ describe("importFromJSON", () => {
   });
 
   it("handles empty payload gracefully", async () => {
-    const { createHabit } = await import("@/db");
     const payload = buildExportPayload([], [], [], [], "2024-01-01T00:00:00.000Z");
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await importFromJSON(file);
-    expect(createHabit).not.toHaveBeenCalled();
+    expect(mockTransactionDb.run).not.toHaveBeenCalled();
   });
 });
 
@@ -579,29 +572,24 @@ describe("importFromCSV", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("imports habits from CSV", async () => {
-    const { createHabit } = await import("@/db");
     const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
     const csv = payloadToCSV(payload);
     const file = new File([csv], "export.csv", { type: "text/csv" });
     await importFromCSV(file);
-    expect(createHabit).toHaveBeenCalledTimes(1);
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO habits"),
+      expect.any(Array),
+    );
   });
 
-  it("maps habit IDs in habit logs from CSV", async () => {
-    const { createHabitLog } = await import("@/db");
-    const payload = buildExportPayload(
-      [mockHabit],
-      [mockHabitLog],
-      [],
-      [],
-      "2024-01-01T00:00:00.000Z",
-    );
+  it("preserves original habit IDs in habit logs from CSV", async () => {
+    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
     const csv = payloadToCSV(payload);
     const file = new File([csv], "export.csv", { type: "text/csv" });
     await importFromCSV(file);
-    expect(createHabitLog).toHaveBeenCalledWith(
-      expect.objectContaining({ habitId: "10" }),
-      null,
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO habit_logs"),
+      expect.arrayContaining([mockHabitLog.habitId]),
     );
   });
 
@@ -619,16 +607,16 @@ describe("importFromCSV", () => {
 describe("import replace mode", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("calls clearAllData before creating records", async () => {
-    const { clearAllData, createHabit } = await import("@/db");
+  it("calls clearAllData before inserting records", async () => {
+    const { clearAllData } = await import("@/db");
     const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     const order: string[] = [];
-    vi.mocked(clearAllData).mockImplementation(async () => { order.push("clear"); });
-    vi.mocked(createHabit).mockImplementation(async () => { order.push("create"); return { id: "10" } as never; });
+    vi.mocked(clearAllData).mockImplementationOnce(async () => { order.push("clear"); });
+    mockTransactionDb.run.mockImplementationOnce(async () => { order.push("insert"); return { changes: { changes: 1 } }; });
     await importFromJSON(file);
     expect(order[0]).toBe("clear");
-    expect(order[1]).toBe("create");
+    expect(order[1]).toBe("insert");
   });
 
   it("importing the same file twice calls clearAllData each time (no duplicates)", async () => {
@@ -641,8 +629,7 @@ describe("import replace mode", () => {
   });
 
   it("error during import propagates and does not swallow the failure", async () => {
-    const { createHabit } = await import("@/db");
-    vi.mocked(createHabit).mockRejectedValueOnce(new Error("insert failed"));
+    mockTransactionDb.run.mockRejectedValueOnce(new Error("insert failed"));
     const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await expect(importFromJSON(file)).rejects.toThrow("insert failed");
@@ -771,13 +758,15 @@ describe("encryption: full round-trip through importFromJSON", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("imports an encrypted JSON export with the correct password", async () => {
-    const { createHabit } = await import("@/db");
     const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
     const serialized = JSON.stringify(payload, null, 2);
     const envelope = await encryptPayload(serialized, "correct-pw", "json");
     const file = new File([envelope], "export.json", { type: "application/json" });
     await importFromJSON(file, "correct-pw");
-    expect(createHabit).toHaveBeenCalledTimes(1);
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO habits"),
+      expect.any(Array),
+    );
   });
 
   it("throws WrongPasswordError when importing encrypted JSON with wrong password", async () => {
@@ -788,33 +777,35 @@ describe("encryption: full round-trip through importFromJSON", () => {
   });
 
   it("imports an encrypted CSV export (json-wrapped) with the correct password", async () => {
-    const { createHabit } = await import("@/db");
     const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
     const csvContent = payloadToCSV(payload);
     const envelope = await encryptPayload(csvContent, "correct-pw", "csv");
-    // Encrypted CSVs are wrapped as .json files
     const file = new File([envelope], "export.json", { type: "application/json" });
     await importFromJSON(file, "correct-pw");
-    expect(createHabit).toHaveBeenCalledTimes(1);
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO habits"),
+      expect.any(Array),
+    );
   });
 
   it("plain (unencrypted) import is unchanged when no password is provided", async () => {
-    const { createHabit } = await import("@/db");
     const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await importFromJSON(file);
-    expect(createHabit).toHaveBeenCalledTimes(1);
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO habits"),
+      expect.any(Array),
+    );
   });
 
   it("simulates reinstall: encrypted export is importable with password alone, independent of device state", async () => {
-    const { createHabit } = await import("@/db");
-    // Simulates a new install: no shared state with the original export
-    // The import must succeed based solely on the password + envelope contents
     const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
     const envelope = await encryptPayload(JSON.stringify(payload), "user-password", "json");
-    // Fresh "install": clearAllMocks already done in beforeEach
     const file = new File([envelope], "export.json", { type: "application/json" });
     await importFromJSON(file, "user-password");
-    expect(createHabit).toHaveBeenCalledTimes(1);
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO habits"),
+      expect.any(Array),
+    );
   });
 });

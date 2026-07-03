@@ -7,6 +7,9 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import SvgIcon from "@mui/material/SvgIcon";
 import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
@@ -18,6 +21,9 @@ import { toast } from "@/store/toastStore";
 import { logError } from "@/utils/logger";
 
 const MIN_PASSWORD_LENGTH = 8;
+
+const EYE_PATH = "M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z";
+const EYE_OFF_PATH = "M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z";
 
 export function DataExportSection() {
   const { t } = useTranslation();
@@ -44,6 +50,11 @@ export function DataExportSection() {
   // Import encryption state
   const [importPasswordOpen, setImportPasswordOpen] = useState(false);
   const [importPassword, setImportPassword] = useState("");
+
+  // Password visibility toggles
+  const [showExportPwd, setShowExportPwd] = useState(false);
+  const [showExportPwdConfirm, setShowExportPwdConfirm] = useState(false);
+  const [showImportPwd, setShowImportPwd] = useState(false);
 
   const passwordTooShort = exportPassword.length > 0 && exportPassword.length < MIN_PASSWORD_LENGTH;
   const passwordMismatch = exportPasswordConfirm.length > 0 && exportPassword !== exportPasswordConfirm;
@@ -81,6 +92,8 @@ export function DataExportSection() {
     setEncryptExport(false);
     setExportPassword("");
     setExportPasswordConfirm("");
+    setShowExportPwd(false);
+    setShowExportPwdConfirm(false);
   };
 
   const triggerImportFile = () => {
@@ -109,6 +122,7 @@ export function DataExportSection() {
 
   const handleImportPasswordConfirm = () => {
     setImportPasswordOpen(false);
+    setShowImportPwd(false);
     setWarnOpen(true);
   };
 
@@ -123,10 +137,12 @@ export function DataExportSection() {
     setImportPassword("");
     try {
       await (type === "json" ? importJSON(file, password) : importCSV(file, password));
-      await Promise.all([loadHabits(), loadTreatments()]);
+      // Show success immediately after import completes, before UI refresh.
+      // A refresh failure must never mask a successful import with an error toast.
       toast.success(t("export.importSuccess"));
-      // Notification rescheduling is best-effort: never block the success path
       try {
+        await Promise.all([loadHabits(), loadTreatments()]);
+        // Notification rescheduling is best-effort: never block the success path
         const freshTreatments = useTreatmentsStore.getState().treatments;
         const hasTreatmentsWithReminder = freshTreatments.some((tr) => tr.reminderEnabled);
         if (hasTreatmentsWithReminder) {
@@ -136,7 +152,10 @@ export function DataExportSection() {
           }
           await rescheduleAll(freshTreatments);
         }
-      } catch { /* non-critical */ }
+      } catch (e) {
+        logError("DataExportSection.refreshAfterImport", e);
+        // Do not rethrow: import succeeded, only the UI refresh failed.
+      }
     } catch (e) {
       if (e instanceof WrongPasswordError) {
         toast.error(t("export.encryptedImportError"));
@@ -191,23 +210,37 @@ export function DataExportSection() {
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mt: 1, mb: 1 }}>
               <TextField
                 fullWidth
-                type="password"
+                type={showExportPwd ? "text" : "password"}
                 label={t("export.encryptPassword")}
                 value={exportPassword}
                 onChange={(e) => { setExportPassword(e.target.value); }}
                 error={passwordTooShort}
                 helperText={passwordTooShort ? t("export.encryptPasswordMinLength") : undefined}
                 size="small"
+                slotProps={{ input: { endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => { setShowExportPwd((v) => !v); }} onMouseDown={(e) => { e.preventDefault(); }} edge="end" size="small">
+                      <SvgIcon fontSize="small" aria-hidden="true"><path d={showExportPwd ? EYE_OFF_PATH : EYE_PATH} /></SvgIcon>
+                    </IconButton>
+                  </InputAdornment>
+                ) } }}
               />
               <TextField
                 fullWidth
-                type="password"
+                type={showExportPwdConfirm ? "text" : "password"}
                 label={t("export.encryptPasswordConfirm")}
                 value={exportPasswordConfirm}
                 onChange={(e) => { setExportPasswordConfirm(e.target.value); }}
                 error={passwordMismatch}
                 helperText={passwordMismatch ? t("export.encryptPasswordMismatch") : undefined}
                 size="small"
+                slotProps={{ input: { endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => { setShowExportPwdConfirm((v) => !v); }} onMouseDown={(e) => { e.preventDefault(); }} edge="end" size="small">
+                      <SvgIcon fontSize="small" aria-hidden="true"><path d={showExportPwdConfirm ? EYE_OFF_PATH : EYE_PATH} /></SvgIcon>
+                    </IconButton>
+                  </InputAdornment>
+                ) } }}
               />
               <Alert severity="warning" sx={{ borderRadius: 2 }}>
                 <Typography variant="body2">{t("export.encryptWarning")}</Typography>
@@ -252,18 +285,25 @@ export function DataExportSection() {
       </Dialog>
 
       {/* Import: password dialog (encrypted files only) */}
-      <Dialog open={importPasswordOpen} onClose={() => { setImportPasswordOpen(false); setImportFile(null); }} maxWidth="xs" fullWidth>
+      <Dialog open={importPasswordOpen} onClose={() => { setImportPasswordOpen(false); setImportFile(null); setShowImportPwd(false); }} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 700 }}>{t("export.encryptedImportTitle")}</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>{t("export.encryptedImportHint")}</Typography>
           <TextField
             fullWidth
-            type="password"
+            type={showImportPwd ? "text" : "password"}
             label={t("export.encryptPassword")}
             value={importPassword}
             onChange={(e) => { setImportPassword(e.target.value); }}
             onKeyDown={(e) => { if (e.key === "Enter" && importPassword.length > 0) handleImportPasswordConfirm(); }}
             autoFocus
+            slotProps={{ input: { endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={() => { setShowImportPwd((v) => !v); }} onMouseDown={(e) => { e.preventDefault(); }} edge="end" size="small">
+                  <SvgIcon fontSize="small" aria-hidden="true"><path d={showImportPwd ? EYE_OFF_PATH : EYE_PATH} /></SvgIcon>
+                </IconButton>
+              </InputAdornment>
+            ) } }}
           />
         </DialogContent>
         <DialogActions>

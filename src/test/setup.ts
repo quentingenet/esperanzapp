@@ -8,6 +8,9 @@ const mockDb = {
   execute: vi.fn().mockResolvedValue({ changes: { changes: 0 } }),
   run: vi.fn().mockResolvedValue({ changes: { changes: 1, lastId: 1 } }),
   query: vi.fn().mockResolvedValue({ values: [] }),
+  beginTransaction: vi.fn().mockResolvedValue({}),
+  commitTransaction: vi.fn().mockResolvedValue({}),
+  rollbackTransaction: vi.fn().mockResolvedValue({}),
 };
 
 vi.mock("@capacitor-community/sqlite", () => ({

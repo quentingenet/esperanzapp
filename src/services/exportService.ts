@@ -3,10 +3,6 @@ import {
   getAllHabitLogs,
   getAllTreatments,
   getAllTreatmentLogs,
-  createHabit,
-  createHabitLog,
-  createTreatment,
-  createTreatmentLog,
   runInTransaction,
   clearAllData,
 } from "@/db";
@@ -93,26 +89,36 @@ function validateNoOrphans(payload: ReturnType<typeof parseExportPayload>): void
 async function importPayload(payload: ReturnType<typeof parseExportPayload>): Promise<void> {
   validateNoOrphans(payload);
   await runInTransaction(async (db) => {
+    // Web dev mode: db is null, nothing to do.
+    if (!db) return;
     await clearAllData(db);
-    const habitIdMap = new Map<string, string>();
-    for (const { id: oldId, ...data } of payload.habits) {
-      const created = await createHabit(data, db);
-      habitIdMap.set(oldId, created.id);
+    // Insert with original IDs so foreign-key relationships are preserved without
+    // needing to remap IDs. This also avoids any reliance on last_insert_rowid()
+    // or changes.lastId, both of which are unreliable in the Capacitor SQLite
+    // Android bridge when called as separate run()/query() round-trips.
+    for (const h of payload.habits) {
+      await db.run(
+        "INSERT INTO habits (id, label, icon, color, bg_color, start_date, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [h.id, h.label, h.icon, h.color, h.bgColor, h.startDate, h.createdAt],
+      );
     }
-    for (const { id: _id, habitId, ...data } of payload.habitLogs) {
-      const newHabitId = habitIdMap.get(habitId);
-      if (!newHabitId) throw new Error(`import: unexpected missing mapping for habitId "${habitId}"`);
-      await createHabitLog({ ...data, habitId: newHabitId }, db);
+    for (const l of payload.habitLogs) {
+      await db.run(
+        "INSERT INTO habit_logs (id, habit_id, event_type, event_date) VALUES (?, ?, ?, ?)",
+        [l.id, l.habitId, l.eventType, l.eventDate],
+      );
     }
-    const treatmentIdMap = new Map<string, string>();
-    for (const { id: oldId, ...data } of payload.treatments) {
-      const created = await createTreatment(data, db);
-      treatmentIdMap.set(oldId, created.id);
+    for (const t of payload.treatments) {
+      await db.run(
+        "INSERT INTO treatments (id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [t.id, t.label, t.frequency, t.reminderTime, t.reminderEnabled ? 1 : 0, t.reminderDay ?? null, t.createdAt],
+      );
     }
-    for (const { id: _id, treatmentId, ...data } of payload.treatmentLogs) {
-      const newTreatmentId = treatmentIdMap.get(treatmentId);
-      if (!newTreatmentId) throw new Error(`import: unexpected missing mapping for treatmentId "${treatmentId}"`);
-      await createTreatmentLog({ ...data, treatmentId: newTreatmentId }, db);
+    for (const tl of payload.treatmentLogs) {
+      await db.run(
+        "INSERT INTO treatment_logs (id, treatment_id, scheduled_at, status) VALUES (?, ?, ?, ?)",
+        [tl.id, tl.treatmentId, tl.scheduledAt, tl.status],
+      );
     }
   });
 }

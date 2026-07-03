@@ -141,7 +141,13 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
           {updateStatus === "checking" ? t("update.checking") : t("update.checkBtn")}
         </Button>
         <Typography variant="caption" color="text.secondary">
-          {t("settings.license")} · {t("app.by")} Quentin Genet · <Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer" underline="hover" sx={{ fontSize: "inherit", color: "inherit" }}>{t("settings.sourceCode")}</Link>
+          {t("settings.license")}
+        </Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+          <Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer" underline="none" sx={{ fontSize: "inherit", color: "inherit" }}>{t("settings.sourceCode")}</Link>
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {t("app.by")} Quentin Genet
         </Typography>
       </Box>
     </Box>

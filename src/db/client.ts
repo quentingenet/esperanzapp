@@ -101,12 +101,16 @@ export function runInTransaction(fn: (db: SQLiteDBConnection | null) => Promise<
   if (!db) return fn(null);
   const capturedDb = db; // capture before async boundary db may be nulled by closeDatabase
   const run = async (): Promise<void> => {
-    await capturedDb.execute("BEGIN TRANSACTION");
+    // Use the plugin's native transaction API instead of raw SQL via execute().
+    // execute("BEGIN TRANSACTION") can conflict with the plugin's internal connection
+    // management on Android, causing each run()/query() bridge call to lose the
+    // last_insert_rowid() context between calls.
+    await capturedDb.beginTransaction();
     try {
       await fn(capturedDb);
-      await capturedDb.execute("COMMIT");
+      await capturedDb.commitTransaction();
     } catch (e) {
-      await capturedDb.execute("ROLLBACK").catch(() => {});
+      await capturedDb.rollbackTransaction().catch(() => {});
       throw e;
     }
   };

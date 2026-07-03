@@ -3,12 +3,15 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import Link from "@mui/material/Link";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import type { PrivacyModalProps } from "@/types";
+
+const GITHUB_URL = "https://github.com/QuentinGenet/esperanzapp";
 
 const POINTS = ["noAccount", "noServer", "localEncryption", "encryptedExport", "noTracking", "openSource"] as const;
 
@@ -31,7 +34,13 @@ export function PrivacyModal({ open, onAccept, readOnly = false }: PrivacyModalP
           ))}
         </List>
         <Typography variant="caption" color="text.disabled" sx={{ mt: 2, display: "block" }}>
-          {t("privacy.license")} · {t("app.by")} Quentin Genet
+          {t("privacy.license")}
+        </Typography>
+        <Typography variant="caption" color="text.disabled" sx={{ mt: 1, display: "block" }}>
+          <Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer" underline="none" color="inherit">{t("settings.sourceCode")}</Link>
+        </Typography>
+        <Typography variant="caption" color="text.disabled" sx={{ display: "block" }}>
+          {t("app.by")} Quentin Genet
         </Typography>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 3 }}>

@@ -118,29 +118,29 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     expect(+h2.id).toBeGreaterThan(+h1.id);
   });
 
-  // ─── Transactions ──────────────────────────────────────────────────────────
+  // ─── Transactions (using plugin native API: beginTransaction/commit/rollback) ─
 
-  it("transaction commit persists data", async () => {
-    await conn.execute("BEGIN TRANSACTION");
+  it("beginTransaction + commitTransaction persists data", async () => {
+    await conn.beginTransaction();
     await createHabit(HABIT_DATA, asConn(conn));
-    await conn.execute("COMMIT");
+    await conn.commitTransaction();
     expect(await countRows(conn, "habits")).toBe(1);
   });
 
-  it("transaction rollback leaves no data", async () => {
-    await conn.execute("BEGIN TRANSACTION");
+  it("beginTransaction + rollbackTransaction leaves no data", async () => {
+    await conn.beginTransaction();
     await createHabit(HABIT_DATA, asConn(conn));
-    await conn.execute("ROLLBACK");
+    await conn.rollbackTransaction();
     expect(await countRows(conn, "habits")).toBe(0);
   });
 
   it("exception inside transaction triggers rollback - no partial data", async () => {
-    await conn.execute("BEGIN TRANSACTION");
+    await conn.beginTransaction();
     await expect(async () => {
       await createHabit(HABIT_DATA, asConn(conn));
       throw new Error("simulated failure");
     }).rejects.toThrow("simulated failure");
-    await conn.execute("ROLLBACK");
+    await conn.rollbackTransaction();
     expect(await countRows(conn, "habits")).toBe(0);
   });
 
@@ -195,9 +195,38 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
   });
 
   // ─── Round-trip: JSON export then import ───────────────────────────────────
+  // Uses direct INSERT with original IDs, exactly as exportService.importPayload.
+  // This approach requires no last_insert_rowid() and no ID remapping.
+
+  async function importDirectly(conn: RealSqliteConn, payload: ReturnType<typeof parseExportPayload>): Promise<void> {
+    for (const h of payload.habits) {
+      await conn.run(
+        "INSERT INTO habits (id, label, icon, color, bg_color, start_date, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [h.id, h.label, h.icon, h.color, h.bgColor, h.startDate, h.createdAt],
+      );
+    }
+    for (const l of payload.habitLogs) {
+      await conn.run(
+        "INSERT INTO habit_logs (id, habit_id, event_type, event_date) VALUES (?, ?, ?, ?)",
+        [l.id, l.habitId, l.eventType, l.eventDate],
+      );
+    }
+    for (const t of payload.treatments) {
+      await conn.run(
+        "INSERT INTO treatments (id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [t.id, t.label, t.frequency, t.reminderTime, t.reminderEnabled ? 1 : 0, t.reminderDay ?? null, t.createdAt],
+      );
+    }
+    for (const tl of payload.treatmentLogs) {
+      await conn.run(
+        "INSERT INTO treatment_logs (id, treatment_id, scheduled_at, status) VALUES (?, ?, ?, ?)",
+        [tl.id, tl.treatmentId, tl.scheduledAt, tl.status],
+      );
+    }
+  }
 
   it("JSON round-trip preserves habits, habitLogs, treatments, treatmentLogs", async () => {
-    // Create fixture data.
+    // Create fixture data using create* functions (tests last_insert_rowid path).
     const habit = await createHabit(HABIT_DATA, asConn(conn));
     const log1 = await createHabitLog(
       { habitId: habit.id, eventType: "start", eventDate: "2024-01-01" },
@@ -214,64 +243,37 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     );
 
     // Export to JSON.
-    const payload = buildExportPayload(
-      [habit],
-      [log1, log2],
-      [treatment],
-      [tlog],
-      new Date().toISOString(),
-    );
+    const payload = buildExportPayload([habit], [log1, log2], [treatment], [tlog], new Date().toISOString());
     const json = JSON.stringify(payload, null, 2);
 
-    // Wipe all data.
+    // Clear and re-import using direct INSERT with original IDs.
     await clearAllData(asConn(conn));
     expect(await countRows(conn, "habits")).toBe(0);
 
-    // Re-import using the same pattern as exportService.importPayload,
-    // passing the connection directly to verify the last_insert_rowid path.
-    const parsed = parseExportPayload(json);
-    const habitIdMap = new Map<string, string>();
-    for (const { id: oldId, ...data } of parsed.habits) {
-      const created = await createHabit(data, asConn(conn));
-      habitIdMap.set(oldId, created.id);
-    }
-    for (const { id: _id, habitId, ...data } of parsed.habitLogs) {
-      const newHabitId = habitIdMap.get(habitId);
-      if (!newHabitId) throw new Error("missing habitId mapping");
-      await createHabitLog({ ...data, habitId: newHabitId }, asConn(conn));
-    }
-    const treatmentIdMap = new Map<string, string>();
-    for (const { id: oldId, ...data } of parsed.treatments) {
-      const created = await createTreatment(data, asConn(conn));
-      treatmentIdMap.set(oldId, created.id);
-    }
-    for (const { id: _id, treatmentId, ...data } of parsed.treatmentLogs) {
-      const newTreatmentId = treatmentIdMap.get(treatmentId);
-      if (!newTreatmentId) throw new Error("missing treatmentId mapping");
-      await createTreatmentLog({ ...data, treatmentId: newTreatmentId }, asConn(conn));
-    }
+    await importDirectly(conn, parseExportPayload(json));
 
-    // Verify row counts and key fields.
+    // Verify counts.
     expect(await countRows(conn, "habits")).toBe(1);
     expect(await countRows(conn, "habit_logs")).toBe(2);
     expect(await countRows(conn, "treatments")).toBe(1);
     expect(await countRows(conn, "treatment_logs")).toBe(1);
 
+    // Verify content and FK integrity (original IDs preserved).
     const habitRows = await allRows(conn, "habits");
+    expect(habitRows[0]?.id).toBe(Number(habit.id));
     expect(habitRows[0]?.label).toBe(HABIT_DATA.label);
-    expect(habitRows[0]?.icon).toBe(HABIT_DATA.icon);
 
     const treatmentRows = await allRows(conn, "treatments");
     expect(treatmentRows[0]?.label).toBe(TREATMENT_DATA.label);
-    expect(treatmentRows[0]?.frequency).toBe(TREATMENT_DATA.frequency);
 
     const logRows = await allRows(conn, "habit_logs");
-    const eventTypes = logRows.map((r) => r.event_type).sort();
-    expect(eventTypes).toEqual(["relapse", "start"]);
+    expect(logRows.map((r) => r.event_type).sort()).toEqual(["relapse", "start"]);
+    // FK integrity: all logs point to the re-imported habit id.
+    expect(logRows.every((r) => r.habit_id === Number(habit.id))).toBe(true);
 
     const tlogRows = await allRows(conn, "treatment_logs");
     expect(tlogRows[0]?.status).toBe("taken");
-    expect(tlogRows[0]?.scheduled_at).toBe("2024-01-01");
+    expect(tlogRows[0]?.treatment_id).toBe(Number(treatment.id));
   });
 
   // ─── Round-trip: CSV export then import ────────────────────────────────────
@@ -288,32 +290,9 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
       asConn(conn),
     );
 
-    const payload = buildExportPayload(
-      [habit], [log], [treatment], [tlog], new Date().toISOString(),
-    );
-    const csv = payloadToCSV(payload);
-
+    const csv = payloadToCSV(buildExportPayload([habit], [log], [treatment], [tlog], new Date().toISOString()));
     await clearAllData(asConn(conn));
-
-    const parsed = parseCSVPayload(csv);
-    const habitIdMap = new Map<string, string>();
-    for (const { id: oldId, ...data } of parsed.habits) {
-      const created = await createHabit(data, asConn(conn));
-      habitIdMap.set(oldId, created.id);
-    }
-    for (const { id: _id, habitId, ...data } of parsed.habitLogs) {
-      const newHabitId = habitIdMap.get(habitId) ?? habitId;
-      await createHabitLog({ ...data, habitId: newHabitId }, asConn(conn));
-    }
-    const treatmentIdMap = new Map<string, string>();
-    for (const { id: oldId, ...data } of parsed.treatments) {
-      const created = await createTreatment(data, asConn(conn));
-      treatmentIdMap.set(oldId, created.id);
-    }
-    for (const { id: _id, treatmentId, ...data } of parsed.treatmentLogs) {
-      const newTreatmentId = treatmentIdMap.get(treatmentId) ?? treatmentId;
-      await createTreatmentLog({ ...data, treatmentId: newTreatmentId }, asConn(conn));
-    }
+    await importDirectly(conn, parseCSVPayload(csv));
 
     expect(await countRows(conn, "habits")).toBe(1);
     expect(await countRows(conn, "habit_logs")).toBe(1);
@@ -322,6 +301,8 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
 
     const tlogRows = await allRows(conn, "treatment_logs");
     expect(tlogRows[0]?.status).toBe("missed");
+    // FK integrity preserved via original IDs.
+    expect(tlogRows[0]?.treatment_id).toBe(Number(treatment.id));
   });
 
   // ─── Round-trip: encrypted JSON ────────────────────────────────────────────
