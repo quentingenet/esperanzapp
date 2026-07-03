@@ -26,7 +26,7 @@ interface HabitDetailModalProps {
   stats: HabitStats;
   userName: string;
   onClose: () => void;
-  onRelapse: () => void;
+  onRelapse: (date: string) => void;
 }
 
 export function HabitDetailModal({ habit, stats, userName, onClose, onRelapse }: HabitDetailModalProps) {
@@ -96,7 +96,7 @@ export function HabitDetailModal({ habit, stats, userName, onClose, onRelapse }:
         habit={habit}
         stats={stats}
         userName={userName}
-        onConfirm={() => { setRelapseOpen(false); onRelapse(); }}
+        onConfirm={(date) => { setRelapseOpen(false); onRelapse(date); }}
         onCancel={() => { setRelapseOpen(false); }}
       />
     </>

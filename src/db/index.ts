@@ -5,3 +5,4 @@ export * from "./habitLogs";
 export * from "./treatments";
 export * from "./treatmentLogs";
 export * from "./onboarding";
+export * from "./sortOrder";

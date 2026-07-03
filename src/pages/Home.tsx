@@ -1,24 +1,30 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import SvgIcon from "@mui/material/SvgIcon";
+import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import { HabitCard, HabitDetailModal, HabitForm } from "@/components/habits";
-import { ConfirmDialog, EmptyState } from "@/components/shared";
+import { ConfirmDialog, EmptyState, SortableList } from "@/components/shared";
 import { useHabits, useHabitLogs } from "@/hooks";
 import { useOnboardingStore } from "@/store";
 import { toast } from "@/store/toastStore";
 import { getGrade, getNextGrade } from "@/utils/grades";
-import { todayLocalDate } from "@/utils";
 import { logError } from "@/utils/logger";
 import type { Habit, HabitStats } from "@/types";
 
+const SORT_PATH = "M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z";
+const CHECK_PATH = "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z";
+
 export function Home() {
   const { t } = useTranslation();
-  const { habits, loadHabits, addHabitWithInitialLog, deleteHabit } = useHabits();
+  const { habits, loadHabits, addHabitWithInitialLog, deleteHabit, reorderHabits, saveHabitsOrder } = useHabits();
   const { getStatsBatch, recordRelapse } = useHabitLogs();
   const userName = useOnboardingStore((s) => s.userName);
   const [statsMap, setStatsMap] = useState<Partial<Record<string, HabitStats>>>({});
   const [detailHabit, setDetailHabit] = useState<{ habit: Habit; stats: HabitStats } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Habit | null>(null);
+  const [sortMode, setSortMode] = useState(false);
 
   useEffect(() => { void loadHabits(); }, [loadHabits]);
 
@@ -30,9 +36,8 @@ export function Home() {
     return () => { guard.cancelled = true; };
   }, [habits, getStatsBatch]);
 
-  const handleRelapse = (habit: Habit) => {
-    const today = todayLocalDate();
-    void recordRelapse(habit.id, today)
+  const handleRelapse = (habit: Habit, date: string) => {
+    void recordRelapse(habit.id, date)
       .then(() => { void loadHabits(); setDetailHabit(null); })
       .catch((e: unknown) => { logError("Home.handleRelapse", e); toast.error(t("common.error")); });
   };
@@ -45,22 +50,72 @@ export function Home() {
     setDeleteTarget(null);
   };
 
+  const handleExitSort = useCallback(() => {
+    setSortMode(false);
+    void saveHabitsOrder().catch((e: unknown) => { logError("Home.saveHabitsOrder", e); });
+  }, [saveHabitsOrder]);
+
+  const sortableHabits = habits.filter((h) => statsMap[h.id]?.startDate);
+
   return (
     <Box sx={{ px: 2, pt: "calc(env(safe-area-inset-top) + 16px)", pb: "calc(80px + env(safe-area-inset-bottom))" }}>
+      {habits.length > 1 && (
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
+          {sortMode ? (
+            <IconButton
+              onClick={handleExitSort}
+              aria-label={t("common.close")}
+              sx={{ color: "primary.main", borderRadius: 2 }}
+            >
+              <SvgIcon aria-hidden="true"><path d={CHECK_PATH} /></SvgIcon>
+            </IconButton>
+          ) : (
+            <Box
+              component="button"
+              onClick={() => { setSortMode(true); }}
+              aria-label={t("habits.reorderBtn")}
+              sx={{
+                display: "flex", alignItems: "center", gap: 1,
+                border: "none", background: "none", cursor: "pointer",
+                color: "text.secondary", p: 1, borderRadius: 2,
+                "&:hover": { bgcolor: "action.hover" },
+              }}
+            >
+              <SvgIcon fontSize="small" aria-hidden="true" sx={{ flexShrink: 0 }}>
+                <path d={SORT_PATH} />
+              </SvgIcon>
+              <Typography
+                variant="caption"
+                sx={{ textAlign: "left", whiteSpace: "pre-line", lineHeight: 1.3 }}
+              >
+                {t("habits.reorderBtn")}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      )}
       {habits.length === 0 && <EmptyState emoji="🌱" message={t("habits.empty")} />}
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-        {habits.map((h) => {
-          const stats = statsMap[h.id];
-          if (!stats || !stats.startDate) return null;
-          return (
-            <HabitCard key={h.id} habit={h} stats={stats}
-              grade={getGrade(stats.currentStreak)}
-              nextGrade={getNextGrade(stats.currentStreak)}
-              onClick={() => { setDetailHabit({ habit: h, stats }); }}
-              onDelete={() => { setDeleteTarget(h); }}
-            />
-          );
-        })}
+        <SortableList
+          items={sortableHabits}
+          active={sortMode}
+          onReorder={(ids) => { reorderHabits(ids); }}
+          renderItem={(h, handleProps) => {
+            const stats = statsMap[h.id];
+            if (!stats) return null;
+            return (
+              <HabitCard
+                habit={h}
+                stats={stats}
+                grade={getGrade(stats.currentStreak)}
+                nextGrade={getNextGrade(stats.currentStreak)}
+                onClick={() => { if (!sortMode) setDetailHabit({ habit: h, stats }); }}
+                onDelete={() => { setDeleteTarget(h); }}
+                handleProps={handleProps}
+              />
+            );
+          }}
+        />
       </Box>
       <HabitForm existingHabits={habits} onSubmit={(data) => {
         void addHabitWithInitialLog({ ...data, createdAt: new Date().toISOString() })
@@ -74,7 +129,7 @@ export function Home() {
           stats={detailHabit.stats}
           userName={userName}
           onClose={() => { setDetailHabit(null); }}
-          onRelapse={() => { handleRelapse(detailHabit.habit); }}
+          onRelapse={(date) => { handleRelapse(detailHabit.habit, date); }}
         />
       )}
 

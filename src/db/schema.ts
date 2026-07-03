@@ -72,6 +72,11 @@ async function indexExists(db: SQLiteDBConnection, indexName: string): Promise<b
   return (result.values ?? []).length > 0;
 }
 
+async function columnExists(db: SQLiteDBConnection, table: string, column: string): Promise<boolean> {
+  const result = await db.query(`PRAGMA table_info(${table})`);
+  return ((result.values ?? []) as { name: string }[]).some((col) => col.name === column);
+}
+
 export async function runSchema(db: SQLiteDBConnection): Promise<void> {
   await db.execute(SCHEMA);
 
@@ -118,5 +123,19 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
       await db.execute("CREATE INDEX IF NOT EXISTS idx_treatment_logs_scheduled_at ON treatment_logs(scheduled_at)");
     }
     await markApplied(db, "idx_treatment_logs_scheduled_at");
+  }
+
+  if (!(await isApplied(db, "sort_index_habits"))) {
+    if (!(await columnExists(db, "habits", "sort_index"))) {
+      await db.execute("ALTER TABLE habits ADD COLUMN sort_index INTEGER NOT NULL DEFAULT 0");
+    }
+    await markApplied(db, "sort_index_habits");
+  }
+
+  if (!(await isApplied(db, "sort_index_treatments"))) {
+    if (!(await columnExists(db, "treatments", "sort_index"))) {
+      await db.execute("ALTER TABLE treatments ADD COLUMN sort_index INTEGER NOT NULL DEFAULT 0");
+    }
+    await markApplied(db, "sort_index_treatments");
   }
 }

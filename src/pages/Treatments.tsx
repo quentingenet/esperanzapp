@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Drawer from "@mui/material/Drawer";
+import IconButton from "@mui/material/IconButton";
+import SvgIcon from "@mui/material/SvgIcon";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
@@ -16,11 +18,14 @@ import { todayLocalDate } from "@/utils";
 import { useTranslation } from "react-i18next";
 import { TreatmentCard, TreatmentCalendar, TreatmentForm } from "@/components/treatments";
 import { weekDayLabel } from "@/components/treatments/treatmentUtils";
-import { ConfirmDialog, EmptyState, PageHeader } from "@/components/shared";
+import { ConfirmDialog, EmptyState, PageHeader, SortableList } from "@/components/shared";
 import { useTreatments, useTreatmentLogs, useNotifications, useDateLocale } from "@/hooks";
 import { toast } from "@/store/toastStore";
 import { logError } from "@/utils/logger";
 import type { Treatment, TreatmentLog, TreatmentStatus } from "@/types";
+
+const SORT_PATH = "M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z";
+const CHECK_PATH = "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z";
 
 const WEEK_DAYS = [1, 2, 3, 4, 5, 6, 0];
 const MONTH_DAYS = [
@@ -32,7 +37,7 @@ const MONTH_DAYS = [
 export function Treatments() {
   const { t } = useTranslation();
   const dateLocale = useDateLocale();
-  const { treatments, loadTreatments, addTreatment, editTreatment, deleteTreatment } = useTreatments();
+  const { treatments, loadTreatments, addTreatment, editTreatment, deleteTreatment, reorderTreatments, saveTreatmentsOrder } = useTreatments();
   const { logStatus, logStatusForDate, getLogsByDate } = useTreatmentLogs();
   const { scheduleReminder, cancelReminder } = useNotifications();
   const mountedRef = useRef(true);
@@ -41,6 +46,7 @@ export function Treatments() {
   const [logsMap, setLogsMap] = useState<Record<string, TreatmentLog | null>>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Treatment | null>(null);
+  const [sortMode, setSortMode] = useState(false);
   const [editTarget, setEditTarget] = useState<Treatment | null>(null);
   const [editLabel, setEditLabel] = useState("");
   const [editTime, setEditTime] = useState<Date | null>(null);
@@ -122,33 +128,79 @@ export function Treatments() {
 
   const showEditDaySelect = editReminderEnabled && editTarget !== null && editTarget.frequency !== "daily";
 
+  const handleExitSort = useCallback(() => {
+    setSortMode(false);
+    void saveTreatmentsOrder().catch((e: unknown) => { logError("Treatments.saveTreatmentsOrder", e); });
+  }, [saveTreatmentsOrder]);
+
   return (
     <Box sx={{ pb: "calc(80px + env(safe-area-inset-bottom))" }}>
       <PageHeader title={t("treatments.title")} />
       <Box sx={{ px: 2, pt: 1 }}>
-        {treatments.length === 0 && <EmptyState emoji="💊" message={t("treatments.empty")} />}
-        {treatments.map((tr) => (
-          <Box key={tr.id}>
-            <TreatmentCard
-              treatment={tr}
-              todayLog={logsMap[tr.id] ?? null}
-              onLog={(status) => { void handleLog(tr, status); }}
-              onDelete={() => { setDeleteTarget(tr); }}
-              onEdit={() => { openEdit(tr); }}
-              isExpanded={selectedId === tr.id}
-              onToggle={() => { setSelectedId(tr.id === selectedId ? null : tr.id); }}
-            />
-            {selectedId === tr.id && (
-              <TreatmentCalendar
-                treatmentId={tr.id}
-                frequency={tr.frequency}
-                reminderDay={tr.reminderDay}
-                createdAt={tr.createdAt}
-                onLogDate={(date, status) => logStatusForDate(tr.id, date, status)}
-              />
+        {treatments.length > 1 && (
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
+            {sortMode ? (
+              <IconButton
+                onClick={handleExitSort}
+                aria-label={t("common.close")}
+                sx={{ color: "primary.main", borderRadius: 2 }}
+              >
+                <SvgIcon aria-hidden="true"><path d={CHECK_PATH} /></SvgIcon>
+              </IconButton>
+            ) : (
+              <Box
+                component="button"
+                onClick={() => { setSortMode(true); }}
+                aria-label={t("treatments.reorderBtn")}
+                sx={{
+                  display: "flex", alignItems: "center", gap: 1,
+                  border: "none", background: "none", cursor: "pointer",
+                  color: "text.secondary", p: 1, borderRadius: 2,
+                  "&:hover": { bgcolor: "action.hover" },
+                }}
+              >
+                <SvgIcon fontSize="small" aria-hidden="true" sx={{ flexShrink: 0 }}>
+                  <path d={SORT_PATH} />
+                </SvgIcon>
+                <Typography
+                  variant="caption"
+                  sx={{ textAlign: "left", whiteSpace: "pre-line", lineHeight: 1.3 }}
+                >
+                  {t("treatments.reorderBtn")}
+                </Typography>
+              </Box>
             )}
           </Box>
-        ))}
+        )}
+        {treatments.length === 0 && <EmptyState emoji="💊" message={t("treatments.empty")} />}
+        <SortableList
+          items={treatments}
+          active={sortMode}
+          onReorder={(ids) => { reorderTreatments(ids); }}
+          renderItem={(tr, handleProps) => (
+            <Box>
+              <TreatmentCard
+                treatment={tr}
+                todayLog={logsMap[tr.id] ?? null}
+                onLog={(status) => { void handleLog(tr, status); }}
+                onDelete={() => { setDeleteTarget(tr); }}
+                onEdit={() => { openEdit(tr); }}
+                isExpanded={selectedId === tr.id}
+                onToggle={() => { setSelectedId(tr.id === selectedId ? null : tr.id); }}
+                handleProps={handleProps}
+              />
+              {selectedId === tr.id && (
+                <TreatmentCalendar
+                  treatmentId={tr.id}
+                  frequency={tr.frequency}
+                  reminderDay={tr.reminderDay}
+                  createdAt={tr.createdAt}
+                  onLogDate={(date, status) => logStatusForDate(tr.id, date, status)}
+                />
+              )}
+            </Box>
+          )}
+        />
         <TreatmentForm onSubmit={(data) => {
           void addTreatment({ ...data, createdAt: new Date().toISOString() })
             .then((created) => {

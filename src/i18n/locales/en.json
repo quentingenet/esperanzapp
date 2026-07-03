@@ -24,7 +24,8 @@
     "created": "Created",
     "expand": "Expand",
     "collapse": "Collapse",
-    "showPassword": "Show password"
+    "showPassword": "Show password",
+    "reorder": "Reorder"
   },
   "nav": {
     "home": "Home",
@@ -116,7 +117,15 @@
       "startDate": "Start date",
       "color": "Color"
     },
-    "duplicateWarning": "You are already tracking this habit. You cannot add a duplicate."
+    "duplicateWarning": "You are already tracking this habit. You cannot add a duplicate.",
+    "reorderBtn": "Sort my\nhabits",
+    "reorderHint": "Drag to reorder",
+    "streak": {
+      "year_one": "year",
+      "year_other": "years",
+      "separator": "and",
+      "total": "that is {{count}} days"
+    }
   },
   "habitTypes": {
     "alcohol": {
@@ -232,7 +241,8 @@
       "between7and30days": "{{name}}, you held on for {{days}} days. This isn't a failure. You know what you're capable of.",
       "after30days": "{{name}}, you held on for {{days}} days. That is immense. Everything you learned stays with you.",
       "day0": "{{name}}, what matters is trying. Start again when you're ready."
-    }
+    },
+    "dateLabel": "Relapse date"
   },
   "treatments": {
     "title": "My treatments",
@@ -240,9 +250,9 @@
     "edit": "Edit treatment",
     "delete": "Delete this treatment",
     "deleteConfirm": "Delete this treatment and all its history?",
-    "empty": "No treatments yet.",
+    "empty": "No treatments yet.\nAdd one and set a reminder so you never miss a dose.",
     "taken": "Taken",
-    "missed": "Missed",
+    "missed": "Not taken",
     "pending": "Pending",
     "reminder": "Reminder at {{time}}",
     "reminderWeekly": "Every {{day}} at {{time}}",
@@ -264,7 +274,8 @@
         "weekly": "Every week",
         "monthly": "Every month"
       }
-    }
+    },
+    "reorderBtn": "Sort my\ntreatments"
   },
   "stats": {
     "title": "Statistics",

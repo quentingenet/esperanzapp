@@ -24,7 +24,8 @@
     "created": "Aangemaakt",
     "expand": "Uitklappen",
     "collapse": "Inklappen",
-    "showPassword": "Wachtwoord weergeven"
+    "showPassword": "Wachtwoord weergeven",
+    "reorder": "Herordenen"
   },
   "nav": {
     "home": "Home",
@@ -116,7 +117,15 @@
       "startDate": "Startdatum",
       "color": "Kleur"
     },
-    "duplicateWarning": "Je volgt deze gewoonte al. Je kunt geen duplicaat toevoegen."
+    "duplicateWarning": "Je volgt deze gewoonte al. Je kunt geen duplicaat toevoegen.",
+    "reorderBtn": "Sorteer mijn\ngewoonten",
+    "reorderHint": "Sleep om te herordenen",
+    "streak": {
+      "year_one": "jaar",
+      "year_other": "jaar",
+      "separator": "en",
+      "total": "dat zijn {{count}} dagen"
+    }
   },
   "habitTypes": {
     "alcohol": {
@@ -232,7 +241,8 @@
       "between7and30days": "{{name}}, je hield {{days}} dagen vol. Dit is geen mislukking. Je weet waartoe je in staat bent.",
       "after30days": "{{name}}, je hield {{days}} dagen vol. Dat is enorm. Alles wat je hebt geleerd blijft bij je.",
       "day0": "{{name}}, het gaat erom dat je het probeert. Begin opnieuw wanneer je er klaar voor bent."
-    }
+    },
+    "dateLabel": "Datum van terugval"
   },
   "treatments": {
     "title": "Mijn behandelingen",
@@ -240,9 +250,9 @@
     "edit": "Behandeling bewerken",
     "delete": "Deze behandeling verwijderen",
     "deleteConfirm": "Deze behandeling en alle geschiedenis verwijderen?",
-    "empty": "Nog geen behandelingen.",
+    "empty": "Nog geen behandelingen.\nVoeg er een toe en stel een herinnering in.",
     "taken": "Ingenomen",
-    "missed": "Vergeten",
+    "missed": "Niet ingenomen",
     "pending": "In afwachting",
     "reminder": "Herinnering om {{time}}",
     "reminderWeekly": "Elke {{day}} om {{time}}",
@@ -264,7 +274,8 @@
         "weekly": "Elke week",
         "monthly": "Elke maand"
       }
-    }
+    },
+    "reorderBtn": "Sorteer mijn\nbehandelingen"
   },
   "stats": {
     "title": "Statistieken",

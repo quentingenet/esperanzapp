@@ -50,6 +50,7 @@ vi.mock("react-i18next", async (importOriginal) => {
 
 // Intercept the next file input created by triggerImportFile and simulate selection.
 function simulateFileSelection(file: File) {
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   const origCreate = document.createElement.bind(document);
   let intercepted = false;
   vi.spyOn(document, "createElement").mockImplementation((tagName: string) => {

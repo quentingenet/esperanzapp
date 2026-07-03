@@ -24,7 +24,8 @@
     "created": "Creato",
     "expand": "Espandi",
     "collapse": "Comprimi",
-    "showPassword": "Mostra password"
+    "showPassword": "Mostra password",
+    "reorder": "Riordina"
   },
   "nav": {
     "home": "Home",
@@ -116,7 +117,15 @@
       "startDate": "Data di inizio",
       "color": "Colore"
     },
-    "duplicateWarning": "Stai già monitorando questa abitudine. Non puoi aggiungerne una duplicata."
+    "duplicateWarning": "Stai già monitorando questa abitudine. Non puoi aggiungerne una duplicata.",
+    "reorderBtn": "Ordina le mie\nabitudini",
+    "reorderHint": "Trascina per ordinare",
+    "streak": {
+      "year_one": "anno",
+      "year_other": "anni",
+      "separator": "e",
+      "total": "ovvero {{count}} giorni"
+    }
   },
   "habitTypes": {
     "alcohol": {
@@ -232,7 +241,8 @@
       "between7and30days": "{{name}}, hai resistito {{days}} giorni. Non è un fallimento. Sai di cosa sei capace.",
       "after30days": "{{name}}, hai resistito {{days}} giorni. È enorme. Tutto quello che hai imparato rimane con te.",
       "day0": "{{name}}, l'importante è provarci. Ricomincia quando sei pronto."
-    }
+    },
+    "dateLabel": "Data della ricaduta"
   },
   "treatments": {
     "title": "I miei trattamenti",
@@ -240,9 +250,9 @@
     "edit": "Modifica trattamento",
     "delete": "Elimina questo trattamento",
     "deleteConfirm": "Eliminare questo trattamento e tutta la sua cronologia?",
-    "empty": "Nessun trattamento ancora.",
+    "empty": "Nessun trattamento ancora.\nAggiungine uno e imposta un promemoria per non dimenticarlo.",
     "taken": "Assunto",
-    "missed": "Dimenticato",
+    "missed": "Non preso",
     "pending": "In attesa",
     "reminder": "Promemoria alle {{time}}",
     "reminderWeekly": "Ogni {{day}} alle {{time}}",
@@ -264,7 +274,8 @@
         "weekly": "Ogni settimana",
         "monthly": "Ogni mese"
       }
-    }
+    },
+    "reorderBtn": "Ordina i miei\ntrattamenti"
   },
   "stats": {
     "title": "Statistiche",

@@ -24,7 +24,8 @@
     "created": "Erstellt",
     "expand": "Ausklappen",
     "collapse": "Einklappen",
-    "showPassword": "Passwort anzeigen"
+    "showPassword": "Passwort anzeigen",
+    "reorder": "Neu anordnen"
   },
   "nav": {
     "home": "Start",
@@ -116,7 +117,15 @@
       "startDate": "Startdatum",
       "color": "Farbe"
     },
-    "duplicateWarning": "Du verfolgst diese Gewohnheit bereits. Du kannst keine doppelte hinzufügen."
+    "duplicateWarning": "Du verfolgst diese Gewohnheit bereits. Du kannst keine doppelte hinzufügen.",
+    "reorderBtn": "Sortieren\nmeiner Gewohnheiten",
+    "reorderHint": "Ziehen zum Sortieren",
+    "streak": {
+      "year_one": "Jahr",
+      "year_other": "Jahre",
+      "separator": "und",
+      "total": "das sind {{count}} Tage"
+    }
   },
   "habitTypes": {
     "alcohol": {
@@ -232,7 +241,8 @@
       "between7and30days": "{{name}}, du hast {{days}} Tage durchgehalten. Das ist kein Versagen. Du weißt, wozu du fähig bist.",
       "after30days": "{{name}}, du hast {{days}} Tage durchgehalten. Das ist enorm. Alles, was du gelernt hast, bleibt bei dir.",
       "day0": "{{name}}, wichtig ist, es zu versuchen. Fang neu an, wenn du bereit bist."
-    }
+    },
+    "dateLabel": "Datum des Rückfalls"
   },
   "treatments": {
     "title": "Meine Behandlungen",
@@ -240,9 +250,9 @@
     "edit": "Behandlung bearbeiten",
     "delete": "Diese Behandlung löschen",
     "deleteConfirm": "Diese Behandlung und den gesamten Verlauf löschen?",
-    "empty": "Noch keine Behandlungen.",
+    "empty": "Noch keine Behandlungen.\nFüge eine hinzu und stelle eine Erinnerung ein.",
     "taken": "Eingenommen",
-    "missed": "Vergessen",
+    "missed": "Nicht genommen",
     "pending": "Ausstehend",
     "reminder": "Erinnerung um {{time}} Uhr",
     "reminderWeekly": "Jeden {{day}} um {{time}} Uhr",
@@ -264,7 +274,8 @@
         "weekly": "Jede Woche",
         "monthly": "Jeden Monat"
       }
-    }
+    },
+    "reorderBtn": "Sortieren\nmeiner Behandlungen"
   },
   "stats": {
     "title": "Statistiken",

@@ -5,6 +5,7 @@ import {
   createTreatment as dbCreateTreatment,
   deleteTreatment as dbDeleteTreatment,
   updateTreatment as dbUpdateTreatment,
+  updateTreatmentsSortOrder,
 } from "@/db";
 import { useTreatmentsStore } from "@/store/treatmentsStore";
 import type { Treatment } from "@/types";
@@ -58,5 +59,21 @@ export function useTreatments() {
     [removeTreatment],
   );
 
-  return { treatments, loading, loadTreatments, addTreatment, editTreatment, deleteTreatment };
+  const reorderTreatments = useCallback(
+    (orderedIds: string[]): void => {
+      const byId = new Map(treatments.map((t) => [t.id, t]));
+      const sorted = orderedIds.map((id) => byId.get(id)).filter((t): t is Treatment => t !== undefined);
+      setTreatments(sorted);
+    },
+    [treatments, setTreatments],
+  );
+
+  const saveTreatmentsOrder = useCallback(
+    async (): Promise<void> => {
+      await updateTreatmentsSortOrder(treatments.map((t) => t.id));
+    },
+    [treatments],
+  );
+
+  return { treatments, loading, loadTreatments, addTreatment, editTreatment, deleteTreatment, reorderTreatments, saveTreatmentsOrder };
 }

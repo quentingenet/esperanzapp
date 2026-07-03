@@ -1,6 +1,7 @@
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import type { Habit } from "@/types";
 import { runInTransaction, withDb, withDbVoid } from "./client";
+import { updateSortOrder } from "./sortOrder";
 
 type HabitRow = {
   id: number;
@@ -88,9 +89,13 @@ export function getHabitById(id: string): Promise<Habit | null> {
 
 export function getAllHabits(): Promise<Habit[]> {
   return withDb(async (db) => {
-    const result = await db.query("SELECT * FROM habits ORDER BY created_at ASC");
+    const result = await db.query("SELECT * FROM habits ORDER BY sort_index ASC, created_at ASC");
     return ((result.values ?? []) as HabitRow[]).map(rowToHabit);
   }, []);
+}
+
+export function updateHabitsSortOrder(orderedIds: string[]): Promise<void> {
+  return updateSortOrder("habits", orderedIds);
 }
 
 export function updateHabit(

@@ -1,3 +1,5 @@
+import type React from "react";
+
 export type EventType = "start" | "relapse";
 export type Frequency = "daily" | "weekly" | "monthly";
 export type TreatmentStatus = "taken" | "missed" | "pending";
@@ -117,6 +119,8 @@ export interface HabitTypeConfig {
   svgPath: string;
 }
 
+export type DragHandleProps = React.HTMLAttributes<HTMLElement>;
+
 export interface HabitCardProps {
   habit: Habit;
   stats: HabitStats;
@@ -124,6 +128,7 @@ export interface HabitCardProps {
   nextGrade: { grade: Grade; daysLeft: number } | null;
   onClick: () => void;
   onDelete: () => void;
+  handleProps?: DragHandleProps | undefined;
 }
 
 export interface HabitDropdownProps {
@@ -151,7 +156,7 @@ export interface RelapseDialogProps {
   habit: Habit;
   stats: HabitStats;
   userName: string;
-  onConfirm: () => void;
+  onConfirm: (date: string) => void;
   onCancel: () => void;
 }
 
@@ -169,6 +174,7 @@ export interface TreatmentCardProps {
   onEdit: () => void;
   isExpanded: boolean;
   onToggle: () => void;
+  handleProps?: DragHandleProps | undefined;
 }
 
 export interface TreatmentFormProps {

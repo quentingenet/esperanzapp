@@ -24,7 +24,8 @@
     "created": "Créé",
     "expand": "Développer",
     "collapse": "Réduire",
-    "showPassword": "Afficher le mot de passe"
+    "showPassword": "Afficher le mot de passe",
+    "reorder": "Réordonner"
   },
   "nav": {
     "home": "Accueil",
@@ -116,7 +117,15 @@
       "startDate": "Date de départ",
       "color": "Couleur"
     },
-    "duplicateWarning": "Tu suis déjà cette habitude. Tu ne peux pas en ajouter une identique."
+    "duplicateWarning": "Tu suis déjà cette habitude. Tu ne peux pas en ajouter une identique.",
+    "reorderBtn": "Trier mes\nhabitudes",
+    "reorderHint": "Glisser pour trier",
+    "streak": {
+      "year_one": "an",
+      "year_other": "ans",
+      "separator": "et",
+      "total": "soit {{count}} jours"
+    }
   },
   "habitTypes": {
     "alcohol": {
@@ -232,7 +241,8 @@
       "between7and30days": "{{name}}, tu as tenu {{days}} jours. Ce n'est pas une défaite. Tu sais ce dont tu es capable.",
       "after30days": "{{name}}, tu as tenu {{days}} jours. C'est immense. Tout ce que tu as appris reste avec toi.",
       "day0": "{{name}}, l'important c'est d'essayer. Recommence quand tu es prêt."
-    }
+    },
+    "dateLabel": "Date de la rechute"
   },
   "treatments": {
     "title": "Mes traitements",
@@ -240,9 +250,9 @@
     "edit": "Modifier le traitement",
     "delete": "Supprimer ce traitement",
     "deleteConfirm": "Supprimer ce traitement et tout son historique ?",
-    "empty": "Aucun traitement pour l'instant.",
+    "empty": "Aucun traitement pour l'instant.\nAjoutez-en un et configurez un rappel pour ne rien oublier.",
     "taken": "Pris",
-    "missed": "Oublié",
+    "missed": "Non pris",
     "pending": "En attente",
     "reminder": "Rappel à {{time}}",
     "reminderWeekly": "Tous les {{day}} à {{time}}",
@@ -264,7 +274,8 @@
         "weekly": "Chaque semaine",
         "monthly": "Chaque mois"
       }
-    }
+    },
+    "reorderBtn": "Trier mes\ntraitements"
   },
   "stats": {
     "title": "Statistiques",
@@ -296,14 +307,14 @@
     "importSuccess": "Import réussi",
     "error": "Erreur lors de l'opération",
     "importWarningTitle": "Attention",
-    "importWarningBody": "Cette action supprimera TOUTES vos données existantes et les remplacera par le contenu du fichier importé. Cette opération est irréversible.",
+    "importWarningBody": "Cette action supprimera TOUTES tes données existantes et les remplacera par le contenu du fichier importé. Cette opération est irréversible.",
     "importFileHint": "Sélectionne un fichier .json ou .csv.\nLe format sera détecté automatiquement.",
     "chooseFileBtn": "Choisir un fichier",
     "importConfirm": "Remplacer",
     "editName": "Modifier mon prénom",
     "privacyWarningTitle": "Ces données sont personnelles et sensibles",
     "privacyWarningBody": "Le fichier exporté contient des informations de santé. Une fois enregistré dans le dossier Documents, il peut être accessible à d'autres applications ou à toute personne ayant accès à cet appareil.",
-    "saveConfirmBody": "Le fichier sera enregistré dans le dossier Documents de l'app sur votre téléphone. Sur Android 11+, accessible via l'appli Fichiers intégrée ou USB uniquement.",
+    "saveConfirmBody": "Le fichier sera enregistré dans le dossier Documents de l'app sur ton téléphone. Sur Android 11+, accessible via l'appli Fichiers intégrée ou USB uniquement.",
     "filesystemError": "Impossible d'écrire le fichier. Vérifiez l'espace de stockage.",
     "documentsUnavailable": "Impossible d'enregistrer dans Documents. Utilisez Partager à la place.",
     "encryptSwitch": "Chiffrer avec un mot de passe",
@@ -372,7 +383,7 @@
   },
   "startup": {
     "dbErrorTitle": "Erreur de démarrage",
-    "dbErrorBody": "La base de données ne peut pas être ouverte. Cela peut arriver après une mise à jour. Vous pouvez réinitialiser l'application : les données locales seront supprimées, mais vous pourrez les restaurer depuis un fichier d'export.",
+    "dbErrorBody": "La base de données ne peut pas être ouverte. Cela peut arriver après une mise à jour. Tu peux réinitialiser l'application : les données locales seront supprimées, mais tu pourras les restaurer depuis un fichier d'export.",
     "dbErrorReset": "Réinitialiser l'application",
     "dbErrorResetFailed": "La réinitialisation a échoué. Désinstallez et réinstallez l'application pour récupérer l'accès."
   },

@@ -5,6 +5,7 @@ import {
   createHabitWithInitialLog as dbCreateHabitWithInitialLog,
   deleteHabit as dbDeleteHabit,
   getAllHabits,
+  updateHabitsSortOrder,
 } from "@/db";
 import { useHabitsStore } from "@/store/habitsStore";
 import { diffInDays, todayLocalDate } from "@/utils";
@@ -75,5 +76,21 @@ export function useHabits() {
     [habits],
   );
 
-  return { habits, loading, error, loadHabits, addHabit, addHabitWithInitialLog, deleteHabit, getDayCount };
+  const reorderHabits = useCallback(
+    (orderedIds: string[]): void => {
+      const byId = new Map(habits.map((h) => [h.id, h]));
+      const sorted = orderedIds.map((id) => byId.get(id)).filter((h): h is Habit => h !== undefined);
+      setHabits(sorted);
+    },
+    [habits, setHabits],
+  );
+
+  const saveHabitsOrder = useCallback(
+    async (): Promise<void> => {
+      await updateHabitsSortOrder(habits.map((h) => h.id));
+    },
+    [habits],
+  );
+
+  return { habits, loading, error, loadHabits, addHabit, addHabitWithInitialLog, deleteHabit, getDayCount, reorderHabits, saveHabitsOrder };
 }

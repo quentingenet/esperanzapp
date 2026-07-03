@@ -92,6 +92,7 @@ See instructions below.
 - [Node.js](https://nodejs.org/) ≥ 20
 - [npm](https://www.npmjs.com/)
 - Android Studio + Android SDK (for device/emulator builds)
+- **Java JDK 17 or newer** with `JAVA_HOME` defined. Gradle picks it up automatically; no path is stored in the project. [sdkman](https://sdkman.io/) is a convenient way to manage JDK versions.
 
 ### Clone
 
