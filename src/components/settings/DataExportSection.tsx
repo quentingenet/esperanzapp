@@ -117,6 +117,9 @@ export function DataExportSection() {
         } else {
           setWarnOpen(true);
         }
+      }).catch((e: unknown) => {
+        logError("DataExportSection.detectEncrypted", e);
+        toast.error(t("common.error"));
       });
     };
     input.click();
