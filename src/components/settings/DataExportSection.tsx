@@ -161,8 +161,9 @@ export function DataExportSection() {
           const granted = await requestPermission();
           if (!granted) {
             toast.info(t("export.importReschedulePermissionDenied"));
+          } else {
+            await rescheduleAll(freshTreatments);
           }
-          await rescheduleAll(freshTreatments);
         }
       } catch (e) {
         logError("DataExportSection.refreshAfterImport", e);

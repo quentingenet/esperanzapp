@@ -1,6 +1,6 @@
 # Privacy Policy for EsperanzApp
 
-*Last updated: July 3, 2026*
+*Last updated: July 5, 2026*
 
 ## 1. Overview
 
@@ -15,6 +15,8 @@ All health data you enter in the application (habits, treatments, logs) is store
 Two non-medical items are stored in your browser's `localStorage`: your language preference and your onboarding completion status. These items remain on your device, are not transmitted to any server, and do not contain personal health information.
 
 **Update check.** The application checks at startup whether a newer version is available, using the Google Play In-App Updates API (`@capawesome/capacitor-app-update`). This call is made through Google Play Services and does not transmit any health data. The information exchanged is limited to identifying the current installed version of the application and retrieving the latest available version from the Play Store. This call is subject to Google's own privacy practices for the Google Play platform. The same check is also available manually via the "Check for updates" button in Settings.
+
+**Exact alarm scheduling.** On Android 12 and later, the application requests the `SCHEDULE_EXACT_ALARM` permission to deliver treatment reminders at the exact time you configured. This permission is granted automatically on Android 12 and may require a system prompt on Android 13 and later if previously revoked. No personal data is involved in this process.
 
 ## 3. Data We Do Not Collect
 
@@ -38,7 +40,7 @@ In both cases, the exported file contains personal health information. We recomm
 
 ## 6. Storage and Security
 
-Data is stored locally on your device in a SQLite database encrypted at rest using AES-256 (SQLCipher). The encryption key is generated randomly at first launch and stored via the Android Keystore system (iOS Keychain on iOS), the platform's standard secure credential storage. Where supported by the device hardware, the Keystore provides an additional layer of hardware-level protection; on devices without dedicated security hardware, protection is software-based. The stored key is not accessible to other applications.
+Data is stored locally on your device in a SQLite database encrypted at rest using AES-256. The encryption key is generated randomly at first launch and stored via the Android Keystore system (iOS Keychain on iOS), the platform's standard secure credential storage. Where supported by the device hardware, the Keystore provides an additional layer of hardware-level protection; on devices without dedicated security hardware, protection is software-based. The stored key is not accessible to other applications.
 
 **Uninstalling the application permanently and irreversibly deletes both the database and the Keystore-backed encryption key.** Any data on the device is then permanently lost and unrecoverable. The only way to preserve your data across uninstalls, device changes, or resets is to export it beforehand using the in-app export feature.
 

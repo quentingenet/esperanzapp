@@ -161,6 +161,7 @@ EsperanzApp requests the **minimum permissions necessary** to function. No inter
 | Permission | Prompted? | Requested by | Why |
 |---|---|---|---|
 | `POST_NOTIFICATIONS` | **Yes** (Android 13+) | You, when adding your first treatment | To send daily reminders to take your medication. You can decline: the app works fully, you just won't receive notifications. |
+| `SCHEDULE_EXACT_ALARM` | **Yes** (Android 13+, if revoked) | App | Delivers treatment reminders at the exact scheduled time. Granted by default on Android 12; on Android 13+ the system may prompt the user if it was revoked. If not granted, reminders may be delayed by the OS. |
 | `RECEIVE_BOOT_COMPLETED` | No (automatic) | `@capacitor/local-notifications` | Re-schedules your treatment reminders after a phone restart, so they don't disappear when you reboot. |
 | `WAKE_LOCK` | No (automatic) | `@capacitor/local-notifications` | Allows the system to briefly wake the CPU to deliver a notification on time. Not declared in the app's own `AndroidManifest.xml` — injected by the library's manifest during Gradle's merge phase. |
 | `VIBRATE` | No (automatic) | App | Allows notifications to vibrate. No prompt, no personal data. |
@@ -183,7 +184,7 @@ The app offers two export paths.
 
 EsperanzApp does not collect personal data and has no backend server. There are no analytics, no crash reporting service, and no advertising SDK.
 
-All health data (habits, treatments, logs) is stored exclusively in a local SQLite database on your device, encrypted at rest with AES-256 (SQLCipher). It never leaves your device automatically.
+All health data (habits, treatments, logs) is stored exclusively in a local SQLite database on your device, encrypted at rest with AES-256. It never leaves your device automatically.
 
 Two non-medical items are stored in `localStorage`: your language preference and your onboarding completion status. These remain on your device and are never transmitted.
 
@@ -228,3 +229,5 @@ See [LICENSE](LICENSE) for the full text.
 **Quentin Genet**
 
 If you find EsperanzApp useful, a ⭐ on GitHub goes a long way.
+
+If you'd like to support the development: [ko-fi.com/quentingenet](https://ko-fi.com/quentingenet)
