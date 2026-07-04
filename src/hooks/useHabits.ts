@@ -8,7 +8,7 @@ import {
   updateHabitsSortOrder,
 } from "@/db";
 import { useHabitsStore } from "@/store/habitsStore";
-import { diffInDays, todayLocalDate } from "@/utils";
+import { todayLocalDate } from "@/utils";
 import type { Habit } from "@/types";
 
 export function useHabits() {
@@ -67,15 +67,6 @@ export function useHabits() {
     [removeHabit],
   );
 
-  const getDayCount = useCallback(
-    (habitId: string): number => {
-      const habit = habits.find((h) => h.id === habitId);
-      if (!habit) return 0;
-      return Math.max(0, diffInDays(habit.startDate, todayLocalDate()));
-    },
-    [habits],
-  );
-
   const reorderHabits = useCallback(
     (orderedIds: string[]): void => {
       const byId = new Map(habits.map((h) => [h.id, h]));
@@ -92,5 +83,5 @@ export function useHabits() {
     [habits],
   );
 
-  return { habits, loading, error, loadHabits, addHabit, addHabitWithInitialLog, deleteHabit, getDayCount, reorderHabits, saveHabitsOrder };
+  return { habits, loading, error, loadHabits, addHabit, addHabitWithInitialLog, deleteHabit, reorderHabits, saveHabitsOrder };
 }

@@ -126,7 +126,8 @@
       "year_other": "jaar",
       "separator": "en",
       "total": "dat zijn {{count}} dagen"
-    }
+    },
+    "seeMore": "Details bekijken"
   },
   "habitTypes": {
     "alcohol": {

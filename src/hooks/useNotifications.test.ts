@@ -132,7 +132,7 @@ describe("useNotifications", () => {
     );
   });
 
-  it("scheduleReminder uses at+repeats for monthly last day of month", async () => {
+  it("scheduleReminder uses ScheduleOn {day: 28} for monthly last day of month", async () => {
     const lastDay: Treatment = { ...treatment, frequency: "monthly", reminderDay: 0 };
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
@@ -142,7 +142,7 @@ describe("useNotifications", () => {
       expect.objectContaining({
         notifications: expect.arrayContaining([
           expect.objectContaining({
-            schedule: expect.objectContaining({ repeats: true, every: "month" }),
+            schedule: expect.objectContaining({ on: expect.objectContaining({ day: 28, hour: 8, minute: 0 }) }),
           }),
         ]),
       }),

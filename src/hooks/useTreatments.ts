@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { logError } from "@/utils/logger";
 import { useShallow } from "zustand/shallow";
 import {
   getAllTreatments,
@@ -27,8 +28,8 @@ export function useTreatments() {
     try {
       const data = await getAllTreatments();
       setTreatments(data);
-    } catch {
-      // Keep the current store when a refresh fails.
+    } catch (e: unknown) {
+      logError("useTreatments.loadTreatments", e);
     } finally {
       useTreatmentsStore.setState({ loading: false });
     }

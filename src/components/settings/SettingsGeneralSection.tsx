@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -42,6 +42,7 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const versionTapCount = useRef(0);
   const versionTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (versionTapTimer.current) clearTimeout(versionTapTimer.current); }, []);
 
   const handleSaveName = () => {
     void saveName(editName)

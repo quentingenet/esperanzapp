@@ -75,7 +75,7 @@ export function Treatments() {
       const created = await logStatus({ treatmentId: treatment.id, scheduledAt: today, status });
       if (!mountedRef.current) return;
       setLogsMap((prev) => ({ ...prev, [treatment.id]: created }));
-      if (treatment.reminderEnabled) void scheduleReminder(treatment, true);
+      if (treatment.reminderEnabled) void scheduleReminder(treatment);
     } catch {
       toast.error(t("common.error"));
     }

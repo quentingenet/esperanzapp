@@ -57,10 +57,11 @@ function AppUpdateChecker() {
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
+    let mounted = true;
     const timer = setTimeout(() => {
-      void checkForUpdate().then((result) => { if (result === "available") setOpen(true); });
+      void checkForUpdate().then((result) => { if (mounted && result === "available") setOpen(true); });
     }, 3000);
-    return () => clearTimeout(timer);
+    return () => { mounted = false; clearTimeout(timer); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -107,15 +108,22 @@ function AppContent() {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     let handle: PluginListenerHandle | undefined;
+    let disposed = false;
     void LocalNotifications.addListener("localNotificationActionPerformed", (action) => {
       const notifId = action.notification.id;
       if (notifId >= NOTIF_DOMAIN_OFFSET.treatments && notifId < NOTIF_DOMAIN_OFFSET.milestones) {
         setActiveTab("treatments");
       }
-    }).then((h) => { handle = h; }).catch((e: unknown) => {
+    }).then((h) => {
+      if (disposed) { void h.remove().catch((e: unknown) => { logError("AppContent.notificationActionPerformed.removeDisposed", e); }); }
+      else { handle = h; }
+    }).catch((e: unknown) => {
       logError("AppContent.notificationActionPerformed", e);
     });
-    return () => { void handle?.remove().catch((e: unknown) => { logError("AppContent.notificationActionPerformed.remove", e); }); };
+    return () => {
+      disposed = true;
+      void handle?.remove().catch((e: unknown) => { logError("AppContent.notificationActionPerformed.remove", e); });
+    };
   }, []);
 
   useEffect(() => {

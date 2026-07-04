@@ -99,6 +99,9 @@ export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, h
               )}
             </Box>
           </Box>
+          <Typography variant="caption" color="text.disabled" sx={{ display: "block", textAlign: "center", mt: 1, fontSize: "10px", letterSpacing: 0.3 }}>
+            {t("habits.seeMore")}
+          </Typography>
         </CardContent>
       </CardActionArea>
       <Box sx={{ display: "flex", justifyContent: handleProps ? "space-between" : "flex-end", alignItems: "center", px: 1, pb: 0.5 }}>

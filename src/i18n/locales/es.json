@@ -126,7 +126,8 @@
       "year_other": "años",
       "separator": "y",
       "total": "es decir {{count}} días"
-    }
+    },
+    "seeMore": "Ver detalles"
   },
   "habitTypes": {
     "alcohol": {

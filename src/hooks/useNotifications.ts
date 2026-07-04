@@ -39,19 +39,6 @@ function jsWeekdayToCapacitor(jsDay: number): Weekday {
   return JS_TO_CAPACITOR_WEEKDAY[jsDay] ?? Weekday.Monday;
 }
 
-// Used only for monthly "last day of month" which ScheduleOn cannot express
-function lastDayOfMonthOccurrence(reminderTime: string): Date {
-  const [h, m] = reminderTime.split(":").map(Number) as [number, number];
-  const now = new Date();
-  const candidate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  candidate.setHours(h, m, 0, 0);
-  if (candidate <= now) {
-    const next = new Date(now.getFullYear(), now.getMonth() + 2, 0);
-    next.setHours(h, m, 0, 0);
-    return next;
-  }
-  return candidate;
-}
 
 export function useNotifications() {
   const requestPermission = useCallback(async (): Promise<boolean> => {
@@ -61,7 +48,7 @@ export function useNotifications() {
   }, []);
 
   const scheduleReminder = useCallback(
-    async (treatment: Treatment, _fromTomorrow = false): Promise<"scheduled" | "permission-denied" | "disabled" | "error"> => {
+    async (treatment: Treatment): Promise<"scheduled" | "permission-denied" | "disabled" | "error"> => {
       if (!Capacitor.isNativePlatform()) return "disabled";
       const id = getNotificationId("treatments", treatment.id);
       await LocalNotifications.cancel({ notifications: [{ id }] }).catch(() => {});
@@ -95,31 +82,16 @@ export function useNotifications() {
             }],
           });
         } else {
-          if (treatment.reminderDay === 0) {
-            // Last day of month: ScheduleOn cannot express this, use at+repeats
-            await LocalNotifications.schedule({
-              notifications: [{
-                id,
-                title: "EsperanzApp",
-                body: i18n.t("notifications.genericReminder"),
-                schedule: {
-                  at: lastDayOfMonthOccurrence(treatment.reminderTime),
-                  repeats: true,
-                  every: "month",
-                },
-              }],
-            });
-          } else {
-            const day = treatment.reminderDay ?? 1;
-            await LocalNotifications.schedule({
-              notifications: [{
-                id,
-                title: "EsperanzApp",
-                body: i18n.t("notifications.genericReminder"),
-                schedule: { on: { day, hour: h, minute: m } },
-              }],
-            });
-          }
+          // reminderDay=0 means "last day of month": day 28 is guaranteed to exist in all months
+          const day = treatment.reminderDay === 0 ? 28 : (treatment.reminderDay ?? 1);
+          await LocalNotifications.schedule({
+            notifications: [{
+              id,
+              title: "EsperanzApp",
+              body: i18n.t("notifications.genericReminder"),
+              schedule: { on: { day, hour: h, minute: m } },
+            }],
+          });
         }
         return "scheduled";
       } catch {

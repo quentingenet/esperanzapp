@@ -248,14 +248,16 @@ function tokenizeCSV(raw: string): string[][] {
     const ch = raw[i] ?? "";
     if (ch === '"') {
       i++;
+      let closed = false;
       while (i < raw.length) {
         if (raw[i] === '"') {
           if (raw[i + 1] === '"') { field += '"'; i += 2; }
-          else { i++; break; }
+          else { i++; closed = true; break; }
         } else {
           field += raw[i++] ?? "";
         }
       }
+      if (!closed) throw new Error("Unterminated quoted field in CSV");
     } else if (ch === ',') {
       row.push(field);
       field = "";

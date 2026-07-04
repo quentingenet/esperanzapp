@@ -99,30 +99,6 @@ describe("useHabits", () => {
     expect(result.current.habits).toHaveLength(0);
   });
 
-  it("getDayCount returns 0 for unknown habitId", () => {
-    const { result } = renderHook(() => useHabits());
-    expect(result.current.getDayCount("999")).toBe(0);
-  });
-
-  it("getDayCount computes days since habit startDate", () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2024-01-15T12:00:00.000Z"));
-    useHabitsStore.setState({ habits: [habit] });
-    const { result } = renderHook(() => useHabits());
-    expect(result.current.getDayCount("1")).toBe(14);
-    vi.useRealTimers();
-  });
-
-  it("getDayCount never returns a negative value (future startDate in DB)", () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2024-01-01T12:00:00.000Z"));
-    const futureHabit = { ...habit, startDate: "2024-12-31" };
-    useHabitsStore.setState({ habits: [futureHabit] });
-    const { result } = renderHook(() => useHabits());
-    expect(result.current.getDayCount("1")).toBe(0);
-    vi.useRealTimers();
-  });
-
   it("addHabit rejects a future startDate", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2024-01-15T12:00:00.000Z"));
