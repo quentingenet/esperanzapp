@@ -108,11 +108,15 @@ export async function saveCSVToFolder(password?: string): Promise<SaveOutcome> {
 
 function validateNoOrphans(payload: ReturnType<typeof parseExportPayload>): void {
   const habitIds = new Set(payload.habits.map((h) => h.id));
+  if (habitIds.size !== payload.habits.length)
+    throw new InconsistentImportDataError("import: duplicate habit IDs detected");
   for (const log of payload.habitLogs) {
     if (!habitIds.has(log.habitId))
       throw new InconsistentImportDataError(`import: habitLog "${log.id}" references unknown habitId "${log.habitId}"`);
   }
   const treatmentIds = new Set(payload.treatments.map((t) => t.id));
+  if (treatmentIds.size !== payload.treatments.length)
+    throw new InconsistentImportDataError("import: duplicate treatment IDs detected");
   for (const log of payload.treatmentLogs) {
     if (!treatmentIds.has(log.treatmentId))
       throw new InconsistentImportDataError(`import: treatmentLog "${log.id}" references unknown treatmentId "${log.treatmentId}"`);

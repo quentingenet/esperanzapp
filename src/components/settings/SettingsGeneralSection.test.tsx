@@ -89,7 +89,7 @@ describe("SettingsGeneralSection notification switch", () => {
 
   it("renders the notification switch unchecked when permission is denied", async () => {
     render(<SettingsGeneralSection onReplayTutorial={vi.fn()} onShowTerms={vi.fn()} />);
-    await waitFor(() => { expect(screen.getByText("settings.notificationsDesc")).toBeInTheDocument(); });
+    await waitFor(() => { expect(screen.getByText("common.disabled")).toBeInTheDocument(); });
   });
 
   it("renders the notification switch checked when permission is granted", async () => {
@@ -103,7 +103,7 @@ describe("SettingsGeneralSection notification switch", () => {
   it("calls requestPermission when toggling switch on", async () => {
     const user = userEvent.setup();
     render(<SettingsGeneralSection onReplayTutorial={vi.fn()} onShowTerms={vi.fn()} />);
-    await waitFor(() => { expect(screen.getByText("settings.notificationsDesc")).toBeInTheDocument(); });
+    await waitFor(() => { expect(screen.getByText("common.disabled")).toBeInTheDocument(); });
     await user.click(screen.getByRole("switch"));
     expect(mocks.requestPermission).toHaveBeenCalledTimes(1);
   });
@@ -111,7 +111,7 @@ describe("SettingsGeneralSection notification switch", () => {
   it("updates switch to checked after requestPermission resolves true", async () => {
     const user = userEvent.setup();
     render(<SettingsGeneralSection onReplayTutorial={vi.fn()} onShowTerms={vi.fn()} />);
-    await waitFor(() => { expect(screen.getByText("settings.notificationsDesc")).toBeInTheDocument(); });
+    await waitFor(() => { expect(screen.getByText("common.disabled")).toBeInTheDocument(); });
     await user.click(screen.getByRole("switch"));
     await waitFor(() => { expect(screen.getByRole("switch")).toBeChecked(); });
   });

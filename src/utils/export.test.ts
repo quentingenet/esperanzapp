@@ -567,6 +567,18 @@ describe("importFromJSON", () => {
     await expect(importFromJSON(file)).rejects.toBeInstanceOf(InconsistentImportDataError);
   });
 
+  it("throws on duplicate habit IDs in import payload", async () => {
+    const payload = buildExportPayload([mockHabit, { ...mockHabit }], [], [], [], "2024-01-01T00:00:00.000Z");
+    const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
+    await expect(importFromJSON(file)).rejects.toBeInstanceOf(InconsistentImportDataError);
+  });
+
+  it("throws on duplicate treatment IDs in import payload", async () => {
+    const payload = buildExportPayload([], [], [mockTreatment, { ...mockTreatment }], [], "2024-01-01T00:00:00.000Z");
+    const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
+    await expect(importFromJSON(file)).rejects.toBeInstanceOf(InconsistentImportDataError);
+  });
+
   it("throws on invalid JSON file", async () => {
     const file = new File(["not valid json"], "export.json", { type: "application/json" });
     await expect(importFromJSON(file)).rejects.toBeInstanceOf(InvalidImportFileError);

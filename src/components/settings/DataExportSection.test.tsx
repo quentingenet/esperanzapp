@@ -1,34 +1,47 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DataExportSection } from "./DataExportSection";
 
 const mocks = vi.hoisted(() => ({
+  exportJSON: vi.fn(),
+  exportCSV: vi.fn(),
+  saveJSON: vi.fn(),
+  saveCSV: vi.fn(),
+  importJSON: vi.fn(),
+  importCSV: vi.fn(),
   detectEncrypted: vi.fn(),
+  loadHabits: vi.fn(),
+  loadTreatments: vi.fn(),
+  rescheduleAll: vi.fn(),
+  requestPermission: vi.fn(),
+  getTreatmentsState: vi.fn(),
   toast: { error: vi.fn(), success: vi.fn(), info: vi.fn(), warning: vi.fn() },
 }));
 
 vi.mock("@/hooks", () => ({
   useExport: () => ({
-    exportJSON: vi.fn().mockResolvedValue("ok"),
-    exportCSV: vi.fn().mockResolvedValue("ok"),
-    saveJSON: vi.fn().mockResolvedValue("ok"),
-    saveCSV: vi.fn().mockResolvedValue("ok"),
-    importJSON: vi.fn().mockResolvedValue(undefined),
-    importCSV: vi.fn().mockResolvedValue(undefined),
+    exportJSON: mocks.exportJSON,
+    exportCSV: mocks.exportCSV,
+    saveJSON: mocks.saveJSON,
+    saveCSV: mocks.saveCSV,
+    importJSON: mocks.importJSON,
+    importCSV: mocks.importCSV,
     detectEncrypted: mocks.detectEncrypted,
   }),
-  useHabits: () => ({ loadHabits: vi.fn() }),
-  useTreatments: () => ({ loadTreatments: vi.fn() }),
+  useHabits: () => ({ loadHabits: mocks.loadHabits }),
+  useTreatments: () => ({ loadTreatments: mocks.loadTreatments }),
   useNotifications: () => ({
-    rescheduleAll: vi.fn(),
-    requestPermission: vi.fn().mockResolvedValue(true),
+    rescheduleAll: mocks.rescheduleAll,
+    requestPermission: mocks.requestPermission,
   }),
 }));
 
 vi.mock("@/store/treatmentsStore", () => ({
-  useTreatmentsStore: (selector: (s: { treatments: never[] }) => unknown) =>
-    selector({ treatments: [] }),
+  useTreatmentsStore: Object.assign(
+    (selector: (s: { treatments: unknown[] }) => unknown) => selector({ treatments: [] }),
+    { getState: mocks.getTreatmentsState },
+  ),
 }));
 
 vi.mock("@/store/toastStore", () => ({ toast: mocks.toast }));
@@ -70,10 +83,24 @@ function simulateFileSelection(file: File) {
   });
 }
 
+// Go through the common import steps up to (and including) the destructive warning dialog.
+async function openImportWarnDialog(
+  user: ReturnType<typeof userEvent.setup>,
+  file: File,
+) {
+  simulateFileSelection(file);
+  await user.click(screen.getByRole("button", { name: "export.importBtn" }));
+  await user.click(await screen.findByRole("button", { name: "export.chooseFileBtn" }));
+  await screen.findByText("export.importWarningTitle");
+}
+
+const MINIMAL_JSON_FILE = new File(["{}"], "export.json", { type: "application/json" });
+
 describe("DataExportSection — import file size validation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.detectEncrypted.mockResolvedValue(false);
+    mocks.getTreatmentsState.mockReturnValue({ treatments: [] });
   });
 
   afterEach(() => {
@@ -82,36 +109,218 @@ describe("DataExportSection — import file size validation", () => {
 
   it("rejects a file over 10 MB and shows an error toast", async () => {
     const user = userEvent.setup();
-
     const bigFile = new File(["{}"], "export.json", { type: "application/json" });
     Object.defineProperty(bigFile, "size", { value: 20 * 1024 * 1024, configurable: true });
-
     render(<DataExportSection />);
-
     await user.click(screen.getByRole("button", { name: "export.importBtn" }));
     await screen.findByRole("button", { name: "export.chooseFileBtn" });
-
     simulateFileSelection(bigFile);
     await user.click(screen.getByRole("button", { name: "export.chooseFileBtn" }));
-
     expect(mocks.toast.error).toHaveBeenCalledWith("export.importFileTooLarge");
     expect(screen.queryByText("export.importWarningTitle")).not.toBeInTheDocument();
   });
 
   it("proceeds normally for a file within 10 MB", async () => {
     const user = userEvent.setup();
-
-    const smallFile = new File(["{}"], "export.json", { type: "application/json" });
-
     render(<DataExportSection />);
-
     await user.click(screen.getByRole("button", { name: "export.importBtn" }));
     await screen.findByRole("button", { name: "export.chooseFileBtn" });
-
-    simulateFileSelection(smallFile);
+    simulateFileSelection(MINIMAL_JSON_FILE);
     await user.click(screen.getByRole("button", { name: "export.chooseFileBtn" }));
-
     expect(mocks.toast.error).not.toHaveBeenCalledWith("export.importFileTooLarge");
     await screen.findByText("export.importWarningTitle");
+  });
+});
+
+describe("DataExportSection — plain JSON import flow", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.detectEncrypted.mockResolvedValue(false);
+    mocks.importJSON.mockResolvedValue(undefined);
+    mocks.importCSV.mockResolvedValue(undefined);
+    mocks.loadHabits.mockResolvedValue(undefined);
+    mocks.loadTreatments.mockResolvedValue(undefined);
+    mocks.requestPermission.mockResolvedValue(true);
+    mocks.rescheduleAll.mockResolvedValue(undefined);
+    mocks.getTreatmentsState.mockReturnValue({ treatments: [] });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("warning dialog opens after file selection, confirm calls importJSON", async () => {
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    await openImportWarnDialog(user, MINIMAL_JSON_FILE);
+    await user.click(screen.getByRole("button", { name: "export.importConfirm" }));
+    await waitFor(() => expect(mocks.importJSON).toHaveBeenCalledTimes(1));
+  });
+
+  it("toast.success is shown after successful import", async () => {
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    await openImportWarnDialog(user, MINIMAL_JSON_FILE);
+    await user.click(screen.getByRole("button", { name: "export.importConfirm" }));
+    await waitFor(() => expect(mocks.toast.success).toHaveBeenCalledWith("export.importSuccess"));
+  });
+
+  it("loadHabits and loadTreatments are called after import", async () => {
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    await openImportWarnDialog(user, MINIMAL_JSON_FILE);
+    await user.click(screen.getByRole("button", { name: "export.importConfirm" }));
+    await waitFor(() => {
+      expect(mocks.loadHabits).toHaveBeenCalledTimes(1);
+      expect(mocks.loadTreatments).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("rescheduleAll is called when imported treatments have reminders", async () => {
+    mocks.getTreatmentsState.mockReturnValue({
+      treatments: [{ id: "1", label: "Med", frequency: "daily", reminderTime: "08:00", reminderEnabled: true, reminderDay: null, createdAt: "2024-01-01T00:00:00.000Z" }],
+    });
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    await openImportWarnDialog(user, MINIMAL_JSON_FILE);
+    await user.click(screen.getByRole("button", { name: "export.importConfirm" }));
+    await waitFor(() => expect(mocks.rescheduleAll).toHaveBeenCalledTimes(1));
+    expect(mocks.requestPermission).toHaveBeenCalledTimes(1);
+  });
+
+  it("rescheduleAll is NOT called when no imported treatments have reminders", async () => {
+    mocks.getTreatmentsState.mockReturnValue({ treatments: [] });
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    await openImportWarnDialog(user, MINIMAL_JSON_FILE);
+    await user.click(screen.getByRole("button", { name: "export.importConfirm" }));
+    await waitFor(() => expect(mocks.importJSON).toHaveBeenCalledTimes(1));
+    // Allow async work to settle
+    await waitFor(() => expect(mocks.loadHabits).toHaveBeenCalledTimes(1));
+    expect(mocks.rescheduleAll).not.toHaveBeenCalled();
+  });
+
+  it("import error shows toast.error and no success toast", async () => {
+    mocks.importJSON.mockRejectedValue(new Error("bad"));
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    await openImportWarnDialog(user, MINIMAL_JSON_FILE);
+    await user.click(screen.getByRole("button", { name: "export.importConfirm" }));
+    await waitFor(() => expect(mocks.toast.error).toHaveBeenCalledTimes(1));
+    expect(mocks.toast.success).not.toHaveBeenCalled();
+  });
+
+  it("cancelling the warning dialog does not call importJSON", async () => {
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    await openImportWarnDialog(user, MINIMAL_JSON_FILE);
+    await user.click(screen.getByRole("button", { name: "common.cancel" }));
+    expect(mocks.importJSON).not.toHaveBeenCalled();
+  });
+});
+
+describe("DataExportSection — CSV import", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.detectEncrypted.mockResolvedValue(false);
+    mocks.importCSV.mockResolvedValue(undefined);
+    mocks.loadHabits.mockResolvedValue(undefined);
+    mocks.loadTreatments.mockResolvedValue(undefined);
+    mocks.requestPermission.mockResolvedValue(true);
+    mocks.rescheduleAll.mockResolvedValue(undefined);
+    mocks.getTreatmentsState.mockReturnValue({ treatments: [] });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("CSV file triggers importCSV, not importJSON", async () => {
+    const csvFile = new File(["HABITS\n"], "export.csv", { type: "text/csv" });
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    await openImportWarnDialog(user, csvFile);
+    await user.click(screen.getByRole("button", { name: "export.importConfirm" }));
+    await waitFor(() => expect(mocks.importCSV).toHaveBeenCalledTimes(1));
+    expect(mocks.importJSON).not.toHaveBeenCalled();
+  });
+});
+
+describe("DataExportSection — encrypted import flow", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.detectEncrypted.mockResolvedValue(true);
+    mocks.importJSON.mockResolvedValue(undefined);
+    mocks.loadHabits.mockResolvedValue(undefined);
+    mocks.loadTreatments.mockResolvedValue(undefined);
+    mocks.requestPermission.mockResolvedValue(true);
+    mocks.rescheduleAll.mockResolvedValue(undefined);
+    mocks.getTreatmentsState.mockReturnValue({ treatments: [] });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("encrypted file opens password dialog instead of warning dialog", async () => {
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    simulateFileSelection(MINIMAL_JSON_FILE);
+    await user.click(screen.getByRole("button", { name: "export.importBtn" }));
+    await user.click(await screen.findByRole("button", { name: "export.chooseFileBtn" }));
+    await screen.findByText("export.encryptedImportTitle");
+    expect(screen.queryByText("export.importWarningTitle")).not.toBeInTheDocument();
+  });
+
+  it("confirming password then warning calls importJSON with the password", async () => {
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    simulateFileSelection(MINIMAL_JSON_FILE);
+    await user.click(screen.getByRole("button", { name: "export.importBtn" }));
+    await user.click(await screen.findByRole("button", { name: "export.chooseFileBtn" }));
+    await screen.findByText("export.encryptedImportTitle");
+    // Password TextField has type="password"; find by associated label
+    const pwdInput = screen.getByLabelText("export.encryptPassword");
+    await user.type(pwdInput, "mypassword");
+    await user.click(screen.getByRole("button", { name: "common.confirm" }));
+    // Warning dialog
+    await screen.findByText("export.importWarningTitle");
+    await user.click(screen.getByRole("button", { name: "export.importConfirm" }));
+    await waitFor(() => expect(mocks.importJSON).toHaveBeenCalledTimes(1));
+    const [, password] = mocks.importJSON.mock.calls[0] as [File, string | undefined];
+    expect(password).toBe("mypassword");
+  });
+});
+
+describe("DataExportSection — export flow", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.exportJSON.mockResolvedValue("ok");
+    mocks.exportCSV.mockResolvedValue("ok");
+    mocks.saveJSON.mockResolvedValue("ok");
+    mocks.saveCSV.mockResolvedValue("ok");
+    mocks.getTreatmentsState.mockReturnValue({ treatments: [] });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("Share button calls exportJSON", async () => {
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    await user.click(screen.getByRole("button", { name: "export.exportBtn" }));
+    await user.click(await screen.findByRole("button", { name: "export.shareBtn" }));
+    await waitFor(() => expect(mocks.exportJSON).toHaveBeenCalledTimes(1));
+  });
+
+  it("Save button then confirm calls saveJSON and shows success toast", async () => {
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    await user.click(screen.getByRole("button", { name: "export.exportBtn" }));
+    await user.click(await screen.findByRole("button", { name: "export.saveBtn" }));
+    await user.click(await screen.findByRole("button", { name: "common.confirm" }));
+    await waitFor(() => expect(mocks.saveJSON).toHaveBeenCalledTimes(1));
+    expect(mocks.toast.success).toHaveBeenCalledWith("export.saveSuccess");
   });
 });

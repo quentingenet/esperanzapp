@@ -142,7 +142,7 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
                 slotProps={{ input: { "aria-label": t("settings.notifications") } }}
               />
             }
-            label={<Typography variant="body2" color="text.secondary">{t("settings.notificationsDesc")}</Typography>}
+            label={<Typography variant="body2" color="text.secondary">{t(notifGranted ? "common.enabled" : "common.disabled")}</Typography>}
             sx={{ mb: 2 }}
           />
         </>

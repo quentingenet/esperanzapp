@@ -21,7 +21,9 @@
     "expand": "Expandir",
     "collapse": "Recolher",
     "showPassword": "Mostrar senha",
-    "reorder": "Reordenar"
+    "reorder": "Reordenar",
+    "enabled": "Ativado",
+    "disabled": "Desativado"
   },
   "nav": {
     "home": "Início",

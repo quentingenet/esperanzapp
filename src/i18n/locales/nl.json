@@ -21,7 +21,9 @@
     "expand": "Uitklappen",
     "collapse": "Inklappen",
     "showPassword": "Wachtwoord weergeven",
-    "reorder": "Herordenen"
+    "reorder": "Herordenen",
+    "enabled": "Actief",
+    "disabled": "Inactief"
   },
   "nav": {
     "home": "Home",

@@ -1,6 +1,6 @@
 {
   "name": "esperanzapp",
-  "version": "1.1.25",
+  "version": "1.1.26",
   "private": true,
   "description": "EsperanzApp - Private - Free - Liberating",
   "author": "Quentin Genet <contact@quentingenet.fr>",
@@ -37,6 +37,7 @@
     "@mui/material": "^9.1.2",
     "@mui/x-charts": "^9.7.0",
     "@mui/x-date-pickers": "^9.7.0",
+    "capacitor-native-settings": "^8.1.0",
     "date-fns": "^4.4.0",
     "i18next": "^26.3.3",
     "i18next-browser-languagedetector": "^8.2.1",

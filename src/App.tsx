@@ -62,8 +62,7 @@ function AppUpdateChecker() {
       void checkForUpdate().then((result) => { if (mounted && result === "available") setOpen(true); });
     }, 3000);
     return () => { mounted = false; clearTimeout(timer); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [checkForUpdate]);
 
   return (
     <Dialog open={open} maxWidth="xs" fullWidth>

@@ -21,7 +21,9 @@
     "expand": "Ausklappen",
     "collapse": "Einklappen",
     "showPassword": "Passwort anzeigen",
-    "reorder": "Neu anordnen"
+    "reorder": "Neu anordnen",
+    "enabled": "Aktiviert",
+    "disabled": "Deaktiviert"
   },
   "nav": {
     "home": "Start",
