@@ -84,6 +84,42 @@ describe("updateTreatment", () => {
       [null, "3"],
     );
   });
+
+  it("throws when frequency daily is set with non-null reminderDay", async () => {
+    await expect(updateTreatment("3", { frequency: "daily", reminderDay: 1 })).rejects.toThrow(
+      "Treatment invariant violated: daily must have reminderDay null",
+    );
+  });
+
+  it("throws when frequency weekly is set with reminderDay above 6", async () => {
+    await expect(updateTreatment("3", { frequency: "weekly", reminderDay: 28 })).rejects.toThrow(
+      "Treatment invariant violated: weekly must have reminderDay 0 to 6",
+    );
+  });
+
+  it("throws when frequency monthly is set with null reminderDay", async () => {
+    await expect(updateTreatment("3", { frequency: "monthly", reminderDay: null })).rejects.toThrow(
+      "Treatment invariant violated: monthly must have reminderDay 0 or 1 to 28",
+    );
+  });
+
+  it("accepts valid frequency daily with null reminderDay", async () => {
+    mockDb.run.mockResolvedValue({});
+    await updateTreatment("3", { frequency: "daily", reminderDay: null });
+    expect(mockDb.run).toHaveBeenCalled();
+  });
+
+  it("accepts valid frequency weekly with reminderDay 0 to 6", async () => {
+    mockDb.run.mockResolvedValue({});
+    await updateTreatment("3", { frequency: "weekly", reminderDay: 3 });
+    expect(mockDb.run).toHaveBeenCalled();
+  });
+
+  it("accepts valid frequency monthly with reminderDay 0 (last day)", async () => {
+    mockDb.run.mockResolvedValue({});
+    await updateTreatment("3", { frequency: "monthly", reminderDay: 0 });
+    expect(mockDb.run).toHaveBeenCalled();
+  });
 });
 
 describe("deleteTreatment", () => {

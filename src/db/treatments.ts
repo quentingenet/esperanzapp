@@ -67,7 +67,10 @@ export function updateTreatment(
   data: Partial<Omit<Treatment, "id" | "createdAt">>,
 ): Promise<void> {
   return withDbVoid(async (db) => {
-    if (data.reminderDay !== undefined && data.reminderDay !== null) {
+    if (data.frequency !== undefined) {
+      const reminderDay = data.reminderDay !== undefined ? data.reminderDay : null;
+      validateTreatmentReminderInvariant(data.frequency, reminderDay);
+    } else if (data.reminderDay !== undefined && data.reminderDay !== null) {
       if (!Number.isInteger(data.reminderDay) || data.reminderDay < 0 || data.reminderDay > 28)
         throw new Error(`updateTreatment: reminderDay must be null or 0 to 28, got ${String(data.reminderDay)}`);
     }
