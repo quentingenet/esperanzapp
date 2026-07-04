@@ -222,7 +222,7 @@
       "mastery": "3 maanden. Je neemt de controle terug.",
       "freedom": "6 maanden. Je bent niet meer dezelfde persoon als op de eerste dag.",
       "fulfilledAwakening": "Een jaar. Weinig mensen komen hier. Jij wel.",
-      "legend": "2 jaar. Zeldzaam. Echt. Jij."
+      "legend": "Meer dan 2 jaar. Zeldzaam. Echt. Jij."
     },
     "nextGrade": "Volgende niveau: {{grade}}",
     "daysLeft_one": "{{count}} dag over",
@@ -330,6 +330,7 @@
     "importInconsistentData": "Het bestand bevat inconsistente gegevens en kan niet worden geïmporteerd.",
     "importStorageError": "Het importeren is mislukt tijdens het opslaan. Je bestaande gegevens zijn behouden.",
     "importReschedulePermissionDenied": "Toestemming geweigerd : geïmporteerde herinneringen worden niet gepland.",
+    "importRefreshFailed": "Import geslaagd, maar het scherm kon niet vernieuwen. Herstart de app als de gegevens niet verschijnen.",
     "importFileTooLarge": "Bestand te groot. Maximale grootte: 10 MB.",
     "fileProtectionHint": "Overweeg je bestand te beveiligen door bovenstaande wachtwoordversleuteling in te schakelen."
   },

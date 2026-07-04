@@ -222,7 +222,7 @@
       "mastery": "3 meses. Estás recuperando el control.",
       "freedom": "6 meses. Ya no eres la misma persona que el primer día.",
       "fulfilledAwakening": "Un año. Poca gente llega aquí. Tú lo has hecho.",
-      "legend": "2 años. Escaso. Real. Eres tú."
+      "legend": "Más de 2 años. Escaso. Real. Eres tú."
     },
     "nextGrade": "Siguiente nivel: {{grade}}",
     "daysLeft_one": "{{count}} día restante",
@@ -330,6 +330,7 @@
     "importInconsistentData": "El archivo contiene datos incoherentes y no se puede importar.",
     "importStorageError": "La importación falló durante el guardado. Tus datos existentes se conservaron.",
     "importReschedulePermissionDenied": "Permiso denegado : los recordatorios importados no se programarán.",
+    "importRefreshFailed": "Importación completada, pero la pantalla no se actualizó. Reinicia la aplicación si los datos no aparecen.",
     "importFileTooLarge": "Archivo demasiado grande. Tamaño máximo: 10 MB.",
     "fileProtectionHint": "Considera proteger tu archivo activando el cifrado con contraseña arriba."
   },

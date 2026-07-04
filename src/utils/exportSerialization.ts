@@ -27,6 +27,12 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
 
 function isStr(v: unknown): v is string { return typeof v === "string" && v.length > 0; }
+// SQLite IDs are INTEGER PRIMARY KEY AUTOINCREMENT — only positive integer strings are valid.
+function isPosIntStr(v: unknown): v is string {
+  if (typeof v !== "string" || v.length === 0) return false;
+  const n = Number(v);
+  return Number.isInteger(n) && n > 0 && String(n) === v;
+}
 
 function isDate(v: unknown): v is string {
   if (typeof v !== "string" || !DATE_RE.test(v)) return false;
@@ -61,7 +67,7 @@ function validateHabit(v: unknown): Habit {
   const bgColor = h["bgColor"];
   const startDate = h["startDate"];
   const createdAt = h["createdAt"];
-  if (!isStr(id)) throw new Error("habits: id must be a non-empty string");
+  if (!isPosIntStr(id)) throw new Error("habits: id must be a positive integer string");
   if (!isStr(label)) throw new Error("habits: label must be a non-empty string");
   if (!isStr(icon)) throw new Error("habits: icon must be a non-empty string");
   if (!isHexColor(color)) throw new Error("habits: color must be a hex color");
@@ -78,8 +84,8 @@ function validateHabitLog(v: unknown): HabitLog {
   const habitId = l["habitId"];
   const eventType = l["eventType"];
   const eventDate = l["eventDate"];
-  if (!isStr(id)) throw new Error("habitLogs: id must be a non-empty string");
-  if (!isStr(habitId)) throw new Error("habitLogs: habitId must be a non-empty string");
+  if (!isPosIntStr(id)) throw new Error("habitLogs: id must be a positive integer string");
+  if (!isPosIntStr(habitId)) throw new Error("habitLogs: habitId must be a positive integer string");
   if (!isStr(eventType) || !isEventType(eventType))
     throw new Error(`habitLogs: invalid eventType "${String(eventType)}"`);
   if (!isDate(eventDate)) throw new Error("habitLogs: eventDate must be YYYY-MM-DD");
@@ -96,7 +102,7 @@ function validateTreatment(v: unknown): Treatment {
   const reminderEnabled = t["reminderEnabled"];
   const reminderDay = t["reminderDay"];
   const createdAt = t["createdAt"];
-  if (!isStr(id)) throw new Error("treatments: id must be a non-empty string");
+  if (!isPosIntStr(id)) throw new Error("treatments: id must be a positive integer string");
   if (!isStr(label)) throw new Error("treatments: label must be a non-empty string");
   if (!isStr(frequency) || !isFrequency(frequency))
     throw new Error(`treatments: invalid frequency "${String(frequency)}"`);
@@ -130,8 +136,8 @@ function validateTreatmentLog(v: unknown): TreatmentLog {
   const treatmentId = l["treatmentId"];
   const scheduledAt = l["scheduledAt"];
   const status = l["status"];
-  if (!isStr(id)) throw new Error("treatmentLogs: id must be a non-empty string");
-  if (!isStr(treatmentId)) throw new Error("treatmentLogs: treatmentId must be a non-empty string");
+  if (!isPosIntStr(id)) throw new Error("treatmentLogs: id must be a positive integer string");
+  if (!isPosIntStr(treatmentId)) throw new Error("treatmentLogs: treatmentId must be a positive integer string");
   if (!isStr(status) || !isTreatmentStatus(status))
     throw new Error(`treatmentLogs: invalid status "${String(status)}"`);
   if (!isDate(scheduledAt)) throw new Error("treatmentLogs: scheduledAt must be YYYY-MM-DD");
@@ -334,7 +340,7 @@ export function parseCSVPayload(raw: string): ExportPayload {
   const treatmentLogRows = parseSection("TREATMENT_LOGS", TREATMENT_LOG_COLS);
 
   const habits: Habit[] = habitRows.map(([id, label, icon, color, bgColor, startDate, createdAt]) => {
-    if (!isStr(id)) throw new Error("habits: id must be a non-empty string");
+    if (!isPosIntStr(id)) throw new Error("habits: id must be a positive integer string");
     if (!isStr(label)) throw new Error("habits: label must be a non-empty string");
     if (!isStr(icon)) throw new Error("habits: icon must be a non-empty string");
     if (!isHexColor(color)) throw new Error("habits: color must be a hex color");
@@ -345,8 +351,8 @@ export function parseCSVPayload(raw: string): ExportPayload {
   });
 
   const habitLogs: HabitLog[] = logRows.map(([id, habitId, eventType, eventDate]) => {
-    if (!isStr(id)) throw new Error("habitLogs: id must be a non-empty string");
-    if (!isStr(habitId)) throw new Error("habitLogs: habitId must be a non-empty string");
+    if (!isPosIntStr(id)) throw new Error("habitLogs: id must be a positive integer string");
+    if (!isPosIntStr(habitId)) throw new Error("habitLogs: habitId must be a positive integer string");
     if (!isStr(eventType)) throw new Error("habitLogs: eventType must be a string");
     if (!isEventType(eventType)) throw new Error(`habitLogs: invalid eventType "${eventType}"`);
     if (!isDate(eventDate)) throw new Error("habitLogs: eventDate must be YYYY-MM-DD");
@@ -354,7 +360,7 @@ export function parseCSVPayload(raw: string): ExportPayload {
   });
 
   const treatments: Treatment[] = treatmentRows.map(([id, label, frequency, reminderTime, reminderEnabledStr, reminderDayStr, createdAt]) => {
-    if (!isStr(id)) throw new Error("treatments: id must be a non-empty string");
+    if (!isPosIntStr(id)) throw new Error("treatments: id must be a positive integer string");
     if (!isStr(label)) throw new Error("treatments: label must be a non-empty string");
     if (!isStr(frequency)) throw new Error("treatments: frequency must be a string");
     if (!isFrequency(frequency)) throw new Error(`treatments: invalid frequency "${frequency}"`);
@@ -378,8 +384,8 @@ export function parseCSVPayload(raw: string): ExportPayload {
   });
 
   const treatmentLogs: TreatmentLog[] = treatmentLogRows.map(([id, treatmentId, scheduledAt, status]) => {
-    if (!isStr(id)) throw new Error("treatmentLogs: id must be a non-empty string");
-    if (!isStr(treatmentId)) throw new Error("treatmentLogs: treatmentId must be a non-empty string");
+    if (!isPosIntStr(id)) throw new Error("treatmentLogs: id must be a positive integer string");
+    if (!isPosIntStr(treatmentId)) throw new Error("treatmentLogs: treatmentId must be a positive integer string");
     if (!isStr(status)) throw new Error("treatmentLogs: status must be a string");
     if (!isTreatmentStatus(status)) throw new Error(`treatmentLogs: invalid status "${status}"`);
     if (!isDate(scheduledAt)) throw new Error("treatmentLogs: scheduledAt must be YYYY-MM-DD");

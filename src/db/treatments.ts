@@ -1,8 +1,17 @@
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
-import type { Treatment } from "@/types";
+import type { Frequency, Treatment } from "@/types";
 import { isFrequency } from "@/utils";
 import { getDb, runInTransaction, withDb, withDbVoid } from "./client";
 import { updateSortOrder } from "./sortOrder";
+
+function validateTreatmentReminderInvariant(frequency: Frequency, reminderDay: number | null): void {
+  if (frequency === "daily" && reminderDay !== null)
+    throw new Error(`Treatment invariant violated: daily must have reminderDay null, got ${String(reminderDay)}`);
+  if (frequency === "weekly" && (reminderDay === null || reminderDay < 0 || reminderDay > 6))
+    throw new Error(`Treatment invariant violated: weekly must have reminderDay 0 to 6, got ${String(reminderDay)}`);
+  if (frequency === "monthly" && (reminderDay === null || (reminderDay !== 0 && (reminderDay < 1 || reminderDay > 28))))
+    throw new Error(`Treatment invariant violated: monthly must have reminderDay 0 or 1 to 28, got ${String(reminderDay)}`);
+}
 
 type TreatmentRow = {
   id: number;
@@ -29,6 +38,7 @@ function rowToTreatment(row: TreatmentRow): Treatment {
 
 export function createTreatment(data: Omit<Treatment, "id">, dbConn?: SQLiteDBConnection | null): Promise<Treatment> {
   const fn = async (db: SQLiteDBConnection): Promise<Treatment> => {
+    validateTreatmentReminderInvariant(data.frequency, data.reminderDay);
     await db.run(
       "INSERT INTO treatments (label, frequency, reminder_time, reminder_enabled, reminder_day, created_at) VALUES (?, ?, ?, ?, ?, ?)",
       [data.label, data.frequency, data.reminderTime, data.reminderEnabled ? 1 : 0, data.reminderDay ?? null, data.createdAt],
@@ -65,6 +75,9 @@ export function updateTreatment(
     if (data.reminderEnabled !== undefined) { fields.push("reminder_enabled = ?"); values.push(data.reminderEnabled ? 1 : 0); }
     if (data.reminderDay !== undefined) { fields.push("reminder_day = ?"); values.push(data.reminderDay ?? null); }
     if (!fields.length) return;
+    if (data.frequency !== undefined && data.reminderDay !== undefined) {
+      validateTreatmentReminderInvariant(data.frequency, data.reminderDay);
+    }
     await db.run(`UPDATE treatments SET ${fields.join(", ")} WHERE id = ?`, [...values, id]);
   });
 }

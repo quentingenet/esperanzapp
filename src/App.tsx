@@ -32,21 +32,21 @@ import type { NavTab } from "@/types";
 // The native receiver restores notifications after reboot. This sync also repairs drift
 // between the database and the notification plugin whenever the app starts.
 function AppStartRescheduler() {
-  const { scheduleReminder } = useNotifications();
-  // scheduleReminder is useCallback([]) — stable reference, effect runs once only.
+  const { rescheduleAll } = useNotifications();
+  // rescheduleAll cancels all stale treatment-domain notifications before rescheduling,
+  // preventing ghost reminders from deleted or previously failed cancels.
+  // rescheduleAll is useCallback([]) — stable reference, effect runs once only.
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     void (async () => {
       try {
         const treatments = await getAllTreatments();
-        for (const t of treatments.filter((tr) => tr.reminderEnabled)) {
-          await scheduleReminder(t);
-        }
+        await rescheduleAll(treatments);
       } catch {
         // Notification failures must not prevent the app from starting.
       }
     })();
-  }, [scheduleReminder]);
+  }, [rescheduleAll]);
   return null;
 }
 

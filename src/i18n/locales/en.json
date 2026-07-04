@@ -222,7 +222,7 @@
       "mastery": "3 months. You're taking back control.",
       "freedom": "6 months. You're not the same person you were on day one.",
       "fulfilledAwakening": "One year. Few people get here. You did.",
-      "legend": "2 years. Rare. Real. You."
+      "legend": "2 years and beyond. Rare. Real. You."
     },
     "nextGrade": "Next milestone: {{grade}}",
     "daysLeft_one": "{{count}} day left",
@@ -330,6 +330,7 @@
     "importInconsistentData": "The file contains inconsistent data and cannot be imported.",
     "importStorageError": "The import failed while saving. Your existing data was preserved.",
     "importReschedulePermissionDenied": "Permission denied : imported reminders will not be scheduled.",
+    "importRefreshFailed": "Import succeeded, but the display could not refresh. Restart the app if data does not appear.",
     "importFileTooLarge": "File too large. Maximum allowed size: 10 MB.",
     "fileProtectionHint": "Consider protecting your file by enabling password encryption above."
   },

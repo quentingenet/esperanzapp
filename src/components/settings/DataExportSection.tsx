@@ -166,7 +166,8 @@ export function DataExportSection() {
         }
       } catch (e) {
         logError("DataExportSection.refreshAfterImport", e);
-        // Do not rethrow: import succeeded, only the UI refresh failed.
+        // Import succeeded; only the UI refresh failed. Warn without blocking success.
+        toast.info(t("export.importRefreshFailed"));
       }
     } catch (e) {
       logError("DataExportSection.confirmImport", e);

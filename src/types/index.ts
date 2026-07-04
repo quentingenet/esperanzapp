@@ -38,7 +38,7 @@ export interface Treatment {
   frequency: Frequency;
   reminderTime: string;
   reminderEnabled: boolean;
-  reminderDay: number | null; // weekly: 0-6 (JS getDay), monthly: 1-28, null for daily
+  reminderDay: number | null; // weekly: 0 to 6 (JS getDay), monthly: 0 last day or 1 to 28, null for daily
   createdAt: string;
 }
 

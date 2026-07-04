@@ -175,6 +175,31 @@ describe("parseExportPayload", () => {
     expect(() => parseExportPayload(bad)).toThrow("habits: createdAt must be a valid date-time");
   });
 
+  it("throws when habit has non-integer id (uuid)", () => {
+    const bad = JSON.stringify({
+      version: "1", exportedAt: "", habitLogs: [], treatments: [], treatmentLogs: [],
+      habits: [{ ...mockHabit, id: "uuid-abc-123" }],
+    });
+    expect(() => parseExportPayload(bad)).toThrow("habits: id must be a positive integer string");
+  });
+
+  it("throws when habitLog has non-integer habitId", () => {
+    const bad = JSON.stringify({
+      version: "1", exportedAt: "", habits: [mockHabit], treatments: [], treatmentLogs: [],
+      habitLogs: [{ ...mockHabitLog, habitId: "uuid-abc-123" }],
+    });
+    expect(() => parseExportPayload(bad)).toThrow("habitLogs: habitId must be a positive integer string");
+  });
+
+  it("throws when treatmentLog has non-integer treatmentId", () => {
+    const bad = JSON.stringify({
+      version: "1", exportedAt: "", habits: [], habitLogs: [],
+      treatments: [mockTreatment],
+      treatmentLogs: [{ ...mockTreatmentLog, treatmentId: "uuid-abc-123" }],
+    });
+    expect(() => parseExportPayload(bad)).toThrow("treatmentLogs: treatmentId must be a positive integer string");
+  });
+
   it("throws when daily treatment has non-null reminderDay", () => {
     const bad = JSON.stringify({
       version: "1", exportedAt: "", habits: [], habitLogs: [], treatmentLogs: [],
@@ -344,6 +369,16 @@ describe("parseCSVPayload", () => {
   it("throws on invalid createdAt in HABITS", () => {
     const csv = `HABITS\nid,label,icon,color,bgColor,startDate,createdAt\n1,Alcool,icon,#3a8fd1,#e8f4fd,2024-01-01,not-a-datetime\n\n${HL}\n\n${TR}\n\n${TL}`;
     expect(() => parseCSVPayload(csv)).toThrow("habits: createdAt must be a valid date-time");
+  });
+
+  it("throws on non-integer habit id in CSV", () => {
+    const csv = `HABITS\nid,label,icon,color,bgColor,startDate,createdAt\nuuid-123,Alcool,icon,#3a8fd1,#e8f4fd,2024-01-01,2024-01-01T00:00:00Z\n\n${HL}\n\n${TR}\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow("habits: id must be a positive integer string");
+  });
+
+  it("throws on non-integer habitId in HABIT_LOGS CSV", () => {
+    const csv = `${H}\n\nHABIT_LOGS\nid,habitId,eventType,eventDate\n1,uuid-123,start,2024-01-01\n\n${TR}\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow("habitLogs: habitId must be a positive integer string");
   });
 
   it("throws on daily treatment with non-null reminderDay", () => {
@@ -884,5 +919,18 @@ describe("encryption: full round-trip through importFromJSON", () => {
       expect.any(Array),
       false,
     );
+  });
+
+  it("throws InvalidImportFileError (not generic error) when envelope has corrupted Base64", async () => {
+    const corrupted = JSON.stringify({
+      encrypted: true,
+      format: "json",
+      iterations: 600000,
+      salt: "%%%not-base64%%%",
+      iv: "validBase64==",
+      data: "validBase64==",
+    });
+    const file = new File([corrupted], "export.json", { type: "application/json" });
+    await expect(importFromJSON(file, "any-password")).rejects.toBeInstanceOf(InvalidImportFileError);
   });
 });

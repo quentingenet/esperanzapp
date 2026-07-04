@@ -186,7 +186,12 @@ async function resolveImportContent(
   }
   if (isEncryptedEnvelope(parsed)) {
     if (!password) throw new WrongPasswordError();
-    return decryptPayload(raw, password);
+    try {
+      return await decryptPayload(raw, password);
+    } catch (err) {
+      if (err instanceof WrongPasswordError) throw err;
+      throw new InvalidImportFileError(err);
+    }
   }
   return { content: raw, format: "json" };
 }

@@ -222,7 +222,7 @@
       "mastery": "3 meses. Você está retomando o controle.",
       "freedom": "6 meses. Você não é mais a mesma pessoa do primeiro dia.",
       "fulfilledAwakening": "Um ano. Poucas pessoas chegam aqui. Você chegou.",
-      "legend": "2 anos. Raro. Real. Você."
+      "legend": "Mais de 2 anos. Raro. Real. Você."
     },
     "nextGrade": "Próximo nível: {{grade}}",
     "daysLeft_one": "{{count}} dia restante",
@@ -330,6 +330,7 @@
     "importInconsistentData": "O arquivo contém dados inconsistentes e não pode ser importado.",
     "importStorageError": "A importação falhou ao salvar. Seus dados existentes foram preservados.",
     "importReschedulePermissionDenied": "Permissão negada : os lembretes importados não serão agendados.",
+    "importRefreshFailed": "Importação concluída, mas a tela não atualizou. Reinicie o aplicativo se os dados não aparecerem.",
     "importFileTooLarge": "Arquivo muito grande. Tamanho máximo: 10 MB.",
     "fileProtectionHint": "Considere proteger seu arquivo ativando a criptografia por senha acima."
   },
