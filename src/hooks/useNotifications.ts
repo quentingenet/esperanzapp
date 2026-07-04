@@ -82,7 +82,12 @@ export function useNotifications() {
             }],
           });
         } else {
-          // reminderDay=0 means "last day of month": day 28 is guaranteed to exist in all months
+          // reminderDay=0 means "last day of month".
+          // Capacitor ScheduleOn does not support a "last day" expression, and
+          // AlarmManager.setRepeating (used by every:"month") drifts by calendar months on Android 12+.
+          // Day 28 is the conservative choice: it exists in every month including February,
+          // fires reliably via setExactAndAllowWhileIdle, and avoids the drift.
+          // The UI label already reflects "28 de chaque mois" so users are not misled.
           const day = treatment.reminderDay === 0 ? 28 : (treatment.reminderDay ?? 1);
           await LocalNotifications.schedule({
             notifications: [{

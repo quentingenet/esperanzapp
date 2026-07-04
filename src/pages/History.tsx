@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { EmptyState, PageHeader } from "@/components/shared";
 import { useHabits } from "@/hooks";
 import { getAllHabitLogs } from "@/db";
+import { mergeRelapseRestart } from "@/utils/habitLogUtils";
 import { COLORS } from "@/theme/tokens";
 import type { HabitLog } from "@/types";
 
@@ -37,17 +38,7 @@ export function History() {
       });
       all.sort((a, b) => b.eventDate.localeCompare(a.eventDate));
 
-      const relapseKeys = new Set(
-        all.filter((i) => i.eventType === "relapse").map((i) => `${i.habitId}:${i.eventDate}`),
-      );
-      const merged = all
-        .filter((i) => !(i.eventType === "start" && relapseKeys.has(`${i.habitId}:${i.eventDate}`)))
-        .map((i) => i.eventType === "relapse" && relapseKeys.has(`${i.habitId}:${i.eventDate}`)
-          ? { ...i, displayKey: "history.relapseRestart" }
-          : i,
-        );
-
-      setItems(merged);
+      setItems(mergeRelapseRestart(all));
     }
     void load();
     return () => { guard.cancelled = true; };

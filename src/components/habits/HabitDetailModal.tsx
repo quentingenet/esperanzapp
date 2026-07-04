@@ -15,6 +15,7 @@ import { HabitHistoryTab } from "./HabitHistoryTab";
 import { HabitStatsTab } from "./HabitStatsTab";
 import { useHabitLogs } from "@/hooks";
 import { logError } from "@/utils/logger";
+import { mergeRelapseRestart } from "@/utils/habitLogUtils";
 import type { Habit, HabitLog, HabitStats } from "@/types";
 
 export interface HistoryEntry extends HabitLog {
@@ -45,14 +46,7 @@ export function HabitDetailModal({ habit, stats, userName, onClose, onRelapse }:
   }, [habit.id, getLogsByHabit]);
 
   const sorted = [...rawLogs].sort((a, b) => b.eventDate.localeCompare(a.eventDate));
-  const relapseKeys = new Set(sorted.filter((l) => l.eventType === "relapse").map((l) => `${l.habitId}:${l.eventDate}`));
-  const mergedLogs: HistoryEntry[] = sorted
-    .filter((l) => !(l.eventType === "start" && relapseKeys.has(`${l.habitId}:${l.eventDate}`)))
-    .map((l) =>
-      l.eventType === "relapse" && relapseKeys.has(`${l.habitId}:${l.eventDate}`)
-        ? { ...l, displayKey: "history.relapseRestart" }
-        : l,
-    );
+  const mergedLogs: HistoryEntry[] = mergeRelapseRestart(sorted);
 
   return (
     <>

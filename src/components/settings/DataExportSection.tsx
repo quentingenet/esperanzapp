@@ -78,12 +78,19 @@ export function DataExportSection() {
   };
 
   const confirmSave = async () => {
-    const outcome = await (useCSVExport ? saveCSV(resolvedExportPassword) : saveJSON(resolvedExportPassword));
-    setSaveConfirmOpen(false);
-    resetExportEncryptState();
-    if (outcome === "ok") toast.success(t("export.saveSuccess"));
-    else if (outcome === "documents-unavailable") toast.error(t("export.documentsUnavailable"));
-    else toast.error(t("export.filesystemError"));
+    try {
+      const outcome = await (useCSVExport ? saveCSV(resolvedExportPassword) : saveJSON(resolvedExportPassword));
+      setSaveConfirmOpen(false);
+      resetExportEncryptState();
+      if (outcome === "ok") toast.success(t("export.saveSuccess"));
+      else if (outcome === "documents-unavailable") toast.error(t("export.documentsUnavailable"));
+      else toast.error(t("export.filesystemError"));
+    } catch (e: unknown) {
+      logError("DataExportSection.confirmSave", e);
+      setSaveConfirmOpen(false);
+      resetExportEncryptState();
+      toast.error(t("export.filesystemError"));
+    }
   };
 
   const resetExportEncryptState = () => {

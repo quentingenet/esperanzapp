@@ -144,14 +144,6 @@ export interface HabitFormProps {
   existingHabits: Habit[];
 }
 
-export interface HabitStatsProps {
-  stats: HabitStats;
-}
-
-export interface HabitCalendarProps {
-  habitId: string;
-}
-
 export interface RelapseDialogProps {
   open: boolean;
   habit: Habit;

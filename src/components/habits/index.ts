@@ -1,4 +1,3 @@
-export { HabitCalendar } from "./HabitCalendar";
 export { HabitCard } from "./HabitCard";
 export { HabitDetailModal } from "./HabitDetailModal";
 export type { HistoryEntry } from "./HabitDetailModal";
@@ -6,6 +5,5 @@ export { HabitDropdown } from "./HabitDropdown";
 export { HabitForm } from "./HabitForm";
 export { HabitHistoryTab } from "./HabitHistoryTab";
 export { HabitMilestoneTab } from "./HabitMilestoneTab";
-export { HabitStats } from "./HabitStats";
 export { HabitStatsTab } from "./HabitStatsTab";
 export { RelapseDialog } from "./RelapseDialog";
