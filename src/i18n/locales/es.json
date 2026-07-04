@@ -1,403 +1,404 @@
 {
-  "app": {
-    "by": "de"
-  },
-  "common": {
-    "save": "Guardar",
-    "cancel": "Cancelar",
-    "delete": "Eliminar",
-    "edit": "Editar",
-    "confirm": "Confirmar",
-    "back": "Volver",
-    "close": "Cerrar",
-    "loading": "Cargando…",
-    "error": "Algo salió mal",
-    "day_one": "día",
-    "day_other": "días",
-    "name": "Nombre",
-    "saved": "Cambios guardados",
-    "deleted": "Eliminado",
-    "created": "Creado",
-    "expand": "Expandir",
-    "collapse": "Contraer",
-    "showPassword": "Mostrar contraseña",
-    "reorder": "Reordenar",
-    "enabled": "Activado",
-    "disabled": "Desactivado"
-  },
-  "nav": {
-    "home": "Inicio",
-    "treatments": "Tratamientos",
-    "history": "Historial",
-    "settings": "Ajustes",
-    "milestones": "Hitos"
-  },
-  "privacy": {
-    "title": "Bienvenido a EsperanzApp",
-    "subtitle": "La app funciona completamente en tu teléfono, sin conexión.",
-    "points": {
-      "noAccount": "Sin necesidad de cuenta",
-      "noServer": "Tus datos se quedan en tu dispositivo",
-      "localEncryption": "Datos cifrados localmente (SQLCipher)",
-      "encryptedExport": "Exportaciones protegibles con contraseña",
-      "noTracking": "Sin publicidad, sin rastreo",
-      "openSource": "Código fuente público y verificable (GPL-3.0)"
+    "app": {
+        "by": "de"
     },
-    "accept": "Empezar",
-    "license": "Licencia GPL-3.0"
-  },
-  "tutorial": {
-    "skip": "Omitir",
-    "next": "Siguiente",
-    "start": "Empezar",
-    "steps": {
-      "counter": {
-        "title": "Recupera el control de tus hábitos",
-        "body": "Haz un seguimiento de los hábitos de los que quieres liberarte y cuenta cada día sin recaída.\n\nLiberarse de un hábito se construye día a día.\n¡Cada día sin recaída es una pequeña victoria!\nEsperanzApp camina contigo."
-      },
-      "relapse": {
-        "title": "¿Una Recaída?",
-        "body": "Si recaes en un hábito del que quieres liberarte, puedes registrarlo en el historial del hábito."
-      },
-      "milestones": {
-        "title": "Hitos en el camino...",
-        "body": "1 día, 7, 30, 90 o más... Cada etapa superada te ayudará en tu camino."
-      },
-      "private": {
-        "title": "Privacidad desde el diseño",
-        "body": "Tus datos permanecen en tu dispositivo, salvo que decidas exportarlos o compartirlos. Sin cuenta, sin servidor remoto y sin seguimiento."
-      },
-      "stats": {
-        "title": "Sigue tu progreso",
-        "body": "Para cada hábito, puedes consultar tus estadísticas y progreso a lo largo del tiempo."
-      }
+    "common": {
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "delete": "Eliminar",
+        "edit": "Editar",
+        "confirm": "Confirmar",
+        "back": "Volver",
+        "close": "Cerrar",
+        "loading": "Cargando…",
+        "error": "Algo salió mal",
+        "day_one": "día",
+        "day_other": "días",
+        "name": "Nombre",
+        "saved": "Cambios guardados",
+        "deleted": "Eliminado",
+        "created": "Creado",
+        "expand": "Expandir",
+        "collapse": "Contraer",
+        "showPassword": "Mostrar contraseña",
+        "reorder": "Reordenar",
+        "enabled": "Activado",
+        "disabled": "Desactivado"
+    },
+    "nav": {
+        "home": "Inicio",
+        "treatments": "Tratamientos",
+        "history": "Historial",
+        "settings": "Ajustes",
+        "milestones": "Hitos"
+    },
+    "privacy": {
+        "title": "Bienvenido a EsperanzApp",
+        "subtitle": "La app funciona completamente en tu teléfono, sin conexión.",
+        "points": {
+            "noAccount": "Sin necesidad de cuenta",
+            "noServer": "Tus datos se quedan en tu dispositivo",
+            "localEncryption": "Datos cifrados localmente",
+            "encryptedExport": "Exportaciones protegibles con contraseña",
+            "noTracking": "Sin publicidad, sin rastreo",
+            "openSource": "Código fuente público y verificable (GPL-3.0)"
+        },
+        "accept": "Empezar",
+        "license": "Licencia GPL-3.0"
+    },
+    "tutorial": {
+        "skip": "Omitir",
+        "next": "Siguiente",
+        "start": "Empezar",
+        "steps": {
+            "counter": {
+                "title": "Recupera el control de tus hábitos",
+                "body": "Haz un seguimiento de los hábitos de los que quieres liberarte y cuenta cada día sin recaída.\n\nLiberarse de un hábito se construye día a día.\n¡Cada día sin recaída es una pequeña victoria!\nEsperanzApp camina contigo."
+            },
+            "relapse": {
+                "title": "¿Una Recaída?",
+                "body": "Si recaes en un hábito del que quieres liberarte, puedes registrarlo en el historial del hábito."
+            },
+            "milestones": {
+                "title": "Hitos en el camino...",
+                "body": "1 día, 7, 30, 90 o más... Cada etapa superada te ayudará en tu camino."
+            },
+            "private": {
+                "title": "Privacidad desde el diseño",
+                "body": "Tus datos permanecen en tu dispositivo, salvo que decidas exportarlos o compartirlos. Sin cuenta, sin servidor remoto y sin seguimiento."
+            },
+            "stats": {
+                "title": "Sigue tu progreso",
+                "body": "Para cada hábito, puedes consultar tus estadísticas y progreso a lo largo del tiempo."
+            }
+        }
+    },
+    "onboarding": {
+        "welcome": "Bienvenido",
+        "yourName": {
+            "title": "¿Cómo te llamas?",
+            "placeholder": "Tu nombre (opcional)",
+            "skip": "Continuar sin nombre"
+        },
+        "firstHabit": {
+            "title": "¿De qué hábito quieres liberarte?",
+            "subtitle": "Podrás añadir más después."
+        },
+        "startDate": {
+            "title": "¿Desde cuándo?",
+            "subtitle": "Fecha de tu última parada"
+        },
+        "ready": {
+            "title": "Vamos allá.",
+            "body": "EsperanzApp cuenta contigo.",
+            "button": "Ver mi contador"
+        }
+    },
+    "habits": {
+        "title": "Mis hábitos",
+        "add": "Añadir un hábito",
+        "edit": "Editar",
+        "delete": "Eliminar este hábito",
+        "deleteConfirm": "¿Eliminar este hábito y todo su historial?",
+        "empty": "Ningún hábito por ahora.\nEmpieza añadiendo uno.",
+        "counter": {
+            "day_one": "{{count}} día",
+            "day_other": "{{count}} días",
+            "since": "libre de {{label}} desde el {{date}}",
+            "today": "Es el primer día",
+            "lastRelapse": "Última recaída: {{date}}"
+        },
+        "form": {
+            "name": "Nombre del hábito",
+            "namePlaceholder": "ej: Alcohol, Tabaco…",
+            "icon": "Icono",
+            "startDate": "Fecha de inicio",
+            "color": "Color"
+        },
+        "duplicateWarning": "Ya estás siguiendo este hábito. No puedes añadir uno duplicado.",
+        "reorderBtn": "Ordenar mis\nhábitos",
+        "reorderHint": "Arrastra para ordenar",
+        "streak": {
+            "year_one": "año",
+            "year_other": "años",
+            "separator": "y",
+            "total": "es decir {{count}} días"
+        },
+        "seeMore": "Ver detalles"
+    },
+    "habitTypes": {
+        "alcohol": {
+            "label": "Alcohol",
+            "desc": "Cerveza, vino, licores…"
+        },
+        "tobacco": {
+            "label": "Tabaco",
+            "desc": "Cigarrillos, puros, tabaco de liar…"
+        },
+        "sugar": {
+            "label": "Azúcar",
+            "desc": "Dulces, refrescos, bollería…"
+        },
+        "cannabis": {
+            "label": "Cannabis",
+            "desc": "Uso recreativo o hábito a reducir"
+        },
+        "social_media": {
+            "label": "Redes sociales",
+            "desc": "Instagram, TikTok, X y similares"
+        },
+        "gaming": {
+            "label": "Videojuegos",
+            "desc": "Uso compulsivo de videojuegos"
+        },
+        "fast_food": {
+            "label": "Comida rápida",
+            "desc": "Comida rápida y snacks industriales"
+        },
+        "adult_content": {
+            "label": "Contenido para adultos",
+            "desc": "Uso compulsivo de contenido para adultos"
+        },
+        "shopping": {
+            "label": "Compras compulsivas",
+            "desc": "Compras impulsivas en línea o en tiendas"
+        },
+        "caffeine": {
+            "label": "Cafeína",
+            "desc": "Café, bebidas energéticas, té fuerte…"
+        },
+        "screens": {
+            "label": "Pantallas",
+            "desc": "Uso excesivo de pantallas en general"
+        },
+        "custom": {
+            "label": "Personalizado",
+            "desc": "Define tu propio hábito"
+        },
+        "groups": {
+            "substances": "Sustancias",
+            "behaviours": "Comportamientos",
+            "custom": "Personalizado"
+        },
+        "gambling": {
+            "label": "Juegos de azar",
+            "desc": "Casino, apuestas deportivas, juegos en línea…"
+        }
+    },
+    "grades": {
+        "awakening": {
+            "label": "Despertar"
+        },
+        "firstBreath": {
+            "label": "Primer aliento"
+        },
+        "anchoring": {
+            "label": "Arraigo"
+        },
+        "solidity": {
+            "label": "Solidez"
+        },
+        "clarity": {
+            "label": "Claridad"
+        },
+        "mastery": {
+            "label": "Dominio"
+        },
+        "freedom": {
+            "label": "Libertad"
+        },
+        "fulfilledAwakening": {
+            "label": "Despertar cumplido"
+        },
+        "legend": {
+            "label": "Leyenda"
+        },
+        "messages": {
+            "awakening": "Primer día. Aquí empieza todo.",
+            "firstBreath": "7 días. Aguantas. Sigue.",
+            "anchoring": "2 semanas. Ya no es casualidad, es una decisión.",
+            "solidity": "Un mes. Te has demostrado algo a ti mismo.",
+            "clarity": "2 meses. Las cosas se vuelven más claras.",
+            "mastery": "3 meses. Estás recuperando el control.",
+            "freedom": "6 meses. Ya no eres la misma persona que el primer día.",
+            "fulfilledAwakening": "Un año. Poca gente llega aquí. Tú lo has hecho.",
+            "legend": "Más de 2 años. Escaso. Real. Eres tú."
+        },
+        "nextGrade": "Siguiente nivel: {{grade}}",
+        "daysLeft_one": "{{count}} día restante",
+        "daysLeft_other": "{{count}} días restantes",
+        "progress": "Progreso hacia {{grade}}"
+    },
+    "relapse": {
+        "title": "Volver a empezar",
+        "confirmTitle": "Un paso al lado",
+        "confirmBody": "Esos días son tuyos. Se quedan.",
+        "confirmButton": "Sí, volver a empezar",
+        "cancelButton": "Cancelar",
+        "messages": {
+            "before7days": "{{name}}, esos {{days}} días cuentan. Hoy vuelves a empezar.",
+            "between7and30days": "{{name}}, aguantaste {{days}} días. Esto no es un fracaso. Sabes de lo que eres capaz.",
+            "after30days": "{{name}}, aguantaste {{days}} días. Es inmenso. Todo lo que aprendiste sigue contigo.",
+            "day0": "{{name}}, lo importante es intentarlo. Vuelve a empezar cuando estés listo."
+        },
+        "dateLabel": "Fecha de la recaída"
+    },
+    "treatments": {
+        "title": "Mis tratamientos",
+        "add": "Añadir un tratamiento",
+        "edit": "Editar tratamiento",
+        "delete": "Eliminar este tratamiento",
+        "deleteConfirm": "¿Eliminar este tratamiento y todo su historial?",
+        "empty": "Ningún tratamiento por ahora.\nAgrega uno y configura un recordatorio para no olvidarlo.",
+        "taken": "Tomado",
+        "missed": "No tomado",
+        "pending": "Pendiente",
+        "reminder": "Recordatorio a las {{time}}",
+        "reminderWeekly": "Cada {{day}} a las {{time}}",
+        "reminderMonthly": "El día {{day}} del mes a las {{time}}",
+        "noReminder": "Seguimiento sin recordatorio",
+        "form": {
+            "name": "Nombre del medicamento",
+            "namePlaceholder": "ej: Metformina, Sertralina…",
+            "frequency": "Frecuencia",
+            "reminderTime": "Hora del recordatorio",
+            "enableReminder": "Activar recordatorio",
+            "permissionDenied": "Permiso de notificación denegado. El recordatorio ha sido desactivado.",
+            "reminderDay": "Día del recordatorio",
+            "dayOfMonth": "El {{day}}",
+            "firstDay": "Primer día del mes",
+            "lastDay": "Último día del mes",
+            "frequencies": {
+                "daily": "Cada día",
+                "weekly": "Cada semana",
+                "monthly": "Cada mes"
+            }
+        },
+        "reorderBtn": "Ordenar mis\ntratamientos",
+        "reminderSyncFailed": "Tratamiento guardado. No se pudo sincronizar el recordatorio."
+    },
+    "stats": {
+        "title": "Estadísticas",
+        "currentStreak": "Racha actual",
+        "longestStreak": "Racha más larga",
+        "totalRelapses": "Recaídas totales",
+        "averageStreak": "Promedio de rachas",
+        "startDate": "Desde el",
+        "noData": "Aún no hay datos"
+    },
+    "history": {
+        "title": "Historial",
+        "empty": "Ningún evento registrado",
+        "start": "Inicio",
+        "active": "Activo",
+        "relapse": "Recaída",
+        "relapseRestart": "Recaída, nuevo comienzo",
+        "calendar": "Calendario",
+        "list": "Lista",
+        "gradeUnlocked": "Hito alcanzado: {{grade}}"
+    },
+    "export": {
+        "title": "Datos",
+        "saveSuccess": "Archivo guardado en Documentos",
+        "exportBtn": "Exportar",
+        "importBtn": "Importar",
+        "shareBtn": "Compartir",
+        "saveBtn": "Guardar en el teléfono",
+        "importSuccess": "Importación realizada",
+        "error": "Error en la operación",
+        "importWarningTitle": "Atención",
+        "importWarningBody": "Esta acción eliminará TODOS los datos existentes y los reemplazará por el contenido del archivo importado. Esta operación es irreversible.",
+        "importFileHint": "Selecciona un archivo .json o .csv.\nEl formato se detectará automáticamente.",
+        "chooseFileBtn": "Elegir un archivo",
+        "importConfirm": "Reemplazar",
+        "editName": "Editar mi nombre",
+        "privacyWarningTitle": "Estos datos son personales y sensibles",
+        "privacyWarningBody": "El archivo exportado contiene información de salud. Una vez guardado en la carpeta Documentos, puede ser accesible por otras aplicaciones o por cualquier persona con acceso al dispositivo.",
+        "saveConfirmBody": "El archivo se guardará en la carpeta Documentos de la app en tu teléfono. En Android 11+, accesible solo desde la app Archivos integrada o por USB.",
+        "filesystemError": "No se pudo guardar el archivo. Comprueba el almacenamiento.",
+        "documentsUnavailable": "No se pudo guardar en Documentos. Usa Compartir en su lugar.",
+        "encryptSwitch": "Cifrar con contraseña",
+        "encryptPassword": "Contraseña",
+        "encryptPasswordConfirm": "Confirmar contraseña",
+        "encryptWarning": "Esta contraseña no se puede recuperar. Guárdela bien : será necesaria para reimportar estos datos.",
+        "encryptPasswordMinLength": "Mínimo 8 caracteres",
+        "encryptPasswordMismatch": "Las contraseñas no coinciden",
+        "encryptedImportTitle": "Archivo cifrado",
+        "encryptedImportHint": "Introduce la contraseña usada al exportar.",
+        "encryptedImportError": "Contraseña incorrecta",
+        "importInvalidFile": "Este archivo no es una exportación válida de EsperanzApp.",
+        "importUnsupportedVersion": "Este archivo procede de una versión incompatible de EsperanzApp.",
+        "importInconsistentData": "El archivo contiene datos incoherentes y no se puede importar.",
+        "importStorageError": "La importación falló durante el guardado. Tus datos existentes se conservaron.",
+        "importReschedulePermissionDenied": "Permiso denegado : los recordatorios importados no se programarán.",
+        "importRefreshFailed": "Importación completada, pero la pantalla no se actualizó. Reinicia la aplicación si los datos no aparecen.",
+        "importFileTooLarge": "Archivo demasiado grande. Tamaño máximo: 10 MB.",
+        "fileProtectionHint": "Considera proteger tu archivo activando el cifrado con contraseña arriba."
+    },
+    "settings": {
+        "title": "Ajustes",
+        "language": "Idioma",
+        "notifications": "Notificaciones",
+        "notificationsDesc": "Solo recordatorios locales, sin rastreo",
+        "notificationsDisableHint": "Para desactivar, ve a los ajustes de la aplicación en tu dispositivo.",
+        "export": "Mis datos",
+        "about": "Acerca de",
+        "version": "Versión",
+        "license": "Licencia GPL-3.0",
+        "sourceCode": "Código fuente",
+        "deleteAll": "Eliminar todos mis datos",
+        "deleteAllConfirm": "Esta acción es irreversible. Todos tus datos serán borrados de este dispositivo.",
+        "languages": {
+            "fr": "Français",
+            "en": "English",
+            "es": "Español",
+            "de": "Deutsch",
+            "pt-BR": "Português (Brasil)",
+            "nl": "Nederlands",
+            "it": "Italiano"
+        },
+        "replayTutorial": "Ver el tutorial de nuevo",
+        "terms": "Términos y Privacidad",
+        "tabs": {
+            "settings": "Ajustes",
+            "data": "Mis datos"
+        },
+        "diagCopied": "Copiado",
+        "diagNoEntries": "Sin entradas",
+        "kofi": "Apoyar el proyecto"
+    },
+    "milestones": {
+        "title": "Hitos",
+        "locked": "Bloqueado",
+        "unlocked": "Desbloqueado el {{date}}",
+        "daysNeeded_one": "Falta {{count}} día",
+        "daysNeeded_other": "Faltan {{count}} días",
+        "noHabits": "Sin hábitos que seguir"
+    },
+    "habitDetail": {
+        "milestones": "Hitos",
+        "history": "Historial",
+        "stats": "Estadísticas",
+        "statsSoon": "Próximamente",
+        "relapse": "Registrar una recaída"
+    },
+    "notifications": {
+        "genericReminder": "No olvides tu tratamiento"
+    },
+    "startup": {
+        "dbErrorTitle": "Error de inicio",
+        "dbErrorBody": "La base de datos no pudo abrirse. Esto puede ocurrir tras una actualización. Puedes restablecer la aplicación: los datos locales se eliminarán, pero podrás restaurarlos desde un archivo de exportación.",
+        "dbErrorReset": "Restablecer la aplicación",
+        "dbErrorResetFailed": "El restablecimiento falló. Desinstala y reinstala la aplicación para recuperar el acceso."
+    },
+    "update": {
+        "available": "Actualización disponible",
+        "availableBody": "Hay una nueva versión de EsperanzApp disponible. Actualiza para disfrutar de las últimas mejoras.",
+        "updateNow": "Actualizar ahora",
+        "later": "Más tarde",
+        "checkBtn": "Buscar actualizaciones",
+        "checking": "Comprobando...",
+        "upToDate": "La aplicación está actualizada",
+        "updateError": "No se puede comprobar actualizaciones"
     }
-  },
-  "onboarding": {
-    "welcome": "Bienvenido",
-    "yourName": {
-      "title": "¿Cómo te llamas?",
-      "placeholder": "Tu nombre (opcional)",
-      "skip": "Continuar sin nombre"
-    },
-    "firstHabit": {
-      "title": "¿De qué hábito quieres liberarte?",
-      "subtitle": "Podrás añadir más después."
-    },
-    "startDate": {
-      "title": "¿Desde cuándo?",
-      "subtitle": "Fecha de tu última parada"
-    },
-    "ready": {
-      "title": "Vamos allá.",
-      "body": "EsperanzApp cuenta contigo.",
-      "button": "Ver mi contador"
-    }
-  },
-  "habits": {
-    "title": "Mis hábitos",
-    "add": "Añadir un hábito",
-    "edit": "Editar",
-    "delete": "Eliminar este hábito",
-    "deleteConfirm": "¿Eliminar este hábito y todo su historial?",
-    "empty": "Ningún hábito por ahora.\nEmpieza añadiendo uno.",
-    "counter": {
-      "day_one": "{{count}} día",
-      "day_other": "{{count}} días",
-      "since": "libre de {{label}} desde el {{date}}",
-      "today": "Es el primer día",
-      "lastRelapse": "Última recaída: {{date}}"
-    },
-    "form": {
-      "name": "Nombre del hábito",
-      "namePlaceholder": "ej: Alcohol, Tabaco…",
-      "icon": "Icono",
-      "startDate": "Fecha de inicio",
-      "color": "Color"
-    },
-    "duplicateWarning": "Ya estás siguiendo este hábito. No puedes añadir uno duplicado.",
-    "reorderBtn": "Ordenar mis\nhábitos",
-    "reorderHint": "Arrastra para ordenar",
-    "streak": {
-      "year_one": "año",
-      "year_other": "años",
-      "separator": "y",
-      "total": "es decir {{count}} días"
-    },
-    "seeMore": "Ver detalles"
-  },
-  "habitTypes": {
-    "alcohol": {
-      "label": "Alcohol",
-      "desc": "Cerveza, vino, licores…"
-    },
-    "tobacco": {
-      "label": "Tabaco",
-      "desc": "Cigarrillos, puros, tabaco de liar…"
-    },
-    "sugar": {
-      "label": "Azúcar",
-      "desc": "Dulces, refrescos, bollería…"
-    },
-    "cannabis": {
-      "label": "Cannabis",
-      "desc": "Uso recreativo o hábito a reducir"
-    },
-    "social_media": {
-      "label": "Redes sociales",
-      "desc": "Instagram, TikTok, X y similares"
-    },
-    "gaming": {
-      "label": "Videojuegos",
-      "desc": "Uso compulsivo de videojuegos"
-    },
-    "fast_food": {
-      "label": "Comida rápida",
-      "desc": "Comida rápida y snacks industriales"
-    },
-    "adult_content": {
-      "label": "Contenido para adultos",
-      "desc": "Uso compulsivo de contenido para adultos"
-    },
-    "shopping": {
-      "label": "Compras compulsivas",
-      "desc": "Compras impulsivas en línea o en tiendas"
-    },
-    "caffeine": {
-      "label": "Cafeína",
-      "desc": "Café, bebidas energéticas, té fuerte…"
-    },
-    "screens": {
-      "label": "Pantallas",
-      "desc": "Uso excesivo de pantallas en general"
-    },
-    "custom": {
-      "label": "Personalizado",
-      "desc": "Define tu propio hábito"
-    },
-    "groups": {
-      "substances": "Sustancias",
-      "behaviours": "Comportamientos",
-      "custom": "Personalizado"
-    },
-    "gambling": {
-      "label": "Juegos de azar",
-      "desc": "Casino, apuestas deportivas, juegos en línea…"
-    }
-  },
-  "grades": {
-    "awakening": {
-      "label": "Despertar"
-    },
-    "firstBreath": {
-      "label": "Primer aliento"
-    },
-    "anchoring": {
-      "label": "Arraigo"
-    },
-    "solidity": {
-      "label": "Solidez"
-    },
-    "clarity": {
-      "label": "Claridad"
-    },
-    "mastery": {
-      "label": "Dominio"
-    },
-    "freedom": {
-      "label": "Libertad"
-    },
-    "fulfilledAwakening": {
-      "label": "Despertar cumplido"
-    },
-    "legend": {
-      "label": "Leyenda"
-    },
-    "messages": {
-      "awakening": "Primer día. Aquí empieza todo.",
-      "firstBreath": "7 días. Aguantas. Sigue.",
-      "anchoring": "2 semanas. Ya no es casualidad, es una decisión.",
-      "solidity": "Un mes. Te has demostrado algo a ti mismo.",
-      "clarity": "2 meses. Las cosas se vuelven más claras.",
-      "mastery": "3 meses. Estás recuperando el control.",
-      "freedom": "6 meses. Ya no eres la misma persona que el primer día.",
-      "fulfilledAwakening": "Un año. Poca gente llega aquí. Tú lo has hecho.",
-      "legend": "Más de 2 años. Escaso. Real. Eres tú."
-    },
-    "nextGrade": "Siguiente nivel: {{grade}}",
-    "daysLeft_one": "{{count}} día restante",
-    "daysLeft_other": "{{count}} días restantes",
-    "progress": "Progreso hacia {{grade}}"
-  },
-  "relapse": {
-    "title": "Volver a empezar",
-    "confirmTitle": "Un paso al lado",
-    "confirmBody": "Esos días son tuyos. Se quedan.",
-    "confirmButton": "Sí, volver a empezar",
-    "cancelButton": "Cancelar",
-    "messages": {
-      "before7days": "{{name}}, esos {{days}} días cuentan. Hoy vuelves a empezar.",
-      "between7and30days": "{{name}}, aguantaste {{days}} días. Esto no es un fracaso. Sabes de lo que eres capaz.",
-      "after30days": "{{name}}, aguantaste {{days}} días. Es inmenso. Todo lo que aprendiste sigue contigo.",
-      "day0": "{{name}}, lo importante es intentarlo. Vuelve a empezar cuando estés listo."
-    },
-    "dateLabel": "Fecha de la recaída"
-  },
-  "treatments": {
-    "title": "Mis tratamientos",
-    "add": "Añadir un tratamiento",
-    "edit": "Editar tratamiento",
-    "delete": "Eliminar este tratamiento",
-    "deleteConfirm": "¿Eliminar este tratamiento y todo su historial?",
-    "empty": "Ningún tratamiento por ahora.\nAgrega uno y configura un recordatorio para no olvidarlo.",
-    "taken": "Tomado",
-    "missed": "No tomado",
-    "pending": "Pendiente",
-    "reminder": "Recordatorio a las {{time}}",
-    "reminderWeekly": "Cada {{day}} a las {{time}}",
-    "reminderMonthly": "El día {{day}} del mes a las {{time}}",
-    "noReminder": "Seguimiento sin recordatorio",
-    "form": {
-      "name": "Nombre del medicamento",
-      "namePlaceholder": "ej: Metformina, Sertralina…",
-      "frequency": "Frecuencia",
-      "reminderTime": "Hora del recordatorio",
-      "enableReminder": "Activar recordatorio",
-      "permissionDenied": "Permiso de notificación denegado. El recordatorio ha sido desactivado.",
-      "reminderDay": "Día del recordatorio",
-      "dayOfMonth": "El {{day}}",
-      "firstDay": "Primer día del mes",
-      "lastDay": "Último día del mes",
-      "frequencies": {
-        "daily": "Cada día",
-        "weekly": "Cada semana",
-        "monthly": "Cada mes"
-      }
-    },
-    "reorderBtn": "Ordenar mis\ntratamientos",
-    "reminderSyncFailed": "Tratamiento guardado. No se pudo sincronizar el recordatorio."
-  },
-  "stats": {
-    "title": "Estadísticas",
-    "currentStreak": "Racha actual",
-    "longestStreak": "Racha más larga",
-    "totalRelapses": "Recaídas totales",
-    "averageStreak": "Promedio de rachas",
-    "startDate": "Desde el",
-    "noData": "Aún no hay datos"
-  },
-  "history": {
-    "title": "Historial",
-    "empty": "Ningún evento registrado",
-    "start": "Inicio",
-    "active": "Activo",
-    "relapse": "Recaída",
-    "relapseRestart": "Recaída, nuevo comienzo",
-    "calendar": "Calendario",
-    "list": "Lista",
-    "gradeUnlocked": "Hito alcanzado: {{grade}}"
-  },
-  "export": {
-    "title": "Datos",
-    "saveSuccess": "Archivo guardado en Documentos",
-    "exportBtn": "Exportar",
-    "importBtn": "Importar",
-    "shareBtn": "Compartir",
-    "saveBtn": "Guardar en el teléfono",
-    "importSuccess": "Importación realizada",
-    "error": "Error en la operación",
-    "importWarningTitle": "Atención",
-    "importWarningBody": "Esta acción eliminará TODOS los datos existentes y los reemplazará por el contenido del archivo importado. Esta operación es irreversible.",
-    "importFileHint": "Selecciona un archivo .json o .csv.\nEl formato se detectará automáticamente.",
-    "chooseFileBtn": "Elegir un archivo",
-    "importConfirm": "Reemplazar",
-    "editName": "Editar mi nombre",
-    "privacyWarningTitle": "Estos datos son personales y sensibles",
-    "privacyWarningBody": "El archivo exportado contiene información de salud. Una vez guardado en la carpeta Documentos, puede ser accesible por otras aplicaciones o por cualquier persona con acceso al dispositivo.",
-    "saveConfirmBody": "El archivo se guardará en la carpeta Documentos de la app en tu teléfono. En Android 11+, accesible solo desde la app Archivos integrada o por USB.",
-    "filesystemError": "No se pudo guardar el archivo. Comprueba el almacenamiento.",
-    "documentsUnavailable": "No se pudo guardar en Documentos. Usa Compartir en su lugar.",
-    "encryptSwitch": "Cifrar con contraseña",
-    "encryptPassword": "Contraseña",
-    "encryptPasswordConfirm": "Confirmar contraseña",
-    "encryptWarning": "Esta contraseña no se puede recuperar. Guárdela bien : será necesaria para reimportar estos datos.",
-    "encryptPasswordMinLength": "Mínimo 8 caracteres",
-    "encryptPasswordMismatch": "Las contraseñas no coinciden",
-    "encryptedImportTitle": "Archivo cifrado",
-    "encryptedImportHint": "Introduce la contraseña usada al exportar.",
-    "encryptedImportError": "Contraseña incorrecta",
-    "importInvalidFile": "Este archivo no es una exportación válida de EsperanzApp.",
-    "importUnsupportedVersion": "Este archivo procede de una versión incompatible de EsperanzApp.",
-    "importInconsistentData": "El archivo contiene datos incoherentes y no se puede importar.",
-    "importStorageError": "La importación falló durante el guardado. Tus datos existentes se conservaron.",
-    "importReschedulePermissionDenied": "Permiso denegado : los recordatorios importados no se programarán.",
-    "importRefreshFailed": "Importación completada, pero la pantalla no se actualizó. Reinicia la aplicación si los datos no aparecen.",
-    "importFileTooLarge": "Archivo demasiado grande. Tamaño máximo: 10 MB.",
-    "fileProtectionHint": "Considera proteger tu archivo activando el cifrado con contraseña arriba."
-  },
-  "settings": {
-    "title": "Ajustes",
-    "language": "Idioma",
-    "notifications": "Notificaciones",
-    "notificationsDesc": "Solo recordatorios locales, sin rastreo",
-    "notificationsDisableHint": "Para desactivar, ve a los ajustes de la aplicación en tu dispositivo.",
-    "export": "Mis datos",
-    "about": "Acerca de",
-    "version": "Versión",
-    "license": "Licencia GPL-3.0",
-    "sourceCode": "Código fuente",
-    "deleteAll": "Eliminar todos mis datos",
-    "deleteAllConfirm": "Esta acción es irreversible. Todos tus datos serán borrados de este dispositivo.",
-    "languages": {
-      "fr": "Français",
-      "en": "English",
-      "es": "Español",
-      "de": "Deutsch",
-      "pt-BR": "Português (Brasil)",
-      "nl": "Nederlands",
-      "it": "Italiano"
-    },
-    "replayTutorial": "Ver el tutorial de nuevo",
-    "terms": "Términos y Privacidad",
-    "tabs": {
-      "settings": "Ajustes",
-      "data": "Mis datos"
-    },
-    "diagCopied": "Copiado",
-    "diagNoEntries": "Sin entradas"
-  },
-  "milestones": {
-    "title": "Hitos",
-    "locked": "Bloqueado",
-    "unlocked": "Desbloqueado el {{date}}",
-    "daysNeeded_one": "Falta {{count}} día",
-    "daysNeeded_other": "Faltan {{count}} días",
-    "noHabits": "Sin hábitos que seguir"
-  },
-  "habitDetail": {
-    "milestones": "Hitos",
-    "history": "Historial",
-    "stats": "Estadísticas",
-    "statsSoon": "Próximamente",
-    "relapse": "Registrar una recaída"
-  },
-  "notifications": {
-    "genericReminder": "No olvides tu tratamiento"
-  },
-  "startup": {
-    "dbErrorTitle": "Error de inicio",
-    "dbErrorBody": "La base de datos no pudo abrirse. Esto puede ocurrir tras una actualización. Puedes restablecer la aplicación: los datos locales se eliminarán, pero podrás restaurarlos desde un archivo de exportación.",
-    "dbErrorReset": "Restablecer la aplicación",
-    "dbErrorResetFailed": "El restablecimiento falló. Desinstala y reinstala la aplicación para recuperar el acceso."
-  },
-  "update": {
-    "available": "Actualización disponible",
-    "availableBody": "Hay una nueva versión de EsperanzApp disponible. Actualiza para disfrutar de las últimas mejoras.",
-    "updateNow": "Actualizar ahora",
-    "later": "Más tarde",
-    "checkBtn": "Buscar actualizaciones",
-    "checking": "Comprobando...",
-    "upToDate": "La aplicación está actualizada",
-    "updateError": "No se puede comprobar actualizaciones"
-  }
 }

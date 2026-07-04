@@ -6,7 +6,6 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import Divider from "@mui/material/Divider";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Link from "@mui/material/Link";
 import MenuItem from "@mui/material/MenuItem";
@@ -20,6 +19,7 @@ import { useOnboardingStore } from "@/store";
 import { toast } from "@/store/toastStore";
 import { SUPPORTED_LOCALES } from "@/i18n";
 import { getLogEntries, logError } from "@/utils/logger";
+import { KofiButton } from "./KofiButton";
 
 declare const __APP_VERSION__: string;
 const APP_VERSION = __APP_VERSION__;
@@ -148,37 +148,39 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
         </>
       )}
 
-      <Divider sx={{ mb: 2 }} />
-
       <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-        <Button variant="text" onClick={onReplayTutorial} sx={{ justifyContent: "flex-start", px: 0, minHeight: 44, textTransform: "none", fontWeight: 400, color: "text.primary" }}>
+        <KofiButton />
+        <Button variant="text" onClick={onReplayTutorial} sx={{ justifyContent: "flex-start", px: 0, minHeight: 36, py: 0.5, mt: 2, textTransform: "none", fontWeight: 400, color: "text.primary" }}>
           {t("settings.replayTutorial")}
         </Button>
-        <Button variant="text" onClick={onShowTerms} sx={{ justifyContent: "flex-start", px: 0, minHeight: 44, textTransform: "none", fontWeight: 400, color: "text.primary" }}>
+        <Button variant="text" onClick={onShowTerms} sx={{ justifyContent: "flex-start", px: 0, minHeight: 36, py: 0.5, textTransform: "none", fontWeight: 400, color: "text.primary" }}>
           {t("settings.terms")}
         </Button>
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ mt: 1, cursor: "default", userSelect: "none" }}
-          onClick={handleVersionTap}
-        >
-          {t("settings.version")} {APP_VERSION}
-        </Typography>
-        <Button
-          variant="text"
-          disabled={updateStatus === "checking"}
-          onClick={handleCheckUpdate}
-          sx={{ justifyContent: "flex-start", px: 0, minHeight: 36, textTransform: "none", fontWeight: 400, color: "text.secondary", fontSize: "0.75rem" }}
-          startIcon={updateStatus === "checking" ? <CircularProgress size={12} /> : null}
-        >
-          {updateStatus === "checking" ? t("update.checking") : t("update.checkBtn")}
-        </Button>
-        <Typography variant="caption" color="text.secondary">
-          {t("settings.license")}
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1, flexWrap: "wrap" }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ cursor: "default", userSelect: "none" }}
+            onClick={handleVersionTap}
+          >
+            {t("settings.version")} {APP_VERSION}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">|</Typography>
+          <Button
+            variant="text"
+            disabled={updateStatus === "checking"}
+            onClick={handleCheckUpdate}
+            sx={{ p: 0, minHeight: 0, minWidth: 0, textTransform: "none", fontWeight: 400, color: "text.secondary", fontSize: "0.75rem", lineHeight: "inherit" }}
+            startIcon={updateStatus === "checking" ? <CircularProgress size={12} /> : null}
+          >
+            {updateStatus === "checking" ? t("update.checking") : t("update.checkBtn")}
+          </Button>
+        </Box>
         <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
           <Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer" underline="none" sx={{ fontSize: "inherit", color: "inherit" }}>{t("settings.sourceCode")}</Link>
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {t("settings.license")}
         </Typography>
         <Typography variant="caption" color="text.secondary">
           {t("app.by")} Quentin Genet

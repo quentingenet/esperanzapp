@@ -10,6 +10,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import type { PrivacyModalProps } from "@/types";
+import { KofiButton } from "@/components/settings";
 
 const GITHUB_URL = "https://github.com/QuentinGenet/esperanzapp";
 
@@ -33,13 +34,14 @@ export function PrivacyModal({ open, onAccept, readOnly = false }: PrivacyModalP
             </ListItem>
           ))}
         </List>
-        <Typography variant="caption" color="text.disabled" sx={{ mt: 2, display: "block" }}>
+        <KofiButton sx={{ my: 3, width: "100%" }} />
+        <Typography variant="caption" color="text.disabled" sx={{ display: "block" }}>
+          <Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer" underline="none" color="inherit">{t("settings.sourceCode")}</Link>
+        </Typography>
+        <Typography variant="caption" color="text.disabled" sx={{ mt: 1, display: "block" }}>
           {t("privacy.license")}
         </Typography>
         <Typography variant="caption" color="text.disabled" sx={{ mt: 1, display: "block" }}>
-          <Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer" underline="none" color="inherit">{t("settings.sourceCode")}</Link>
-        </Typography>
-        <Typography variant="caption" color="text.disabled" sx={{ display: "block" }}>
           {t("app.by")} Quentin Genet
         </Typography>
       </DialogContent>
