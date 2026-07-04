@@ -274,7 +274,8 @@
         "monthly": "Every month"
       }
     },
-    "reorderBtn": "Sort my\ntreatments"
+    "reorderBtn": "Sort my\ntreatments",
+    "reminderSyncFailed": "Treatment saved. The reminder could not be synced."
   },
   "stats": {
     "title": "Statistics",

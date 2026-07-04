@@ -110,14 +110,22 @@ function validateNoOrphans(payload: ReturnType<typeof parseExportPayload>): void
   const habitIds = new Set(payload.habits.map((h) => h.id));
   if (habitIds.size !== payload.habits.length)
     throw new InconsistentImportDataError("import: duplicate habit IDs detected");
+  const habitLogIds = new Set<string>();
   for (const log of payload.habitLogs) {
+    if (habitLogIds.has(log.id))
+      throw new InconsistentImportDataError(`import: duplicate habitLog ID "${log.id}" detected`);
+    habitLogIds.add(log.id);
     if (!habitIds.has(log.habitId))
       throw new InconsistentImportDataError(`import: habitLog "${log.id}" references unknown habitId "${log.habitId}"`);
   }
   const treatmentIds = new Set(payload.treatments.map((t) => t.id));
   if (treatmentIds.size !== payload.treatments.length)
     throw new InconsistentImportDataError("import: duplicate treatment IDs detected");
+  const treatmentLogIds = new Set<string>();
   for (const log of payload.treatmentLogs) {
+    if (treatmentLogIds.has(log.id))
+      throw new InconsistentImportDataError(`import: duplicate treatmentLog ID "${log.id}" detected`);
+    treatmentLogIds.add(log.id);
     if (!treatmentIds.has(log.treatmentId))
       throw new InconsistentImportDataError(`import: treatmentLog "${log.id}" references unknown treatmentId "${log.treatmentId}"`);
   }

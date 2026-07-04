@@ -45,6 +45,7 @@ export function Treatments() {
   const [editTime, setEditTime] = useState<Date | null>(null);
   const [editReminderEnabled, setEditReminderEnabled] = useState(true);
   const [editReminderDay, setEditReminderDay] = useState<number | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => { void loadTreatments(); }, [loadTreatments]);
   useEffect(() => { if (treatmentsError) toast.error(t("common.error")); }, [treatmentsError, t]);
@@ -77,7 +78,11 @@ export function Treatments() {
       const created = await logStatus({ treatmentId: treatment.id, scheduledAt: today, status });
       if (!mountedRef.current) return;
       setLogsMap((prev) => ({ ...prev, [treatment.id]: created }));
-      if (treatment.reminderEnabled) void scheduleReminder(treatment);
+      if (treatment.reminderEnabled) {
+        void scheduleReminder(treatment).catch((e: unknown) => {
+          logError("Treatments.scheduleReminderAfterLog", e);
+        });
+      }
     } catch {
       toast.error(t("common.error"));
     }
@@ -89,11 +94,17 @@ export function Treatments() {
     setDeleteTarget(null);
     try {
       await deleteTreatment(target.id);
-      await cancelReminder(target.id);
-      toast.success(t("common.deleted"));
-      void loadTreatments();
     } catch {
       toast.error(t("common.error"));
+      return;
+    }
+    toast.success(t("common.deleted"));
+    void loadTreatments();
+    try {
+      await cancelReminder(target.id);
+    } catch (e) {
+      logError("Treatments.cancelReminderAfterDelete", e);
+      // AppStartRescheduler will purge stale notifications at next app start.
     }
   };
 
@@ -106,26 +117,32 @@ export function Treatments() {
   };
 
   const handleEditSave = () => {
-    if (!editTarget || !editLabel.trim()) return;
+    if (!editTarget || !editLabel.trim() || isSaving) return;
     if (editReminderEnabled && !editTime) return;
     if (editReminderEnabled && editTarget.frequency !== "daily" && editReminderDay === null) return;
     const reminderTime = editReminderEnabled && editTime ? format(editTime, "HH:mm") : editTarget.reminderTime;
     const reminderDay = editReminderEnabled ? editReminderDay : null;
     const updatedFields = { label: editLabel.trim(), reminderTime, reminderEnabled: editReminderEnabled, reminderDay };
+    setIsSaving(true);
     void editTreatment(editTarget.id, updatedFields)
       .then(async () => {
-        const updatedTreatment = { ...editTarget, ...updatedFields };
-        if (editReminderEnabled) {
-          const status = await scheduleReminder(updatedTreatment);
-          if (status === "permission-denied") toast.info(t("treatments.form.permissionDenied"));
-        } else {
-          await cancelReminder(editTarget.id);
-        }
         toast.success(t("common.saved"));
         void loadTreatments();
         setEditTarget(null);
+        try {
+          if (editReminderEnabled) {
+            const status = await scheduleReminder({ ...editTarget, ...updatedFields });
+            if (status === "permission-denied") toast.info(t("treatments.form.permissionDenied"));
+          } else {
+            await cancelReminder(editTarget.id);
+          }
+        } catch (e) {
+          logError("Treatments.notificationAfterEdit", e);
+          toast.info(t("treatments.reminderSyncFailed"));
+        }
       })
-      .catch(() => { toast.error(t("common.error")); });
+      .catch(() => { toast.error(t("common.error")); })
+      .finally(() => { if (mountedRef.current) setIsSaving(false); });
   };
 
   const showEditDaySelect = editReminderEnabled && editTarget !== null && editTarget.frequency !== "daily";
@@ -271,7 +288,7 @@ export function Treatments() {
               fullWidth
               variant="contained"
               onClick={handleEditSave}
-              disabled={!editLabel.trim() || (editReminderEnabled && (!editTime || (editTarget?.frequency !== "daily" && editReminderDay === null)))}
+              disabled={isSaving || !editLabel.trim() || (editReminderEnabled && (!editTime || (editTarget?.frequency !== "daily" && editReminderDay === null)))}
               aria-label={t("common.save")}
               sx={{ minHeight: 48, borderRadius: 2 }}
             >

@@ -114,40 +114,38 @@ describe("buildTreatmentStatusMap", () => {
     expect(buildTreatmentStatusMap([])).toEqual({});
   });
 
-  it("maps scheduledAt to taken status", () => {
+  it("maps scheduledAt to taken status using YYYY-MM-DD key", () => {
     const logs = [makeTreatmentLog("1", "1", "2024-01-01T08:00:00", "taken")];
-    expect(buildTreatmentStatusMap(logs)).toEqual({
-      "2024-01-01T08:00:00": "taken",
-    });
+    expect(buildTreatmentStatusMap(logs)).toEqual({ "2024-01-01": "taken" });
   });
 
-  it("maps scheduledAt to missed status", () => {
+  it("maps scheduledAt to missed status using YYYY-MM-DD key", () => {
     const logs = [makeTreatmentLog("1", "1", "2024-01-01T08:00:00", "missed")];
-    expect(buildTreatmentStatusMap(logs)["2024-01-01T08:00:00"]).toBe("missed");
+    expect(buildTreatmentStatusMap(logs)["2024-01-01"]).toBe("missed");
   });
 
-  it("maps scheduledAt to pending status", () => {
+  it("maps scheduledAt to pending status using YYYY-MM-DD key", () => {
     const logs = [makeTreatmentLog("1", "1", "2024-01-01T08:00:00", "pending")];
-    expect(buildTreatmentStatusMap(logs)["2024-01-01T08:00:00"]).toBe("pending");
+    expect(buildTreatmentStatusMap(logs)["2024-01-01"]).toBe("pending");
   });
 
-  it("handles multiple logs", () => {
+  it("handles multiple logs on different dates", () => {
     const logs = [
       makeTreatmentLog("1", "1", "2024-01-01T08:00:00", "taken"),
       makeTreatmentLog("2", "1", "2024-01-02T08:00:00", "missed"),
       makeTreatmentLog("3", "1", "2024-01-03T08:00:00", "pending"),
     ];
     const map = buildTreatmentStatusMap(logs);
-    expect(map["2024-01-01T08:00:00"]).toBe("taken");
-    expect(map["2024-01-02T08:00:00"]).toBe("missed");
-    expect(map["2024-01-03T08:00:00"]).toBe("pending");
+    expect(map["2024-01-01"]).toBe("taken");
+    expect(map["2024-01-02"]).toBe("missed");
+    expect(map["2024-01-03"]).toBe("pending");
   });
 
-  it("last log wins when same scheduledAt appears twice", () => {
+  it("last log wins when same date appears twice (normalized key)", () => {
     const logs = [
-      makeTreatmentLog("1", "1", "2024-01-01T08:00:00", "pending"),
+      makeTreatmentLog("1", "1", "2024-01-01T07:00:00", "pending"),
       makeTreatmentLog("2", "1", "2024-01-01T08:00:00", "taken"),
     ];
-    expect(buildTreatmentStatusMap(logs)["2024-01-01T08:00:00"]).toBe("taken");
+    expect(buildTreatmentStatusMap(logs)["2024-01-01"]).toBe("taken");
   });
 });

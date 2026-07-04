@@ -81,9 +81,8 @@ export function useNotifications() {
             }],
           });
         } else if (treatment.frequency === "weekly") {
-          const weekday = treatment.reminderDay !== null
-            ? jsWeekdayToCapacitor(treatment.reminderDay)
-            : Weekday.Monday;
+          if (treatment.reminderDay === null) return "error";
+          const weekday = jsWeekdayToCapacitor(treatment.reminderDay);
           await LocalNotifications.schedule({
             notifications: [{
               id,
@@ -134,7 +133,7 @@ export function useNotifications() {
     if (!Capacitor.isNativePlatform()) return;
     await LocalNotifications.cancel({
       notifications: [{ id: getNotificationId("treatments", treatmentId) }],
-    });
+    }).catch(() => {});
   }, []);
 
   const rescheduleAll = useCallback(

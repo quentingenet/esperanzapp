@@ -62,6 +62,6 @@ describe("useCalendar", () => {
     await act(async () => {
       map = await result.current.getTreatmentStatusMap("1");
     });
-    expect(map?.["2024-01-15T08:00:00.000Z"]).toBe("taken");
+    expect(map?.["2024-01-15"]).toBe("taken");
   });
 });

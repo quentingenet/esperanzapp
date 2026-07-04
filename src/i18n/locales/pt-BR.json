@@ -274,7 +274,8 @@
         "monthly": "Todo mês"
       }
     },
-    "reorderBtn": "Ordenar meus\ntratamentos"
+    "reorderBtn": "Ordenar meus\ntratamentos",
+    "reminderSyncFailed": "Tratamento salvo. Não foi possível sincronizar o lembrete."
   },
   "stats": {
     "title": "Estatísticas",

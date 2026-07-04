@@ -47,13 +47,14 @@ function isTime(v: unknown): v is string {
   return h >= 0 && h <= 23 && min >= 0 && min <= 59;
 }
 
-const HEX_COLOR_RE = /^#[0-9a-fA-F]{3,8}$/;
+const HEX_COLOR_RE = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
 function isHexColor(v: unknown): v is string {
   return typeof v === "string" && HEX_COLOR_RE.test(v);
 }
 
+const ISO_DATETIME_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
 function isISODateTime(v: unknown): v is string {
-  if (typeof v !== "string" || v.length === 0) return false;
+  if (typeof v !== "string" || !ISO_DATETIME_RE.test(v)) return false;
   return !isNaN(new Date(v).getTime());
 }
 
@@ -194,7 +195,7 @@ export function parseExportPayload(raw: string): ExportPayload {
 
 export function payloadToCSV(payload: ExportPayload): string {
   const escape = (v: string): string =>
-    v.includes(",") || v.includes('"') || v.includes("\n")
+    v.includes(",") || v.includes('"') || v.includes("\n") || v.includes("\r")
       ? `"${v.replace(/"/g, '""')}"`
       : v;
 

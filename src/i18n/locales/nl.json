@@ -274,7 +274,8 @@
         "monthly": "Elke maand"
       }
     },
-    "reorderBtn": "Sorteer mijn\nbehandelingen"
+    "reorderBtn": "Sorteer mijn\nbehandelingen",
+    "reminderSyncFailed": "Behandeling opgeslagen. De herinnering kon niet worden gesynchroniseerd."
   },
   "stats": {
     "title": "Statistieken",

@@ -8,6 +8,7 @@ import {
 } from "@/db";
 import { useHabitsStore } from "@/store/habitsStore";
 import { todayLocalDate } from "@/utils";
+import { logError } from "@/utils/logger";
 import type { Habit } from "@/types";
 
 export function useHabits() {
@@ -28,6 +29,7 @@ export function useHabits() {
       const data = await getAllHabits();
       setHabits(data);
     } catch (e) {
+      logError("useHabits.loadHabits", e);
       useHabitsStore.setState({ error: e instanceof Error ? e.message : "error" });
     } finally {
       useHabitsStore.setState({ loading: false });

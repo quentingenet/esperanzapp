@@ -67,6 +67,10 @@ export function updateTreatment(
   data: Partial<Omit<Treatment, "id" | "createdAt">>,
 ): Promise<void> {
   return withDbVoid(async (db) => {
+    if (data.reminderDay !== undefined && data.reminderDay !== null) {
+      if (!Number.isInteger(data.reminderDay) || data.reminderDay < 0 || data.reminderDay > 28)
+        throw new Error(`updateTreatment: reminderDay must be null or 0 to 28, got ${String(data.reminderDay)}`);
+    }
     const fields: string[] = [];
     const values: (string | number | null)[] = [];
     if (data.label !== undefined) { fields.push("label = ?"); values.push(data.label); }
@@ -75,9 +79,6 @@ export function updateTreatment(
     if (data.reminderEnabled !== undefined) { fields.push("reminder_enabled = ?"); values.push(data.reminderEnabled ? 1 : 0); }
     if (data.reminderDay !== undefined) { fields.push("reminder_day = ?"); values.push(data.reminderDay ?? null); }
     if (!fields.length) return;
-    if (data.frequency !== undefined && data.reminderDay !== undefined) {
-      validateTreatmentReminderInvariant(data.frequency, data.reminderDay);
-    }
     await db.run(`UPDATE treatments SET ${fields.join(", ")} WHERE id = ?`, [...values, id]);
   });
 }

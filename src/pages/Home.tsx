@@ -17,7 +17,7 @@ import { SORT_PATH, CHECK_PATH } from "@/utils/svgPaths";
 
 export function Home() {
   const { t } = useTranslation();
-  const { habits, loadHabits, addHabitWithInitialLog, deleteHabit, reorderHabits, saveHabitsOrder } = useHabits();
+  const { habits, error: habitsError, loadHabits, addHabitWithInitialLog, deleteHabit, reorderHabits, saveHabitsOrder } = useHabits();
   const { getStatsBatch, recordRelapse } = useHabitLogs();
   const userName = useOnboardingStore((s) => s.userName);
   const [statsMap, setStatsMap] = useState<Partial<Record<string, HabitStats>>>({});
@@ -26,6 +26,7 @@ export function Home() {
   const [sortMode, setSortMode] = useState(false);
 
   useEffect(() => { void loadHabits(); }, [loadHabits]);
+  useEffect(() => { if (habitsError) toast.error(t("common.error")); }, [habitsError, t]);
 
   useEffect(() => {
     const guard = { cancelled: false };

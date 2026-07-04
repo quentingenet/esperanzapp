@@ -274,7 +274,8 @@
         "monthly": "Ogni mese"
       }
     },
-    "reorderBtn": "Ordina i miei\ntrattamenti"
+    "reorderBtn": "Ordina i miei\ntrattamenti",
+    "reminderSyncFailed": "Trattamento salvato. Non è stato possibile sincronizzare il promemoria."
   },
   "stats": {
     "title": "Statistiche",

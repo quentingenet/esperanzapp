@@ -50,18 +50,39 @@ describe("getAllTreatments", () => {
 });
 
 describe("updateTreatment", () => {
-  it("updates label and frequency", async () => {
+  it("updates label, frequency and reminderDay together", async () => {
     mockDb.run.mockResolvedValue({});
-    await updateTreatment("3", { label: "Sertraline", frequency: "weekly" });
+    await updateTreatment("3", { label: "Sertraline", frequency: "weekly", reminderDay: 1 });
     expect(mockDb.run).toHaveBeenCalledWith(
       expect.stringContaining("UPDATE treatments SET"),
-      ["Sertraline", "weekly", "3"],
+      ["Sertraline", "weekly", 1, "3"],
     );
   });
 
   it("does nothing when no fields", async () => {
     await updateTreatment("3", {});
     expect(mockDb.run).not.toHaveBeenCalled();
+  });
+
+  it("throws when reminderDay is out of range (above 28)", async () => {
+    await expect(updateTreatment("3", { reminderDay: 29 })).rejects.toThrow(
+      "updateTreatment: reminderDay must be null or 0 to 28",
+    );
+  });
+
+  it("throws when reminderDay is negative", async () => {
+    await expect(updateTreatment("3", { reminderDay: -1 })).rejects.toThrow(
+      "updateTreatment: reminderDay must be null or 0 to 28",
+    );
+  });
+
+  it("accepts reminderDay null (disabling reminder)", async () => {
+    mockDb.run.mockResolvedValue({});
+    await updateTreatment("3", { reminderDay: null });
+    expect(mockDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("UPDATE treatments SET"),
+      [null, "3"],
+    );
   });
 });
 

@@ -274,7 +274,8 @@
         "monthly": "Chaque mois"
       }
     },
-    "reorderBtn": "Trier mes\ntraitements"
+    "reorderBtn": "Trier mes\ntraitements",
+    "reminderSyncFailed": "Traitement sauvegardé. Le rappel n'a pas pu être synchronisé."
   },
   "stats": {
     "title": "Statistiques",

@@ -274,7 +274,8 @@
         "monthly": "Jeden Monat"
       }
     },
-    "reorderBtn": "Sortieren\nmeiner Behandlungen"
+    "reorderBtn": "Sortieren\nmeiner Behandlungen",
+    "reminderSyncFailed": "Behandlung gespeichert. Die Erinnerung konnte nicht synchronisiert werden."
   },
   "stats": {
     "title": "Statistiken",
