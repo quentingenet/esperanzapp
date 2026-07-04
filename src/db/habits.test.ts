@@ -3,7 +3,6 @@ import {
   createHabit,
   createHabitWithInitialLog,
   recordHabitRelapse,
-  getHabitById,
   getAllHabits,
   updateHabit,
   deleteHabit,
@@ -11,6 +10,7 @@ import {
 
 const mockDb = { run: vi.fn(), query: vi.fn() };
 vi.mock("./client", () => ({
+  getDb: () => mockDb,
   withDb: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb),
   withDbVoid: (fn: (db: typeof mockDb) => Promise<void>) => fn(mockDb),
   runInTransaction: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb),
@@ -95,18 +95,6 @@ describe("atomic habit operations", () => {
     mockDb.run.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error("restart failed"));
 
     await expect(recordHabitRelapse("1", "2024-02-01")).rejects.toThrow("restart failed");
-  });
-});
-
-describe("getHabitById", () => {
-  it("returns habit when found", async () => {
-    mockDb.query.mockResolvedValue({ values: [ROW] });
-    expect(await getHabitById("1")).toEqual(HABIT);
-  });
-
-  it("returns null when not found", async () => {
-    mockDb.query.mockResolvedValue({ values: [] });
-    expect(await getHabitById("999")).toBeNull();
   });
 });
 

@@ -33,6 +33,7 @@ import type { NavTab } from "@/types";
 // between the database and the notification plugin whenever the app starts.
 function AppStartRescheduler() {
   const { scheduleReminder } = useNotifications();
+  // scheduleReminder is useCallback([]) — stable reference, effect runs once only.
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     void (async () => {
@@ -45,8 +46,7 @@ function AppStartRescheduler() {
         // Notification failures must not prevent the app from starting.
       }
     })();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [scheduleReminder]);
   return null;
 }
 

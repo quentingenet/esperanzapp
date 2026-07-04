@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createTreatment,
-  getTreatmentById,
   getAllTreatments,
   updateTreatment,
   deleteTreatment,
@@ -9,6 +8,7 @@ import {
 
 const mockDb = { run: vi.fn(), query: vi.fn() };
 vi.mock("./client", () => ({
+  getDb: () => mockDb,
   withDb: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb),
   withDbVoid: (fn: (db: typeof mockDb) => Promise<void>) => fn(mockDb),
   runInTransaction: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb),
@@ -37,18 +37,6 @@ describe("createTreatment", () => {
     mockDb.query.mockResolvedValueOnce({ values: [{ id: 0 }] });
     const { id, ...data } = TREATMENT;
     await expect(createTreatment(data)).rejects.toThrow("Failed to insert treatment");
-  });
-});
-
-describe("getTreatmentById", () => {
-  it("returns treatment when found", async () => {
-    mockDb.query.mockResolvedValue({ values: [ROW] });
-    expect(await getTreatmentById("3")).toEqual(TREATMENT);
-  });
-
-  it("returns null when not found", async () => {
-    mockDb.query.mockResolvedValue({ values: [] });
-    expect(await getTreatmentById("999")).toBeNull();
   });
 });
 

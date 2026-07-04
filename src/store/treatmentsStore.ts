@@ -5,6 +5,7 @@ type TreatmentsState = {
   treatments: Treatment[];
   logs: TreatmentLog[];
   loading: boolean;
+  error: string | null;
 };
 
 type TreatmentsActions = {
@@ -21,6 +22,7 @@ export const useTreatmentsStore = create<TreatmentsState & TreatmentsActions>((s
   treatments: [],
   logs: [],
   loading: false,
+  error: null,
   setTreatments: (treatments) => set({ treatments }),
   addTreatment: (t) => set((s) => ({ treatments: [...s.treatments, t] })),
   updateTreatment: (id, patch) =>

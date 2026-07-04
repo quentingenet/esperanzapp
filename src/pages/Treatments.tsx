@@ -17,33 +17,26 @@ import { format, parse } from "date-fns";
 import { todayLocalDate } from "@/utils";
 import { useTranslation } from "react-i18next";
 import { TreatmentCard, TreatmentCalendar, TreatmentForm } from "@/components/treatments";
-import { weekDayLabel } from "@/components/treatments/treatmentUtils";
+import { weekDayLabel, WEEK_DAYS, MONTH_DAYS } from "@/components/treatments/treatmentUtils";
 import { ConfirmDialog, EmptyState, PageHeader, SortableList } from "@/components/shared";
 import { useTreatments, useTreatmentLogs, useNotifications, useDateLocale } from "@/hooks";
 import { toast } from "@/store/toastStore";
 import { logError } from "@/utils/logger";
 import type { Treatment, TreatmentLog, TreatmentStatus } from "@/types";
 
-const SORT_PATH = "M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z";
-const CHECK_PATH = "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z";
-
-const WEEK_DAYS = [1, 2, 3, 4, 5, 6, 0];
-const MONTH_DAYS = [
-  { value: 1, key: "firstDay" },
-  ...Array.from({ length: 27 }, (_, i) => ({ value: i + 2, key: String(i + 2) })),
-  { value: 0, key: "lastDay" },
-];
+import { SORT_PATH, CHECK_PATH } from "@/utils/svgPaths";
 
 export function Treatments() {
   const { t } = useTranslation();
   const dateLocale = useDateLocale();
-  const { treatments, loadTreatments, addTreatment, editTreatment, deleteTreatment, reorderTreatments, saveTreatmentsOrder } = useTreatments();
+  const { treatments, error: treatmentsError, loadTreatments, addTreatment, editTreatment, deleteTreatment, reorderTreatments, saveTreatmentsOrder } = useTreatments();
   const { logStatus, logStatusForDate, getLogsByDate } = useTreatmentLogs();
   const { scheduleReminder, cancelReminder } = useNotifications();
   const mountedRef = useRef(true);
   useEffect(() => () => { mountedRef.current = false; }, []);
 
   const [logsMap, setLogsMap] = useState<Record<string, TreatmentLog | null>>({});
+  const [today, setToday] = useState(todayLocalDate);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Treatment | null>(null);
   const [sortMode, setSortMode] = useState(false);
@@ -54,10 +47,19 @@ export function Treatments() {
   const [editReminderDay, setEditReminderDay] = useState<number | null>(null);
 
   useEffect(() => { void loadTreatments(); }, [loadTreatments]);
+  useEffect(() => { if (treatmentsError) toast.error(t("common.error")); }, [treatmentsError, t]);
+
+  // Refresh today at midnight so the display stays in sync if the app stays open overnight.
+  useEffect(() => {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const ms = tomorrow.getTime() - now.getTime() + 500;
+    const timer = setTimeout(() => setToday(todayLocalDate()), ms);
+    return () => clearTimeout(timer);
+  }, [today]);
 
   useEffect(() => {
     const guard = { cancelled: false };
-    const today = todayLocalDate();
     void getLogsByDate(today).then((todayLogs) => {
       if (guard.cancelled) return;
       const map: Record<string, TreatmentLog | null> = Object.fromEntries(
@@ -67,7 +69,7 @@ export function Treatments() {
       setLogsMap(map);
     }).catch((e: unknown) => { logError("Treatments.getLogsByDate", e); });
     return () => { guard.cancelled = true; };
-  }, [treatments, getLogsByDate]);
+  }, [treatments, getLogsByDate, today]);
 
   const handleLog = async (treatment: Treatment, status: TreatmentStatus) => {
     const today = todayLocalDate();

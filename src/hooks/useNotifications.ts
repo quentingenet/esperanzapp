@@ -21,8 +21,17 @@ function stableHash31(s: string): number {
 
 export function getNotificationId(domain: NotifDomain, id: string): number {
   const offset = NOTIF_DOMAIN_OFFSET[domain];
-  const hash = stableHash31(id) % 999_999; // keeps result in [0, 999_998]
-  return offset + hash;
+  // Treatment IDs are SQLite AUTOINCREMENT integers stored as strings ("1", "2", …).
+  // Using the integer directly eliminates all collision risk for the common case.
+  // String/UUID IDs (e.g. imported from external systems) fall back to hash % 999_999;
+  // collision probability is low (~1/999_999 per pair) but non-zero.
+  const numericId = parseInt(id, 10);
+  // Cap at 999_999 so the slot stays within the domain range [offset, offset+999_999].
+  // IDs >= 1_000_000 (e.g. from external imports) would otherwise overflow into the next domain.
+  const slot = Number.isInteger(numericId) && numericId > 0 && numericId <= 999_999 && String(numericId) === id
+    ? numericId
+    : stableHash31(id) % 999_999;
+  return offset + slot;
 }
 
 // JS getDay() (0=Sun..6=Sat) -> Capacitor Weekday (Sunday=1..Saturday=7)
@@ -57,6 +66,7 @@ export function useNotifications() {
       if (display !== "granted") return "permission-denied";
 
       const [h, m] = treatment.reminderTime.split(":").map(Number) as [number, number];
+      if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return "error";
 
       try {
         if (treatment.frequency === "daily") {
@@ -128,5 +138,12 @@ export function useNotifications() {
     [scheduleReminder],
   );
 
-  return { requestPermission, scheduleReminder, cancelReminder, rescheduleAll };
+  // Returns null on web (not applicable), true/false on native.
+  const getPermissionStatus = useCallback(async (): Promise<boolean | null> => {
+    if (!Capacitor.isNativePlatform()) return null;
+    const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
+    return display === "granted";
+  }, []);
+
+  return { requestPermission, scheduleReminder, cancelReminder, rescheduleAll, getPermissionStatus };
 }

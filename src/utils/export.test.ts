@@ -547,7 +547,7 @@ describe("importFromJSON", () => {
       false,
     );
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
-      expect.stringContaining("INSERT INTO treatment_logs"),
+      expect.stringContaining("INSERT OR IGNORE INTO treatment_logs"),
       expect.arrayContaining([mockTreatmentLog.treatmentId]),
       false,
     );

@@ -1,6 +1,6 @@
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import type { Habit } from "@/types";
-import { runInTransaction, withDb, withDbVoid } from "./client";
+import { getDb, runInTransaction, withDb, withDbVoid } from "./client";
 import { updateSortOrder } from "./sortOrder";
 
 type HabitRow = {
@@ -43,8 +43,7 @@ async function insertHabit(
 
 export function createHabit(data: Omit<Habit, "id">, dbConn?: SQLiteDBConnection | null): Promise<Habit> {
   const fn = (database: SQLiteDBConnection): Promise<Habit> => insertHabit(database, data);
-  if (dbConn) return fn(dbConn);
-  return withDb(fn, { ...data, id: String(Date.now()) });
+  return fn(dbConn ?? getDb());
 }
 
 export function createHabitWithInitialLog(
@@ -52,7 +51,7 @@ export function createHabitWithInitialLog(
   eventDate: string,
 ): Promise<Habit> {
   return runInTransaction(async (database) => {
-    if (!database) return { ...data, id: String(Date.now()) };
+    if (!database) throw new Error("DB not initialized");
     const habit = await insertHabit(database, data, false);
     await database.run(
       "INSERT INTO habit_logs (habit_id, event_type, event_date) VALUES (?, 'start', ?)",
@@ -77,14 +76,6 @@ export function recordHabitRelapse(habitId: string, eventDate: string): Promise<
       false,
     );
   });
-}
-
-export function getHabitById(id: string): Promise<Habit | null> {
-  return withDb(async (db) => {
-    const result = await db.query("SELECT * FROM habits WHERE id = ?", [id]);
-    const rows = (result.values ?? []) as HabitRow[];
-    return rows[0] ? rowToHabit(rows[0]) : null;
-  }, null);
 }
 
 export function getAllHabits(): Promise<Habit[]> {

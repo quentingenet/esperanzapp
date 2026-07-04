@@ -50,13 +50,17 @@ export class ImportStorageError extends Error {
 }
 
 async function buildPayload() {
-  const [habits, habitLogs, treatments, treatmentLogs] = await Promise.all([
-    getAllHabits(),
-    getAllHabitLogs(),
-    getAllTreatments(),
-    getAllTreatmentLogs(),
-  ]);
-  return buildExportPayload(habits, habitLogs, treatments, treatmentLogs, new Date().toISOString());
+  // runInTransaction issues BEGIN TRANSACTION so all four reads share a consistent
+  // snapshot: a concurrent write cannot interleave between them.
+  return runInTransaction(async () => {
+    const [habits, habitLogs, treatments, treatmentLogs] = await Promise.all([
+      getAllHabits(),
+      getAllHabitLogs(),
+      getAllTreatments(),
+      getAllTreatmentLogs(),
+    ]);
+    return buildExportPayload(habits, habitLogs, treatments, treatmentLogs, new Date().toISOString());
+  });
 }
 
 export async function exportToJSON(password?: string): Promise<ShareOutcome> {
@@ -147,8 +151,15 @@ async function importPayload(payload: ReturnType<typeof parseExportPayload>): Pr
         );
       }
       for (const tl of payload.treatmentLogs) {
+        // INSERT OR IGNORE is intentional: treatment_logs has a UNIQUE(treatment_id, scheduled_at)
+        // constraint to prevent duplicate dose records. On re-import of the same file (e.g. after
+        // a device restore), the existing rows must win over the imported ones so that any edits
+        // made after the last export are preserved. Silently skipping duplicates is the correct
+        // behaviour here; an OR REPLACE would overwrite those post-export edits.
+        // Trade-off accepted: a hand-edited import file with conflicting rows for the same
+        // (treatment_id, scheduled_at) will drop the later row without user feedback.
         await db.run(
-          "INSERT INTO treatment_logs (id, treatment_id, scheduled_at, status) VALUES (?, ?, ?, ?)",
+          "INSERT OR IGNORE INTO treatment_logs (id, treatment_id, scheduled_at, status) VALUES (?, ?, ?, ?)",
           [tl.id, tl.treatmentId, tl.scheduledAt, tl.status],
           false,
         );

@@ -12,11 +12,12 @@ import { useTreatmentsStore } from "@/store/treatmentsStore";
 import type { Treatment } from "@/types";
 
 export function useTreatments() {
-  const { treatments, loading, setTreatments, addTreatment: storeAdd, removeTreatment } =
+  const { treatments, loading, error, setTreatments, addTreatment: storeAdd, removeTreatment } =
     useTreatmentsStore(
       useShallow((s) => ({
         treatments: s.treatments,
         loading: s.loading,
+        error: s.error,
         setTreatments: s.setTreatments,
         addTreatment: s.addTreatment,
         removeTreatment: s.removeTreatment,
@@ -24,12 +25,13 @@ export function useTreatments() {
     );
 
   const loadTreatments = useCallback(async () => {
-    useTreatmentsStore.setState({ loading: true });
+    useTreatmentsStore.setState({ loading: true, error: null });
     try {
       const data = await getAllTreatments();
       setTreatments(data);
     } catch (e: unknown) {
       logError("useTreatments.loadTreatments", e);
+      useTreatmentsStore.setState({ error: e instanceof Error ? e.message : "error" });
     } finally {
       useTreatmentsStore.setState({ loading: false });
     }
@@ -76,5 +78,5 @@ export function useTreatments() {
     [treatments],
   );
 
-  return { treatments, loading, loadTreatments, addTreatment, editTreatment, deleteTreatment, reorderTreatments, saveTreatmentsOrder };
+  return { treatments, loading, error, loadTreatments, addTreatment, editTreatment, deleteTreatment, reorderTreatments, saveTreatmentsOrder };
 }

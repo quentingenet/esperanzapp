@@ -7,13 +7,15 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Divider from "@mui/material/Divider";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import Link from "@mui/material/Link";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
+import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { useOnboarding, useAppUpdate } from "@/hooks";
+import { useOnboarding, useAppUpdate, useNotifications } from "@/hooks";
 import { useOnboardingStore } from "@/store";
 import { toast } from "@/store/toastStore";
 import { SUPPORTED_LOCALES } from "@/i18n";
@@ -36,13 +38,19 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
   const { t, i18n } = useTranslation();
   const { saveName } = useOnboarding();
   const { status: updateStatus, checkForUpdate, openUpdate } = useAppUpdate();
+  const { requestPermission, getPermissionStatus } = useNotifications();
   const userName = useOnboardingStore((s) => s.userName);
   const [editName, setEditName] = useState(userName);
   const [diagOpen, setDiagOpen] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [notifGranted, setNotifGranted] = useState<boolean | null>(null);
   const versionTapCount = useRef(0);
   const versionTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (versionTapTimer.current) clearTimeout(versionTapTimer.current); }, []);
+
+  useEffect(() => {
+    void getPermissionStatus().then(setNotifGranted);
+  }, [getPermissionStatus]);
 
   const handleSaveName = () => {
     void saveName(editName)
@@ -116,6 +124,29 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
           </MenuItem>
         ))}
       </Select>
+
+      {notifGranted !== null && (
+        <>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>{t("settings.notifications")}</Typography>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={notifGranted}
+                onChange={(_e, checked) => {
+                  if (checked) {
+                    void requestPermission().then((granted) => { setNotifGranted(granted); });
+                  } else {
+                    toast.info(t("settings.notificationsDisableHint"));
+                  }
+                }}
+                slotProps={{ input: { "aria-label": t("settings.notifications") } }}
+              />
+            }
+            label={<Typography variant="body2" color="text.secondary">{t("settings.notificationsDesc")}</Typography>}
+            sx={{ mb: 2 }}
+          />
+        </>
+      )}
 
       <Divider sx={{ mb: 2 }} />
 

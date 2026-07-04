@@ -2,12 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useHabits } from "./useHabits";
 import { useHabitsStore } from "@/store/habitsStore";
-import { getAllHabits, createHabit, createHabitWithInitialLog, deleteHabit } from "@/db";
+import { getAllHabits, createHabitWithInitialLog, deleteHabit } from "@/db";
 import type { Habit } from "@/types";
 
 vi.mock("@/db", () => ({
   getAllHabits: vi.fn(),
-  createHabit: vi.fn(),
   createHabitWithInitialLog: vi.fn(),
   deleteHabit: vi.fn(),
 }));
@@ -35,7 +34,6 @@ describe("useHabits", () => {
   beforeEach(() => {
     useHabitsStore.setState({ habits: [], loading: false, error: null });
     vi.mocked(getAllHabits).mockResolvedValue([]);
-    vi.mocked(createHabit).mockResolvedValue(habit);
     vi.mocked(createHabitWithInitialLog).mockResolvedValue(habit);
     vi.mocked(deleteHabit).mockResolvedValue(undefined);
   });
@@ -67,17 +65,6 @@ describe("useHabits", () => {
     expect(result.current.loading).toBe(false);
   });
 
-  it("addHabit creates habit and adds to store", async () => {
-    const { result } = renderHook(() => useHabits());
-    let created: Habit | undefined;
-    await act(async () => {
-      created = await result.current.addHabit(habitData);
-    });
-    expect(createHabit).toHaveBeenCalledWith(habitData);
-    expect(created).toEqual(habit);
-    expect(result.current.habits).toHaveLength(1);
-  });
-
   it("addHabitWithInitialLog creates both records atomically and updates the store", async () => {
     const { result } = renderHook(() => useHabits());
     let created: Habit | undefined;
@@ -97,44 +84,6 @@ describe("useHabits", () => {
     });
     expect(deleteHabit).toHaveBeenCalledWith("1");
     expect(result.current.habits).toHaveLength(0);
-  });
-
-  it("addHabit rejects a future startDate", async () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2024-01-15T12:00:00.000Z"));
-    vi.mocked(createHabit).mockClear();
-    const { result } = renderHook(() => useHabits());
-    await expect(
-      act(async () => {
-        await result.current.addHabit({ ...habitData, startDate: "2024-12-31" });
-      }),
-    ).rejects.toThrow("startDate cannot be in the future");
-    expect(createHabit).not.toHaveBeenCalled();
-    vi.useRealTimers();
-  });
-
-  it("addHabit accepts today's date", async () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2024-01-01T12:00:00.000Z"));
-    vi.mocked(createHabit).mockClear();
-    const { result } = renderHook(() => useHabits());
-    await act(async () => {
-      await result.current.addHabit({ ...habitData, startDate: "2024-01-01" });
-    });
-    expect(createHabit).toHaveBeenCalledTimes(1);
-    vi.useRealTimers();
-  });
-
-  it("addHabit accepts a past date", async () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2024-01-15T12:00:00.000Z"));
-    vi.mocked(createHabit).mockClear();
-    const { result } = renderHook(() => useHabits());
-    await act(async () => {
-      await result.current.addHabit({ ...habitData, startDate: "2024-01-01" });
-    });
-    expect(createHabit).toHaveBeenCalledTimes(1);
-    vi.useRealTimers();
   });
 
   afterEach(() => {

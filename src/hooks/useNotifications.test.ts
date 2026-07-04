@@ -41,6 +41,12 @@ describe("getNotificationId", () => {
     const unique = new Set(ids);
     expect(unique.size).toBe(50);
   });
+
+  it("stays within the treatments domain for imported numeric IDs >= 1_000_000", () => {
+    const id = getNotificationId("treatments", "1000000");
+    expect(id).toBeGreaterThanOrEqual(NOTIF_DOMAIN_OFFSET.treatments);
+    expect(id).toBeLessThan(NOTIF_DOMAIN_OFFSET.milestones);
+  });
 });
 
 describe("useNotifications", () => {
@@ -240,6 +246,28 @@ describe("useNotifications", () => {
     expect(LocalNotifications.schedule).not.toHaveBeenCalled();
   });
 
+  it("scheduleReminder returns 'error' when reminderTime is out of range", async () => {
+    const bad: Treatment = { ...treatment, reminderTime: "99:99" };
+    const { result } = renderHook(() => useNotifications());
+    let status: string | undefined;
+    await act(async () => {
+      status = await result.current.scheduleReminder(bad);
+    });
+    expect(status).toBe("error");
+    expect(LocalNotifications.schedule).not.toHaveBeenCalled();
+  });
+
+  it("scheduleReminder returns 'error' when reminderTime is invalid", async () => {
+    const bad: Treatment = { ...treatment, reminderTime: "invalid" };
+    const { result } = renderHook(() => useNotifications());
+    let status: string | undefined;
+    await act(async () => {
+      status = await result.current.scheduleReminder(bad);
+    });
+    expect(status).toBe("error");
+    expect(LocalNotifications.schedule).not.toHaveBeenCalled();
+  });
+
   it("scheduleReminder returns 'disabled' on non-native platform", async () => {
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
     const { result } = renderHook(() => useNotifications());
@@ -260,5 +288,36 @@ describe("useNotifications", () => {
     });
     expect(granted).toBe(false);
     expect(LocalNotifications.requestPermissions).not.toHaveBeenCalled();
+  });
+
+  it("getPermissionStatus returns true when permission is granted", async () => {
+    vi.mocked(LocalNotifications.checkPermissions).mockResolvedValueOnce({ display: "granted" });
+    const { result } = renderHook(() => useNotifications());
+    let status: boolean | null | undefined;
+    await act(async () => {
+      status = await result.current.getPermissionStatus();
+    });
+    expect(status).toBe(true);
+  });
+
+  it("getPermissionStatus returns false when permission is denied", async () => {
+    vi.mocked(LocalNotifications.checkPermissions).mockResolvedValueOnce({ display: "denied" });
+    const { result } = renderHook(() => useNotifications());
+    let status: boolean | null | undefined;
+    await act(async () => {
+      status = await result.current.getPermissionStatus();
+    });
+    expect(status).toBe(false);
+  });
+
+  it("getPermissionStatus returns null on non-native platform", async () => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
+    const { result } = renderHook(() => useNotifications());
+    let status: boolean | null | undefined;
+    await act(async () => {
+      status = await result.current.getPermissionStatus();
+    });
+    expect(status).toBeNull();
+    expect(LocalNotifications.checkPermissions).not.toHaveBeenCalled();
   });
 });

@@ -7,6 +7,8 @@ const mocks = vi.hoisted(() => ({
   checkForUpdate: vi.fn(),
   openUpdate: vi.fn(),
   saveName: vi.fn(),
+  requestPermission: vi.fn(),
+  getPermissionStatus: vi.fn(),
 }));
 
 vi.mock("@/hooks", () => ({
@@ -15,6 +17,10 @@ vi.mock("@/hooks", () => ({
     status: "idle",
     checkForUpdate: mocks.checkForUpdate,
     openUpdate: mocks.openUpdate,
+  }),
+  useNotifications: () => ({
+    requestPermission: mocks.requestPermission,
+    getPermissionStatus: mocks.getPermissionStatus,
   }),
 }));
 
@@ -34,6 +40,8 @@ describe("SettingsGeneralSection update dialog", () => {
     vi.clearAllMocks();
     mocks.checkForUpdate.mockResolvedValue("available");
     mocks.openUpdate.mockResolvedValue(undefined);
+    mocks.getPermissionStatus.mockResolvedValue(false);
+    mocks.requestPermission.mockResolvedValue(true);
   });
 
   it("asks for confirmation before opening an available update", async () => {
@@ -61,5 +69,59 @@ describe("SettingsGeneralSection update dialog", () => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
     expect(mocks.openUpdate).not.toHaveBeenCalled();
+  });
+});
+
+describe("SettingsGeneralSection notification switch", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.checkForUpdate.mockResolvedValue("up-to-date");
+    mocks.getPermissionStatus.mockResolvedValue(false);
+    mocks.requestPermission.mockResolvedValue(true);
+  });
+
+  it("does not render the notification switch when getPermissionStatus returns null (web)", async () => {
+    mocks.getPermissionStatus.mockResolvedValue(null);
+    render(<SettingsGeneralSection onReplayTutorial={vi.fn()} onShowTerms={vi.fn()} />);
+    await waitFor(() => { expect(mocks.getPermissionStatus).toHaveBeenCalled(); });
+    expect(screen.queryByText("settings.notifications")).not.toBeInTheDocument();
+  });
+
+  it("renders the notification switch unchecked when permission is denied", async () => {
+    render(<SettingsGeneralSection onReplayTutorial={vi.fn()} onShowTerms={vi.fn()} />);
+    await waitFor(() => { expect(screen.getByText("settings.notificationsDesc")).toBeInTheDocument(); });
+  });
+
+  it("renders the notification switch checked when permission is granted", async () => {
+    mocks.getPermissionStatus.mockResolvedValue(true);
+    render(<SettingsGeneralSection onReplayTutorial={vi.fn()} onShowTerms={vi.fn()} />);
+    await waitFor(() => {
+      expect(screen.getByRole("switch")).toBeChecked();
+    });
+  });
+
+  it("calls requestPermission when toggling switch on", async () => {
+    const user = userEvent.setup();
+    render(<SettingsGeneralSection onReplayTutorial={vi.fn()} onShowTerms={vi.fn()} />);
+    await waitFor(() => { expect(screen.getByText("settings.notificationsDesc")).toBeInTheDocument(); });
+    await user.click(screen.getByRole("switch"));
+    expect(mocks.requestPermission).toHaveBeenCalledTimes(1);
+  });
+
+  it("updates switch to checked after requestPermission resolves true", async () => {
+    const user = userEvent.setup();
+    render(<SettingsGeneralSection onReplayTutorial={vi.fn()} onShowTerms={vi.fn()} />);
+    await waitFor(() => { expect(screen.getByText("settings.notificationsDesc")).toBeInTheDocument(); });
+    await user.click(screen.getByRole("switch"));
+    await waitFor(() => { expect(screen.getByRole("switch")).toBeChecked(); });
+  });
+
+  it("does not call requestPermission when switch is already on", async () => {
+    mocks.getPermissionStatus.mockResolvedValue(true);
+    const user = userEvent.setup();
+    render(<SettingsGeneralSection onReplayTutorial={vi.fn()} onShowTerms={vi.fn()} />);
+    await waitFor(() => { expect(screen.getByRole("switch")).toBeChecked(); });
+    await user.click(screen.getByRole("switch"));
+    expect(mocks.requestPermission).not.toHaveBeenCalled();
   });
 });

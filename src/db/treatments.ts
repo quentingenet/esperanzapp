@@ -1,7 +1,7 @@
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import type { Treatment } from "@/types";
 import { isFrequency } from "@/utils";
-import { runInTransaction, withDb, withDbVoid } from "./client";
+import { getDb, runInTransaction, withDb, withDbVoid } from "./client";
 import { updateSortOrder } from "./sortOrder";
 
 type TreatmentRow = {
@@ -38,16 +38,7 @@ export function createTreatment(data: Omit<Treatment, "id">, dbConn?: SQLiteDBCo
     if (!lastId) throw new Error("Failed to insert treatment");
     return { ...data, id: String(lastId) };
   };
-  if (dbConn) return fn(dbConn);
-  return withDb(fn, { ...data, id: String(Date.now()) });
-}
-
-export function getTreatmentById(id: string): Promise<Treatment | null> {
-  return withDb(async (db) => {
-    const result = await db.query("SELECT * FROM treatments WHERE id = ?", [id]);
-    const rows = (result.values ?? []) as TreatmentRow[];
-    return rows[0] ? rowToTreatment(rows[0]) : null;
-  }, null);
+  return fn(dbConn ?? getDb());
 }
 
 export function getAllTreatments(): Promise<Treatment[]> {

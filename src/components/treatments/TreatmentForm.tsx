@@ -19,17 +19,11 @@ import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { useDateLocale, useNotifications } from "@/hooks";
 import { toast } from "@/store/toastStore";
-import { weekDayLabel } from "./treatmentUtils";
+import { weekDayLabel, WEEK_DAYS, MONTH_DAYS } from "./treatmentUtils";
 import type { Frequency, TreatmentFormProps } from "@/types";
 
 const ADD_PATH = "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z";
 const FREQUENCIES: Frequency[] = ["daily", "weekly", "monthly"];
-const WEEK_DAYS = [1, 2, 3, 4, 5, 6, 0]; // Mon → Sun
-const MONTH_DAYS = [
-  { value: 1, key: "firstDay" },
-  ...Array.from({ length: 27 }, (_, i) => ({ value: i + 2, key: String(i + 2) })),
-  { value: 0, key: "lastDay" },
-];
 
 export function TreatmentForm({ onSubmit }: TreatmentFormProps) {
   const { t } = useTranslation();
