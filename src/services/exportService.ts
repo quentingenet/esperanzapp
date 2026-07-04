@@ -125,10 +125,10 @@ async function importPayload(payload: ReturnType<typeof parseExportPayload>): Pr
       // runInTransaction already opened one. Android rejects nested transactions.
       await clearAllData(db, false);
       // Insert with original IDs so foreign-key relationships are preserved.
-      for (const h of payload.habits) {
+      for (const [index, h] of payload.habits.entries()) {
         await db.run(
-          "INSERT INTO habits (id, label, icon, color, bg_color, start_date, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-          [h.id, h.label, h.icon, h.color, h.bgColor, h.startDate, h.createdAt],
+          "INSERT INTO habits (id, label, icon, color, bg_color, start_date, created_at, sort_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+          [h.id, h.label, h.icon, h.color, h.bgColor, h.startDate, h.createdAt, index],
           false,
         );
       }
@@ -139,10 +139,10 @@ async function importPayload(payload: ReturnType<typeof parseExportPayload>): Pr
           false,
         );
       }
-      for (const t of payload.treatments) {
+      for (const [index, t] of payload.treatments.entries()) {
         await db.run(
-          "INSERT INTO treatments (id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-          [t.id, t.label, t.frequency, t.reminderTime, t.reminderEnabled ? 1 : 0, t.reminderDay ?? null, t.createdAt],
+          "INSERT INTO treatments (id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at, sort_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+          [t.id, t.label, t.frequency, t.reminderTime, t.reminderEnabled ? 1 : 0, t.reminderDay ?? null, t.createdAt, index],
           false,
         );
       }

@@ -99,12 +99,17 @@ export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, h
               )}
             </Box>
           </Box>
-          <Typography variant="caption" color="text.disabled" sx={{ display: "block", textAlign: "center", mt: 1, fontSize: "10px", letterSpacing: 0.3 }}>
-            {t("habits.seeMore")}
-          </Typography>
         </CardContent>
       </CardActionArea>
-      <Box sx={{ display: "flex", justifyContent: handleProps ? "space-between" : "flex-end", alignItems: "center", px: 1, pb: 0.5 }}>
+      <Box sx={{ display: "flex", justifyContent: handleProps ? "space-between" : "flex-end", alignItems: "center", px: 1, pb: 0.5, position: "relative" }}>
+        <Typography
+          component="span"
+          variant="caption"
+          color="text.disabled"
+          sx={{ position: "absolute", left: "50%", transform: "translateX(-50%)", fontSize: "10px", letterSpacing: 0.3, pointerEvents: "none" }}
+        >
+          {t("habits.seeMore")}
+        </Typography>
         {handleProps && (
           <span
             {...handleProps}

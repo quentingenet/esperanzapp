@@ -270,7 +270,7 @@
       "reminderDay": "Dia do lembrete",
       "dayOfMonth": "Dia {{day}}",
       "firstDay": "Primeiro dia do mês",
-      "lastDay": "Último dia do mês",
+      "lastDay": "Dia 28 de cada mes",
       "frequencies": {
         "daily": "Todo dia",
         "weekly": "Toda semana",

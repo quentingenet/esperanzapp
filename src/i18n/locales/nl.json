@@ -270,7 +270,7 @@
       "reminderDay": "Dag van herinnering",
       "dayOfMonth": "De {{day}}e",
       "firstDay": "Eerste dag van de maand",
-      "lastDay": "Laatste dag van de maand",
+      "lastDay": "28e van elke maand",
       "frequencies": {
         "daily": "Elke dag",
         "weekly": "Elke week",

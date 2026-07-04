@@ -199,10 +199,10 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
   // This approach requires no last_insert_rowid() and no ID remapping.
 
   async function importDirectly(conn: RealSqliteConn, payload: ReturnType<typeof parseExportPayload>): Promise<void> {
-    for (const h of payload.habits) {
+    for (const [index, h] of payload.habits.entries()) {
       await conn.run(
-        "INSERT INTO habits (id, label, icon, color, bg_color, start_date, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [h.id, h.label, h.icon, h.color, h.bgColor, h.startDate, h.createdAt],
+        "INSERT INTO habits (id, label, icon, color, bg_color, start_date, created_at, sort_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [h.id, h.label, h.icon, h.color, h.bgColor, h.startDate, h.createdAt, index],
       );
     }
     for (const l of payload.habitLogs) {
@@ -211,10 +211,10 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
         [l.id, l.habitId, l.eventType, l.eventDate],
       );
     }
-    for (const t of payload.treatments) {
+    for (const [index, t] of payload.treatments.entries()) {
       await conn.run(
-        "INSERT INTO treatments (id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [t.id, t.label, t.frequency, t.reminderTime, t.reminderEnabled ? 1 : 0, t.reminderDay ?? null, t.createdAt],
+        "INSERT INTO treatments (id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at, sort_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [t.id, t.label, t.frequency, t.reminderTime, t.reminderEnabled ? 1 : 0, t.reminderDay ?? null, t.createdAt, index],
       );
     }
     for (const tl of payload.treatmentLogs) {
@@ -303,6 +303,43 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     expect(tlogRows[0]?.status).toBe("missed");
     // FK integrity preserved via original IDs.
     expect(tlogRows[0]?.treatment_id).toBe(Number(treatment.id));
+  });
+
+  // Sort order preservation across export/import
+
+  it("import preserves custom sort order for habits and treatments", async () => {
+    const habitA = await createHabit({ ...HABIT_DATA, label: "Habit-A", createdAt: "2024-01-01T01:00:00Z" }, asConn(conn));
+    const habitB = await createHabit({ ...HABIT_DATA, label: "Habit-B", createdAt: "2024-01-01T02:00:00Z" }, asConn(conn));
+    const habitC = await createHabit({ ...HABIT_DATA, label: "Habit-C", createdAt: "2024-01-01T03:00:00Z" }, asConn(conn));
+    const treatA = await createTreatment({ ...TREATMENT_DATA, label: "Treat-A", createdAt: "2024-01-01T01:00:00Z" }, asConn(conn));
+    const treatB = await createTreatment({ ...TREATMENT_DATA, label: "Treat-B", createdAt: "2024-01-01T02:00:00Z" }, asConn(conn));
+
+    // Set custom order: B(0) C(1) A(2) for habits, B(0) A(1) for treatments
+    await conn.run("UPDATE habits SET sort_index = ? WHERE id = ?", [0, habitB.id]);
+    await conn.run("UPDATE habits SET sort_index = ? WHERE id = ?", [1, habitC.id]);
+    await conn.run("UPDATE habits SET sort_index = ? WHERE id = ?", [2, habitA.id]);
+    await conn.run("UPDATE treatments SET sort_index = ? WHERE id = ?", [0, treatB.id]);
+    await conn.run("UPDATE treatments SET sort_index = ? WHERE id = ?", [1, treatA.id]);
+
+    // Export in custom order (caller is responsible for passing them sorted)
+    const payload = buildExportPayload(
+      [habitB, habitC, habitA],
+      [],
+      [treatB, treatA],
+      [],
+      new Date().toISOString(),
+    );
+
+    await clearAllData(asConn(conn));
+    await importDirectly(conn, parseExportPayload(JSON.stringify(payload)));
+
+    const habitRows = await conn.query("SELECT label FROM habits ORDER BY sort_index ASC, created_at ASC");
+    expect(habitRows.values.map((r: unknown) => (r as { label: string }).label))
+      .toEqual(["Habit-B", "Habit-C", "Habit-A"]);
+
+    const treatRows = await conn.query("SELECT label FROM treatments ORDER BY sort_index ASC, created_at ASC");
+    expect(treatRows.values.map((r: unknown) => (r as { label: string }).label))
+      .toEqual(["Treat-B", "Treat-A"]);
   });
 
   // Encrypted JSON round trip
