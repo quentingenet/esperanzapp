@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { getDaysInMonth, addMonths } from "date-fns";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications, Weekday } from "@capacitor/local-notifications";
 import i18n from "@/i18n";
@@ -91,14 +92,27 @@ export function useNotifications() {
               schedule: { on: { weekday, hour: h, minute: m } },
             }],
           });
+        } else if (treatment.reminderDay === 0) {
+          // "last day of month" — Capacitor ScheduleOn has no such expression.
+          // Schedule a one-shot at the real last day; AppStartRescheduler renews it at each app launch.
+          const now = new Date();
+          const lastDayThisMonth = getDaysInMonth(now);
+          let target = new Date(now.getFullYear(), now.getMonth(), lastDayThisMonth, h, m, 0, 0);
+          if (target <= now) {
+            const nextMonth = addMonths(now, 1);
+            const lastDayNextMonth = getDaysInMonth(nextMonth);
+            target = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), lastDayNextMonth, h, m, 0, 0);
+          }
+          await LocalNotifications.schedule({
+            notifications: [{
+              id,
+              title: "EsperanzApp",
+              body: i18n.t("notifications.genericReminder"),
+              schedule: { at: target },
+            }],
+          });
         } else {
-          // reminderDay=0 means "last day of month".
-          // Capacitor ScheduleOn does not support a "last day" expression, and
-          // AlarmManager.setRepeating (used by every:"month") drifts by calendar months on Android 12+.
-          // Day 28 is the conservative choice: it exists in every month including February,
-          // fires reliably via setExactAndAllowWhileIdle, and avoids the drift.
-          // The UI label already reflects "28 de chaque mois" so users are not misled.
-          const day = treatment.reminderDay === 0 ? 28 : (treatment.reminderDay ?? 1);
+          const day = treatment.reminderDay ?? 1;
           await LocalNotifications.schedule({
             notifications: [{
               id,

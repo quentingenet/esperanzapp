@@ -267,7 +267,7 @@
       "reminderDay": "Giorno del promemoria",
       "dayOfMonth": "Il {{day}}",
       "firstDay": "Primo giorno del mese",
-      "lastDay": "28 di ogni mese",
+      "lastDay": "Ultimo giorno del mese",
       "frequencies": {
         "daily": "Ogni giorno",
         "weekly": "Ogni settimana",

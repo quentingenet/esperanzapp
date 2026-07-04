@@ -117,8 +117,8 @@ function validateTreatment(v: unknown): Treatment {
     if (day === null || day < 0 || day > 6)
       throw new Error("treatments: weekly frequency must have reminderDay 0-6");
   } else {
-    if (day === null || day < 0 || day > 31)
-      throw new Error("treatments: monthly frequency must have reminderDay 0-31");
+    if (day === null || (day !== 0 && (day < 1 || day > 28)))
+      throw new Error("treatments: monthly frequency must have reminderDay 0 or 1-28");
   }
   return { id, label, frequency, reminderTime, reminderEnabled, reminderDay: day, createdAt };
 }
@@ -369,8 +369,8 @@ export function parseCSVPayload(raw: string): ExportPayload {
       if (reminderDay === null || reminderDay < 0 || reminderDay > 6)
         throw new Error("treatments: weekly frequency must have reminderDay 0-6");
     } else {
-      if (reminderDay === null || reminderDay < 0 || reminderDay > 31)
-        throw new Error("treatments: monthly frequency must have reminderDay 0-31");
+      if (reminderDay === null || (reminderDay !== 0 && (reminderDay < 1 || reminderDay > 28)))
+        throw new Error("treatments: monthly frequency must have reminderDay 0 or 1-28");
     }
     if (reminderEnabledStr !== "0" && reminderEnabledStr !== "1")
       throw new Error(`treatments: reminderEnabled must be "0" or "1", got "${reminderEnabledStr ?? ""}"`);

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
+import { getDaysInMonth } from "date-fns";
 import { useNotifications, getNotificationId, NOTIF_DOMAIN_OFFSET } from "./useNotifications";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
@@ -138,21 +139,40 @@ describe("useNotifications", () => {
     );
   });
 
-  it("scheduleReminder uses ScheduleOn {day: 28} for monthly last day of month", async () => {
+  it("scheduleReminder uses schedule.at with the real last day of month for reminderDay=0", async () => {
+    // System time: Jan 15 2024 06:00 UTC → last day of this month (local) = getDaysInMonth(now)
     const lastDay: Treatment = { ...treatment, frequency: "monthly", reminderDay: 0 };
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.scheduleReminder(lastDay);
     });
-    expect(LocalNotifications.schedule).toHaveBeenCalledWith(
-      expect.objectContaining({
-        notifications: expect.arrayContaining([
-          expect.objectContaining({
-            schedule: expect.objectContaining({ on: expect.objectContaining({ day: 28, hour: 8, minute: 0 }) }),
-          }),
-        ]),
-      }),
-    );
+    const call = vi.mocked(LocalNotifications.schedule).mock.calls[0]!;
+    const schedule = call[0].notifications[0]!.schedule;
+    expect(schedule?.at).toBeInstanceOf(Date);
+    expect(schedule?.on).toBeUndefined();
+    const at = schedule!.at!;
+    expect(at.getDate()).toBe(getDaysInMonth(new Date())); // mirrors production code exactly
+    expect(at.getHours()).toBe(8);
+    expect(at.getMinutes()).toBe(0);
+  });
+
+  it("scheduleReminder schedules next month's last day when this month's last day has already passed", async () => {
+    // Jan 31 09:00 UTC, reminderTime 08:00 → Jan 31 08:00 is in the past → schedule Feb 2024 last day
+    vi.setSystemTime(new Date("2024-01-31T09:00:00.000Z"));
+    const lastDay: Treatment = { ...treatment, frequency: "monthly", reminderDay: 0 };
+    const { result } = renderHook(() => useNotifications());
+    await act(async () => {
+      await result.current.scheduleReminder(lastDay);
+    });
+    const call = vi.mocked(LocalNotifications.schedule).mock.calls[0]!;
+    const at = call[0].notifications[0]!.schedule?.at;
+    expect(at).toBeInstanceOf(Date);
+    // Must be in the future
+    expect(at!.getTime()).toBeGreaterThan(new Date().getTime());
+    // Must land on the last day of whatever month it falls in
+    expect(at!.getDate()).toBe(getDaysInMonth(at!));
+    expect(at!.getHours()).toBe(8);
+    expect(at!.getMinutes()).toBe(0);
   });
 
   it("cancelReminder calls cancel with namespaced treatment id", async () => {

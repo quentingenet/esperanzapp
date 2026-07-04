@@ -190,6 +190,30 @@ describe("parseExportPayload", () => {
     });
     expect(() => parseExportPayload(bad)).toThrow("treatments: weekly frequency must have reminderDay 0-6");
   });
+
+  it("throws when monthly treatment has out-of-range reminderDay (29)", () => {
+    const bad = JSON.stringify({
+      version: "1", exportedAt: "", habits: [], habitLogs: [], treatmentLogs: [],
+      treatments: [{ ...mockTreatment, frequency: "monthly", reminderDay: 29 }],
+    });
+    expect(() => parseExportPayload(bad)).toThrow("treatments: monthly frequency must have reminderDay 0 or 1-28");
+  });
+
+  it("accepts monthly treatment with reminderDay 0 (last day sentinel)", () => {
+    const ok = JSON.stringify({
+      version: "1", exportedAt: "", habits: [], habitLogs: [], treatmentLogs: [],
+      treatments: [{ ...mockTreatment, frequency: "monthly", reminderDay: 0 }],
+    });
+    expect(() => parseExportPayload(ok)).not.toThrow();
+  });
+
+  it("accepts monthly treatment with reminderDay 28 (max calendar day)", () => {
+    const ok = JSON.stringify({
+      version: "1", exportedAt: "", habits: [], habitLogs: [], treatmentLogs: [],
+      treatments: [{ ...mockTreatment, frequency: "monthly", reminderDay: 28 }],
+    });
+    expect(() => parseExportPayload(ok)).not.toThrow();
+  });
 });
 
 describe("payloadToCSV", () => {
@@ -330,6 +354,16 @@ describe("parseCSVPayload", () => {
   it("throws on weekly treatment with out-of-range reminderDay", () => {
     const csv = `${H}\n\n${HL}\n\nTREATMENTS\nid,label,frequency,reminderTime,reminderEnabled,reminderDay,createdAt\n1,Med,weekly,08:00,1,8,2024-01-01T00:00:00Z\n\n${TL}`;
     expect(() => parseCSVPayload(csv)).toThrow("treatments: weekly frequency must have reminderDay 0-6");
+  });
+
+  it("throws on monthly treatment with out-of-range reminderDay (29)", () => {
+    const csv = `${H}\n\n${HL}\n\nTREATMENTS\nid,label,frequency,reminderTime,reminderEnabled,reminderDay,createdAt\n1,Med,monthly,08:00,1,29,2024-01-01T00:00:00Z\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).toThrow("treatments: monthly frequency must have reminderDay 0 or 1-28");
+  });
+
+  it("accepts monthly treatment with reminderDay 0 (last day sentinel) in CSV", () => {
+    const csv = `${H}\n\n${HL}\n\nTREATMENTS\nid,label,frequency,reminderTime,reminderEnabled,reminderDay,createdAt\n1,Med,monthly,08:00,1,0,2024-01-01T00:00:00Z\n\n${TL}`;
+    expect(() => parseCSVPayload(csv)).not.toThrow();
   });
 
   it("throws on invalid eventType in HABIT_LOGS", () => {
