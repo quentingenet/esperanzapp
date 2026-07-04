@@ -32,6 +32,9 @@ export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, h
   const dateLocale = useDateLocale();
   const progress = getProgressToNext(stats.currentStreak);
   const formattedStart = format(parseISO(stats.startDate), "P", { locale: dateLocale });
+  const formattedLastRelapse = stats.lastRelapseDate
+    ? format(parseISO(stats.lastRelapseDate), "P", { locale: dateLocale })
+    : null;
   const streakDisplay = formatStreakDisplay(stats.currentStreak, t as (key: string, opts?: Record<string, unknown>) => string);
 
   return (
@@ -51,6 +54,11 @@ export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, h
               <Typography variant="caption" color="text.secondary">
                 {t("habits.counter.since", { label: habit.label.toLowerCase(), date: formattedStart })}
               </Typography>
+              {formattedLastRelapse && (
+                <Typography variant="caption" color="text.disabled" sx={{ display: "block", mt: 0.25 }}>
+                  {t("habits.counter.lastRelapse", { date: formattedLastRelapse })}
+                </Typography>
+              )}
               <LinearProgress
                 variant="determinate"
                 value={progress}

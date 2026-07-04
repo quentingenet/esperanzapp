@@ -19,6 +19,7 @@ function computeStats(logs: HabitLog[]): HabitStats {
   const streaks: number[] = [];
   let streakStart: string | null = null;
   let startDate = "";
+  let lastRelapseDate: string | null = null;
 
   for (const log of sorted) {
     if (log.eventType === "start") {
@@ -27,6 +28,7 @@ function computeStats(logs: HabitLog[]): HabitStats {
     } else {
       if (!startDate) continue;
       totalRelapses++;
+      lastRelapseDate = log.eventDate.slice(0, 10);
       if (streakStart) {
         const days = diffInDays(streakStart, log.eventDate.slice(0, 10));
         streaks.push(days);
@@ -47,7 +49,7 @@ function computeStats(logs: HabitLog[]): HabitStats {
       ? Math.round(streaks.reduce((a, b) => a + b, 0) / streaks.length)
       : 0;
 
-  return { currentStreak, longestStreak, totalRelapses, averageStreak, startDate };
+  return { currentStreak, longestStreak, totalRelapses, averageStreak, startDate, lastRelapseDate };
 }
 
 export function useHabitLogs() {

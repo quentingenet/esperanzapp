@@ -61,13 +61,14 @@ const grade: Grade = {
   bgColor: "#e8f5e9",
 };
 
-function makeStats(currentStreak: number): HabitStats {
+function makeStats(currentStreak: number, lastRelapseDate: string | null = null): HabitStats {
   return {
     currentStreak,
     longestStreak: currentStreak,
-    totalRelapses: 0,
+    totalRelapses: lastRelapseDate ? 1 : 0,
     averageStreak: currentStreak,
     startDate: "2020-01-01",
+    lastRelapseDate,
   };
 }
 
@@ -114,6 +115,34 @@ describe("HabitCard streak display", () => {
     );
     expect(screen.getByText("2 ans")).toBeInTheDocument();
     expect(screen.getByText(/soit 730 jours/)).toBeInTheDocument();
+  });
+
+  it("shows last relapse date caption when lastRelapseDate is set", () => {
+    render(
+      <HabitCard
+        habit={habit}
+        stats={makeStats(5, "2025-06-15")}
+        grade={grade}
+        nextGrade={null}
+        onClick={vi.fn()}
+        onDelete={vi.fn()}
+      />,
+    );
+    expect(screen.getByText(/habits.counter.lastRelapse/)).toBeInTheDocument();
+  });
+
+  it("does not show last relapse caption when lastRelapseDate is null", () => {
+    render(
+      <HabitCard
+        habit={habit}
+        stats={makeStats(10)}
+        grade={grade}
+        nextGrade={null}
+        onClick={vi.fn()}
+        onDelete={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText(/lastRelapse/)).not.toBeInTheDocument();
   });
 
   it("uses plural 'ans' for 2 or more years", () => {

@@ -12,6 +12,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import { App as CapApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import type { PluginListenerHandle } from "@capacitor/core";
+import { LocalNotifications } from "@capacitor/local-notifications";
 import { useTranslation } from "react-i18next";
 import { AppToast, BottomNav } from "@/components/shared";
 import { LanguageSelector, PrivacyModal, OnboardingSlider, UserNameInput } from "@/components/onboarding";
@@ -22,6 +23,7 @@ const History = lazy(() => import("@/pages/History").then((m) => ({ default: m.H
 const Settings = lazy(() => import("@/pages/Settings").then((m) => ({ default: m.Settings })));
 import { useOnboarding, useNotifications, useAppUpdate } from "@/hooks";
 import { getAllTreatments } from "@/db";
+import { NOTIF_DOMAIN_OFFSET } from "@/hooks/useNotifications";
 import { theme } from "@/theme";
 import { logError } from "@/utils/logger";
 import type { SupportedLocale } from "@/i18n";
@@ -101,6 +103,20 @@ function DevWebBanner() {
 function AppContent() {
   const { currentStep, acceptPrivacy, advanceLanguage, completeTutorial, saveName } = useOnboarding();
   const [activeTab, setActiveTab] = useState<NavTab>("home");
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    let handle: PluginListenerHandle | undefined;
+    void LocalNotifications.addListener("localNotificationActionPerformed", (action) => {
+      const notifId = action.notification.id;
+      if (notifId >= NOTIF_DOMAIN_OFFSET.treatments && notifId < NOTIF_DOMAIN_OFFSET.milestones) {
+        setActiveTab("treatments");
+      }
+    }).then((h) => { handle = h; }).catch((e: unknown) => {
+      logError("AppContent.notificationActionPerformed", e);
+    });
+    return () => { void handle?.remove().catch((e: unknown) => { logError("AppContent.notificationActionPerformed.remove", e); }); };
+  }, []);
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;

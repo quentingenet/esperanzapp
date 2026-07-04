@@ -80,7 +80,7 @@ describe("useNotifications", () => {
     expect(granted).toBe(false);
   });
 
-  it("scheduleReminder calls LocalNotifications.schedule with namespaced id and frequency", async () => {
+  it("scheduleReminder uses ScheduleOn {hour, minute} for daily treatment", async () => {
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.scheduleReminder(treatment);
@@ -91,15 +91,15 @@ describe("useNotifications", () => {
           expect.objectContaining({
             id: TREATMENT_3_NOTIF_ID,
             title: "EsperanzApp",
-            schedule: expect.objectContaining({ every: "day", repeats: true }),
+            schedule: expect.objectContaining({ on: expect.objectContaining({ hour: 8, minute: 0 }) }),
           }),
         ]),
       }),
     );
   });
 
-  it("scheduleReminder uses 'week' for weekly treatment", async () => {
-    const weekly: Treatment = { ...treatment, frequency: "weekly" };
+  it("scheduleReminder uses ScheduleOn {weekday} for weekly treatment", async () => {
+    const weekly: Treatment = { ...treatment, frequency: "weekly", reminderDay: 1 }; // Monday
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.scheduleReminder(weekly);
@@ -107,14 +107,16 @@ describe("useNotifications", () => {
     expect(LocalNotifications.schedule).toHaveBeenCalledWith(
       expect.objectContaining({
         notifications: expect.arrayContaining([
-          expect.objectContaining({ schedule: expect.objectContaining({ every: "week" }) }),
+          expect.objectContaining({
+            schedule: expect.objectContaining({ on: expect.objectContaining({ weekday: 2, hour: 8, minute: 0 }) }),
+          }),
         ]),
       }),
     );
   });
 
-  it("scheduleReminder uses 'month' for monthly treatment", async () => {
-    const monthly: Treatment = { ...treatment, frequency: "monthly" };
+  it("scheduleReminder uses ScheduleOn {day} for monthly treatment", async () => {
+    const monthly: Treatment = { ...treatment, frequency: "monthly", reminderDay: 15 };
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.scheduleReminder(monthly);
@@ -122,7 +124,26 @@ describe("useNotifications", () => {
     expect(LocalNotifications.schedule).toHaveBeenCalledWith(
       expect.objectContaining({
         notifications: expect.arrayContaining([
-          expect.objectContaining({ schedule: expect.objectContaining({ every: "month" }) }),
+          expect.objectContaining({
+            schedule: expect.objectContaining({ on: expect.objectContaining({ day: 15, hour: 8, minute: 0 }) }),
+          }),
+        ]),
+      }),
+    );
+  });
+
+  it("scheduleReminder uses at+repeats for monthly last day of month", async () => {
+    const lastDay: Treatment = { ...treatment, frequency: "monthly", reminderDay: 0 };
+    const { result } = renderHook(() => useNotifications());
+    await act(async () => {
+      await result.current.scheduleReminder(lastDay);
+    });
+    expect(LocalNotifications.schedule).toHaveBeenCalledWith(
+      expect.objectContaining({
+        notifications: expect.arrayContaining([
+          expect.objectContaining({
+            schedule: expect.objectContaining({ repeats: true, every: "month" }),
+          }),
         ]),
       }),
     );

@@ -29,6 +29,7 @@ export interface HabitStats {
   totalRelapses: number;
   averageStreak: number;
   startDate: string;
+  lastRelapseDate: string | null;
 }
 
 export interface Treatment {

@@ -108,7 +108,8 @@
       "day_one": "{{count}} giorno",
       "day_other": "{{count}} giorni",
       "since": "libero da {{label}} dal {{date}}",
-      "today": "È il primo giorno"
+      "today": "È il primo giorno",
+      "lastRelapse": "Ultima ricaduta: {{date}}"
     },
     "form": {
       "name": "Nome dell'abitudine",
@@ -331,7 +332,8 @@
     "importInconsistentData": "Il file contiene dati incoerenti e non può essere importato.",
     "importStorageError": "L'importazione non è riuscita durante il salvataggio. I dati esistenti sono stati conservati.",
     "importReschedulePermissionDenied": "Autorizzazione negata : i promemoria importati non saranno pianificati.",
-    "importFileTooLarge": "File troppo grande. Dimensione massima: 10 MB."
+    "importFileTooLarge": "File troppo grande. Dimensione massima: 10 MB.",
+    "fileProtectionHint": "Considera di proteggere il file attivando la crittografia con password sopra."
   },
   "settings": {
     "title": "Impostazioni",

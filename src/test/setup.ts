@@ -50,6 +50,11 @@ vi.mock("@capacitor/local-notifications", () => ({
     schedule: vi.fn().mockResolvedValue({}),
     cancel: vi.fn().mockResolvedValue({}),
     getPending: vi.fn().mockResolvedValue({ notifications: [] }),
+    addListener: vi.fn().mockResolvedValue({ remove: vi.fn() }),
+  },
+  Weekday: {
+    Sunday: 1, Monday: 2, Tuesday: 3, Wednesday: 4,
+    Thursday: 5, Friday: 6, Saturday: 7,
   },
 }));
 

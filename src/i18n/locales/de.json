@@ -108,7 +108,8 @@
       "day_one": "{{count}} Tag",
       "day_other": "{{count}} Tage",
       "since": "frei von {{label}} seit dem {{date}}",
-      "today": "Das ist der erste Tag"
+      "today": "Das ist der erste Tag",
+      "lastRelapse": "Letzter Rückfall: {{date}}"
     },
     "form": {
       "name": "Name der Gewohnheit",
@@ -331,7 +332,8 @@
     "importInconsistentData": "Die Datei enthält inkonsistente Daten und kann nicht importiert werden.",
     "importStorageError": "Der Import ist beim Speichern fehlgeschlagen. Deine vorhandenen Daten wurden beibehalten.",
     "importReschedulePermissionDenied": "Berechtigung verweigert : importierte Erinnerungen werden nicht geplant.",
-    "importFileTooLarge": "Datei zu groß. Maximale Größe: 10 MB."
+    "importFileTooLarge": "Datei zu groß. Maximale Größe: 10 MB.",
+    "fileProtectionHint": "Schütze deine Datei, indem du oben die Passwortverschlüsselung aktivierst."
   },
   "settings": {
     "title": "Einstellungen",

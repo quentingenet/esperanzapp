@@ -74,7 +74,7 @@ describe("useHabitLogs", () => {
       await act(async () => {
         stats = await result.current.getStats("1");
       });
-      expect(stats).toEqual({ currentStreak: 0, longestStreak: 0, totalRelapses: 0, averageStreak: 0, startDate: "" });
+      expect(stats).toEqual({ currentStreak: 0, longestStreak: 0, totalRelapses: 0, averageStreak: 0, startDate: "", lastRelapseDate: null });
     });
 
     it("single start: currentStreak = days since start", async () => {

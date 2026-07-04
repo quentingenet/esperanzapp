@@ -108,7 +108,8 @@
       "day_one": "{{count}} dag",
       "day_other": "{{count}} dagen",
       "since": "vrij van {{label}} sinds {{date}}",
-      "today": "Dit is de eerste dag"
+      "today": "Dit is de eerste dag",
+      "lastRelapse": "Laatste terugval: {{date}}"
     },
     "form": {
       "name": "Naam van de gewoonte",
@@ -331,7 +332,8 @@
     "importInconsistentData": "Het bestand bevat inconsistente gegevens en kan niet worden geïmporteerd.",
     "importStorageError": "Het importeren is mislukt tijdens het opslaan. Je bestaande gegevens zijn behouden.",
     "importReschedulePermissionDenied": "Toestemming geweigerd : geïmporteerde herinneringen worden niet gepland.",
-    "importFileTooLarge": "Bestand te groot. Maximale grootte: 10 MB."
+    "importFileTooLarge": "Bestand te groot. Maximale grootte: 10 MB.",
+    "fileProtectionHint": "Overweeg je bestand te beveiligen door bovenstaande wachtwoordversleuteling in te schakelen."
   },
   "settings": {
     "title": "Instellingen",

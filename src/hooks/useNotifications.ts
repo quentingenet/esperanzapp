@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 import { Capacitor } from "@capacitor/core";
-import { LocalNotifications } from "@capacitor/local-notifications";
+import { LocalNotifications, Weekday } from "@capacitor/local-notifications";
 import i18n from "@/i18n";
-import type { Frequency, Treatment } from "@/types";
+import type { Treatment } from "@/types";
 
 export const NOTIF_DOMAIN_OFFSET = {
   treatments: 1_000_000,
@@ -25,47 +25,32 @@ export function getNotificationId(domain: NotifDomain, id: string): number {
   return offset + hash;
 }
 
-function frequencyToEvery(freq: Frequency): "day" | "week" | "month" {
-  if (freq === "daily") return "day";
-  if (freq === "weekly") return "week";
-  return "month";
+// JS getDay() (0=Sun..6=Sat) -> Capacitor Weekday (Sunday=1..Saturday=7)
+const JS_TO_CAPACITOR_WEEKDAY: Record<number, Weekday> = {
+  0: Weekday.Sunday,
+  1: Weekday.Monday,
+  2: Weekday.Tuesday,
+  3: Weekday.Wednesday,
+  4: Weekday.Thursday,
+  5: Weekday.Friday,
+  6: Weekday.Saturday,
+};
+function jsWeekdayToCapacitor(jsDay: number): Weekday {
+  return JS_TO_CAPACITOR_WEEKDAY[jsDay] ?? Weekday.Monday;
 }
 
-function nextOccurrence(
-  reminderTime: string,
-  frequency: Frequency,
-  reminderDay: number | null,
-  fromTomorrow = false,
-): Date {
+// Used only for monthly "last day of month" which ScheduleOn cannot express
+function lastDayOfMonthOccurrence(reminderTime: string): Date {
   const [h, m] = reminderTime.split(":").map(Number) as [number, number];
   const now = new Date();
-  const d = new Date();
-  d.setHours(h, m, 0, 0);
-
-  if (frequency === "weekly" && reminderDay !== null) {
-    const currentDay = now.getDay();
-    let daysUntil = (reminderDay - currentDay + 7) % 7;
-    if (daysUntil === 0 && d <= now) daysUntil = 7;
-    d.setDate(d.getDate() + daysUntil);
-  } else if (frequency === "monthly" && reminderDay !== null) {
-    if (reminderDay === 0) {
-      d.setMonth(d.getMonth() + 1, 0);
-      if (d <= now) { d.setMonth(d.getMonth() + 2, 0); }
-    } else {
-      const daysNow = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-      d.setDate(Math.min(reminderDay, daysNow));
-      if (d <= now) {
-        d.setMonth(d.getMonth() + 1);
-        const daysNext = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-        d.setDate(Math.min(reminderDay, daysNext));
-      }
-    }
-  } else {
-    if (fromTomorrow) d.setDate(d.getDate() + 1);
-    else if (d <= now) d.setDate(d.getDate() + 1);
+  const candidate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  candidate.setHours(h, m, 0, 0);
+  if (candidate <= now) {
+    const next = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+    next.setHours(h, m, 0, 0);
+    return next;
   }
-
-  return d;
+  return candidate;
 }
 
 export function useNotifications() {
@@ -76,28 +61,66 @@ export function useNotifications() {
   }, []);
 
   const scheduleReminder = useCallback(
-    async (treatment: Treatment, fromTomorrow = false): Promise<"scheduled" | "permission-denied" | "disabled" | "error"> => {
+    async (treatment: Treatment, _fromTomorrow = false): Promise<"scheduled" | "permission-denied" | "disabled" | "error"> => {
       if (!Capacitor.isNativePlatform()) return "disabled";
       const id = getNotificationId("treatments", treatment.id);
       await LocalNotifications.cancel({ notifications: [{ id }] }).catch(() => {});
       if (!treatment.reminderEnabled) return "disabled";
       const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
       if (display !== "granted") return "permission-denied";
+
+      const [h, m] = treatment.reminderTime.split(":").map(Number) as [number, number];
+
       try {
-        await LocalNotifications.schedule({
-          notifications: [
-            {
+        if (treatment.frequency === "daily") {
+          // ScheduleOn fires at exact hour:minute every day (uses setExactAndAllowWhileIdle on Android)
+          await LocalNotifications.schedule({
+            notifications: [{
               id,
               title: "EsperanzApp",
               body: i18n.t("notifications.genericReminder"),
-              schedule: {
-                at: nextOccurrence(treatment.reminderTime, treatment.frequency, treatment.reminderDay, fromTomorrow),
-                repeats: true,
-                every: frequencyToEvery(treatment.frequency),
-              },
-            },
-          ],
-        });
+              schedule: { on: { hour: h, minute: m } },
+            }],
+          });
+        } else if (treatment.frequency === "weekly") {
+          const weekday = treatment.reminderDay !== null
+            ? jsWeekdayToCapacitor(treatment.reminderDay)
+            : Weekday.Monday;
+          await LocalNotifications.schedule({
+            notifications: [{
+              id,
+              title: "EsperanzApp",
+              body: i18n.t("notifications.genericReminder"),
+              schedule: { on: { weekday, hour: h, minute: m } },
+            }],
+          });
+        } else {
+          if (treatment.reminderDay === 0) {
+            // Last day of month: ScheduleOn cannot express this, use at+repeats
+            await LocalNotifications.schedule({
+              notifications: [{
+                id,
+                title: "EsperanzApp",
+                body: i18n.t("notifications.genericReminder"),
+                schedule: {
+                  at: lastDayOfMonthOccurrence(treatment.reminderTime),
+                  repeats: true,
+                  every: "month",
+                },
+              }],
+            });
+          } else {
+            const day = treatment.reminderDay ?? 1;
+            await LocalNotifications.schedule({
+              notifications: [{
+                id,
+                title: "EsperanzApp",
+                body: i18n.t("notifications.genericReminder"),
+                schedule: { on: { day, hour: h, minute: m } },
+              }],
+            });
+          }
+        }
         return "scheduled";
       } catch {
         return "error";

@@ -108,7 +108,8 @@
       "day_one": "{{count}} day",
       "day_other": "{{count}} days",
       "since": "free from {{label}} since {{date}}",
-      "today": "This is day one"
+      "today": "This is day one",
+      "lastRelapse": "Last relapse: {{date}}"
     },
     "form": {
       "name": "Habit name",
@@ -331,7 +332,8 @@
     "importInconsistentData": "The file contains inconsistent data and cannot be imported.",
     "importStorageError": "The import failed while saving. Your existing data was preserved.",
     "importReschedulePermissionDenied": "Permission denied : imported reminders will not be scheduled.",
-    "importFileTooLarge": "File too large. Maximum allowed size: 10 MB."
+    "importFileTooLarge": "File too large. Maximum allowed size: 10 MB.",
+    "fileProtectionHint": "Consider protecting your file by enabling password encryption above."
   },
   "settings": {
     "title": "Settings",

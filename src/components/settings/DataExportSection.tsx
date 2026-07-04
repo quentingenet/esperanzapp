@@ -239,15 +239,15 @@ export function DataExportSection() {
                   </InputAdornment>
                 ) } }}
               />
-              <Alert severity="warning" sx={{ borderRadius: 2 }}>
-                <Typography variant="body2">{t("export.encryptWarning")}</Typography>
-              </Alert>
             </Box>
           )}
 
-          <Alert severity="warning" sx={{ borderRadius: 2, mt: encryptExport ? 0 : 1 }}>
+          <Alert severity="warning" sx={{ borderRadius: 2, mt: 1 }}>
             <Typography variant="body2" sx={{ fontWeight: 700 }}>{t("export.privacyWarningTitle")}</Typography>
             <Typography variant="body2">{t("export.privacyWarningBody")}</Typography>
+            <Typography variant="body2" sx={{ mt: 0.5 }}>
+              {encryptExport ? t("export.encryptWarning") : t("export.fileProtectionHint")}
+            </Typography>
           </Alert>
         </DialogContent>
         <DialogActions sx={{ flexDirection: "column", gap: 1, px: 2, pb: 2 }}>
