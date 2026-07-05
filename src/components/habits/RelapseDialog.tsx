@@ -34,10 +34,7 @@ export function RelapseDialog({
   const messageKey = getMessageKey(stats.currentStreak);
   const today = startOfDay(new Date());
   const habitStart = startOfDay(parse(habit.startDate, "yyyy-MM-dd", new Date()));
-  const streakStart = stats.currentStreakStart
-    ? startOfDay(parse(stats.currentStreakStart, "yyyy-MM-dd", new Date()))
-    : habitStart;
-  const rawMessage = t(messageKey, { name: userName, days: stats.currentStreak });
+const rawMessage = t(messageKey, { name: userName, days: stats.currentStreak });
   const displayMessage = userName.trim()
     ? rawMessage
     : rawMessage.replace(/^,\s*/, "").replace(/^(.)/, (c) => c.toUpperCase());
@@ -64,6 +61,7 @@ export function RelapseDialog({
         <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 0.5 }}>
           {t("relapse.dateLabel")}
         </Typography>
+
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={dateLocale}>
           <DateCalendar
             value={selectedDate}
@@ -71,7 +69,7 @@ export function RelapseDialog({
             maxDate={today}
             shouldDisableDate={(day) => {
               const d = startOfDay(day);
-              return d > today || d < streakStart;
+              return d > today || d < habitStart;
             }}
             sx={{ width: "100%", mx: "auto" }}
           />
