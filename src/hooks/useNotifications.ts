@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { getDaysInMonth, addMonths } from "date-fns";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications, Weekday } from "@capacitor/local-notifications";
+import { NativeSettings, AndroidSettings, IOSSettings } from "capacitor-native-settings";
 import i18n from "@/i18n";
 import type { Treatment } from "@/types";
 
@@ -141,8 +142,8 @@ export function useNotifications() {
   }, []);
 
   const rescheduleAll = useCallback(
-    async (treatments: Treatment[]): Promise<void> => {
-      if (!Capacitor.isNativePlatform()) return;
+    async (treatments: Treatment[]): Promise<boolean> => {
+      if (!Capacitor.isNativePlatform()) return false;
       const pending = await LocalNotifications.getPending().catch(() => ({ notifications: [] }));
       const treatmentPending = pending.notifications.filter(
         (n) => n.id >= NOTIF_DOMAIN_OFFSET.treatments && n.id < NOTIF_DOMAIN_OFFSET.milestones,
@@ -150,7 +151,8 @@ export function useNotifications() {
       if (treatmentPending.length > 0) {
         await LocalNotifications.cancel({ notifications: treatmentPending.map((n) => ({ id: n.id })) }).catch(() => {});
       }
-      await Promise.allSettled(treatments.map((t) => scheduleReminder(t)));
+      const results = await Promise.allSettled(treatments.map((t) => scheduleReminder(t)));
+      return results.some((r) => r.status === "fulfilled" && r.value === "error");
     },
     [scheduleReminder],
   );
@@ -162,5 +164,15 @@ export function useNotifications() {
     return display === "granted";
   }, []);
 
-  return { requestPermission, scheduleReminder, cancelReminder, rescheduleAll, getPermissionStatus };
+  // Opens the app info page where Android 12+ shows the "Alarms & Reminders" toggle.
+  // Call this when scheduleReminder returns "error" to let the user grant SCHEDULE_EXACT_ALARM.
+  const openExactAlarmSettings = useCallback(async (): Promise<void> => {
+    if (!Capacitor.isNativePlatform()) return;
+    await NativeSettings.open({
+      optionAndroid: AndroidSettings.ApplicationDetails,
+      optionIOS: IOSSettings.App,
+    }).catch(() => {});
+  }, []);
+
+  return { requestPermission, scheduleReminder, cancelReminder, rescheduleAll, getPermissionStatus, openExactAlarmSettings };
 }

@@ -253,7 +253,8 @@
             }
         },
         "reorderBtn": "Ordenar meus\ntratamentos",
-        "reminderSyncFailed": "Tratamento salvo. Não foi possível sincronizar o lembrete."
+        "reminderSyncFailed": "Tratamento salvo. Não foi possível sincronizar o lembrete.",
+        "reminderAlarmSettingsNeeded": "Ative 'Alarmes e lembretes' nas suas configurações para receber lembretes no horário."
     },
     "stats": {
         "title": "Estatísticas",
@@ -318,6 +319,8 @@
         "notifications": "Notificações",
         "notificationsDisableHint": "Para desativar, acesse as configurações do aplicativo no seu dispositivo.",
         "notificationsBlocked": "As notificações estão bloqueadas. Você pode ativá-las nas configurações do app.",
+        "exactAlarmHint": "Para lembretes precisos, ative 'Alarmes e lembretes'.",
+        "exactAlarmBtn": "Ativar",
         "version": "Versão",
         "license": "Licença GPL-3.0",
         "sourceCode": "Código-fonte",

@@ -4,6 +4,7 @@ import { getDaysInMonth } from "date-fns";
 import { useNotifications, getNotificationId, NOTIF_DOMAIN_OFFSET } from "./useNotifications";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
+import { NativeSettings } from "capacitor-native-settings";
 import type { Treatment } from "@/types";
 
 const treatment: Treatment = {
@@ -65,6 +66,7 @@ describe("useNotifications", () => {
     vi.mocked(LocalNotifications.getPending).mockClear();
     vi.mocked(LocalNotifications.requestPermissions).mockClear();
     vi.mocked(LocalNotifications.checkPermissions).mockClear();
+    vi.mocked(NativeSettings.open).mockClear();
   });
 
   it("requestPermission returns true when granted", async () => {
@@ -236,13 +238,47 @@ describe("useNotifications", () => {
     expect(LocalNotifications.schedule).toHaveBeenCalledTimes(1);
   });
 
+  it("rescheduleAll returns false when there are no treatments to schedule", async () => {
+    type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
+    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({ notifications: [] } satisfies PendingResult);
+    const { result } = renderHook(() => useNotifications());
+    let anyFailed: boolean | undefined;
+    await act(async () => {
+      anyFailed = await result.current.rescheduleAll([]);
+    });
+    expect(anyFailed).toBe(false);
+    expect(LocalNotifications.schedule).not.toHaveBeenCalled();
+  });
+
+  it("rescheduleAll returns true when any treatment scheduling fails with error", async () => {
+    // Default getPending returns [] so scheduleReminder verification step finds nothing and returns "error"
+    const { result } = renderHook(() => useNotifications());
+    let anyFailed: boolean | undefined;
+    await act(async () => {
+      anyFailed = await result.current.rescheduleAll([treatment]);
+    });
+    expect(anyFailed).toBe(true);
+  });
+
+  it("rescheduleAll returns false when all treatments schedule successfully", async () => {
+    type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
+    const notifId = getNotificationId("treatments", treatment.id);
+    vi.mocked(LocalNotifications.getPending)
+      .mockResolvedValueOnce({ notifications: [] } satisfies PendingResult)
+      .mockResolvedValueOnce({ notifications: [{ id: notifId }] } as PendingResult);
+    const { result } = renderHook(() => useNotifications());
+    let anyFailed: boolean | undefined;
+    await act(async () => {
+      anyFailed = await result.current.rescheduleAll([treatment]);
+    });
+    expect(anyFailed).toBe(false);
+  });
+
   it("scheduleReminder returns 'error' when getPending does not find the notification after scheduling", async () => {
     // Simulates Android 14+ silent failure when SCHEDULE_EXACT_ALARM is not granted.
     // getPending returns empty even though schedule() did not throw.
     type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
-    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
-      notifications: [],
-    } as PendingResult);
+    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({ notifications: [] } satisfies PendingResult);
     const { result } = renderHook(() => useNotifications());
     let status: string | undefined;
     await act(async () => {
@@ -360,5 +396,24 @@ describe("useNotifications", () => {
     });
     expect(status).toBeNull();
     expect(LocalNotifications.checkPermissions).not.toHaveBeenCalled();
+  });
+
+  it("openExactAlarmSettings calls NativeSettings.open with ApplicationDetails on native platform", async () => {
+    const { result } = renderHook(() => useNotifications());
+    await act(async () => {
+      await result.current.openExactAlarmSettings();
+    });
+    expect(NativeSettings.open).toHaveBeenCalledWith(
+      expect.objectContaining({ optionAndroid: "application_details" }),
+    );
+  });
+
+  it("openExactAlarmSettings does nothing on non-native platform", async () => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
+    const { result } = renderHook(() => useNotifications());
+    await act(async () => {
+      await result.current.openExactAlarmSettings();
+    });
+    expect(NativeSettings.open).not.toHaveBeenCalled();
   });
 });

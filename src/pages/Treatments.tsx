@@ -33,7 +33,7 @@ export function Treatments() {
   const dateLocale = useDateLocale();
   const { treatments, error: treatmentsError, loadTreatments, addTreatment, editTreatment, deleteTreatment, reorderTreatments, saveTreatmentsOrder } = useTreatments();
   const { logStatus, logStatusForDate, getLogsByDate } = useTreatmentLogs();
-  const { scheduleReminder, cancelReminder, requestPermission } = useNotifications();
+  const { scheduleReminder, cancelReminder, requestPermission, openExactAlarmSettings } = useNotifications();
   const mountedRef = useRef(true);
   useEffect(() => () => { mountedRef.current = false; }, []);
 
@@ -144,6 +144,7 @@ export function Treatments() {
             }
             const status = await scheduleReminder({ ...editTarget, ...updatedFields });
             if (status === "permission-denied") toast.info(t("treatments.form.permissionDenied"));
+            else if (status === "error") { toast.info(t("treatments.reminderAlarmSettingsNeeded")); void openExactAlarmSettings(); }
           } else {
             await cancelReminder(editTarget.id);
           }
@@ -243,7 +244,7 @@ export function Treatments() {
               if (created.reminderEnabled) {
                 const status = await scheduleReminder(created);
                 if (status === "permission-denied") toast.info(t("treatments.form.permissionDenied"));
-                else if (status === "error") toast.info(t("treatments.reminderSyncFailed"));
+                else if (status === "error") { toast.info(t("treatments.reminderAlarmSettingsNeeded")); void openExactAlarmSettings(); }
               }
             })
             .catch(() => { toast.error(t("common.error")); });

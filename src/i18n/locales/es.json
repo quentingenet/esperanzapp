@@ -253,7 +253,8 @@
             }
         },
         "reorderBtn": "Ordenar mis\ntratamientos",
-        "reminderSyncFailed": "Tratamiento guardado. No se pudo sincronizar el recordatorio."
+        "reminderSyncFailed": "Tratamiento guardado. No se pudo sincronizar el recordatorio.",
+        "reminderAlarmSettingsNeeded": "Activa 'Alarmas y recordatorios' en tus ajustes para recibir recordatorios a tiempo."
     },
     "stats": {
         "title": "Estadísticas",
@@ -318,6 +319,8 @@
         "notifications": "Notificaciones",
         "notificationsDisableHint": "Para desactivar, ve a los ajustes de la aplicación en tu dispositivo.",
         "notificationsBlocked": "Las notificaciones están bloqueadas. Puedes activarlas en los ajustes de la app.",
+        "exactAlarmHint": "Para recordatorios precisos, activa 'Alarmas y recordatorios'.",
+        "exactAlarmBtn": "Activar",
         "version": "Versión",
         "license": "Licencia GPL-3.0",
         "sourceCode": "Código fuente",

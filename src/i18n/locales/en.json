@@ -253,7 +253,8 @@
             }
         },
         "reorderBtn": "Sort my\ntreatments",
-        "reminderSyncFailed": "Treatment saved. The reminder could not be synced."
+        "reminderSyncFailed": "Treatment saved. The reminder could not be synced.",
+        "reminderAlarmSettingsNeeded": "Enable 'Alarms & Reminders' in your settings to receive reminders on time."
     },
     "stats": {
         "title": "Statistics",
@@ -318,6 +319,8 @@
         "notifications": "Notifications",
         "notificationsDisableHint": "To disable, go to your device's app settings.",
         "notificationsBlocked": "Notifications are blocked. You can enable them in the app settings.",
+        "exactAlarmHint": "For exact reminders, enable 'Alarms & Reminders'.",
+        "exactAlarmBtn": "Enable",
         "version": "Version",
         "license": "GPL-3.0 License",
         "sourceCode": "Source code",

@@ -161,7 +161,7 @@ EsperanzApp requests the **minimum permissions necessary** to function. No inter
 | Permission | Prompted? | Requested by | Why |
 |---|---|---|---|
 | `POST_NOTIFICATIONS` | **Yes** (Android 13+) | You, when adding your first treatment | To send daily reminders to take your medication. You can decline: the app works fully, you just won't receive notifications. |
-| `SCHEDULE_EXACT_ALARM` | **Yes** (Android 13+, if revoked) | App | Delivers treatment reminders at the exact scheduled time. Granted by default on Android 12; on Android 13+ the system may prompt the user if it was revoked. If not granted, reminders may be delayed by the OS. |
+| `SCHEDULE_EXACT_ALARM` | **Yes** (Android 14+, manual) | You, via in-app prompt | Delivers treatment reminders at the exact scheduled time. Granted automatically on Android 12 and 13. On Android 14+, requires the user to enable "Alarms & Reminders" in the app's system settings; the app guides you there automatically if it detects the permission is missing. If not granted, reminders may be delayed by a few minutes by the OS. |
 | `RECEIVE_BOOT_COMPLETED` | No (automatic) | `@capacitor/local-notifications` | Re-schedules your treatment reminders after a phone restart, so they don't disappear when you reboot. |
 | `WAKE_LOCK` | No (automatic) | `@capacitor/local-notifications` | Allows the system to briefly wake the CPU to deliver a notification on time. Not declared in the app's own `AndroidManifest.xml` — injected by the library's manifest during Gradle's merge phase. |
 | `VIBRATE` | No (automatic) | App | Allows notifications to vibrate. No prompt, no personal data. |

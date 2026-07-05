@@ -253,7 +253,8 @@
             }
         },
         "reorderBtn": "Sortieren\nmeiner Behandlungen",
-        "reminderSyncFailed": "Behandlung gespeichert. Die Erinnerung konnte nicht synchronisiert werden."
+        "reminderSyncFailed": "Behandlung gespeichert. Die Erinnerung konnte nicht synchronisiert werden.",
+        "reminderAlarmSettingsNeeded": "Aktiviere 'Alarme und Erinnerungen' in deinen Einstellungen, um Erinnerungen pünktlich zu erhalten."
     },
     "stats": {
         "title": "Statistiken",
@@ -318,6 +319,8 @@
         "notifications": "Benachrichtigungen",
         "notificationsDisableHint": "Zum Deaktivieren gehe zu den App-Einstellungen auf deinem Gerät.",
         "notificationsBlocked": "Benachrichtigungen sind blockiert. Du kannst sie in den App-Einstellungen aktivieren.",
+        "exactAlarmHint": "Für genaue Erinnerungen aktiviere 'Alarme und Erinnerungen'.",
+        "exactAlarmBtn": "Aktivieren",
         "version": "Version",
         "license": "GPL-3.0-Lizenz",
         "sourceCode": "Quellcode",

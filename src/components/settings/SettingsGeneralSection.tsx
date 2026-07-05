@@ -40,7 +40,7 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
   const { t, i18n } = useTranslation();
   const { saveName } = useOnboarding();
   const { status: updateStatus, checkForUpdate, openUpdate } = useAppUpdate();
-  const { requestPermission, getPermissionStatus } = useNotifications();
+  const { requestPermission, getPermissionStatus, openExactAlarmSettings } = useNotifications();
   const userName = useOnboardingStore((s) => s.userName);
   const [editName, setEditName] = useState(userName);
   const [diagOpen, setDiagOpen] = useState(false);
@@ -145,6 +145,8 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
                       if (!granted && Capacitor.isNativePlatform()) {
                         toast.info(t("settings.notificationsBlocked"));
                         void NativeSettings.openAndroid({ option: AndroidSettings.AppNotification }).catch(() => {});
+                      } else if (granted) {
+                        void openExactAlarmSettings();
                       }
                     });
                   } else {
@@ -162,6 +164,22 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
           {t("settings.replayTutorial")}
         </Button>
       </Box>
+
+      {notifGranted && Capacitor.isNativePlatform() && (
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mx: 2, mb: 2 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ flex: 1, mr: 1 }}>
+            {t("settings.exactAlarmHint")}
+          </Typography>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => { void openExactAlarmSettings(); }}
+            sx={{ flexShrink: 0, minHeight: 32, textTransform: "none", fontSize: "0.75rem" }}
+          >
+            {t("settings.exactAlarmBtn")}
+          </Button>
+        </Box>
+      )}
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
         <KofiButton />

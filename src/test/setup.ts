@@ -78,6 +78,20 @@ vi.mock("@capacitor/filesystem", () => ({
   },
 }));
 
+vi.mock("capacitor-native-settings", () => ({
+  NativeSettings: {
+    open: vi.fn().mockResolvedValue({ status: true }),
+    openAndroid: vi.fn().mockResolvedValue({ status: true }),
+  },
+  AndroidSettings: {
+    ApplicationDetails: "application_details",
+    AppNotification: "app_notification",
+  },
+  IOSSettings: {
+    App: "app",
+  },
+}));
+
 vi.mock("jeep-sqlite/loader", () => ({
   defineCustomElements: vi.fn().mockResolvedValue(undefined),
 }));

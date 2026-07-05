@@ -16,7 +16,7 @@ Two non-medical items are stored in your browser's `localStorage`: your language
 
 **Update check.** The application checks at startup whether a newer version is available, using the Google Play In-App Updates API (`@capawesome/capacitor-app-update`). This call is made through Google Play Services and does not transmit any health data. The information exchanged is limited to identifying the current installed version of the application and retrieving the latest available version from the Play Store. This call is subject to Google's own privacy practices for the Google Play platform. The same check is also available manually via the "Check for updates" button in Settings.
 
-**Exact alarm scheduling.** On Android 12 and later, the application requests the `SCHEDULE_EXACT_ALARM` permission to deliver treatment reminders at the exact time you configured. This permission is granted automatically on Android 12 and may require a system prompt on Android 13 and later if previously revoked. No personal data is involved in this process.
+**Exact alarm scheduling.** On Android 12 and later, the application uses the `SCHEDULE_EXACT_ALARM` permission to deliver treatment reminders at the exact time you configured. This permission is granted automatically on Android 12 and 13. On Android 14 and later, it requires the user to manually enable "Alarms & Reminders" in the device's app settings; the application guides you there automatically when it detects the permission is missing. No personal data is involved in this process.
 
 ## 3. Data We Do Not Collect
 

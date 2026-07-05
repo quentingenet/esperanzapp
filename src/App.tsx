@@ -23,6 +23,7 @@ const History = lazy(() => import("@/pages/History").then((m) => ({ default: m.H
 const Settings = lazy(() => import("@/pages/Settings").then((m) => ({ default: m.Settings })));
 import { useOnboarding, useNotifications, useAppUpdate } from "@/hooks";
 import { getAllTreatments } from "@/db";
+import { toast } from "@/store/toastStore";
 import { NOTIF_DOMAIN_OFFSET, getNotificationId } from "@/hooks/useNotifications";
 import { theme } from "@/theme";
 import { logError } from "@/utils/logger";
@@ -32,6 +33,7 @@ import type { NavTab } from "@/types";
 // The native receiver restores notifications after reboot. This sync also repairs drift
 // between the database and the notification plugin whenever the app starts.
 function AppStartRescheduler() {
+  const { t } = useTranslation();
   const { rescheduleAll } = useNotifications();
   // rescheduleAll cancels all stale treatment-domain notifications before rescheduling,
   // preventing ghost reminders from deleted or previously failed cancels.
@@ -41,12 +43,13 @@ function AppStartRescheduler() {
     void (async () => {
       try {
         const treatments = await getAllTreatments();
-        await rescheduleAll(treatments);
+        const anyFailed = await rescheduleAll(treatments);
+        if (anyFailed) toast.info(t("treatments.reminderAlarmSettingsNeeded"));
       } catch {
         // Notification failures must not prevent the app from starting.
       }
     })();
-  }, [rescheduleAll]);
+  }, [rescheduleAll, t]);
 
   // Renew "last day of month" one-shots when they fire while the app is in foreground.
   // Background/killed case is handled by AppStartRescheduler on next launch.

@@ -253,7 +253,8 @@
             }
         },
         "reorderBtn": "Trier mes\ntraitements",
-        "reminderSyncFailed": "Traitement sauvegardé. Le rappel n'a pas pu être synchronisé."
+        "reminderSyncFailed": "Traitement sauvegardé. Le rappel n'a pas pu être synchronisé.",
+        "reminderAlarmSettingsNeeded": "Active 'Alarmes et rappels' dans tes paramètres pour recevoir tes rappels à l'heure."
     },
     "stats": {
         "title": "Statistiques",
@@ -318,6 +319,8 @@
         "notifications": "Notifications",
         "notificationsDisableHint": "Pour désactiver, accédez aux paramètres de l'application sur votre appareil.",
         "notificationsBlocked": "Les notifications sont refusées. Tu peux les activer dans les paramètres de l'app.",
+        "exactAlarmHint": "Pour des rappels à l'heure exacte, active 'Alarmes et rappels'.",
+        "exactAlarmBtn": "Activer",
         "version": "Version",
         "license": "Licence GPL-3.0",
         "sourceCode": "Code source",

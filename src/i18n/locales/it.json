@@ -253,7 +253,8 @@
             }
         },
         "reorderBtn": "Ordina i miei\ntrattamenti",
-        "reminderSyncFailed": "Trattamento salvato. Non è stato possibile sincronizzare il promemoria."
+        "reminderSyncFailed": "Trattamento salvato. Non è stato possibile sincronizzare il promemoria.",
+        "reminderAlarmSettingsNeeded": "Attiva 'Allarmi e promemoria' nelle tue impostazioni per ricevere i promemoria in orario."
     },
     "stats": {
         "title": "Statistiche",
@@ -318,6 +319,8 @@
         "notifications": "Notifiche",
         "notificationsDisableHint": "Per disattivare, vai alle impostazioni dell'app sul tuo dispositivo.",
         "notificationsBlocked": "Le notifiche sono bloccate. Puoi attivarle nelle impostazioni dell'app.",
+        "exactAlarmHint": "Per promemoria precisi, attiva 'Allarmi e promemoria'.",
+        "exactAlarmBtn": "Attiva",
         "version": "Versione",
         "license": "Licenza GPL-3.0",
         "sourceCode": "Codice sorgente",

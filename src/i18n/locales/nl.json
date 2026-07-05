@@ -253,7 +253,8 @@
             }
         },
         "reorderBtn": "Sorteer mijn\nbehandelingen",
-        "reminderSyncFailed": "Behandeling opgeslagen. De herinnering kon niet worden gesynchroniseerd."
+        "reminderSyncFailed": "Behandeling opgeslagen. De herinnering kon niet worden gesynchroniseerd.",
+        "reminderAlarmSettingsNeeded": "Schakel 'Alarmen en herinneringen' in je instellingen in voor herinneringen op tijd."
     },
     "stats": {
         "title": "Statistieken",
@@ -318,6 +319,8 @@
         "notifications": "Meldingen",
         "notificationsDisableHint": "Om uit te schakelen, ga naar de app-instellingen op je apparaat.",
         "notificationsBlocked": "Meldingen zijn geblokkeerd. Je kunt ze inschakelen in de app-instellingen.",
+        "exactAlarmHint": "Voor exacte herinneringen, schakel 'Alarmen en herinneringen' in.",
+        "exactAlarmBtn": "Inschakelen",
         "version": "Versie",
         "license": "GPL-3.0-licentie",
         "sourceCode": "Broncode",
