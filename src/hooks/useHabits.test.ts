@@ -2,13 +2,14 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useHabits } from "./useHabits";
 import { useHabitsStore } from "@/store/habitsStore";
-import { getAllHabits, createHabitWithInitialLog, deleteHabit } from "@/db";
+import { getAllHabits, createHabitWithInitialLog, deleteHabit, updateHabitsSortOrder } from "@/db";
 import type { Habit } from "@/types";
 
 vi.mock("@/db", () => ({
   getAllHabits: vi.fn(),
   createHabitWithInitialLog: vi.fn(),
   deleteHabit: vi.fn(),
+  updateHabitsSortOrder: vi.fn(),
 }));
 
 const habit: Habit = {
@@ -21,6 +22,9 @@ const habit: Habit = {
   createdAt: "2024-01-01T10:00:00.000Z",
 };
 
+const habitB: Habit = { ...habit, id: "2", label: "Tabac" };
+const habitC: Habit = { ...habit, id: "3", label: "Cannabis" };
+
 const habitData: Omit<Habit, "id"> = {
   label: "Alcool",
   icon: "🍺",
@@ -32,10 +36,12 @@ const habitData: Omit<Habit, "id"> = {
 
 describe("useHabits", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     useHabitsStore.setState({ habits: [], loading: false, error: null });
     vi.mocked(getAllHabits).mockResolvedValue([]);
     vi.mocked(createHabitWithInitialLog).mockResolvedValue(habit);
     vi.mocked(deleteHabit).mockResolvedValue(undefined);
+    vi.mocked(updateHabitsSortOrder).mockResolvedValue(undefined);
   });
 
   it("loadHabits sets habits from DB", async () => {
@@ -84,6 +90,46 @@ describe("useHabits", () => {
     });
     expect(deleteHabit).toHaveBeenCalledWith("1");
     expect(result.current.habits).toHaveLength(0);
+  });
+
+  it("addHabitWithInitialLog throws when startDate is in the future", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2024-06-01T10:00:00.000Z"));
+    const { result } = renderHook(() => useHabits());
+    await act(async () => {
+      await expect(
+        result.current.addHabitWithInitialLog({ ...habitData, startDate: "2024-06-15" }),
+      ).rejects.toThrow("startDate cannot be in the future");
+    });
+    expect(createHabitWithInitialLog).not.toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
+  it("reorderHabits reorders habits in the store according to the given id list", () => {
+    useHabitsStore.setState({ habits: [habit, habitB, habitC] });
+    const { result } = renderHook(() => useHabits());
+    act(() => {
+      result.current.reorderHabits(["2", "3", "1"]);
+    });
+    expect(result.current.habits.map((h) => h.id)).toEqual(["2", "3", "1"]);
+  });
+
+  it("reorderHabits preserves habits absent from orderedIds at the end of the list", () => {
+    useHabitsStore.setState({ habits: [habit, habitB, habitC] });
+    const { result } = renderHook(() => useHabits());
+    act(() => {
+      result.current.reorderHabits(["3", "1"]); // habitB (id=2) is absent
+    });
+    expect(result.current.habits.map((h) => h.id)).toEqual(["3", "1", "2"]);
+  });
+
+  it("saveHabitsOrder calls updateHabitsSortOrder with current habits id order", async () => {
+    useHabitsStore.setState({ habits: [habitB, habit, habitC] });
+    const { result } = renderHook(() => useHabits());
+    await act(async () => {
+      await result.current.saveHabitsOrder();
+    });
+    expect(updateHabitsSortOrder).toHaveBeenCalledWith(["2", "1", "3"]);
   });
 
   afterEach(() => {

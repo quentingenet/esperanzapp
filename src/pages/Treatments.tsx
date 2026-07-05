@@ -237,10 +237,14 @@ export function Treatments() {
         />
         <TreatmentForm onSubmit={(data) => {
           void addTreatment({ ...data, createdAt: new Date().toISOString() })
-            .then((created) => {
-              if (created.reminderEnabled) void scheduleReminder(created);
-              void loadTreatments();
+            .then(async (created) => {
               toast.success(t("common.created"));
+              void loadTreatments();
+              if (created.reminderEnabled) {
+                const status = await scheduleReminder(created);
+                if (status === "permission-denied") toast.info(t("treatments.form.permissionDenied"));
+                else if (status === "error") toast.info(t("treatments.reminderSyncFailed"));
+              }
             })
             .catch(() => { toast.error(t("common.error")); });
         }} />

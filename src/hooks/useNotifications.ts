@@ -71,13 +71,12 @@ export function useNotifications() {
 
       try {
         if (treatment.frequency === "daily") {
-          // ScheduleOn fires at exact hour:minute every day (uses setExactAndAllowWhileIdle on Android)
           await LocalNotifications.schedule({
             notifications: [{
               id,
               title: "EsperanzApp",
               body: i18n.t("notifications.genericReminder"),
-              schedule: { on: { hour: h, minute: m } },
+              schedule: { on: { hour: h, minute: m }, allowWhileIdle: true },
             }],
           });
         } else if (treatment.frequency === "weekly") {
@@ -88,7 +87,7 @@ export function useNotifications() {
               id,
               title: "EsperanzApp",
               body: i18n.t("notifications.genericReminder"),
-              schedule: { on: { weekday, hour: h, minute: m } },
+              schedule: { on: { weekday, hour: h, minute: m }, allowWhileIdle: true },
             }],
           });
         } else if (treatment.reminderDay === 0) {
@@ -108,7 +107,7 @@ export function useNotifications() {
               id,
               title: "EsperanzApp",
               body: i18n.t("notifications.genericReminder"),
-              schedule: { at: target },
+              schedule: { at: target, allowWhileIdle: true },
             }],
           });
         } else {
@@ -118,7 +117,7 @@ export function useNotifications() {
               id,
               title: "EsperanzApp",
               body: i18n.t("notifications.genericReminder"),
-              schedule: { on: { day, hour: h, minute: m } },
+              schedule: { on: { day, hour: h, minute: m }, allowWhileIdle: true },
             }],
           });
         }

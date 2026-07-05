@@ -87,7 +87,7 @@ describe("useNotifications", () => {
     expect(granted).toBe(false);
   });
 
-  it("scheduleReminder uses ScheduleOn {hour, minute} for daily treatment", async () => {
+  it("scheduleReminder uses ScheduleOn {hour, minute} with allowWhileIdle for daily treatment", async () => {
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.scheduleReminder(treatment);
@@ -98,14 +98,14 @@ describe("useNotifications", () => {
           expect.objectContaining({
             id: TREATMENT_3_NOTIF_ID,
             title: "EsperanzApp",
-            schedule: expect.objectContaining({ on: expect.objectContaining({ hour: 8, minute: 0 }) }),
+            schedule: expect.objectContaining({ on: expect.objectContaining({ hour: 8, minute: 0 }), allowWhileIdle: true }),
           }),
         ]),
       }),
     );
   });
 
-  it("scheduleReminder uses ScheduleOn {weekday} for weekly treatment", async () => {
+  it("scheduleReminder uses ScheduleOn {weekday} with allowWhileIdle for weekly treatment", async () => {
     const weekly: Treatment = { ...treatment, frequency: "weekly", reminderDay: 1 }; // Monday
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
@@ -115,14 +115,14 @@ describe("useNotifications", () => {
       expect.objectContaining({
         notifications: expect.arrayContaining([
           expect.objectContaining({
-            schedule: expect.objectContaining({ on: expect.objectContaining({ weekday: 2, hour: 8, minute: 0 }) }),
+            schedule: expect.objectContaining({ on: expect.objectContaining({ weekday: 2, hour: 8, minute: 0 }), allowWhileIdle: true }),
           }),
         ]),
       }),
     );
   });
 
-  it("scheduleReminder uses ScheduleOn {day} for monthly treatment", async () => {
+  it("scheduleReminder uses ScheduleOn {day} with allowWhileIdle for monthly treatment", async () => {
     const monthly: Treatment = { ...treatment, frequency: "monthly", reminderDay: 15 };
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
@@ -132,14 +132,14 @@ describe("useNotifications", () => {
       expect.objectContaining({
         notifications: expect.arrayContaining([
           expect.objectContaining({
-            schedule: expect.objectContaining({ on: expect.objectContaining({ day: 15, hour: 8, minute: 0 }) }),
+            schedule: expect.objectContaining({ on: expect.objectContaining({ day: 15, hour: 8, minute: 0 }), allowWhileIdle: true }),
           }),
         ]),
       }),
     );
   });
 
-  it("scheduleReminder uses schedule.at with the real last day of month for reminderDay=0", async () => {
+  it("scheduleReminder uses schedule.at with allowWhileIdle for reminderDay=0 (last day of month)", async () => {
     // System time: Jan 15 2024 06:00 UTC → last day of this month (local) = getDaysInMonth(now)
     const lastDay: Treatment = { ...treatment, frequency: "monthly", reminderDay: 0 };
     const { result } = renderHook(() => useNotifications());
@@ -150,6 +150,7 @@ describe("useNotifications", () => {
     const schedule = call[0].notifications[0]!.schedule;
     expect(schedule?.at).toBeInstanceOf(Date);
     expect(schedule?.on).toBeUndefined();
+    expect(schedule?.allowWhileIdle).toBe(true);
     const at = schedule!.at!;
     expect(at.getDate()).toBe(getDaysInMonth(new Date())); // mirrors production code exactly
     expect(at.getHours()).toBe(8);
@@ -232,6 +233,22 @@ describe("useNotifications", () => {
     });
     // Only the pre-cancel inside scheduleReminder fires (1 call), bulk-cancel is skipped
     expect(LocalNotifications.cancel).toHaveBeenCalledTimes(1);
+    expect(LocalNotifications.schedule).toHaveBeenCalledTimes(1);
+  });
+
+  it("scheduleReminder returns 'error' when getPending does not find the notification after scheduling", async () => {
+    // Simulates Android 14+ silent failure when SCHEDULE_EXACT_ALARM is not granted.
+    // getPending returns empty even though schedule() did not throw.
+    type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
+    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
+      notifications: [],
+    } as PendingResult);
+    const { result } = renderHook(() => useNotifications());
+    let status: string | undefined;
+    await act(async () => {
+      status = await result.current.scheduleReminder(treatment);
+    });
+    expect(status).toBe("error");
     expect(LocalNotifications.schedule).toHaveBeenCalledTimes(1);
   });
 
