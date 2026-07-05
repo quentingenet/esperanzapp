@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -23,7 +23,7 @@ const History = lazy(() => import("@/pages/History").then((m) => ({ default: m.H
 const Settings = lazy(() => import("@/pages/Settings").then((m) => ({ default: m.Settings })));
 import { useOnboarding, useNotifications, useAppUpdate } from "@/hooks";
 import { getAllTreatments } from "@/db";
-import { NOTIF_DOMAIN_OFFSET } from "@/hooks/useNotifications";
+import { NOTIF_DOMAIN_OFFSET, getNotificationId } from "@/hooks/useNotifications";
 import { theme } from "@/theme";
 import { logError } from "@/utils/logger";
 import type { SupportedLocale } from "@/i18n";
@@ -47,6 +47,36 @@ function AppStartRescheduler() {
       }
     })();
   }, [rescheduleAll]);
+
+  // Renew "last day of month" one-shots when they fire while the app is in foreground.
+  // Background/killed case is handled by AppStartRescheduler on next launch.
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    let handle: PluginListenerHandle | undefined;
+    let disposed = false;
+    void LocalNotifications.addListener("localNotificationReceived", (notif) => {
+      if (notif.id < NOTIF_DOMAIN_OFFSET.treatments || notif.id >= NOTIF_DOMAIN_OFFSET.milestones) return;
+      void (async () => {
+        try {
+          const treatments = await getAllTreatments();
+          const treatment = treatments.find((t) => getNotificationId("treatments", t.id) === notif.id);
+          if (treatment?.frequency === "monthly" && treatment.reminderDay === 0) {
+            await rescheduleAll([treatment]);
+          }
+        } catch {
+          // Notification failures must not crash.
+        }
+      })();
+    }).then((h) => {
+      if (disposed) void h.remove().catch((e: unknown) => { logError("AppStartRescheduler.notifReceived.removeDisposed", e); });
+      else handle = h;
+    }).catch((e: unknown) => { logError("AppStartRescheduler.notifReceived", e); });
+    return () => {
+      disposed = true;
+      void handle?.remove().catch((e: unknown) => { logError("AppStartRescheduler.notifReceived.remove", e); });
+    };
+  }, [rescheduleAll]);
+
   return null;
 }
 
@@ -103,6 +133,8 @@ function DevWebBanner() {
 function AppContent() {
   const { currentStep, acceptPrivacy, advanceLanguage, completeTutorial, saveName } = useOnboarding();
   const [activeTab, setActiveTab] = useState<NavTab>("home");
+  const activeTabRef = useRef<NavTab>("home");
+  useEffect(() => { activeTabRef.current = activeTab; });
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -125,6 +157,7 @@ function AppContent() {
     };
   }, []);
 
+  // Stable listener: reads activeTab via ref so it does not reinstall on every tab change.
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
@@ -132,7 +165,7 @@ function AppContent() {
     let disposed = false;
 
     void CapApp.addListener("backButton", ({ canGoBack }) => {
-      if (activeTab !== "home") {
+      if (activeTabRef.current !== "home") {
         setActiveTab("home");
       } else if (canGoBack) {
         window.history.back();
@@ -161,7 +194,7 @@ function AppContent() {
         });
       }
     };
-  }, [activeTab]);
+  }, []);
 
   if (currentStep === "privacy") {
     return <PrivacyModal open onAccept={() => { void acceptPrivacy(); }} />;

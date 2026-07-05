@@ -30,6 +30,7 @@ export interface HabitStats {
   averageStreak: number;
   startDate: string;
   lastRelapseDate: string | null;
+  currentStreakStart: string | null;
 }
 
 export interface Treatment {

@@ -118,16 +118,25 @@ function validateNoOrphans(payload: ReturnType<typeof parseExportPayload>): void
     if (!habitIds.has(log.habitId))
       throw new InconsistentImportDataError(`import: habitLog "${log.id}" references unknown habitId "${log.habitId}"`);
   }
+  for (const habitId of habitIds) {
+    if (!payload.habitLogs.some((l) => l.habitId === habitId && l.eventType === "start"))
+      throw new InconsistentImportDataError(`import: habit "${habitId}" has no start log`);
+  }
   const treatmentIds = new Set(payload.treatments.map((t) => t.id));
   if (treatmentIds.size !== payload.treatments.length)
     throw new InconsistentImportDataError("import: duplicate treatment IDs detected");
   const treatmentLogIds = new Set<string>();
+  const treatmentLogKeys = new Set<string>();
   for (const log of payload.treatmentLogs) {
     if (treatmentLogIds.has(log.id))
       throw new InconsistentImportDataError(`import: duplicate treatmentLog ID "${log.id}" detected`);
     treatmentLogIds.add(log.id);
     if (!treatmentIds.has(log.treatmentId))
       throw new InconsistentImportDataError(`import: treatmentLog "${log.id}" references unknown treatmentId "${log.treatmentId}"`);
+    const key = `${log.treatmentId}:${log.scheduledAt}`;
+    if (treatmentLogKeys.has(key))
+      throw new InconsistentImportDataError(`import: duplicate treatment log for treatmentId "${log.treatmentId}" on "${log.scheduledAt}"`);
+    treatmentLogKeys.add(key);
   }
 }
 

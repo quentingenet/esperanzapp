@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Capacitor } from "@capacitor/core";
+import { LocalNotifications } from "@capacitor/local-notifications";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Drawer from "@mui/material/Drawer";
@@ -31,7 +33,7 @@ export function Treatments() {
   const dateLocale = useDateLocale();
   const { treatments, error: treatmentsError, loadTreatments, addTreatment, editTreatment, deleteTreatment, reorderTreatments, saveTreatmentsOrder } = useTreatments();
   const { logStatus, logStatusForDate, getLogsByDate } = useTreatmentLogs();
-  const { scheduleReminder, cancelReminder } = useNotifications();
+  const { scheduleReminder, cancelReminder, requestPermission } = useNotifications();
   const mountedRef = useRef(true);
   useEffect(() => () => { mountedRef.current = false; }, []);
 
@@ -131,6 +133,15 @@ export function Treatments() {
         setEditTarget(null);
         try {
           if (editReminderEnabled) {
+            if (Capacitor.isNativePlatform()) {
+              const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
+              if (display === "prompt") {
+                const granted = await requestPermission();
+                if (!granted) { toast.info(t("treatments.form.permissionDenied")); return; }
+              } else if (display === "denied") {
+                toast.info(t("treatments.form.permissionDenied")); return;
+              }
+            }
             const status = await scheduleReminder({ ...editTarget, ...updatedFields });
             if (status === "permission-denied") toast.info(t("treatments.form.permissionDenied"));
           } else {
@@ -149,8 +160,12 @@ export function Treatments() {
 
   const handleExitSort = useCallback(() => {
     setSortMode(false);
-    void saveTreatmentsOrder().catch((e: unknown) => { logError("Treatments.saveTreatmentsOrder", e); });
-  }, [saveTreatmentsOrder]);
+    void saveTreatmentsOrder().catch((e: unknown) => {
+      logError("Treatments.saveTreatmentsOrder", e);
+      toast.error(t("common.error"));
+      void loadTreatments();
+    });
+  }, [saveTreatmentsOrder, t, loadTreatments]);
 
   return (
     <Box sx={{ pb: "calc(80px + env(safe-area-inset-bottom))" }}>

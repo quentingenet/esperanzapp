@@ -49,7 +49,7 @@ function computeStats(logs: HabitLog[]): HabitStats {
       ? Math.round(streaks.reduce((a, b) => a + b, 0) / streaks.length)
       : 0;
 
-  return { currentStreak, longestStreak, totalRelapses, averageStreak, startDate, lastRelapseDate };
+  return { currentStreak, longestStreak, totalRelapses, averageStreak, startDate, lastRelapseDate, currentStreakStart: streakStart };
 }
 
 export function useHabitLogs() {

@@ -51,6 +51,7 @@ const stats: HabitStats = {
   averageStreak: 15,
   startDate: "2020-01-01",
   lastRelapseDate: "2025-06-20",
+  currentStreakStart: "2025-06-21",
 };
 
 function renderDialog(open: boolean, overrides: { onConfirm?: (d: string) => void; onCancel?: () => void } = {}) {

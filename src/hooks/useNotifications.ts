@@ -93,7 +93,8 @@ export function useNotifications() {
           });
         } else if (treatment.reminderDay === 0) {
           // "last day of month" — Capacitor ScheduleOn has no such expression.
-          // Schedule a one-shot at the real last day; AppStartRescheduler renews it at each app launch.
+          // Schedule a one-shot at the real last day; AppStartRescheduler renews it at each app launch
+          // and the localNotificationReceived listener renews it when fired in foreground.
           const now = new Date();
           const lastDayThisMonth = getDaysInMonth(now);
           let target = new Date(now.getFullYear(), now.getMonth(), lastDayThisMonth, h, m, 0, 0);
@@ -110,6 +111,10 @@ export function useNotifications() {
               schedule: { at: target },
             }],
           });
+          // Verify the one-shot was actually registered (guards against silent failure on Android 14+
+          // when SCHEDULE_EXACT_ALARM is not granted).
+          const pending = await LocalNotifications.getPending().catch(() => ({ notifications: [] as Array<{ id: number }> }));
+          if (!pending.notifications.some((n) => n.id === id)) return "error";
         } else {
           const day = treatment.reminderDay ?? 1;
           await LocalNotifications.schedule({

@@ -52,6 +52,7 @@ export function SortableList<T extends { id: string }>({
     if (!over || dragActive.id === over.id) return;
     const oldIndex = items.findIndex((i) => i.id === String(dragActive.id));
     const newIndex = items.findIndex((i) => i.id === String(over.id));
+    if (oldIndex < 0 || newIndex < 0) return;
     const reordered = arrayMove(items, oldIndex, newIndex);
     onReorder(reordered.map((i) => i.id));
   };

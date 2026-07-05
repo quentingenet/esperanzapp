@@ -2,10 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createHabitLog,
   getHabitLogsByHabitId,
-  getLatestHabitLog,
   getAllHabitLogs,
-  deleteHabitLog,
-  deleteHabitLogsByHabitId,
 } from "./habitLogs";
 
 const mockDb = { run: vi.fn(), query: vi.fn() };
@@ -51,18 +48,6 @@ describe("getHabitLogsByHabitId", () => {
   });
 });
 
-describe("getLatestHabitLog", () => {
-  it("returns most recent log", async () => {
-    mockDb.query.mockResolvedValue({ values: [ROW] });
-    expect(await getLatestHabitLog("1")).toEqual(LOG);
-  });
-
-  it("returns null when none", async () => {
-    mockDb.query.mockResolvedValue({ values: [] });
-    expect(await getLatestHabitLog("1")).toBeNull();
-  });
-});
-
 describe("getAllHabitLogs", () => {
   it("returns all logs", async () => {
     mockDb.query.mockResolvedValue({ values: [ROW] });
@@ -70,18 +55,3 @@ describe("getAllHabitLogs", () => {
   });
 });
 
-describe("deleteHabitLog", () => {
-  it("deletes by id", async () => {
-    mockDb.run.mockResolvedValue({});
-    await deleteHabitLog("5");
-    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM habit_logs WHERE id = ?", ["5"]);
-  });
-});
-
-describe("deleteHabitLogsByHabitId", () => {
-  it("cascades delete to habit", async () => {
-    mockDb.run.mockResolvedValue({});
-    await deleteHabitLogsByHabitId("1");
-    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM habit_logs WHERE habit_id = ?", ["1"]);
-  });
-});

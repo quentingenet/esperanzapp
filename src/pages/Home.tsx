@@ -52,8 +52,12 @@ export function Home() {
 
   const handleExitSort = useCallback(() => {
     setSortMode(false);
-    void saveHabitsOrder().catch((e: unknown) => { logError("Home.saveHabitsOrder", e); });
-  }, [saveHabitsOrder]);
+    void saveHabitsOrder().catch((e: unknown) => {
+      logError("Home.saveHabitsOrder", e);
+      toast.error(t("common.error"));
+      void loadHabits();
+    });
+  }, [saveHabitsOrder, t, loadHabits]);
 
   const sortableHabits = habits.filter((h) => statsMap[h.id]?.startDate);
 

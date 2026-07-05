@@ -72,7 +72,7 @@ export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, h
                 <GradeBadge grade={grade} size="sm" />
                 {nextGrade && (
                   <Typography variant="caption" color="text.secondary" sx={{ fontSize: "10px" }}>
-                    {"→ "}{t(nextGrade.grade.labelKey)}{" "}{t("grades.daysLeft_other", { count: nextGrade.daysLeft })}
+                    {"→ "}{t(nextGrade.grade.labelKey)}{" "}{t("grades.daysLeft", { count: nextGrade.daysLeft })}
                   </Typography>
                 )}
               </Box>

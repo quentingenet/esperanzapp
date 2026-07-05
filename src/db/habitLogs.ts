@@ -1,7 +1,7 @@
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import type { HabitLog } from "@/types";
 import { isEventType } from "@/utils";
-import { withDb, withDbVoid } from "./client";
+import { withDb } from "./client";
 
 type HabitLogRow = {
   id: number;
@@ -45,17 +45,6 @@ export function getHabitLogsByHabitId(habitId: string): Promise<HabitLog[]> {
   }, []);
 }
 
-export function getLatestHabitLog(habitId: string): Promise<HabitLog | null> {
-  return withDb(async (db) => {
-    const result = await db.query(
-      "SELECT * FROM habit_logs WHERE habit_id = ? ORDER BY event_date DESC LIMIT 1",
-      [habitId],
-    );
-    const rows = (result.values ?? []) as HabitLogRow[];
-    return rows[0] ? rowToHabitLog(rows[0]) : null;
-  }, null);
-}
-
 export function getAllHabitLogs(): Promise<HabitLog[]> {
   return withDb(async (db) => {
     const result = await db.query("SELECT * FROM habit_logs ORDER BY event_date ASC");
@@ -63,10 +52,3 @@ export function getAllHabitLogs(): Promise<HabitLog[]> {
   }, []);
 }
 
-export function deleteHabitLog(id: string): Promise<void> {
-  return withDbVoid(async (db) => { await db.run("DELETE FROM habit_logs WHERE id = ?", [id]); });
-}
-
-export function deleteHabitLogsByHabitId(habitId: string): Promise<void> {
-  return withDbVoid(async (db) => { await db.run("DELETE FROM habit_logs WHERE habit_id = ?", [habitId]); });
-}

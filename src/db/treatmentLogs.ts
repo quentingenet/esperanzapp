@@ -68,14 +68,6 @@ export function getAllTreatmentLogs(): Promise<TreatmentLog[]> {
   }, []);
 }
 
-export function deleteTreatmentLog(id: string): Promise<void> {
-  return withDbVoid(async (db) => { await db.run("DELETE FROM treatment_logs WHERE id = ?", [id]); });
-}
-
-export function deleteTreatmentLogsByTreatmentId(treatmentId: string): Promise<void> {
-  return withDbVoid(async (db) => { await db.run("DELETE FROM treatment_logs WHERE treatment_id = ?", [treatmentId]); });
-}
-
 export function upsertTreatmentLogForDate(
   treatmentId: string,
   scheduledAt: string,

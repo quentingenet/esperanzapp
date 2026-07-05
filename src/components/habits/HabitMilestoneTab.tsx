@@ -45,7 +45,7 @@ export function HabitMilestoneTab({ stats, userName }: HabitMilestoneTabProps) {
                 {grade.days} {t("common.day", { count: grade.days })} -{" "}
                 {unlocked
                   ? t("milestones.unlocked", { date: unlockDateStr })
-                  : t("milestones.daysNeeded_other", { count: daysLeft })}
+                  : t("milestones.daysNeeded", { count: daysLeft })}
               </Typography>
             </Box>
             {unlocked && <GradeBadge grade={grade} size="sm" />}

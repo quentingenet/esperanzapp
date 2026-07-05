@@ -5,8 +5,6 @@ import {
   getTreatmentLogsByDate,
   updateTreatmentLogStatus,
   getAllTreatmentLogs,
-  deleteTreatmentLog,
-  deleteTreatmentLogsByTreatmentId,
   upsertTreatmentLogForDate,
 } from "./treatmentLogs";
 
@@ -73,25 +71,6 @@ describe("getAllTreatmentLogs", () => {
   it("returns all logs", async () => {
     mockDb.query.mockResolvedValue({ values: [ROW] });
     expect(await getAllTreatmentLogs()).toHaveLength(1);
-  });
-});
-
-describe("deleteTreatmentLog", () => {
-  it("deletes by id", async () => {
-    mockDb.run.mockResolvedValue({});
-    await deleteTreatmentLog("7");
-    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM treatment_logs WHERE id = ?", ["7"]);
-  });
-});
-
-describe("deleteTreatmentLogsByTreatmentId", () => {
-  it("cascades delete to treatment", async () => {
-    mockDb.run.mockResolvedValue({});
-    await deleteTreatmentLogsByTreatmentId("3");
-    expect(mockDb.run).toHaveBeenCalledWith(
-      "DELETE FROM treatment_logs WHERE treatment_id = ?",
-      ["3"],
-    );
   });
 });
 

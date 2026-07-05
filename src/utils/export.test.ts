@@ -252,13 +252,13 @@ describe("payloadToCSV", () => {
   });
 
   it("includes column headers", () => {
-    const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
     const csv = payloadToCSV(payload);
     expect(csv).toContain("id,label,icon,color,bgColor,startDate,createdAt");
   });
 
   it("includes habit data", () => {
-    const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
     const csv = payloadToCSV(payload);
     expect(csv).toContain("Alcohol");
   });
@@ -677,7 +677,7 @@ describe("importFromCSV", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("imports habits from CSV", async () => {
-    const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
     const csv = payloadToCSV(payload);
     const file = new File([csv], "export.csv", { type: "text/csv" });
     await importFromCSV(file);
@@ -716,7 +716,7 @@ describe("import replace mode", () => {
 
   it("calls clearAllData before inserting records", async () => {
     const { clearAllData } = await import("@/db");
-    const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     const order: string[] = [];
     vi.mocked(clearAllData).mockImplementationOnce(async () => { order.push("clear"); });
@@ -729,7 +729,7 @@ describe("import replace mode", () => {
 
   it("importing the same file twice calls clearAllData each time (no duplicates)", async () => {
     const { clearAllData } = await import("@/db");
-    const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
     const makeFile = () => new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await importFromJSON(makeFile());
     await importFromJSON(makeFile());
@@ -738,7 +738,7 @@ describe("import replace mode", () => {
 
   it("error during import propagates and does not swallow the failure", async () => {
     mockTransactionDb.run.mockRejectedValueOnce(new Error("insert failed"));
-    const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await expect(importFromJSON(file)).rejects.toBeInstanceOf(ImportStorageError);
   });
@@ -851,7 +851,7 @@ describe("encryption: peekIsEncrypted", () => {
   });
 
   it("returns false for a plain CSV export file", async () => {
-    const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
     const file = new File([payloadToCSV(payload)], "export.csv", { type: "text/csv" });
     expect(await peekIsEncrypted(file)).toBe(false);
   });
@@ -866,7 +866,7 @@ describe("encryption: full round-trip through importFromJSON", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("imports an encrypted JSON export with the correct password", async () => {
-    const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
     const serialized = JSON.stringify(payload, null, 2);
     const envelope = await encryptPayload(serialized, "correct-pw", "json");
     const file = new File([envelope], "export.json", { type: "application/json" });
@@ -886,7 +886,7 @@ describe("encryption: full round-trip through importFromJSON", () => {
   });
 
   it("imports an encrypted CSV export (json-wrapped) with the correct password", async () => {
-    const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
     const csvContent = payloadToCSV(payload);
     const envelope = await encryptPayload(csvContent, "correct-pw", "csv");
     const file = new File([envelope], "export.json", { type: "application/json" });
@@ -899,7 +899,7 @@ describe("encryption: full round-trip through importFromJSON", () => {
   });
 
   it("plain (unencrypted) import is unchanged when no password is provided", async () => {
-    const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await importFromJSON(file);
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
@@ -910,7 +910,7 @@ describe("encryption: full round-trip through importFromJSON", () => {
   });
 
   it("simulates reinstall: encrypted export is importable with password alone, independent of device state", async () => {
-    const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
     const envelope = await encryptPayload(JSON.stringify(payload), "user-password", "json");
     const file = new File([envelope], "export.json", { type: "application/json" });
     await importFromJSON(file, "user-password");

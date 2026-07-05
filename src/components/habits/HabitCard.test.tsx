@@ -14,6 +14,7 @@ const i18nMap: Record<string, string> = {
   "habits.streak.total": "soit {{count}} jours",
   "common.day_one": "jour",
   "common.day_other": "jours",
+  "grades.daysLeft_one": "{{count}} jour restant",
   "grades.daysLeft_other": "{{count}} jours restants",
   "common.delete": "Supprimer",
   "common.reorder": "Réordonner",
@@ -69,6 +70,7 @@ function makeStats(currentStreak: number, lastRelapseDate: string | null = null)
     averageStreak: currentStreak,
     startDate: "2020-01-01",
     lastRelapseDate,
+    currentStreakStart: currentStreak > 0 ? "2020-01-01" : null,
   };
 }
 
@@ -157,5 +159,21 @@ describe("HabitCard streak display", () => {
       />,
     );
     expect(screen.getByText(/2 ans/)).toBeInTheDocument();
+  });
+
+  it("uses singular form when 1 day remains to next grade", () => {
+    const nextGrade = { grade, daysLeft: 1 };
+    render(
+      <HabitCard
+        habit={habit}
+        stats={makeStats(6)}
+        grade={grade}
+        nextGrade={nextGrade}
+        onClick={vi.fn()}
+        onDelete={vi.fn()}
+      />,
+    );
+    expect(screen.getByText(/1 jour restant/)).toBeInTheDocument();
+    expect(screen.queryByText(/1 jours restants/)).not.toBeInTheDocument();
   });
 });
