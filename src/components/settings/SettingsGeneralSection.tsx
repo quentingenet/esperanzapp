@@ -126,7 +126,9 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
       </Select>
 
       {notifGranted !== null && (
-        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>{t("settings.notifications")}</Typography>
+        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5, mx: 2 }}>
+          {t("settings.notifications")}
+        </Typography>
       )}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, mx: 2 }}>
         {notifGranted !== null ? (
@@ -155,7 +157,7 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
         <KofiButton />
-        <Button variant="text" onClick={onShowTerms} sx={{ justifyContent: "flex-start", px: 0, minHeight: 36, py: 0.5, textTransform: "none", fontWeight: 400, color: "text.primary" }}>
+        <Button variant="text" onClick={onShowTerms} sx={{ justifyContent: "flex-start", px: 0, minHeight: 36, py: 0.5, textTransform: "none", fontWeight: 400, mt:2, color: "text.primary" }}>
           {t("settings.terms")}
         </Button>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1, flexWrap: "wrap" }}>
