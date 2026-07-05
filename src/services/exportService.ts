@@ -172,13 +172,11 @@ async function importPayload(payload: ReturnType<typeof parseExportPayload>): Pr
         );
       }
       for (const tl of payload.treatmentLogs) {
-        // INSERT OR IGNORE is intentional: treatment_logs has a UNIQUE(treatment_id, scheduled_at)
-        // constraint to prevent duplicate dose records. On re-import of the same file (e.g. after
-        // a device restore), the existing rows must win over the imported ones so that any edits
-        // made after the last export are preserved. Silently skipping duplicates is the correct
-        // behaviour here; an OR REPLACE would overwrite those post-export edits.
-        // Trade-off accepted: a hand-edited import file with conflicting rows for the same
-        // (treatment_id, scheduled_at) will drop the later row without user feedback.
+        // INSERT OR IGNORE: replace mode calls clearAllData before this loop, so duplicate rows
+        // can only come from within the imported file itself. validateNoOrphans already rejects
+        // files with duplicate (treatmentId, scheduledAt) pairs, so this is a belt-and-suspenders
+        // guard. OR REPLACE is intentionally avoided: if clearAllData were ever made partial in
+        // a future merge mode, OR REPLACE would silently overwrite post-export edits.
         await db.run(
           "INSERT OR IGNORE INTO treatment_logs (id, treatment_id, scheduled_at, status) VALUES (?, ?, ?, ?)",
           [tl.id, tl.treatmentId, tl.scheduledAt, tl.status],

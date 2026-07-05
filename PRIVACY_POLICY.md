@@ -36,7 +36,7 @@ The app offers two export paths. The **Share** option writes the file to the app
 
 The **Save to phone** option writes the file to the app's private Documents folder on your device (`Android/data/com.quentingenet.esperanzapp/files/Documents/`). On Android 11 and later, this folder is not accessible to third-party file managers due to system scoped-storage restrictions; it can be browsed using your device's built-in Files app or accessed via USB. EsperanzApp is not responsible for access granted to that folder by the operating system or by apps you have authorized.
 
-In both cases, the exported file contains personal health information. We recommend using the password-protected encryption option available in the export dialog, which encrypts the file with AES-GCM before it leaves the application. This password is never stored by EsperanzApp; keep it safe, as it will be required to reimport the file.
+In both cases, the exported file contains personal health information. **If you export without a password, the file is unencrypted and readable by anyone who can access it.** We strongly recommend using the password-protected encryption option available in the export dialog, which encrypts the file with AES-GCM before it leaves the application. This password is never stored by EsperanzApp; keep it safe, as it will be required to reimport the file.
 
 ## 6. Storage and Security
 

@@ -61,7 +61,7 @@ function AppStartRescheduler() {
           const treatments = await getAllTreatments();
           const treatment = treatments.find((t) => getNotificationId("treatments", t.id) === notif.id);
           if (treatment?.frequency === "monthly" && treatment.reminderDay === 0) {
-            await rescheduleAll([treatment]);
+            await rescheduleAll(treatments);
           }
         } catch {
           // Notification failures must not crash.
