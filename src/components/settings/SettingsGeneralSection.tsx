@@ -126,8 +126,10 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
       </Select>
 
       {notifGranted !== null && (
-        <>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>{t("settings.notifications")}</Typography>
+        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>{t("settings.notifications")}</Typography>
+      )}
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, mx: 2 }}>
+        {notifGranted !== null ? (
           <FormControlLabel
             control={
               <Switch
@@ -143,16 +145,16 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
               />
             }
             label={<Typography variant="body2" color="text.secondary">{t(notifGranted ? "common.enabled" : "common.disabled")}</Typography>}
-            sx={{ mb: 2 }}
+            sx={{ m: 0 }}
           />
-        </>
-      )}
+        ) : <Box />}
+        <Button variant="text" onClick={onReplayTutorial} sx={{ px: 0, minHeight: 36, py: 0.5, textTransform: "none", fontWeight: 400, color: "text.primary" }}>
+          {t("settings.replayTutorial")}
+        </Button>
+      </Box>
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
         <KofiButton />
-        <Button variant="text" onClick={onReplayTutorial} sx={{ justifyContent: "flex-start", px: 0, minHeight: 36, py: 0.5, mt: 2, textTransform: "none", fontWeight: 400, color: "text.primary" }}>
-          {t("settings.replayTutorial")}
-        </Button>
         <Button variant="text" onClick={onShowTerms} sx={{ justifyContent: "flex-start", px: 0, minHeight: 36, py: 0.5, textTransform: "none", fontWeight: 400, color: "text.primary" }}>
           {t("settings.terms")}
         </Button>
