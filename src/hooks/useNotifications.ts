@@ -111,10 +111,6 @@ export function useNotifications() {
               schedule: { at: target },
             }],
           });
-          // Verify the one-shot was actually registered (guards against silent failure on Android 14+
-          // when SCHEDULE_EXACT_ALARM is not granted).
-          const pending = await LocalNotifications.getPending().catch(() => ({ notifications: [] as Array<{ id: number }> }));
-          if (!pending.notifications.some((n) => n.id === id)) return "error";
         } else {
           const day = treatment.reminderDay ?? 1;
           await LocalNotifications.schedule({
@@ -126,6 +122,10 @@ export function useNotifications() {
             }],
           });
         }
+        // Verify the notification was actually registered — guards against silent failure on
+        // Android 14+ when SCHEDULE_EXACT_ALARM is not granted (affects daily, weekly, and monthly).
+        const pending = await LocalNotifications.getPending().catch(() => ({ notifications: [] as Array<{ id: number }> }));
+        if (!pending.notifications.some((n) => n.id === id)) return "error";
         return "scheduled";
       } catch {
         return "error";

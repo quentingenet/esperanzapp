@@ -74,50 +74,28 @@
         }
     },
     "onboarding": {
-        "welcome": "Welkom",
         "yourName": {
             "title": "Hoe heet je?",
             "placeholder": "Jouw voornaam (optioneel)",
             "skip": "Doorgaan zonder naam"
-        },
-        "firstHabit": {
-            "title": "Van welke gewoonte wil je je bevrijden?",
-            "subtitle": "Je kunt later meer toevoegen."
-        },
-        "startDate": {
-            "title": "Sinds wanneer?",
-            "subtitle": "Datum van je laatste stop"
-        },
-        "ready": {
-            "title": "Laten we gaan.",
-            "body": "EsperanzApp telt met je mee.",
-            "button": "Mijn teller bekijken"
         }
     },
     "habits": {
-        "title": "Mijn gewoonten",
         "add": "Gewoonte toevoegen",
-        "edit": "Bewerken",
         "delete": "Deze gewoonte verwijderen",
         "deleteConfirm": "Deze gewoonte en alle geschiedenis verwijderen?",
         "empty": "Nog geen gewoonten.\nBegin er een toe te voegen.",
         "counter": {
-            "day_one": "{{count}} dag",
-            "day_other": "{{count}} dagen",
             "since": "vrij van {{label}} sinds {{date}}",
-            "today": "Dit is de eerste dag",
             "lastRelapse": "Laatste terugval: {{date}}"
         },
         "form": {
             "name": "Naam van de gewoonte",
             "namePlaceholder": "bijv. Alcohol, Tabak…",
-            "icon": "Pictogram",
-            "startDate": "Startdatum",
-            "color": "Kleur"
+            "startDate": "Startdatum"
         },
         "duplicateWarning": "Je volgt deze gewoonte al. Je kunt geen duplicaat toevoegen.",
         "reorderBtn": "Sorteer mijn\ngewoonten",
-        "reorderHint": "Sleep om te herordenen",
         "streak": {
             "year_one": "jaar",
             "year_other": "jaar",
@@ -336,18 +314,13 @@
         "fileProtectionHint": "Overweeg je bestand te beveiligen door bovenstaande wachtwoordversleuteling in te schakelen."
     },
     "settings": {
-        "title": "Instellingen",
         "language": "Taal",
         "notifications": "Meldingen",
-        "notificationsDesc": "Alleen lokale herinneringen, geen tracking",
         "notificationsDisableHint": "Om uit te schakelen, ga naar de app-instellingen op je apparaat.",
-        "export": "Mijn gegevens",
-        "about": "Over de app",
+        "notificationsBlocked": "Meldingen zijn geblokkeerd. Je kunt ze inschakelen in de app-instellingen.",
         "version": "Versie",
         "license": "GPL-3.0-licentie",
         "sourceCode": "Broncode",
-        "deleteAll": "Al mijn gegevens verwijderen",
-        "deleteAllConfirm": "Deze actie kan niet ongedaan worden gemaakt. Al jouw gegevens worden van dit apparaat gewist.",
         "languages": {
             "fr": "Français",
             "en": "English",
@@ -369,7 +342,6 @@
     },
     "milestones": {
         "title": "Mijlpalen",
-        "locked": "Vergrendeld",
         "unlocked": "Ontgrendeld op {{date}}",
         "daysNeeded_one": "Nog {{count}} dag",
         "daysNeeded_other": "Nog {{count}} dagen",
@@ -379,7 +351,6 @@
         "milestones": "Mijlpalen",
         "history": "Geschiedenis",
         "stats": "Statistieken",
-        "statsSoon": "Binnenkort beschikbaar",
         "relapse": "Terugval registreren"
     },
     "notifications": {

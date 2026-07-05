@@ -14,6 +14,8 @@ import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
+import { Capacitor } from "@capacitor/core";
+import { NativeSettings, AndroidSettings } from "capacitor-native-settings";
 import { useOnboarding, useAppUpdate, useNotifications } from "@/hooks";
 import { useOnboardingStore } from "@/store";
 import { toast } from "@/store/toastStore";
@@ -138,7 +140,13 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
                 checked={notifGranted}
                 onChange={(_e, checked) => {
                   if (checked) {
-                    void requestPermission().then((granted) => { setNotifGranted(granted); });
+                    void requestPermission().then((granted) => {
+                      setNotifGranted(granted);
+                      if (!granted && Capacitor.isNativePlatform()) {
+                        toast.info(t("settings.notificationsBlocked"));
+                        void NativeSettings.openAndroid({ option: AndroidSettings.AppNotification }).catch(() => {});
+                      }
+                    });
                   } else {
                     toast.info(t("settings.notificationsDisableHint"));
                   }

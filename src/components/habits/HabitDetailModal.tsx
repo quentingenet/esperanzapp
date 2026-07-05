@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import { RelapseDialog } from "./RelapseDialog";
 import { HabitMilestoneTab } from "./HabitMilestoneTab";
 import { HabitHistoryTab } from "./HabitHistoryTab";
-import { HabitStatsTab } from "./HabitStatsTab";
+const HabitStatsTab = lazy(() => import("./HabitStatsTab").then((m) => ({ default: m.HabitStatsTab })));
 import { useHabitLogs } from "@/hooks";
 import { logError } from "@/utils/logger";
 import { mergeRelapseRestart } from "@/utils/habitLogUtils";
@@ -81,7 +81,11 @@ export function HabitDetailModal({ habit, stats, userName, onClose, onRelapse }:
         <DialogContent sx={{ px: 2, py: 1.5, flex: 1, overflowY: "auto" }}>
           {tab === 0 && <HabitMilestoneTab stats={stats} userName={userName} />}
           {tab === 1 && <HabitHistoryTab logs={mergedLogs} />}
-          {tab === 2 && <HabitStatsTab stats={stats} habit={habit} />}
+          {tab === 2 && (
+            <Suspense fallback={null}>
+              <HabitStatsTab stats={stats} habit={habit} />
+            </Suspense>
+          )}
         </DialogContent>
       </Dialog>
 

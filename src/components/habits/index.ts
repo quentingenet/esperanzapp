@@ -5,5 +5,4 @@ export { HabitDropdown } from "./HabitDropdown";
 export { HabitForm } from "./HabitForm";
 export { HabitHistoryTab } from "./HabitHistoryTab";
 export { HabitMilestoneTab } from "./HabitMilestoneTab";
-export { HabitStatsTab } from "./HabitStatsTab";
 export { RelapseDialog } from "./RelapseDialog";

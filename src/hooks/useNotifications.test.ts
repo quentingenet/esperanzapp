@@ -236,6 +236,10 @@ describe("useNotifications", () => {
   });
 
   it("scheduleReminder returns 'scheduled' when permission is granted", async () => {
+    type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
+    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
+      notifications: [{ id: TREATMENT_3_NOTIF_ID }],
+    } as PendingResult);
     const { result } = renderHook(() => useNotifications());
     let status: string | undefined;
     await act(async () => {

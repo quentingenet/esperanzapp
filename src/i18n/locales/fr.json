@@ -74,50 +74,28 @@
         }
     },
     "onboarding": {
-        "welcome": "Bienvenue",
         "yourName": {
             "title": "Comment tu t'appelles ?",
             "placeholder": "Ton prénom (facultatif)",
             "skip": "Continuer sans prénom"
-        },
-        "firstHabit": {
-            "title": "Quelle habitude veux-tu libérer ?",
-            "subtitle": "Tu pourras en ajouter d'autres plus tard."
-        },
-        "startDate": {
-            "title": "Depuis quand ?",
-            "subtitle": "Date de ton dernier arrêt"
-        },
-        "ready": {
-            "title": "C'est parti.",
-            "body": "EsperanzApp compte avec toi.",
-            "button": "Voir mon compteur"
         }
     },
     "habits": {
-        "title": "Mes habitudes",
         "add": "Ajouter une habitude",
-        "edit": "Modifier",
         "delete": "Supprimer cette habitude",
         "deleteConfirm": "Supprimer cette habitude et tout son historique ?",
         "empty": "Aucune habitude pour l'instant.\nCommence par en ajouter une.",
         "counter": {
-            "day_one": "{{count}} jour",
-            "day_other": "{{count}} jours",
             "since": "sans {{label}} depuis le {{date}}",
-            "today": "C'est le premier jour",
             "lastRelapse": "Dernière rechute : {{date}}"
         },
         "form": {
             "name": "Nom de l'habitude",
             "namePlaceholder": "ex : Alcool, Tabac…",
-            "icon": "Icône",
-            "startDate": "Date de départ",
-            "color": "Couleur"
+            "startDate": "Date de départ"
         },
         "duplicateWarning": "Tu suis déjà cette habitude. Tu ne peux pas en ajouter une identique.",
         "reorderBtn": "Trier mes\nhabitudes",
-        "reorderHint": "Glisser pour trier",
         "streak": {
             "year_one": "an",
             "year_other": "ans",
@@ -336,18 +314,13 @@
         "fileProtectionHint": "Pense à protéger ton fichier en activant le chiffrement par mot de passe ci-dessus."
     },
     "settings": {
-        "title": "Paramètres",
         "language": "Langue",
         "notifications": "Notifications",
-        "notificationsDesc": "Rappels locaux uniquement, jamais de suivi",
         "notificationsDisableHint": "Pour désactiver, accédez aux paramètres de l'application sur votre appareil.",
-        "export": "Mes données",
-        "about": "À propos",
+        "notificationsBlocked": "Les notifications sont refusées. Tu peux les activer dans les paramètres de l'app.",
         "version": "Version",
         "license": "Licence GPL-3.0",
         "sourceCode": "Code source",
-        "deleteAll": "Supprimer toutes mes données",
-        "deleteAllConfirm": "Cette action est irréversible. Toutes tes données seront effacées de cet appareil.",
         "languages": {
             "fr": "Français",
             "en": "English",
@@ -369,7 +342,6 @@
     },
     "milestones": {
         "title": "Jalons",
-        "locked": "Verrouillé",
         "unlocked": "Déverrouillé le {{date}}",
         "daysNeeded_one": "Encore {{count}} jour",
         "daysNeeded_other": "Encore {{count}} jours",
@@ -379,7 +351,6 @@
         "milestones": "Jalons",
         "history": "Historique",
         "stats": "Statistiques",
-        "statsSoon": "Fonctionnalité à venir",
         "relapse": "Marquer une rechute"
     },
     "notifications": {

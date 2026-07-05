@@ -60,7 +60,9 @@ export function useHabits() {
     (orderedIds: string[]): void => {
       const byId = new Map(habits.map((h) => [h.id, h]));
       const sorted = orderedIds.map((id) => byId.get(id)).filter((h): h is Habit => h !== undefined);
-      setHabits(sorted);
+      const orderedSet = new Set(orderedIds);
+      const remaining = habits.filter((h) => !orderedSet.has(h.id));
+      setHabits([...sorted, ...remaining]);
     },
     [habits, setHabits],
   );

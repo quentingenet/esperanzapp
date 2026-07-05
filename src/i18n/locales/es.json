@@ -74,50 +74,28 @@
         }
     },
     "onboarding": {
-        "welcome": "Bienvenido",
         "yourName": {
             "title": "¿Cómo te llamas?",
             "placeholder": "Tu nombre (opcional)",
             "skip": "Continuar sin nombre"
-        },
-        "firstHabit": {
-            "title": "¿De qué hábito quieres liberarte?",
-            "subtitle": "Podrás añadir más después."
-        },
-        "startDate": {
-            "title": "¿Desde cuándo?",
-            "subtitle": "Fecha de tu última parada"
-        },
-        "ready": {
-            "title": "Vamos allá.",
-            "body": "EsperanzApp cuenta contigo.",
-            "button": "Ver mi contador"
         }
     },
     "habits": {
-        "title": "Mis hábitos",
         "add": "Añadir un hábito",
-        "edit": "Editar",
         "delete": "Eliminar este hábito",
         "deleteConfirm": "¿Eliminar este hábito y todo su historial?",
         "empty": "Ningún hábito por ahora.\nEmpieza añadiendo uno.",
         "counter": {
-            "day_one": "{{count}} día",
-            "day_other": "{{count}} días",
             "since": "libre de {{label}} desde el {{date}}",
-            "today": "Es el primer día",
             "lastRelapse": "Última recaída: {{date}}"
         },
         "form": {
             "name": "Nombre del hábito",
             "namePlaceholder": "ej: Alcohol, Tabaco…",
-            "icon": "Icono",
-            "startDate": "Fecha de inicio",
-            "color": "Color"
+            "startDate": "Fecha de inicio"
         },
         "duplicateWarning": "Ya estás siguiendo este hábito. No puedes añadir uno duplicado.",
         "reorderBtn": "Ordenar mis\nhábitos",
-        "reorderHint": "Arrastra para ordenar",
         "streak": {
             "year_one": "año",
             "year_other": "años",
@@ -336,18 +314,13 @@
         "fileProtectionHint": "Considera proteger tu archivo activando el cifrado con contraseña arriba."
     },
     "settings": {
-        "title": "Ajustes",
         "language": "Idioma",
         "notifications": "Notificaciones",
-        "notificationsDesc": "Solo recordatorios locales, sin rastreo",
         "notificationsDisableHint": "Para desactivar, ve a los ajustes de la aplicación en tu dispositivo.",
-        "export": "Mis datos",
-        "about": "Acerca de",
+        "notificationsBlocked": "Las notificaciones están bloqueadas. Puedes activarlas en los ajustes de la app.",
         "version": "Versión",
         "license": "Licencia GPL-3.0",
         "sourceCode": "Código fuente",
-        "deleteAll": "Eliminar todos mis datos",
-        "deleteAllConfirm": "Esta acción es irreversible. Todos tus datos serán borrados de este dispositivo.",
         "languages": {
             "fr": "Français",
             "en": "English",
@@ -369,7 +342,6 @@
     },
     "milestones": {
         "title": "Hitos",
-        "locked": "Bloqueado",
         "unlocked": "Desbloqueado el {{date}}",
         "daysNeeded_one": "Falta {{count}} día",
         "daysNeeded_other": "Faltan {{count}} días",
@@ -379,7 +351,6 @@
         "milestones": "Hitos",
         "history": "Historial",
         "stats": "Estadísticas",
-        "statsSoon": "Próximamente",
         "relapse": "Registrar una recaída"
     },
     "notifications": {
