@@ -32,7 +32,7 @@ EsperanzApp does none of that. It counts your days with you, celebrates your mil
 ## Features
 
 🔢 **Day Counter**
-Track your streak since the last relapse for each habit. Every day counts, and EsperanzApp counts with you.
+Track your streak since the last relapse for each habit. Every day counts...
 
 🏆 **Milestones**
 1 day, 7 days, 30 days, 90 days, 1 year… Each milestone is celebrated.
@@ -41,7 +41,7 @@ Track your streak since the last relapse for each habit. Every day counts, and E
 If you relapse, those days are not erased. Press "Start again" and keep going. The journey continues.
 
 💊 **Treatment Tracker**
-Log your daily treatments or medications alongside your habits.
+Log your daily treatments or medications alongside your habits and be notified.
 
 📊 **Stats & History**
 Charts, streaks, history timeline: visualize your progress and understand your patterns.
