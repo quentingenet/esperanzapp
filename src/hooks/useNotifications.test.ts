@@ -4,7 +4,7 @@ import { getDaysInMonth } from "date-fns";
 import { useNotifications, getNotificationId, NOTIF_DOMAIN_OFFSET } from "./useNotifications";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
-import { NativeSettings } from "capacitor-native-settings";
+import { ExactAlarm } from "@/plugins/ExactAlarm";
 import type { Treatment } from "@/types";
 
 const treatment: Treatment = {
@@ -56,17 +56,20 @@ describe("useNotifications", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2024-01-15T06:00:00.000Z"));
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("android");
   });
 
   afterEach(() => {
     vi.useRealTimers();
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("web");
     vi.mocked(LocalNotifications.schedule).mockClear();
     vi.mocked(LocalNotifications.cancel).mockClear();
     vi.mocked(LocalNotifications.getPending).mockClear();
     vi.mocked(LocalNotifications.requestPermissions).mockClear();
     vi.mocked(LocalNotifications.checkPermissions).mockClear();
-    vi.mocked(NativeSettings.open).mockClear();
+    vi.mocked(ExactAlarm.canScheduleExactAlarms).mockClear();
+    vi.mocked(ExactAlarm.requestExactAlarmPermission).mockClear();
   });
 
   it("requestPermission returns true when granted", async () => {
@@ -398,22 +401,52 @@ describe("useNotifications", () => {
     expect(LocalNotifications.checkPermissions).not.toHaveBeenCalled();
   });
 
-  it("openExactAlarmSettings calls NativeSettings.open with ApplicationDetails on native platform", async () => {
+  it("getExactAlarmStatus returns true when canScheduleExactAlarms resolves true on Android", async () => {
+    vi.mocked(ExactAlarm.canScheduleExactAlarms).mockResolvedValueOnce({ value: true });
     const { result } = renderHook(() => useNotifications());
+    let status: boolean | undefined;
     await act(async () => {
-      await result.current.openExactAlarmSettings();
+      status = await result.current.getExactAlarmStatus();
     });
-    expect(NativeSettings.open).toHaveBeenCalledWith(
-      expect.objectContaining({ optionAndroid: "application_details" }),
-    );
+    expect(status).toBe(true);
+    expect(ExactAlarm.canScheduleExactAlarms).toHaveBeenCalledTimes(1);
   });
 
-  it("openExactAlarmSettings does nothing on non-native platform", async () => {
-    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
+  it("getExactAlarmStatus returns false when canScheduleExactAlarms resolves false on Android", async () => {
+    vi.mocked(ExactAlarm.canScheduleExactAlarms).mockResolvedValueOnce({ value: false });
+    const { result } = renderHook(() => useNotifications());
+    let status: boolean | undefined;
+    await act(async () => {
+      status = await result.current.getExactAlarmStatus();
+    });
+    expect(status).toBe(false);
+  });
+
+  it("getExactAlarmStatus returns true without calling plugin on non-Android platform", async () => {
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("ios");
+    const { result } = renderHook(() => useNotifications());
+    let status: boolean | undefined;
+    await act(async () => {
+      status = await result.current.getExactAlarmStatus();
+    });
+    expect(status).toBe(true);
+    expect(ExactAlarm.canScheduleExactAlarms).not.toHaveBeenCalled();
+  });
+
+  it("openExactAlarmSettings calls requestExactAlarmPermission on Android", async () => {
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.openExactAlarmSettings();
     });
-    expect(NativeSettings.open).not.toHaveBeenCalled();
+    expect(ExactAlarm.requestExactAlarmPermission).toHaveBeenCalledTimes(1);
+  });
+
+  it("openExactAlarmSettings does nothing on non-Android platform", async () => {
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("ios");
+    const { result } = renderHook(() => useNotifications());
+    await act(async () => {
+      await result.current.openExactAlarmSettings();
+    });
+    expect(ExactAlarm.requestExactAlarmPermission).not.toHaveBeenCalled();
   });
 });

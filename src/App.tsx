@@ -34,22 +34,22 @@ import type { NavTab } from "@/types";
 // between the database and the notification plugin whenever the app starts.
 function AppStartRescheduler() {
   const { t } = useTranslation();
-  const { rescheduleAll } = useNotifications();
-  // rescheduleAll cancels all stale treatment-domain notifications before rescheduling,
-  // preventing ghost reminders from deleted or previously failed cancels.
-  // rescheduleAll is useCallback([]) — stable reference, effect runs once only.
+  const { rescheduleAll, getExactAlarmStatus } = useNotifications();
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     void (async () => {
       try {
         const treatments = await getAllTreatments();
-        const anyFailed = await rescheduleAll(treatments);
-        if (anyFailed) toast.info(t("treatments.reminderAlarmSettingsNeeded"));
+        const exactAlarmOk = await getExactAlarmStatus();
+        await rescheduleAll(treatments);
+        if (!exactAlarmOk && treatments.some((tr) => tr.reminderEnabled)) {
+          toast.info(t("treatments.reminderAlarmSettingsNeeded"));
+        }
       } catch {
         // Notification failures must not prevent the app from starting.
       }
     })();
-  }, [rescheduleAll, t]);
+  }, [rescheduleAll, getExactAlarmStatus, t]);
 
   // Renew "last day of month" one-shots when they fire while the app is in foreground.
   // Background/killed case is handled by AppStartRescheduler on next launch.

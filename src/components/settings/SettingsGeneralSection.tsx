@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -15,6 +15,8 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import { Capacitor } from "@capacitor/core";
+import type { PluginListenerHandle } from "@capacitor/core";
+import { App } from "@capacitor/app";
 import { NativeSettings, AndroidSettings } from "capacitor-native-settings";
 import { useOnboarding, useAppUpdate, useNotifications } from "@/hooks";
 import { useOnboardingStore } from "@/store";
@@ -40,12 +42,13 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
   const { t, i18n } = useTranslation();
   const { saveName } = useOnboarding();
   const { status: updateStatus, checkForUpdate, openUpdate } = useAppUpdate();
-  const { requestPermission, getPermissionStatus, openExactAlarmSettings } = useNotifications();
+  const { requestPermission, getPermissionStatus, getExactAlarmStatus, openExactAlarmSettings } = useNotifications();
   const userName = useOnboardingStore((s) => s.userName);
   const [editName, setEditName] = useState(userName);
   const [diagOpen, setDiagOpen] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [notifGranted, setNotifGranted] = useState<boolean | null>(null);
+  const [exactAlarmGranted, setExactAlarmGranted] = useState<boolean | null>(null);
   const versionTapCount = useRef(0);
   const versionTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (versionTapTimer.current) clearTimeout(versionTapTimer.current); }, []);
@@ -53,6 +56,34 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
   useEffect(() => {
     void getPermissionStatus().then(setNotifGranted);
   }, [getPermissionStatus]);
+
+  useEffect(() => {
+    if (Capacitor.getPlatform() !== "android") return;
+    void getExactAlarmStatus().then(setExactAlarmGranted);
+  }, [getExactAlarmStatus]);
+
+  const recheckExactAlarm = useCallback(async () => {
+    if (Capacitor.getPlatform() !== "android") return;
+    const [notifStatus, exactStatus] = await Promise.all([getPermissionStatus(), getExactAlarmStatus()]);
+    setNotifGranted(notifStatus);
+    setExactAlarmGranted(exactStatus);
+  }, [getPermissionStatus, getExactAlarmStatus]);
+
+  useEffect(() => {
+    if (Capacitor.getPlatform() !== "android") return;
+    let handle: PluginListenerHandle | undefined;
+    let disposed = false;
+    void App.addListener("appStateChange", ({ isActive }) => {
+      if (isActive) void recheckExactAlarm();
+    }).then((h) => {
+      if (disposed) void h.remove().catch(() => {});
+      else handle = h;
+    }).catch(() => {});
+    return () => {
+      disposed = true;
+      void handle?.remove().catch(() => {});
+    };
+  }, [recheckExactAlarm]);
 
   const handleSaveName = () => {
     void saveName(editName)
@@ -140,13 +171,15 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
                 checked={notifGranted}
                 onChange={(_e, checked) => {
                   if (checked) {
-                    void requestPermission().then((granted) => {
+                    void requestPermission().then(async (granted) => {
                       setNotifGranted(granted);
                       if (!granted && Capacitor.isNativePlatform()) {
                         toast.info(t("settings.notificationsBlocked"));
                         void NativeSettings.openAndroid({ option: AndroidSettings.AppNotification }).catch(() => {});
-                      } else if (granted) {
-                        void openExactAlarmSettings();
+                      } else if (granted && Capacitor.getPlatform() === "android") {
+                        const hasExact = await getExactAlarmStatus();
+                        setExactAlarmGranted(hasExact);
+                        if (!hasExact) void openExactAlarmSettings();
                       }
                     });
                   } else {
@@ -165,7 +198,7 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
         </Button>
       </Box>
 
-      {notifGranted && Capacitor.isNativePlatform() && (
+      {notifGranted && exactAlarmGranted === false && Capacitor.getPlatform() === "android" && (
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mx: 2, mb: 2 }}>
           <Typography variant="caption" color="text.secondary" sx={{ flex: 1, mr: 1 }}>
             {t("settings.exactAlarmHint")}

@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { getDaysInMonth, addMonths } from "date-fns";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications, Weekday } from "@capacitor/local-notifications";
-import { NativeSettings, AndroidSettings, IOSSettings } from "capacitor-native-settings";
+import { ExactAlarm } from "@/plugins/ExactAlarm";
 import i18n from "@/i18n";
 import type { Treatment } from "@/types";
 
@@ -164,15 +164,16 @@ export function useNotifications() {
     return display === "granted";
   }, []);
 
-  // Opens the app info page where Android 12+ shows the "Alarms & Reminders" toggle.
-  // Call this when scheduleReminder returns "error" to let the user grant SCHEDULE_EXACT_ALARM.
-  const openExactAlarmSettings = useCallback(async (): Promise<void> => {
-    if (!Capacitor.isNativePlatform()) return;
-    await NativeSettings.open({
-      optionAndroid: AndroidSettings.ApplicationDetails,
-      optionIOS: IOSSettings.App,
-    }).catch(() => {});
+  const getExactAlarmStatus = useCallback(async (): Promise<boolean> => {
+    if (Capacitor.getPlatform() !== "android") return true;
+    const { value } = await ExactAlarm.canScheduleExactAlarms().catch(() => ({ value: true }));
+    return value;
   }, []);
 
-  return { requestPermission, scheduleReminder, cancelReminder, rescheduleAll, getPermissionStatus, openExactAlarmSettings };
+  const openExactAlarmSettings = useCallback(async (): Promise<void> => {
+    if (Capacitor.getPlatform() !== "android") return;
+    await ExactAlarm.requestExactAlarmPermission().catch(() => {});
+  }, []);
+
+  return { requestPermission, scheduleReminder, cancelReminder, rescheduleAll, getPermissionStatus, getExactAlarmStatus, openExactAlarmSettings };
 }

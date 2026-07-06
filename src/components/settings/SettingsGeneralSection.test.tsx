@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   saveName: vi.fn(),
   requestPermission: vi.fn(),
   getPermissionStatus: vi.fn(),
+  getExactAlarmStatus: vi.fn().mockResolvedValue(true),
   openExactAlarmSettings: vi.fn().mockResolvedValue(undefined),
 }));
 
@@ -22,6 +23,7 @@ vi.mock("@/hooks", () => ({
   useNotifications: () => ({
     requestPermission: mocks.requestPermission,
     getPermissionStatus: mocks.getPermissionStatus,
+    getExactAlarmStatus: mocks.getExactAlarmStatus,
     openExactAlarmSettings: mocks.openExactAlarmSettings,
   }),
 }));

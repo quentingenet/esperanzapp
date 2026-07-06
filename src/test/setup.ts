@@ -92,6 +92,20 @@ vi.mock("capacitor-native-settings", () => ({
   },
 }));
 
+vi.mock("@capacitor/app", () => ({
+  App: {
+    addListener: vi.fn().mockResolvedValue({ remove: vi.fn() }),
+    exitApp: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
+vi.mock("@/plugins/ExactAlarm", () => ({
+  ExactAlarm: {
+    canScheduleExactAlarms: vi.fn().mockResolvedValue({ value: true }),
+    requestExactAlarmPermission: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
 vi.mock("jeep-sqlite/loader", () => ({
   defineCustomElements: vi.fn().mockResolvedValue(undefined),
 }));
