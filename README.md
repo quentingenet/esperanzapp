@@ -6,7 +6,6 @@
 ![MUI](https://img.shields.io/badge/MUI-%230081CB.svg?style=for-the-badge&logo=mui&logoColor=white)
 ![Capacitor](https://img.shields.io/badge/Capacitor-119EFF?style=for-the-badge&logo=Capacitor&logoColor=white)
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
-![F-Droid](https://img.shields.io/badge/F--Droid-1976D2?style=for-the-badge&logo=f-droid&logoColor=white)
 ![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)
 
 <p align="center">
@@ -73,15 +72,7 @@ Export your history as JSON or CSV at any time, and save it wherever you want. Y
 
 ## Get the app
 
-### F-Droid *(coming soon)*
-
-EsperanzApp is GPL-3.0 licensed and will be submitted to [F-Droid](https://f-droid.org/), the free and open-source Android app store. No Google account needed, no tracking, built directly from source by F-Droid's infrastructure.
-
-> Submission in progress. Watch this repo for updates.
-
-### Build from source
-
-See instructions below.
+EsperanzApp is available on the Google Play Store. You can also build it yourself from source (see instructions below).
 
 ---
 
@@ -144,7 +135,7 @@ npm run lint
 # 1. Build web assets
 npm run build && npx cap sync android
 
-# 2. Generate signed AAB (Play Store) or APK (F-Droid / sideload)
+# 2. Generate signed AAB (Play Store) or APK (sideload)
 cd android
 ./gradlew bundleRelease   # AAB
 ./gradlew assembleRelease # APK

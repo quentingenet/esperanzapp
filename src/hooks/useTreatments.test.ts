@@ -104,6 +104,15 @@ describe("useTreatments", () => {
     expect(result.current.treatments.map((t) => t.id)).toEqual(["2", "3", "1"]);
   });
 
+  it("reorderTreatments preserves treatments absent from orderedIds at the end of the list", () => {
+    useTreatmentsStore.setState({ treatments: [treatment, treatmentB, treatmentC] });
+    const { result } = renderHook(() => useTreatments());
+    act(() => {
+      result.current.reorderTreatments(["3", "1"]); // treatmentB (id=2) absent
+    });
+    expect(result.current.treatments.map((t) => t.id)).toEqual(["3", "1", "2"]);
+  });
+
   it("saveTreatmentsOrder calls updateTreatmentsSortOrder with current treatments id order", async () => {
     useTreatmentsStore.setState({ treatments: [treatmentB, treatment, treatmentC] });
     const { result } = renderHook(() => useTreatments());

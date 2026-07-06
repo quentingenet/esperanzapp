@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { createHabitLog, getHabitLogsByHabitId, getAllHabitLogs, recordHabitRelapse } from "@/db";
+import { getHabitLogsByHabitId, getAllHabitLogs, recordHabitRelapse } from "@/db";
 import { diffInDays, todayLocalDate } from "@/utils";
 import type { HabitLog, HabitStats } from "@/types";
 
@@ -53,21 +53,8 @@ function computeStats(logs: HabitLog[]): HabitStats {
 }
 
 export function useHabitLogs() {
-  const addLog = useCallback(
-    async (data: Omit<HabitLog, "id">): Promise<HabitLog> => createHabitLog(data),
-    [],
-  );
-
   const getLogsByHabit = useCallback(
     async (habitId: string): Promise<HabitLog[]> => getHabitLogsByHabitId(habitId),
-    [],
-  );
-
-  const getStats = useCallback(
-    async (habitId: string): Promise<HabitStats> => {
-      const logs = await getHabitLogsByHabitId(habitId);
-      return computeStats(logs);
-    },
     [],
   );
 
@@ -94,5 +81,5 @@ export function useHabitLogs() {
     [],
   );
 
-  return { addLog, recordRelapse, getLogsByHabit, getStats, getStatsBatch };
+  return { recordRelapse, getLogsByHabit, getStatsBatch };
 }

@@ -4,7 +4,6 @@ import {
   createHabitWithInitialLog,
   recordHabitRelapse,
   getAllHabits,
-  updateHabit,
   deleteHabit,
 } from "./habits";
 
@@ -109,22 +108,6 @@ describe("getAllHabits", () => {
   it("returns empty array when none", async () => {
     mockDb.query.mockResolvedValue({ values: [] });
     expect(await getAllHabits()).toEqual([]);
-  });
-});
-
-describe("updateHabit", () => {
-  it("updates label", async () => {
-    mockDb.run.mockResolvedValue({});
-    await updateHabit("1", { label: "Tabac" });
-    expect(mockDb.run).toHaveBeenCalledWith(
-      expect.stringContaining("UPDATE habits SET"),
-      ["Tabac", "1"],
-    );
-  });
-
-  it("does nothing when no fields provided", async () => {
-    await updateHabit("1", {});
-    expect(mockDb.run).not.toHaveBeenCalled();
   });
 });
 

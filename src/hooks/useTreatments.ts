@@ -66,7 +66,9 @@ export function useTreatments() {
     (orderedIds: string[]): void => {
       const byId = new Map(treatments.map((t) => [t.id, t]));
       const sorted = orderedIds.map((id) => byId.get(id)).filter((t): t is Treatment => t !== undefined);
-      setTreatments(sorted);
+      const orderedSet = new Set(orderedIds);
+      const remaining = treatments.filter((t) => !orderedSet.has(t.id));
+      setTreatments([...sorted, ...remaining]);
     },
     [treatments, setTreatments],
   );

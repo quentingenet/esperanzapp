@@ -1,6 +1,6 @@
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import type { Habit } from "@/types";
-import { getDb, runInTransaction, withDb, withDbVoid } from "./client";
+import { getDb, runInTransaction, withDb } from "./client";
 import { updateSortOrder } from "./sortOrder";
 
 type HabitRow = {
@@ -87,23 +87,6 @@ export function getAllHabits(): Promise<Habit[]> {
 
 export function updateHabitsSortOrder(orderedIds: string[]): Promise<void> {
   return updateSortOrder("habits", orderedIds);
-}
-
-export function updateHabit(
-  id: string,
-  data: Partial<Omit<Habit, "id" | "createdAt">>,
-): Promise<void> {
-  return withDbVoid(async (db) => {
-    const fields: string[] = [];
-    const values: string[] = [];
-    if (data.label !== undefined) { fields.push("label = ?"); values.push(data.label); }
-    if (data.icon !== undefined) { fields.push("icon = ?"); values.push(data.icon); }
-    if (data.color !== undefined) { fields.push("color = ?"); values.push(data.color); }
-    if (data.bgColor !== undefined) { fields.push("bg_color = ?"); values.push(data.bgColor); }
-    if (data.startDate !== undefined) { fields.push("start_date = ?"); values.push(data.startDate); }
-    if (!fields.length) return;
-    await db.run(`UPDATE habits SET ${fields.join(", ")} WHERE id = ?`, [...values, id]);
-  });
 }
 
 export function deleteHabit(id: string): Promise<void> {

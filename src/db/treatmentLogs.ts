@@ -1,7 +1,7 @@
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import type { TreatmentLog, TreatmentStatus } from "@/types";
 import { isTreatmentStatus } from "@/utils";
-import { withDb, withDbVoid } from "./client";
+import { withDb } from "./client";
 
 type TreatmentLogRow = {
   id: number;
@@ -53,12 +53,6 @@ export function getTreatmentLogsByDate(scheduledAt: string): Promise<TreatmentLo
     );
     return ((result.values ?? []) as TreatmentLogRow[]).map(rowToTreatmentLog);
   }, []);
-}
-
-export function updateTreatmentLogStatus(id: string, status: TreatmentStatus): Promise<void> {
-  return withDbVoid(async (db) => {
-    await db.run("UPDATE treatment_logs SET status = ? WHERE id = ?", [status, id]);
-  });
 }
 
 export function getAllTreatmentLogs(): Promise<TreatmentLog[]> {
