@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { useTreatmentsStore } from "./treatmentsStore";
-import type { Treatment, TreatmentLog } from "@/types";
+import type { Treatment } from "@/types";
 
 const t1: Treatment = {
   id: "1",
@@ -14,22 +14,14 @@ const t1: Treatment = {
 
 const t2: Treatment = { ...t1, id: "2", label: "Metformin" };
 
-const log1: TreatmentLog = {
-  id: "1",
-  treatmentId: "1",
-  scheduledAt: "2024-01-15T08:00:00.000Z",
-  status: "taken",
-};
-
 describe("treatmentsStore", () => {
   beforeEach(() => {
-    useTreatmentsStore.setState({ treatments: [], logs: [], loading: false });
+    useTreatmentsStore.setState({ treatments: [], loading: false });
   });
 
   it("initial state", () => {
     const s = useTreatmentsStore.getState();
     expect(s.treatments).toEqual([]);
-    expect(s.logs).toEqual([]);
     expect(s.loading).toBe(false);
   });
 
@@ -51,17 +43,6 @@ describe("treatmentsStore", () => {
     expect(useTreatmentsStore.getState().treatments[0]!.id).toBe("2");
   });
 
-  it("setLogs replaces logs", () => {
-    useTreatmentsStore.getState().setLogs([log1]);
-    expect(useTreatmentsStore.getState().logs).toEqual([log1]);
-  });
-
-  it("addLog appends", () => {
-    useTreatmentsStore.getState().addLog(log1);
-    useTreatmentsStore.getState().addLog({ ...log1, id: "2" });
-    expect(useTreatmentsStore.getState().logs).toHaveLength(2);
-  });
-
   it("updateTreatment updates matching treatment in place", () => {
     useTreatmentsStore.getState().setTreatments([t1, t2]);
     useTreatmentsStore.getState().updateTreatment("1", { label: "Updated" });
@@ -74,31 +55,5 @@ describe("treatmentsStore", () => {
     useTreatmentsStore.getState().setTreatments([t1]);
     useTreatmentsStore.getState().updateTreatment("999", { label: "Ghost" });
     expect(useTreatmentsStore.getState().treatments[0]?.label).toBe("Sertraline");
-  });
-
-  it("upsertLog replaces existing log with same treatmentId + scheduledAt", () => {
-    const logA: TreatmentLog = { id: "1", treatmentId: "1", scheduledAt: "2024-01-15", status: "taken" };
-    const logB: TreatmentLog = { id: "2", treatmentId: "1", scheduledAt: "2024-01-15", status: "missed" };
-    useTreatmentsStore.getState().upsertLog(logA);
-    useTreatmentsStore.getState().upsertLog(logB);
-    const { logs } = useTreatmentsStore.getState();
-    expect(logs).toHaveLength(1);
-    expect(logs[0]?.status).toBe("missed");
-  });
-
-  it("upsertLog appends when treatmentId+scheduledAt differs", () => {
-    const logA: TreatmentLog = { id: "1", treatmentId: "1", scheduledAt: "2024-01-15", status: "taken" };
-    const logB: TreatmentLog = { id: "2", treatmentId: "1", scheduledAt: "2024-01-16", status: "missed" };
-    useTreatmentsStore.getState().upsertLog(logA);
-    useTreatmentsStore.getState().upsertLog(logB);
-    expect(useTreatmentsStore.getState().logs).toHaveLength(2);
-  });
-
-  it("upsertLog appends for different treatments on same date", () => {
-    const logA: TreatmentLog = { id: "1", treatmentId: "1", scheduledAt: "2024-01-15", status: "taken" };
-    const logB: TreatmentLog = { id: "2", treatmentId: "2", scheduledAt: "2024-01-15", status: "missed" };
-    useTreatmentsStore.getState().upsertLog(logA);
-    useTreatmentsStore.getState().upsertLog(logB);
-    expect(useTreatmentsStore.getState().logs).toHaveLength(2);
   });
 });

@@ -20,6 +20,7 @@ function rowToTreatmentLog(row: TreatmentLogRow): TreatmentLog {
   };
 }
 
+// Not called from production code; kept as a direct-insert utility for integration tests.
 export function createTreatmentLog(data: Omit<TreatmentLog, "id">, dbConn?: SQLiteDBConnection | null): Promise<TreatmentLog> {
   const fn = async (db: SQLiteDBConnection): Promise<TreatmentLog> => {
     await db.run(

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useTreatmentLogs } from "./useTreatmentLogs";
-import { useTreatmentsStore } from "@/store/treatmentsStore";
 import { upsertTreatmentLogForDate } from "@/db";
 import type { TreatmentLog } from "@/types";
 
@@ -19,11 +18,10 @@ const log: TreatmentLog = {
 
 describe("useTreatmentLogs", () => {
   beforeEach(() => {
-    useTreatmentsStore.setState({ treatments: [], logs: [], loading: false });
     vi.mocked(upsertTreatmentLogForDate).mockResolvedValue(log);
   });
 
-  it("logStatus upserts log and adds to store", async () => {
+  it("logStatus upserts to DB and returns the created log", async () => {
     const { result } = renderHook(() => useTreatmentLogs());
     let created: TreatmentLog | undefined;
     await act(async () => {
@@ -31,7 +29,6 @@ describe("useTreatmentLogs", () => {
     });
     expect(upsertTreatmentLogForDate).toHaveBeenCalledWith("1", "2024-01-15", "taken");
     expect(created).toEqual(log);
-    expect(useTreatmentsStore.getState().logs).toHaveLength(1);
   });
 
   it("logStatus status 'missed' is stored correctly", async () => {
@@ -44,5 +41,15 @@ describe("useTreatmentLogs", () => {
     });
     expect(upsertTreatmentLogForDate).toHaveBeenCalledWith("1", "2024-01-15", "missed");
     expect(created?.status).toBe("missed");
+  });
+
+  it("logStatusForDate upserts to DB and returns the log", async () => {
+    const { result } = renderHook(() => useTreatmentLogs());
+    let returned: TreatmentLog | undefined;
+    await act(async () => {
+      returned = await result.current.logStatusForDate("1", "2024-01-15", "taken");
+    });
+    expect(upsertTreatmentLogForDate).toHaveBeenCalledWith("1", "2024-01-15", "taken");
+    expect(returned).toEqual(log);
   });
 });

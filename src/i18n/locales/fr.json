@@ -1,379 +1,371 @@
 {
-    "app": {
-        "by": "par"
+  "app": {
+    "by": "par"
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "close": "Fermer",
+    "loading": "Chargement…",
+    "error": "Une erreur est survenue",
+    "day_one": "jour",
+    "day_other": "jours",
+    "name": "Prénom",
+    "saved": "Modifications enregistrées",
+    "deleted": "Supprimé",
+    "created": "Créé",
+    "expand": "Développer",
+    "collapse": "Réduire",
+    "showPassword": "Afficher le mot de passe",
+    "reorder": "Réordonner",
+    "enabled": "Activé",
+    "disabled": "Désactivé"
+  },
+  "nav": {
+    "home": "Accueil",
+    "treatments": "Traitements",
+    "history": "Historique",
+    "settings": "Paramètres",
+    "milestones": "Jalons"
+  },
+  "privacy": {
+    "title": "Bienvenue sur EsperanzApp",
+    "subtitle": "L'app fonctionne entièrement sur ton téléphone, sans connexion.",
+    "points": {
+      "noAccount": "Pas de compte à créer",
+      "noServer": "Tes données restent sur ton appareil",
+      "localEncryption": "Données chiffrées localement",
+      "encryptedExport": "Exports protégeables par mot de passe",
+      "noTracking": "Pas de publicité, pas de suivi",
+      "openSource": "Code source public et vérifiable (GPL-3.0)"
     },
-    "common": {
-        "save": "Enregistrer",
-        "cancel": "Annuler",
-        "delete": "Supprimer",
-        "edit": "Modifier",
-        "confirm": "Confirmer",
-        "back": "Retour",
-        "close": "Fermer",
-        "loading": "Chargement…",
-        "error": "Une erreur est survenue",
-        "day_one": "jour",
-        "day_other": "jours",
-        "name": "Prénom",
-        "saved": "Modifications enregistrées",
-        "deleted": "Supprimé",
-        "created": "Créé",
-        "expand": "Développer",
-        "collapse": "Réduire",
-        "showPassword": "Afficher le mot de passe",
-        "reorder": "Réordonner",
-        "enabled": "Activé",
-        "disabled": "Désactivé"
-    },
-    "nav": {
-        "home": "Accueil",
-        "treatments": "Traitements",
-        "history": "Historique",
-        "settings": "Paramètres",
-        "milestones": "Jalons"
-    },
-    "privacy": {
-        "title": "Bienvenue sur EsperanzApp",
-        "subtitle": "L'app fonctionne entièrement sur ton téléphone, sans connexion.",
-        "points": {
-            "noAccount": "Pas de compte à créer",
-            "noServer": "Tes données restent sur ton appareil",
-            "localEncryption": "Données chiffrées localement",
-            "encryptedExport": "Exports protégeables par mot de passe",
-            "noTracking": "Pas de publicité, pas de suivi",
-            "openSource": "Code source public et vérifiable (GPL-3.0)"
-        },
-        "accept": "Commencer",
-        "license": "Licence GPL-3.0"
-    },
-    "tutorial": {
-        "skip": "Passer",
-        "next": "Suivant",
-        "start": "Commencer",
-        "steps": {
-            "counter": {
-                "title": "Reprends le contrôle de tes habitudes",
-                "body": "Suis les habitudes dont tu veux te libérer et compte chaque jour sans rechute.\n\nSe libérer d'une habitude, ça se construit jour après jour.\nChaque jour sans rechute est une petite victoire !\nEsperanzApp chemine avec toi."
-            },
-            "relapse": {
-                "title": "Une Rechute ?",
-                "body": "Si tu rechutes dans une habitude dont tu souhaites te libérer, tu peux la notifier dans l'historique de l'habitude."
-            },
-            "milestones": {
-                "title": "Des jalons sur le chemin...",
-                "body": "1 jour, 7, 30, 90 ou plus... Chaque palier est un cap franchi qui t'aidera dans ton cheminement."
-            },
-            "private": {
-                "title": "Conçue pour la vie privée",
-                "body": "Tes données restent sur ton appareil, sauf si tu choisis de les exporter ou de les partager. Pas de compte, pas de serveur distant, pas de suivi."
-            },
-            "stats": {
-                "title": "Suis ta progression",
-                "body": "Pour chaque habitude, tu peux consulter tes stats et tes progrès dans le temps."
-            }
-        }
-    },
-    "onboarding": {
-        "yourName": {
-            "title": "Comment tu t'appelles ?",
-            "placeholder": "Ton prénom (facultatif)",
-            "skip": "Continuer sans prénom"
-        }
-    },
-    "habits": {
-        "add": "Ajouter une habitude",
-        "delete": "Supprimer cette habitude",
-        "deleteConfirm": "Supprimer cette habitude et tout son historique ?",
-        "empty": "Aucune habitude pour l'instant.\nCommence par en ajouter une.",
-        "counter": {
-            "since": "sans {{label}} depuis le {{date}}",
-            "lastRelapse": "Dernière rechute : {{date}}"
-        },
-        "form": {
-            "name": "Nom de l'habitude",
-            "namePlaceholder": "ex : Alcool, Tabac…",
-            "startDate": "Date de départ"
-        },
-        "duplicateWarning": "Tu suis déjà cette habitude. Tu ne peux pas en ajouter une identique.",
-        "reorderBtn": "Trier mes\nhabitudes",
-        "streak": {
-            "year_one": "an",
-            "year_other": "ans",
-            "separator": "et",
-            "total": "soit {{count}} jours"
-        },
-        "seeMore": "Voir les details"
-    },
-    "habitTypes": {
-        "alcohol": {
-            "label": "Alcool",
-            "desc": "Bière, vin, spiritueux…"
-        },
-        "tobacco": {
-            "label": "Tabac",
-            "desc": "Cigarettes, cigares, tabac à rouler…"
-        },
-        "sugar": {
-            "label": "Sucre",
-            "desc": "Sucreries, sodas, pâtisseries…"
-        },
-        "cannabis": {
-            "label": "Cannabis",
-            "desc": "Usage récréatif ou habitude à réduire"
-        },
-        "social_media": {
-            "label": "Réseaux sociaux",
-            "desc": "Instagram, TikTok, X et consorts"
-        },
-        "gaming": {
-            "label": "Jeux vidéo",
-            "desc": "Temps de jeu compulsif à reprendre en main"
-        },
-        "fast_food": {
-            "label": "Fast food",
-            "desc": "Restauration rapide et snacks industriels"
-        },
-        "adult_content": {
-            "label": "Contenu adulte",
-            "desc": "Usage compulsif de contenus pour adultes"
-        },
-        "shopping": {
-            "label": "Shopping compulsif",
-            "desc": "Achats impulsifs en ligne ou en magasin"
-        },
-        "caffeine": {
-            "label": "Caféine",
-            "desc": "Café, boissons énergisantes, thé fort…"
-        },
-        "screens": {
-            "label": "Écrans",
-            "desc": "Usage excessif des écrans en général"
-        },
-        "custom": {
-            "label": "Personnalisée",
-            "desc": "Définis ta propre habitude"
-        },
-        "groups": {
-            "substances": "Substances",
-            "behaviours": "Comportements",
-            "custom": "Personnalisée"
-        },
-        "gambling": {
-            "label": "Jeux d'argent",
-            "desc": "Casino, paris sportifs, jeux en ligne…"
-        }
-    },
-    "grades": {
-        "awakening": {
-            "label": "Éveil"
-        },
-        "firstBreath": {
-            "label": "Premier souffle"
-        },
-        "anchoring": {
-            "label": "Ancrage"
-        },
-        "solidity": {
-            "label": "Solidité"
-        },
-        "clarity": {
-            "label": "Clarté"
-        },
-        "mastery": {
-            "label": "Maîtrise"
-        },
-        "freedom": {
-            "label": "Liberté"
-        },
-        "fulfilledAwakening": {
-            "label": "Éveil accompli"
-        },
-        "legend": {
-            "label": "Légende"
-        },
-        "messages": {
-            "awakening": "Premier jour. C'est là que tout commence.",
-            "firstBreath": "7 jours. Tu tiens. Continue.",
-            "anchoring": "2 semaines. Ce n'est plus du hasard, c'est une décision.",
-            "solidity": "Un mois. Tu as prouvé quelque chose à toi-même.",
-            "clarity": "2 mois. Les choses deviennent plus claires.",
-            "mastery": "3 mois. Tu es en train de reprendre le contrôle.",
-            "freedom": "6 mois. Tu n'es plus la même personne qu'au premier jour.",
-            "fulfilledAwakening": "Un an. Peu de gens arrivent là. Toi, tu l'as fait.",
-            "legend": "Plus de 2 ans. C'est rare. C'est réel. C'est toi."
-        },
-        "nextGrade": "Prochain palier : {{grade}}",
-        "daysLeft_one": "{{count}} jour restant",
-        "daysLeft_other": "{{count}} jours restants",
-        "progress": "Progression vers {{grade}}"
-    },
-    "relapse": {
-        "title": "Recommencer",
-        "confirmTitle": "Un pas de côté",
-        "confirmBody": "Ces jours sont à toi. Ils restent.",
-        "confirmButton": "Oui, recommencer",
-        "cancelButton": "Annuler",
-        "messages": {
-            "before7days": "{{name}}, ces {{days}} jours comptent. Tu recommences aujourd'hui.",
-            "between7and30days": "{{name}}, tu as tenu {{days}} jours. Ce n'est pas une défaite. Tu sais ce dont tu es capable.",
-            "after30days": "{{name}}, tu as tenu {{days}} jours. C'est immense. Tout ce que tu as appris reste avec toi.",
-            "day0": "{{name}}, l'important c'est d'essayer. Recommence quand tu es prêt."
-        },
-        "dateLabel": "Date de la rechute"
-    },
-    "treatments": {
-        "title": "Mes traitements",
-        "add": "Ajouter un traitement",
-        "edit": "Modifier le traitement",
-        "delete": "Supprimer ce traitement",
-        "deleteConfirm": "Supprimer ce traitement et tout son historique ?",
-        "empty": "Aucun traitement pour l'instant.\nAjoutez-en un et configurez un rappel pour ne rien oublier.",
-        "taken": "Pris",
-        "missed": "Non pris",
-        "pending": "En attente",
-        "reminder": "Rappel à {{time}}",
-        "reminderWeekly": "Tous les {{day}} à {{time}}",
-        "reminderMonthly": "Le {{day}} du mois à {{time}}",
-        "noReminder": "Suivi sans rappel",
-        "form": {
-            "name": "Nom du médicament",
-            "namePlaceholder": "ex : Metformine, Sertraline…",
-            "frequency": "Fréquence",
-            "reminderTime": "Heure du rappel",
-            "enableReminder": "Activer le rappel",
-            "permissionDenied": "Permission de notification refusée. Le rappel a été désactivé.",
-            "reminderDay": "Jour du rappel",
-            "dayOfMonth": "Le {{day}}",
-            "firstDay": "Premier jour du mois",
-            "lastDay": "Dernier jour du mois",
-            "frequencies": {
-                "daily": "Chaque jour",
-                "weekly": "Chaque semaine",
-                "monthly": "Chaque mois"
-            }
-        },
-        "reorderBtn": "Trier mes\ntraitements",
-        "reminderSyncFailed": "Traitement sauvegardé. Le rappel n'a pas pu être synchronisé.",
-        "reminderAlarmSettingsNeeded": "Active 'Alarmes et rappels' dans tes paramètres pour recevoir tes rappels à l'heure."
-    },
-    "stats": {
-        "title": "Statistiques",
-        "currentStreak": "Série actuelle",
-        "longestStreak": "Plus longue série",
-        "totalRelapses": "Rechutes totales",
-        "averageStreak": "Moyenne des séries",
-        "startDate": "Depuis le",
-        "noData": "Pas encore de données"
-    },
-    "history": {
-        "title": "Historique",
-        "empty": "Aucun événement enregistré",
-        "start": "Démarrage",
-        "active": "Actif",
-        "relapse": "Rechute",
-        "relapseRestart": "Rechute, nouveau départ",
-        "calendar": "Calendrier",
-        "list": "Liste",
-        "gradeUnlocked": "Palier atteint : {{grade}}"
-    },
-    "export": {
-        "title": "Données",
-        "saveSuccess": "Fichier enregistré dans Documents",
-        "exportBtn": "Exporter",
-        "importBtn": "Importer",
-        "shareBtn": "Partager",
-        "saveBtn": "Enregistrer sur le téléphone",
-        "importSuccess": "Import réussi",
-        "error": "Erreur lors de l'opération",
-        "importWarningTitle": "Attention",
-        "importWarningBody": "Cette action supprimera TOUTES tes données existantes et les remplacera par le contenu du fichier importé. Cette opération est irréversible.",
-        "importFileHint": "Sélectionne un fichier .json ou .csv.\nLe format sera détecté automatiquement.",
-        "chooseFileBtn": "Choisir un fichier",
-        "importConfirm": "Remplacer",
-        "editName": "Modifier mon prénom",
-        "privacyWarningTitle": "Ces données sont personnelles et sensibles",
-        "privacyWarningBody": "Le fichier exporté contient des informations de santé. Une fois enregistré dans le dossier Documents, il peut être accessible à d'autres applications ou à toute personne ayant accès à cet appareil.",
-        "saveConfirmBody": "Le fichier sera enregistré dans le dossier Documents de l'app sur ton téléphone. Sur Android 11+, accessible via l'appli Fichiers intégrée ou USB uniquement.",
-        "filesystemError": "Impossible d'écrire le fichier. Vérifiez l'espace de stockage.",
-        "documentsUnavailable": "Impossible d'enregistrer dans Documents. Utilisez Partager à la place.",
-        "encryptSwitch": "Chiffrer avec un mot de passe",
-        "encryptPassword": "Mot de passe",
-        "encryptPasswordConfirm": "Confirmer le mot de passe",
-        "encryptWarning": "Ce mot de passe ne peut pas être récupéré. Conservez-le soigneusement : il sera nécessaire pour réimporter ces données.",
-        "encryptPasswordMinLength": "8 caractères minimum",
-        "encryptPasswordMismatch": "Les mots de passe ne correspondent pas",
-        "encryptedImportTitle": "Fichier chiffré",
-        "encryptedImportHint": "Saisissez le mot de passe utilisé lors de l'export.",
-        "encryptedImportError": "Mot de passe incorrect",
-        "importInvalidFile": "Ce fichier n'est pas un export EsperanzApp valide.",
-        "importUnsupportedVersion": "Ce fichier provient d'une version incompatible d'EsperanzApp.",
-        "importInconsistentData": "Le fichier contient des données incohérentes et ne peut pas être importé.",
-        "importStorageError": "L'import a échoué pendant l'enregistrement. Tes données existantes ont été conservées.",
-        "importReschedulePermissionDenied": "Permission refusée : les rappels importés ne seront pas planifiés.",
-        "importRefreshFailed": "Import réussi, mais l'affichage n'a pas pu se rafraîchir. Redémarre l'application si les données n'apparaissent pas.",
-        "importFileTooLarge": "Fichier trop volumineux. Taille maximale autorisée : 10 Mo.",
-        "fileProtectionHint": "Pense à protéger ton fichier en activant le chiffrement par mot de passe ci-dessus."
-    },
-    "settings": {
-        "language": "Langue",
-        "notifications": "Notifications",
-        "notificationsDisableHint": "Pour désactiver, accédez aux paramètres de l'application sur votre appareil.",
-        "notificationsBlocked": "Les notifications sont refusées. Tu peux les activer dans les paramètres de l'app.",
-        "exactAlarmHint": "Pour des rappels à l'heure exacte, active 'Alarmes et rappels'.",
-        "exactAlarmBtn": "Activer",
-        "exactAlarmRedirect": "On t'ouvre les réglages Android pour activer les alarmes précises.",
-        "version": "Version",
-        "license": "Licence GPL-3.0",
-        "sourceCode": "Code source",
-        "languages": {
-            "fr": "Français",
-            "en": "English",
-            "es": "Español",
-            "de": "Deutsch",
-            "pt-BR": "Português (Brasil)",
-            "nl": "Nederlands",
-            "it": "Italiano"
-        },
-        "replayTutorial": "Revoir le tutoriel",
-        "terms": "Mentions légales & vie privée",
-        "tabs": {
-            "settings": "Paramètres",
-            "data": "Mes données"
-        },
-        "diagCopied": "Copié",
-        "diagNoEntries": "Aucune entrée",
-        "kofi": "Soutenir le développement"
-    },
-    "milestones": {
-        "title": "Jalons",
-        "unlocked": "Déverrouillé le {{date}}",
-        "daysNeeded_one": "Encore {{count}} jour",
-        "daysNeeded_other": "Encore {{count}} jours",
-        "noHabits": "Aucune habitude à suivre"
-    },
-    "habitDetail": {
-        "milestones": "Jalons",
-        "history": "Historique",
-        "stats": "Statistiques",
-        "relapse": "Marquer une rechute"
-    },
-    "notifications": {
-        "genericReminder": "N'oublie pas ton traitement"
-    },
-    "startup": {
-        "dbErrorTitle": "Erreur de démarrage",
-        "dbErrorBody": "La base de données ne peut pas être ouverte. Cela peut arriver après une mise à jour. Tu peux réinitialiser l'application : les données locales seront supprimées, mais tu pourras les restaurer depuis un fichier d'export.",
-        "dbErrorReset": "Réinitialiser l'application",
-        "dbErrorResetFailed": "La réinitialisation a échoué. Désinstallez et réinstallez l'application pour récupérer l'accès."
-    },
-    "update": {
-        "available": "Mise à jour disponible",
-        "availableBody": "Une nouvelle version d'EsperanzApp est disponible. Mets à jour pour profiter des dernières améliorations.",
-        "updateNow": "Mettre à jour",
-        "later": "Plus tard",
-        "checkBtn": "Vérifier les mises à jour",
-        "checking": "Vérification...",
-        "upToDate": "L'application est à jour",
-        "updateError": "Impossible de vérifier les mises à jour"
+    "accept": "Commencer",
+    "license": "Licence GPL-3.0"
+  },
+  "tutorial": {
+    "skip": "Passer",
+    "next": "Suivant",
+    "start": "Commencer",
+    "steps": {
+      "counter": {
+        "title": "Reprends le contrôle de tes habitudes",
+        "body": "Suis les habitudes dont tu veux te libérer et compte chaque jour sans rechute.\n\nSe libérer d'une habitude, ça se construit jour après jour.\nChaque jour sans rechute est une petite victoire !\nEsperanzApp chemine avec toi."
+      },
+      "relapse": {
+        "title": "Une Rechute ?",
+        "body": "Si tu rechutes dans une habitude dont tu souhaites te libérer, tu peux la notifier dans l'historique de l'habitude."
+      },
+      "milestones": {
+        "title": "Des jalons sur le chemin...",
+        "body": "1 jour, 7, 30, 90 ou plus... Chaque palier est un cap franchi qui t'aidera dans ton cheminement."
+      },
+      "private": {
+        "title": "Conçue pour la vie privée",
+        "body": "Tes données restent sur ton appareil, sauf si tu choisis de les exporter ou de les partager. Pas de compte, pas de serveur distant, pas de suivi."
+      },
+      "stats": {
+        "title": "Suis ta progression",
+        "body": "Pour chaque habitude, tu peux consulter tes stats et tes progrès dans le temps."
+      }
     }
+  },
+  "onboarding": {
+    "yourName": {
+      "title": "Comment tu t'appelles ?",
+      "placeholder": "Ton prénom (facultatif)",
+      "skip": "Continuer sans prénom"
+    }
+  },
+  "habits": {
+    "add": "Ajouter une habitude",
+    "delete": "Supprimer cette habitude",
+    "deleteConfirm": "Supprimer cette habitude et tout son historique ?",
+    "empty": "Aucune habitude pour l'instant.\nCommence par en ajouter une.",
+    "counter": {
+      "since": "sans {{label}} depuis le {{date}}",
+      "lastRelapse": "Dernière rechute : {{date}}"
+    },
+    "form": {
+      "name": "Nom de l'habitude",
+      "namePlaceholder": "ex : Alcool, Tabac…",
+      "startDate": "Date de départ"
+    },
+    "duplicateWarning": "Tu suis déjà cette habitude. Tu ne peux pas en ajouter une identique.",
+    "reorderBtn": "Trier mes\nhabitudes",
+    "streak": {
+      "year_one": "an",
+      "year_other": "ans",
+      "separator": "et",
+      "total": "soit {{count}} jours"
+    },
+    "seeMore": "Voir les details"
+  },
+  "habitTypes": {
+    "alcohol": {
+      "label": "Alcool",
+      "desc": "Bière, vin, spiritueux…"
+    },
+    "tobacco": {
+      "label": "Tabac",
+      "desc": "Cigarettes, cigares, tabac à rouler…"
+    },
+    "sugar": {
+      "label": "Sucre",
+      "desc": "Sucreries, sodas, pâtisseries…"
+    },
+    "cannabis": {
+      "label": "Cannabis",
+      "desc": "Usage récréatif ou habitude à réduire"
+    },
+    "social_media": {
+      "label": "Réseaux sociaux",
+      "desc": "Instagram, TikTok, X et consorts"
+    },
+    "gaming": {
+      "label": "Jeux vidéo",
+      "desc": "Temps de jeu compulsif à reprendre en main"
+    },
+    "fast_food": {
+      "label": "Fast food",
+      "desc": "Restauration rapide et snacks industriels"
+    },
+    "adult_content": {
+      "label": "Contenu adulte",
+      "desc": "Usage compulsif de contenus pour adultes"
+    },
+    "shopping": {
+      "label": "Shopping compulsif",
+      "desc": "Achats impulsifs en ligne ou en magasin"
+    },
+    "caffeine": {
+      "label": "Caféine",
+      "desc": "Café, boissons énergisantes, thé fort…"
+    },
+    "screens": {
+      "label": "Écrans",
+      "desc": "Usage excessif des écrans en général"
+    },
+    "custom": {
+      "label": "Personnalisée",
+      "desc": "Définis ta propre habitude"
+    },
+    "groups": {
+      "substances": "Substances",
+      "behaviours": "Comportements",
+      "custom": "Personnalisée"
+    },
+    "gambling": {
+      "label": "Jeux d'argent",
+      "desc": "Casino, paris sportifs, jeux en ligne…"
+    }
+  },
+  "grades": {
+    "awakening": {
+      "label": "Éveil"
+    },
+    "firstBreath": {
+      "label": "Premier souffle"
+    },
+    "anchoring": {
+      "label": "Ancrage"
+    },
+    "solidity": {
+      "label": "Solidité"
+    },
+    "clarity": {
+      "label": "Clarté"
+    },
+    "mastery": {
+      "label": "Maîtrise"
+    },
+    "freedom": {
+      "label": "Liberté"
+    },
+    "fulfilledAwakening": {
+      "label": "Éveil accompli"
+    },
+    "legend": {
+      "label": "Légende"
+    },
+    "messages": {
+      "awakening": "Premier jour. C'est là que tout commence.",
+      "firstBreath": "7 jours. Tu tiens. Continue.",
+      "anchoring": "2 semaines. Ce n'est plus du hasard, c'est une décision.",
+      "solidity": "Un mois. Tu as prouvé quelque chose à toi-même.",
+      "clarity": "2 mois. Les choses deviennent plus claires.",
+      "mastery": "3 mois. Tu es en train de reprendre le contrôle.",
+      "freedom": "6 mois. Tu n'es plus la même personne qu'au premier jour.",
+      "fulfilledAwakening": "Un an. Peu de gens arrivent là. Toi, tu l'as fait.",
+      "legend": "Plus de 2 ans. C'est rare. C'est réel. C'est toi."
+    },
+    "daysLeft_one": "{{count}} jour restant",
+    "daysLeft_other": "{{count}} jours restants"
+  },
+  "relapse": {
+    "title": "Recommencer",
+    "confirmTitle": "Un pas de côté",
+    "confirmBody": "Ces jours sont à toi. Ils restent.",
+    "confirmButton": "Oui, recommencer",
+    "cancelButton": "Annuler",
+    "messages": {
+      "before7days": "{{name}}, ces {{days}} jours comptent. Tu recommences aujourd'hui.",
+      "between7and30days": "{{name}}, tu as tenu {{days}} jours. Ce n'est pas une défaite. Tu sais ce dont tu es capable.",
+      "after30days": "{{name}}, tu as tenu {{days}} jours. C'est immense. Tout ce que tu as appris reste avec toi.",
+      "day0": "{{name}}, l'important c'est d'essayer. Recommence quand tu es prêt."
+    },
+    "dateLabel": "Date de la rechute"
+  },
+  "treatments": {
+    "title": "Mes traitements",
+    "add": "Ajouter un traitement",
+    "edit": "Modifier le traitement",
+    "delete": "Supprimer ce traitement",
+    "deleteConfirm": "Supprimer ce traitement et tout son historique ?",
+    "empty": "Aucun traitement pour l'instant.\nAjoutez-en un et configurez un rappel pour ne rien oublier.",
+    "taken": "Pris",
+    "missed": "Non pris",
+    "pending": "En attente",
+    "reminder": "Rappel à {{time}}",
+    "reminderWeekly": "Tous les {{day}} à {{time}}",
+    "reminderMonthly": "Le {{day}} du mois à {{time}}",
+    "noReminder": "Suivi sans rappel",
+    "form": {
+      "name": "Nom du médicament",
+      "namePlaceholder": "ex : Metformine, Sertraline…",
+      "frequency": "Fréquence",
+      "reminderTime": "Heure du rappel",
+      "enableReminder": "Activer le rappel",
+      "permissionDenied": "Permission de notification refusée. Le rappel a été désactivé.",
+      "reminderDay": "Jour du rappel",
+      "dayOfMonth": "Le {{day}}",
+      "firstDay": "Premier jour du mois",
+      "lastDay": "Dernier jour du mois",
+      "frequencies": {
+        "daily": "Chaque jour",
+        "weekly": "Chaque semaine",
+        "monthly": "Chaque mois"
+      }
+    },
+    "reorderBtn": "Trier mes\ntraitements",
+    "reminderSyncFailed": "Traitement sauvegardé. Le rappel n'a pas pu être synchronisé.",
+    "reminderAlarmSettingsNeeded": "Active 'Alarmes et rappels' dans tes paramètres pour recevoir tes rappels à l'heure."
+  },
+  "stats": {
+    "title": "Statistiques",
+    "currentStreak": "Série actuelle",
+    "longestStreak": "Plus longue série",
+    "totalRelapses": "Rechutes totales",
+    "averageStreak": "Moyenne des séries",
+    "startDate": "Depuis le",
+    "noData": "Pas encore de données"
+  },
+  "history": {
+    "title": "Historique",
+    "empty": "Aucun événement enregistré",
+    "start": "Démarrage",
+    "relapse": "Rechute",
+    "relapseRestart": "Rechute, nouveau départ"
+  },
+  "export": {
+    "saveSuccess": "Fichier enregistré dans Documents",
+    "exportBtn": "Exporter",
+    "importBtn": "Importer",
+    "shareBtn": "Partager",
+    "saveBtn": "Enregistrer sur le téléphone",
+    "importSuccess": "Import réussi",
+    "importWarningTitle": "Attention",
+    "importWarningBody": "Cette action supprimera TOUTES tes données existantes et les remplacera par le contenu du fichier importé. Cette opération est irréversible.",
+    "importFileHint": "Sélectionne un fichier .json ou .csv.\nLe format sera détecté automatiquement.",
+    "chooseFileBtn": "Choisir un fichier",
+    "importConfirm": "Remplacer",
+    "editName": "Modifier mon prénom",
+    "privacyWarningTitle": "Ces données sont personnelles et sensibles",
+    "privacyWarningBody": "Le fichier exporté contient des informations de santé. Une fois enregistré dans le dossier Documents, il peut être accessible à d'autres applications ou à toute personne ayant accès à cet appareil.",
+    "saveConfirmBody": "Le fichier sera enregistré dans le dossier Documents de l'app sur ton téléphone. Sur Android 11+, accessible via l'appli Fichiers intégrée ou USB uniquement.",
+    "filesystemError": "Impossible d'écrire le fichier. Vérifiez l'espace de stockage.",
+    "documentsUnavailable": "Impossible d'enregistrer dans Documents. Utilisez Partager à la place.",
+    "encryptSwitch": "Chiffrer avec un mot de passe",
+    "encryptPassword": "Mot de passe",
+    "encryptPasswordConfirm": "Confirmer le mot de passe",
+    "encryptWarning": "Ce mot de passe ne peut pas être récupéré. Conservez-le soigneusement : il sera nécessaire pour réimporter ces données.",
+    "encryptPasswordMinLength": "8 caractères minimum",
+    "encryptPasswordMismatch": "Les mots de passe ne correspondent pas",
+    "encryptedImportTitle": "Fichier chiffré",
+    "encryptedImportHint": "Saisissez le mot de passe utilisé lors de l'export.",
+    "encryptedImportError": "Mot de passe incorrect",
+    "importInvalidFile": "Ce fichier n'est pas un export EsperanzApp valide.",
+    "importUnsupportedVersion": "Ce fichier provient d'une version incompatible d'EsperanzApp.",
+    "importInconsistentData": "Le fichier contient des données incohérentes et ne peut pas être importé.",
+    "importStorageError": "L'import a échoué pendant l'enregistrement. Tes données existantes ont été conservées.",
+    "importReschedulePermissionDenied": "Permission refusée : les rappels importés ne seront pas planifiés.",
+    "importRefreshFailed": "Import réussi, mais l'affichage n'a pas pu se rafraîchir. Redémarre l'application si les données n'apparaissent pas.",
+    "importFileTooLarge": "Fichier trop volumineux. Taille maximale autorisée : 10 Mo.",
+    "fileProtectionHint": "Pense à protéger ton fichier en activant le chiffrement par mot de passe ci-dessus."
+  },
+  "settings": {
+    "language": "Langue",
+    "notifications": "Notifications",
+    "notificationsDisableHint": "Pour désactiver, accédez aux paramètres de l'application sur votre appareil.",
+    "notificationsBlocked": "Les notifications sont refusées. Tu peux les activer dans les paramètres de l'app.",
+    "exactAlarmHint": "Pour des rappels à l'heure exacte, active 'Alarmes et rappels'.",
+    "exactAlarmBtn": "Activer",
+    "exactAlarmRedirect": "On t'ouvre les réglages Android pour activer les alarmes précises.",
+    "version": "Version",
+    "license": "Licence GPL-3.0",
+    "sourceCode": "Code source",
+    "languages": {
+      "fr": "Français",
+      "en": "English",
+      "es": "Español",
+      "de": "Deutsch",
+      "pt-BR": "Português (Brasil)",
+      "nl": "Nederlands",
+      "it": "Italiano"
+    },
+    "replayTutorial": "Revoir le tutoriel",
+    "terms": "Mentions légales & vie privée",
+    "tabs": {
+      "settings": "Paramètres",
+      "data": "Mes données"
+    },
+    "diagCopied": "Copié",
+    "diagNoEntries": "Aucune entrée",
+    "kofi": "Soutenir le développement"
+  },
+  "milestones": {
+    "title": "Jalons",
+    "unlocked": "Déverrouillé le {{date}}",
+    "daysNeeded_one": "Encore {{count}} jour",
+    "daysNeeded_other": "Encore {{count}} jours",
+    "noHabits": "Aucune habitude à suivre"
+  },
+  "habitDetail": {
+    "milestones": "Jalons",
+    "history": "Historique",
+    "stats": "Statistiques",
+    "relapse": "Marquer une rechute"
+  },
+  "notifications": {
+    "genericReminder": "N'oublie pas ton traitement"
+  },
+  "startup": {
+    "dbErrorTitle": "Erreur de démarrage",
+    "dbErrorBody": "La base de données ne peut pas être ouverte. Cela peut arriver après une mise à jour. Tu peux réinitialiser l'application : les données locales seront supprimées, mais tu pourras les restaurer depuis un fichier d'export.",
+    "dbErrorReset": "Réinitialiser l'application",
+    "dbErrorResetFailed": "La réinitialisation a échoué. Désinstallez et réinstallez l'application pour récupérer l'accès."
+  },
+  "update": {
+    "available": "Mise à jour disponible",
+    "availableBody": "Une nouvelle version d'EsperanzApp est disponible. Mets à jour pour profiter des dernières améliorations.",
+    "updateNow": "Mettre à jour",
+    "later": "Plus tard",
+    "checkBtn": "Vérifier les mises à jour",
+    "checking": "Vérification...",
+    "upToDate": "L'application est à jour",
+    "updateError": "Impossible de vérifier les mises à jour"
+  }
 }

@@ -36,6 +36,17 @@ export function getNotificationId(domain: NotifDomain, id: string): number {
   return offset + slot;
 }
 
+// Returns 12 stable notification IDs for "last day of month" multi-shots (months 0..11 ahead).
+// Uses a hash of (treatmentId + "~ld~" + monthIndex) to avoid collisions with base IDs.
+// All IDs fall within [NOTIF_DOMAIN_OFFSET.treatments + 1, NOTIF_DOMAIN_OFFSET.milestones - 1].
+export function getLastDayNotificationIds(treatmentId: string): number[] {
+  const offset = NOTIF_DOMAIN_OFFSET.treatments;
+  return Array.from({ length: 12 }, (_, i) => {
+    const slot = (stableHash31(treatmentId + "~ld~" + String(i)) % 999_999) + 1;
+    return offset + slot;
+  });
+}
+
 // JS getDay() (0=Sun..6=Sat) -> Capacitor Weekday (Sunday=1..Saturday=7)
 const JS_TO_CAPACITOR_WEEKDAY: Record<number, Weekday> = {
   0: Weekday.Sunday,
@@ -61,8 +72,6 @@ export function useNotifications() {
   const scheduleReminder = useCallback(
     async (treatment: Treatment): Promise<"scheduled" | "permission-denied" | "disabled" | "error"> => {
       if (!Capacitor.isNativePlatform()) return "disabled";
-      const id = getNotificationId("treatments", treatment.id);
-      await LocalNotifications.cancel({ notifications: [{ id }] }).catch(() => {});
       if (!treatment.reminderEnabled) return "disabled";
       const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
       if (display !== "granted") return "permission-denied";
@@ -70,62 +79,85 @@ export function useNotifications() {
       const [h, m] = treatment.reminderTime.split(":").map(Number) as [number, number];
       if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return "error";
 
+      // Pre-cancel both the base ID and all 12 potential last-day IDs so frequency changes
+      // (e.g. last-day -> daily) don't leave stale notifications in pending.
+      const baseId = getNotificationId("treatments", treatment.id);
+      const lastDayIds = getLastDayNotificationIds(treatment.id);
+      await LocalNotifications.cancel({
+        notifications: [{ id: baseId }, ...lastDayIds.map((id) => ({ id }))],
+      }).catch(() => {});
+
       try {
+        let idsToVerify: number[];
+
         if (treatment.frequency === "daily") {
           await LocalNotifications.schedule({
             notifications: [{
-              id,
+              id: baseId,
               title: "EsperanzApp",
               body: i18n.t("notifications.genericReminder"),
               schedule: { on: { hour: h, minute: m }, allowWhileIdle: true },
             }],
           });
+          idsToVerify = [baseId];
         } else if (treatment.frequency === "weekly") {
           if (treatment.reminderDay === null) return "error";
           const weekday = jsWeekdayToCapacitor(treatment.reminderDay);
           await LocalNotifications.schedule({
             notifications: [{
-              id,
+              id: baseId,
               title: "EsperanzApp",
               body: i18n.t("notifications.genericReminder"),
               schedule: { on: { weekday, hour: h, minute: m }, allowWhileIdle: true },
             }],
           });
+          idsToVerify = [baseId];
         } else if (treatment.reminderDay === 0) {
-          // "last day of month" — Capacitor ScheduleOn has no such expression.
-          // Schedule a one-shot at the real last day; AppStartRescheduler renews it at each app launch
-          // and the localNotificationReceived listener renews it when fired in foreground.
+          // "Last day of month" — Capacitor ScheduleOn has no such expression.
+          // Schedule 12 one-shot notifications covering the next 12 last-day occurrences.
+          // AppStartRescheduler renews this 12-month window at each cold start.
           const now = new Date();
-          const lastDayThisMonth = getDaysInMonth(now);
-          let target = new Date(now.getFullYear(), now.getMonth(), lastDayThisMonth, h, m, 0, 0);
-          if (target <= now) {
-            const nextMonth = addMonths(now, 1);
-            const lastDayNextMonth = getDaysInMonth(nextMonth);
-            target = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), lastDayNextMonth, h, m, 0, 0);
+          let startOffset = 0;
+          while (startOffset < 12) {
+            const candidate = addMonths(now, startOffset);
+            const lastDayNum = getDaysInMonth(candidate);
+            const target = new Date(candidate.getFullYear(), candidate.getMonth(), lastDayNum, h, m, 0, 0);
+            if (target > now) break;
+            startOffset++;
           }
-          await LocalNotifications.schedule({
-            notifications: [{
-              id,
+          if (startOffset >= 12) return "error";
+
+          const notifications = Array.from({ length: 12 }, (_, i) => {
+            const mo = addMonths(now, startOffset + i);
+            const lastDayNum = getDaysInMonth(mo);
+            const target = new Date(mo.getFullYear(), mo.getMonth(), lastDayNum, h, m, 0, 0);
+            const notifId = lastDayIds[i] ?? (NOTIF_DOMAIN_OFFSET.treatments + 1);
+            return {
+              id: notifId,
               title: "EsperanzApp",
               body: i18n.t("notifications.genericReminder"),
               schedule: { at: target, allowWhileIdle: true },
-            }],
+            };
           });
+          await LocalNotifications.schedule({ notifications });
+          idsToVerify = lastDayIds;
         } else {
           const day = treatment.reminderDay ?? 1;
           await LocalNotifications.schedule({
             notifications: [{
-              id,
+              id: baseId,
               title: "EsperanzApp",
               body: i18n.t("notifications.genericReminder"),
               schedule: { on: { day, hour: h, minute: m }, allowWhileIdle: true },
             }],
           });
+          idsToVerify = [baseId];
         }
-        // Verify the notification was actually registered — guards against silent failure on
-        // Android 14+ when SCHEDULE_EXACT_ALARM is not granted (affects daily, weekly, and monthly).
+
+        // Verify the notification(s) were actually registered — guards against silent failure on
+        // Android 14+ when SCHEDULE_EXACT_ALARM is not granted.
         const pending = await LocalNotifications.getPending().catch(() => ({ notifications: [] as Array<{ id: number }> }));
-        if (!pending.notifications.some((n) => n.id === id)) return "error";
+        if (!idsToVerify.every((id) => pending.notifications.some((n) => n.id === id))) return "error";
         return "scheduled";
       } catch {
         return "error";
@@ -136,8 +168,10 @@ export function useNotifications() {
 
   const cancelReminder = useCallback(async (treatmentId: string): Promise<void> => {
     if (!Capacitor.isNativePlatform()) return;
+    const baseId = getNotificationId("treatments", treatmentId);
+    const lastDayIds = getLastDayNotificationIds(treatmentId);
     await LocalNotifications.cancel({
-      notifications: [{ id: getNotificationId("treatments", treatmentId) }],
+      notifications: [{ id: baseId }, ...lastDayIds.map((id) => ({ id }))],
     }).catch(() => {});
   }, []);
 

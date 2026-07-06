@@ -230,7 +230,16 @@ export function Treatments() {
                   frequency={tr.frequency}
                   reminderDay={tr.reminderDay}
                   createdAt={tr.createdAt}
-                  onLogDate={(date, status) => logStatusForDate(tr.id, date, status)}
+                  onLogDate={async (date, status) => {
+                    try {
+                      const log = await logStatusForDate(tr.id, date, status);
+                      if (date === today && mountedRef.current) {
+                        setLogsMap((prev) => ({ ...prev, [tr.id]: log }));
+                      }
+                    } catch (e: unknown) {
+                      logError("Treatments.logStatusForDate", e);
+                    }
+                  }}
                 />
               )}
             </Box>

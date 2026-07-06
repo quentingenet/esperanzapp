@@ -41,6 +41,7 @@ async function insertHabit(
   return { ...data, id: String(lastId) };
 }
 
+// Not called from production code; kept as a direct-insert utility for integration tests.
 export function createHabit(data: Omit<Habit, "id">, dbConn?: SQLiteDBConnection | null): Promise<Habit> {
   const fn = (database: SQLiteDBConnection): Promise<Habit> => insertHabit(database, data);
   return fn(dbConn ?? getDb());

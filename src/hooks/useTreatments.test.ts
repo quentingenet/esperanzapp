@@ -37,7 +37,7 @@ const treatmentData: Omit<Treatment, "id"> = {
 
 describe("useTreatments", () => {
   beforeEach(() => {
-    useTreatmentsStore.setState({ treatments: [], logs: [], loading: false });
+    useTreatmentsStore.setState({ treatments: [], loading: false });
     vi.mocked(getAllTreatments).mockResolvedValue([]);
     vi.mocked(createTreatment).mockResolvedValue(treatment);
     vi.mocked(deleteTreatment).mockResolvedValue(undefined);

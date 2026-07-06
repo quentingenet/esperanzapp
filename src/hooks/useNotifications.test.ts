@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { getDaysInMonth } from "date-fns";
-import { useNotifications, getNotificationId, NOTIF_DOMAIN_OFFSET } from "./useNotifications";
+import { useNotifications, getNotificationId, getLastDayNotificationIds, NOTIF_DOMAIN_OFFSET } from "./useNotifications";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { ExactAlarm } from "@/plugins/ExactAlarm";
@@ -144,50 +144,94 @@ describe("useNotifications", () => {
     );
   });
 
-  it("scheduleReminder uses schedule.at with allowWhileIdle for reminderDay=0 (last day of month)", async () => {
-    // System time: Jan 15 2024 06:00 UTC → last day of this month (local) = getDaysInMonth(now)
+  it("scheduleReminder schedules 12 one-shot notifications for reminderDay=0 (last day of month)", async () => {
+    // System time: Jan 15 2024 06:00 UTC → Jan 31 is in the future, start from month 0
     const lastDay: Treatment = { ...treatment, frequency: "monthly", reminderDay: 0 };
+    const lastDayIds = getLastDayNotificationIds(lastDay.id);
+    type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
+    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
+      notifications: lastDayIds.map((id) => ({ id })),
+    } as PendingResult);
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.scheduleReminder(lastDay);
     });
     const call = vi.mocked(LocalNotifications.schedule).mock.calls[0]!;
-    const schedule = call[0].notifications[0]!.schedule;
-    expect(schedule?.at).toBeInstanceOf(Date);
-    expect(schedule?.on).toBeUndefined();
-    expect(schedule?.allowWhileIdle).toBe(true);
-    const at = schedule!.at!;
-    expect(at.getDate()).toBe(getDaysInMonth(new Date())); // mirrors production code exactly
-    expect(at.getHours()).toBe(8);
-    expect(at.getMinutes()).toBe(0);
+    const notifications = call[0].notifications;
+    expect(notifications).toHaveLength(12);
+    for (const notif of notifications) {
+      expect(notif.schedule?.at).toBeInstanceOf(Date);
+      expect(notif.schedule?.on).toBeUndefined();
+      expect(notif.schedule?.allowWhileIdle).toBe(true);
+      expect(notif.schedule?.at!.getDate()).toBe(getDaysInMonth(notif.schedule!.at!));
+      expect(notif.schedule?.at!.getHours()).toBe(8);
+    }
   });
 
-  it("scheduleReminder schedules next month's last day when this month's last day has already passed", async () => {
-    // Jan 31 09:00 UTC, reminderTime 08:00 → Jan 31 08:00 is in the past → schedule Feb 2024 last day
+  it("each of the 12 last-day occurrences falls on the last day of its respective month", async () => {
+    vi.setSystemTime(new Date("2024-01-15T06:00:00.000Z"));
+    const lastDay: Treatment = { ...treatment, frequency: "monthly", reminderDay: 0 };
+    const lastDayIds = getLastDayNotificationIds(lastDay.id);
+    type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
+    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
+      notifications: lastDayIds.map((id) => ({ id })),
+    } as PendingResult);
+    const { result } = renderHook(() => useNotifications());
+    await act(async () => {
+      await result.current.scheduleReminder(lastDay);
+    });
+    const call = vi.mocked(LocalNotifications.schedule).mock.calls[0]!;
+    const dates = call[0].notifications.map((n) => n.schedule?.at as Date);
+    for (const d of dates) {
+      expect(d.getDate()).toBe(getDaysInMonth(d));
+    }
+    // All 12 must be in the future
+    const now = new Date();
+    for (const d of dates) {
+      expect(d.getTime()).toBeGreaterThan(now.getTime());
+    }
+  });
+
+  it("last-day notification IDs are unique and stay within the treatment domain", () => {
+    const ids = getLastDayNotificationIds("42");
+    expect(new Set(ids).size).toBe(12);
+    for (const id of ids) {
+      expect(id).toBeGreaterThanOrEqual(NOTIF_DOMAIN_OFFSET.treatments);
+      expect(id).toBeLessThan(NOTIF_DOMAIN_OFFSET.milestones);
+    }
+  });
+
+  it("scheduleReminder skips months in the past and starts from the next future last-day", async () => {
+    // Jan 31 09:00 UTC, reminderTime 08:00 → Jan 31 08:00 is past → first slot is Feb 2024
     vi.setSystemTime(new Date("2024-01-31T09:00:00.000Z"));
     const lastDay: Treatment = { ...treatment, frequency: "monthly", reminderDay: 0 };
+    const lastDayIds = getLastDayNotificationIds(lastDay.id);
+    type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
+    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
+      notifications: lastDayIds.map((id) => ({ id })),
+    } as PendingResult);
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.scheduleReminder(lastDay);
     });
     const call = vi.mocked(LocalNotifications.schedule).mock.calls[0]!;
-    const at = call[0].notifications[0]!.schedule?.at;
-    expect(at).toBeInstanceOf(Date);
-    // Must be in the future
-    expect(at!.getTime()).toBeGreaterThan(new Date().getTime());
-    // Must land on the last day of whatever month it falls in
-    expect(at!.getDate()).toBe(getDaysInMonth(at!));
-    expect(at!.getHours()).toBe(8);
-    expect(at!.getMinutes()).toBe(0);
+    const dates = call[0].notifications.map((n) => n.schedule?.at as Date);
+    expect(dates).toHaveLength(12);
+    const now = new Date();
+    for (const d of dates) {
+      expect(d.getTime()).toBeGreaterThan(now.getTime());
+      expect(d.getDate()).toBe(getDaysInMonth(d));
+    }
   });
 
-  it("cancelReminder calls cancel with namespaced treatment id", async () => {
+  it("cancelReminder cancels the base ID and all 12 last-day IDs in one call", async () => {
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.cancelReminder("3");
     });
+    const lastDayIds = getLastDayNotificationIds("3");
     expect(LocalNotifications.cancel).toHaveBeenCalledWith({
-      notifications: [{ id: TREATMENT_3_NOTIF_ID }],
+      notifications: [{ id: TREATMENT_3_NOTIF_ID }, ...lastDayIds.map((id) => ({ id }))],
     });
   });
 
