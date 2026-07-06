@@ -321,6 +321,7 @@
         "notificationsBlocked": "Le notifiche sono bloccate. Puoi attivarle nelle impostazioni dell'app.",
         "exactAlarmHint": "Per promemoria precisi, attiva 'Allarmi e promemoria'.",
         "exactAlarmBtn": "Attiva",
+        "exactAlarmRedirect": "Stiamo aprendo le impostazioni Android per gli allarmi precisi.",
         "version": "Versione",
         "license": "Licenza GPL-3.0",
         "sourceCode": "Codice sorgente",

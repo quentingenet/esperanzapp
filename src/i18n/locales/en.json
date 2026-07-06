@@ -321,6 +321,7 @@
         "notificationsBlocked": "Notifications are blocked. You can enable them in the app settings.",
         "exactAlarmHint": "For exact reminders, enable 'Alarms & Reminders'.",
         "exactAlarmBtn": "Enable",
+        "exactAlarmRedirect": "Opening Android settings to enable exact alarms.",
         "version": "Version",
         "license": "GPL-3.0 License",
         "sourceCode": "Source code",

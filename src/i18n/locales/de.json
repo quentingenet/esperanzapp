@@ -321,6 +321,7 @@
         "notificationsBlocked": "Benachrichtigungen sind blockiert. Du kannst sie in den App-Einstellungen aktivieren.",
         "exactAlarmHint": "Für genaue Erinnerungen aktiviere 'Alarme und Erinnerungen'.",
         "exactAlarmBtn": "Aktivieren",
+        "exactAlarmRedirect": "Wir öffnen die Android-Einstellungen für genaue Alarme.",
         "version": "Version",
         "license": "GPL-3.0-Lizenz",
         "sourceCode": "Quellcode",

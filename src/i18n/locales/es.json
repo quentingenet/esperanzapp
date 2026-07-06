@@ -321,6 +321,7 @@
         "notificationsBlocked": "Las notificaciones están bloqueadas. Puedes activarlas en los ajustes de la app.",
         "exactAlarmHint": "Para recordatorios precisos, activa 'Alarmas y recordatorios'.",
         "exactAlarmBtn": "Activar",
+        "exactAlarmRedirect": "Abriendo los ajustes de Android para activar alarmas exactas.",
         "version": "Versión",
         "license": "Licencia GPL-3.0",
         "sourceCode": "Código fuente",

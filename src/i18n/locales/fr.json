@@ -321,6 +321,7 @@
         "notificationsBlocked": "Les notifications sont refusées. Tu peux les activer dans les paramètres de l'app.",
         "exactAlarmHint": "Pour des rappels à l'heure exacte, active 'Alarmes et rappels'.",
         "exactAlarmBtn": "Activer",
+        "exactAlarmRedirect": "On t'ouvre les réglages Android pour activer les alarmes précises.",
         "version": "Version",
         "license": "Licence GPL-3.0",
         "sourceCode": "Code source",

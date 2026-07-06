@@ -179,7 +179,11 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
                       } else if (granted && Capacitor.getPlatform() === "android") {
                         const hasExact = await getExactAlarmStatus();
                         setExactAlarmGranted(hasExact);
-                        if (!hasExact) void openExactAlarmSettings();
+                        if (!hasExact) {
+                          toast.info(t("settings.exactAlarmRedirect"));
+                          await new Promise<void>((r) => setTimeout(r, 600));
+                          void openExactAlarmSettings();
+                        }
                       }
                     });
                   } else {
@@ -206,7 +210,10 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
           <Button
             size="small"
             variant="outlined"
-            onClick={() => { void openExactAlarmSettings(); }}
+            onClick={() => {
+            toast.info(t("settings.exactAlarmRedirect"));
+            setTimeout(() => { void openExactAlarmSettings(); }, 600);
+          }}
             sx={{ flexShrink: 0, minHeight: 32, textTransform: "none", fontSize: "0.75rem" }}
           >
             {t("settings.exactAlarmBtn")}

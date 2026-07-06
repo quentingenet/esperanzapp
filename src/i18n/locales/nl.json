@@ -321,6 +321,7 @@
         "notificationsBlocked": "Meldingen zijn geblokkeerd. Je kunt ze inschakelen in de app-instellingen.",
         "exactAlarmHint": "Voor exacte herinneringen, schakel 'Alarmen en herinneringen' in.",
         "exactAlarmBtn": "Inschakelen",
+        "exactAlarmRedirect": "We openen de Android-instellingen voor exacte alarmen.",
         "version": "Versie",
         "license": "GPL-3.0-licentie",
         "sourceCode": "Broncode",
