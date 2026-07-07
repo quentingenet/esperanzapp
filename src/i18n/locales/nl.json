@@ -1,6 +1,7 @@
 {
   "app": {
-    "by": "door"
+    "by": "door",
+    "crash": "Er is iets misgegaan. Start de app opnieuw."
   },
   "common": {
     "save": "Opslaan",
@@ -90,7 +91,6 @@
       "lastRelapse": "Laatste terugval: {{date}}"
     },
     "form": {
-      "name": "Naam van de gewoonte",
       "namePlaceholder": "bijv. Alcohol, Tabak…",
       "startDate": "Startdatum"
     },
@@ -334,6 +334,9 @@
     },
     "diagCopied": "Gekopieerd",
     "diagNoEntries": "Geen vermeldingen",
+    "diagTitle": "Diagnose",
+    "diagSubtitle": "tijd · context · foutnaam (geen persoonlijke gegevens)",
+    "diagCopy": "Kopiëren",
     "kofi": "Project steunen"
   },
   "milestones": {

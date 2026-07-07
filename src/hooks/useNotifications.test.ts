@@ -235,52 +235,58 @@ describe("useNotifications", () => {
     });
   });
 
-  it("rescheduleAll cancels treatment-domain pending notifications then reschedules", async () => {
+  it("rescheduleAll schedules treatments before cancelling orphans", async () => {
+    // Verifies the non-destructive order: schedule first, then purge stale IDs.
     type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
-    const inDomain1 = NOTIF_DOMAIN_OFFSET.treatments + 1;
-    const inDomain2 = NOTIF_DOMAIN_OFFSET.treatments + 500;
-    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
-      notifications: [{ id: inDomain1 }, { id: inDomain2 }],
-    } as PendingResult);
+    const notifId = getNotificationId("treatments", treatment.id);
+    const orphanId = NOTIF_DOMAIN_OFFSET.treatments + 999;
+    vi.mocked(LocalNotifications.getPending)
+      // First call: scheduleReminder verify — notifId found → "scheduled"
+      .mockResolvedValueOnce({ notifications: [{ id: notifId }] } as PendingResult)
+      // Second call: orphan check — notifId expected, orphanId is stale
+      .mockResolvedValueOnce({ notifications: [{ id: notifId }, { id: orphanId }] } as PendingResult);
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.rescheduleAll([treatment]);
     });
-    expect(LocalNotifications.cancel).toHaveBeenCalledWith(
-      expect.objectContaining({ notifications: [{ id: inDomain1 }, { id: inDomain2 }] }),
-    );
-    expect(LocalNotifications.schedule).toHaveBeenCalledTimes(1);
-  });
-
-  it("rescheduleAll does NOT cancel notifications outside the treatment domain", async () => {
-    type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
-    const outsideDomain = 42; // not in treatment domain
-    const inDomain = NOTIF_DOMAIN_OFFSET.treatments + 1;
-    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
-      notifications: [{ id: outsideDomain }, { id: inDomain }],
-    } as PendingResult);
-    const { result } = renderHook(() => useNotifications());
-    await act(async () => {
-      await result.current.rescheduleAll([treatment]);
-    });
-    expect(LocalNotifications.cancel).toHaveBeenCalledWith(
-      expect.objectContaining({ notifications: [{ id: inDomain }] }),
-    );
-    expect(LocalNotifications.cancel).not.toHaveBeenCalledWith(
-      expect.objectContaining({ notifications: expect.arrayContaining([{ id: outsideDomain }]) }),
+    // Schedule must happen before cancel of orphans
+    const scheduleCalls = vi.mocked(LocalNotifications.schedule).mock.invocationCallOrder[0]!;
+    const cancelCalls = vi.mocked(LocalNotifications.cancel).mock.invocationCallOrder;
+    const orphanCancelOrder = cancelCalls[cancelCalls.length - 1]!;
+    expect(scheduleCalls).toBeLessThan(orphanCancelOrder);
+    // Only the orphan is cancelled (pre-cancel + orphan cancel = 2 cancel calls total)
+    expect(LocalNotifications.cancel).toHaveBeenLastCalledWith(
+      expect.objectContaining({ notifications: [{ id: orphanId }] }),
     );
   });
 
-  it("rescheduleAll skips bulk-cancel when no treatment-domain notifications are pending", async () => {
+  it("rescheduleAll does NOT cancel out-of-domain IDs as orphans", async () => {
     type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
-    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
-      notifications: [{ id: 42 }], // outside treatment domain
-    } as PendingResult);
+    const notifId = getNotificationId("treatments", treatment.id);
+    const outsideDomain = 42;
+    vi.mocked(LocalNotifications.getPending)
+      .mockResolvedValueOnce({ notifications: [{ id: notifId }] } as PendingResult)
+      .mockResolvedValueOnce({ notifications: [{ id: notifId }, { id: outsideDomain }] } as PendingResult);
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.rescheduleAll([treatment]);
     });
-    // Only the pre-cancel inside scheduleReminder fires (1 call), bulk-cancel is skipped
+    // notifId is expected so no orphan cancel; outsideDomain is out of treatment domain so also skipped.
+    // Only the pre-cancel inside scheduleReminder fires — no second cancel call.
+    expect(LocalNotifications.cancel).toHaveBeenCalledTimes(1);
+  });
+
+  it("rescheduleAll skips orphan-cancel when no stale IDs exist", async () => {
+    type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
+    const notifId = getNotificationId("treatments", treatment.id);
+    vi.mocked(LocalNotifications.getPending)
+      .mockResolvedValueOnce({ notifications: [{ id: notifId }] } as PendingResult)
+      .mockResolvedValueOnce({ notifications: [{ id: notifId }] } as PendingResult);
+    const { result } = renderHook(() => useNotifications());
+    await act(async () => {
+      await result.current.rescheduleAll([treatment]);
+    });
+    // Only 1 cancel call: the pre-cancel inside scheduleReminder; no orphan cancel
     expect(LocalNotifications.cancel).toHaveBeenCalledTimes(1);
     expect(LocalNotifications.schedule).toHaveBeenCalledTimes(1);
   });
@@ -297,8 +303,8 @@ describe("useNotifications", () => {
     expect(LocalNotifications.schedule).not.toHaveBeenCalled();
   });
 
-  it("rescheduleAll returns true when any treatment scheduling fails with error", async () => {
-    // Default getPending returns [] so scheduleReminder verification step finds nothing and returns "error"
+  it("rescheduleAll returns true when any treatment scheduling fails", async () => {
+    // Default getPending returns [] → scheduleReminder verify finds nothing → "schedule-failed"
     const { result } = renderHook(() => useNotifications());
     let anyFailed: boolean | undefined;
     await act(async () => {
@@ -311,7 +317,9 @@ describe("useNotifications", () => {
     type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
     const notifId = getNotificationId("treatments", treatment.id);
     vi.mocked(LocalNotifications.getPending)
-      .mockResolvedValueOnce({ notifications: [] } satisfies PendingResult)
+      // scheduleReminder verify → notifId found → "scheduled"
+      .mockResolvedValueOnce({ notifications: [{ id: notifId }] } as PendingResult)
+      // orphan check → only notifId pending, which is expected → no orphans
       .mockResolvedValueOnce({ notifications: [{ id: notifId }] } as PendingResult);
     const { result } = renderHook(() => useNotifications());
     let anyFailed: boolean | undefined;
@@ -321,9 +329,9 @@ describe("useNotifications", () => {
     expect(anyFailed).toBe(false);
   });
 
-  it("scheduleReminder returns 'error' when getPending does not find the notification after scheduling", async () => {
-    // Simulates Android 14+ silent failure when SCHEDULE_EXACT_ALARM is not granted.
-    // getPending returns empty even though schedule() did not throw.
+  it("scheduleReminder returns 'schedule-failed' when notification not found in pending and exact alarm is granted", async () => {
+    // Simulates a scheduling failure not caused by the exact-alarm permission.
+    // getPending returns empty even though schedule() did not throw and canScheduleExactAlarms returns true.
     type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
     vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({ notifications: [] } satisfies PendingResult);
     const { result } = renderHook(() => useNotifications());
@@ -331,7 +339,31 @@ describe("useNotifications", () => {
     await act(async () => {
       status = await result.current.scheduleReminder(treatment);
     });
-    expect(status).toBe("error");
+    expect(status).toBe("schedule-failed");
+    expect(LocalNotifications.schedule).toHaveBeenCalledTimes(1);
+  });
+
+  it("scheduleReminder returns 'exact-alarm-denied' when notification not found in pending and exact alarm is not granted", async () => {
+    // Simulates Android 14+ silent failure when SCHEDULE_EXACT_ALARM is revoked.
+    type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
+    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({ notifications: [] } satisfies PendingResult);
+    vi.mocked(ExactAlarm.canScheduleExactAlarms).mockResolvedValueOnce({ value: false });
+    const { result } = renderHook(() => useNotifications());
+    let status: string | undefined;
+    await act(async () => {
+      status = await result.current.scheduleReminder(treatment);
+    });
+    expect(status).toBe("exact-alarm-denied");
+  });
+
+  it("scheduleReminder returns 'unverified' when getPending throws after scheduling", async () => {
+    vi.mocked(LocalNotifications.getPending).mockRejectedValueOnce(new Error("ipc failure"));
+    const { result } = renderHook(() => useNotifications());
+    let status: string | undefined;
+    await act(async () => {
+      status = await result.current.scheduleReminder(treatment);
+    });
+    expect(status).toBe("unverified");
     expect(LocalNotifications.schedule).toHaveBeenCalledTimes(1);
   });
 
@@ -370,25 +402,36 @@ describe("useNotifications", () => {
     expect(LocalNotifications.schedule).not.toHaveBeenCalled();
   });
 
-  it("scheduleReminder returns 'error' when reminderTime is out of range", async () => {
+  it("scheduleReminder returns 'schedule-failed' for monthly treatment with reminderDay=null", async () => {
+    const bad: Treatment = { ...treatment, frequency: "monthly", reminderDay: null };
+    const { result } = renderHook(() => useNotifications());
+    let status: string | undefined;
+    await act(async () => {
+      status = await result.current.scheduleReminder(bad);
+    });
+    expect(status).toBe("schedule-failed");
+    expect(LocalNotifications.schedule).not.toHaveBeenCalled();
+  });
+
+  it("scheduleReminder returns 'schedule-failed' when reminderTime is out of range", async () => {
     const bad: Treatment = { ...treatment, reminderTime: "99:99" };
     const { result } = renderHook(() => useNotifications());
     let status: string | undefined;
     await act(async () => {
       status = await result.current.scheduleReminder(bad);
     });
-    expect(status).toBe("error");
+    expect(status).toBe("schedule-failed");
     expect(LocalNotifications.schedule).not.toHaveBeenCalled();
   });
 
-  it("scheduleReminder returns 'error' when reminderTime is invalid", async () => {
+  it("scheduleReminder returns 'schedule-failed' when reminderTime is invalid", async () => {
     const bad: Treatment = { ...treatment, reminderTime: "invalid" };
     const { result } = renderHook(() => useNotifications());
     let status: string | undefined;
     await act(async () => {
       status = await result.current.scheduleReminder(bad);
     });
-    expect(status).toBe("error");
+    expect(status).toBe("schedule-failed");
     expect(LocalNotifications.schedule).not.toHaveBeenCalled();
   });
 

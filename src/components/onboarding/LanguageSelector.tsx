@@ -24,7 +24,6 @@ export function LanguageSelector({ onSelect }: LanguageSelectorProps) {
 
   const handleSelect = (locale: SupportedLocale) => {
     void i18n.changeLanguage(locale);
-    localStorage.setItem("i18n_lang", locale);
   };
 
   return (
@@ -45,7 +44,10 @@ export function LanguageSelector({ onSelect }: LanguageSelectorProps) {
           return (
             <Box
               key={locale}
+              role="button"
+              tabIndex={0}
               onClick={() => { handleSelect(locale); }}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { handleSelect(locale); e.preventDefault(); } }}
               sx={{
                 display: "flex", alignItems: "center", gap: 1.5,
                 p: 2, borderRadius: 3, cursor: "pointer",

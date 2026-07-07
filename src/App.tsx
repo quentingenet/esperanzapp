@@ -24,9 +24,9 @@ const Settings = lazy(() => import("@/pages/Settings").then((m) => ({ default: m
 import { useOnboarding, useNotifications, useAppUpdate } from "@/hooks";
 import { getAllTreatments } from "@/db";
 import { toast } from "@/store/toastStore";
-import { NOTIF_DOMAIN_OFFSET, getNotificationId } from "@/hooks/useNotifications";
+import { NOTIF_DOMAIN_OFFSET, getNotificationId, getLastDayNotificationIds } from "@/hooks/useNotifications";
 import { theme } from "@/theme";
-import { logError } from "@/utils/logger";
+import { logError, safeLocalStorageSet } from "@/utils/logger";
 import type { SupportedLocale } from "@/i18n";
 import type { NavTab } from "@/types";
 
@@ -34,21 +34,23 @@ import type { NavTab } from "@/types";
 // between the database and the notification plugin whenever the app starts.
 function AppStartRescheduler() {
   const { t } = useTranslation();
-  const { rescheduleAll, getExactAlarmStatus } = useNotifications();
+  const { rescheduleAll, scheduleReminder, getExactAlarmStatus } = useNotifications();
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
+    const guard = { cancelled: false };
     void (async () => {
       try {
         const treatments = await getAllTreatments();
         const exactAlarmOk = await getExactAlarmStatus();
         await rescheduleAll(treatments);
-        if (!exactAlarmOk && treatments.some((tr) => tr.reminderEnabled)) {
+        if (!guard.cancelled && !exactAlarmOk && treatments.some((tr) => tr.reminderEnabled)) {
           toast.info(t("treatments.reminderAlarmSettingsNeeded"));
         }
       } catch {
         // Notification failures must not prevent the app from starting.
       }
     })();
+    return () => { guard.cancelled = true; };
   }, [rescheduleAll, getExactAlarmStatus, t]);
 
   // Renew "last day of month" one-shots when they fire while the app is in foreground.
@@ -62,9 +64,11 @@ function AppStartRescheduler() {
       void (async () => {
         try {
           const treatments = await getAllTreatments();
-          const treatment = treatments.find((t) => getNotificationId("treatments", t.id) === notif.id);
+          const treatment = treatments.find(
+            (t) => getNotificationId("treatments", t.id) === notif.id || getLastDayNotificationIds(t.id).includes(notif.id),
+          );
           if (treatment?.frequency === "monthly" && treatment.reminderDay === 0) {
-            await rescheduleAll(treatments);
+            await scheduleReminder(treatment);
           }
         } catch {
           // Notification failures must not crash.
@@ -78,7 +82,7 @@ function AppStartRescheduler() {
       disposed = true;
       void handle?.remove().catch((e: unknown) => { logError("AppStartRescheduler.notifReceived.remove", e); });
     };
-  }, [rescheduleAll]);
+  }, [scheduleReminder]);
 
   return null;
 }
@@ -206,7 +210,7 @@ function AppContent() {
     return (
       <LanguageSelector
         onSelect={(locale: SupportedLocale) => {
-          localStorage.setItem("i18n_lang", locale);
+          safeLocalStorageSet("i18n_lang", locale);
           advanceLanguage();
         }}
       />

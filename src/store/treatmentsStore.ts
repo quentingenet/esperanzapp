@@ -16,7 +16,7 @@ type TreatmentsActions = {
 
 export const useTreatmentsStore = create<TreatmentsState & TreatmentsActions>((set) => ({
   treatments: [],
-  loading: false,
+  loading: true,
   error: null,
   setTreatments: (treatments) => set({ treatments }),
   addTreatment: (t) => set((s) => ({ treatments: [...s.treatments, t] })),

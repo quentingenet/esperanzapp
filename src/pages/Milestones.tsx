@@ -18,7 +18,7 @@ const CHEVRON_DOWN = "M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z";
 
 export function Milestones() {
   const { t } = useTranslation();
-  const { habits, loadHabits } = useHabits();
+  const { habits, loadHabits, loading: habitsLoading } = useHabits();
   const { getStatsBatch } = useHabitLogs();
   const userName = useOnboardingStore((s) => s.userName);
   const [statsMap, setStatsMap] = useState<Partial<Record<string, HabitStats>>>({});
@@ -37,7 +37,7 @@ export function Milestones() {
     <Box sx={{ pb: "calc(96px + max(env(safe-area-inset-bottom), 28px))" }}>
       <PageHeader title={t("milestones.title")} />
       <Box sx={{ px: 2, pt: 1, display: "flex", flexDirection: "column", gap: 1.5 }}>
-        {habits.length === 0 && <EmptyState emoji="🏆" message={t("milestones.noHabits")} />}
+        {habits.length === 0 && !habitsLoading && <EmptyState emoji="🏆" message={t("milestones.noHabits")} />}
         {habits.map((habit, index) => {
           const stats = statsMap[habit.id];
           const grade = getGrade(stats?.currentStreak ?? 0);

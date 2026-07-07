@@ -1,4 +1,3 @@
-import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import type { TreatmentLog, TreatmentStatus } from "@/types";
 import { isTreatmentStatus } from "@/utils";
 import { withDb } from "./client";
@@ -18,22 +17,6 @@ function rowToTreatmentLog(row: TreatmentLogRow): TreatmentLog {
     scheduledAt: row.scheduled_at,
     status: row.status,
   };
-}
-
-// Not called from production code; kept as a direct-insert utility for integration tests.
-export function createTreatmentLog(data: Omit<TreatmentLog, "id">, dbConn?: SQLiteDBConnection | null): Promise<TreatmentLog> {
-  const fn = async (db: SQLiteDBConnection): Promise<TreatmentLog> => {
-    await db.run(
-      "INSERT INTO treatment_logs (treatment_id, scheduled_at, status) VALUES (?, ?, ?)",
-      [data.treatmentId, data.scheduledAt, data.status],
-    );
-    const idRow = await db.query("SELECT last_insert_rowid() AS id");
-    const lastId = (idRow.values?.[0] as { id?: number } | undefined)?.id;
-    if (!lastId) throw new Error("Failed to insert treatment log");
-    return { ...data, id: String(lastId) };
-  };
-  if (dbConn) return fn(dbConn);
-  return withDb(fn, { ...data, id: String(Date.now()) });
 }
 
 export function getTreatmentLogsByTreatmentId(treatmentId: string): Promise<TreatmentLog[]> {
@@ -74,6 +57,7 @@ export function upsertTreatmentLogForDate(
        VALUES (?, ?, ?)
        ON CONFLICT(treatment_id, scheduled_at) DO UPDATE SET status = excluded.status`,
       [treatmentId, scheduledAt, status],
+      false,
     );
     const result = await db.query(
       "SELECT * FROM treatment_logs WHERE treatment_id = ? AND scheduled_at = ?",

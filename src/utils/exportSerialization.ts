@@ -147,7 +147,7 @@ function validateTreatmentLog(v: unknown): TreatmentLog {
 
 export type ExportPayload = {
   version: typeof EXPORT_VERSION;
-  exportedAt: string;
+  exportedAt: string | null;
   habits: Habit[];
   habitLogs: HabitLog[];
   treatments: Treatment[];
@@ -160,7 +160,7 @@ export function buildExportPayload(
   habitLogs: HabitLog[],
   treatments: Treatment[],
   treatmentLogs: TreatmentLog[],
-  exportedAt: string,
+  exportedAt: string | null,
 ): ExportPayload {
   return { version: EXPORT_VERSION, exportedAt, habits, habitLogs, treatments, treatmentLogs };
 }
@@ -183,9 +183,13 @@ export function parseExportPayload(raw: string): ExportPayload {
   ) {
     throw new Error("Unsupported or invalid export format");
   }
+  const rawExportedAt = p["exportedAt"];
+  if (typeof rawExportedAt === "string" && rawExportedAt !== "" && !isISODateTime(rawExportedAt)) {
+    throw new Error("exportedAt must be a valid ISO date-time");
+  }
   return {
     version: EXPORT_VERSION,
-    exportedAt: typeof p["exportedAt"] === "string" ? p["exportedAt"] : "",
+    exportedAt: (typeof rawExportedAt === "string" && rawExportedAt !== "") ? rawExportedAt : null,
     habits: (p["habits"] as unknown[]).map((v) => validateHabit(v)),
     habitLogs: (p["habitLogs"] as unknown[]).map((v) => validateHabitLog(v)),
     treatments: (p["treatments"] as unknown[]).map((v) => validateTreatment(v)),
@@ -368,7 +372,7 @@ export function parseCSVPayload(raw: string): ExportPayload {
     if (!isTime(reminderTime)) throw new Error("treatments: invalid reminderTime");
     if (!isISODateTime(createdAt)) throw new Error("treatments: createdAt must be a valid date-time");
     const reminderDay = reminderDayStr !== "" ? Number(reminderDayStr) : null;
-    if (reminderDay !== null && (!Number.isInteger(reminderDay) || reminderDay < 0 || reminderDay > 31))
+    if (reminderDay !== null && (!Number.isInteger(reminderDay) || reminderDay < 0 || reminderDay > 28))
       throw new Error("treatments: invalid reminderDay");
     if (frequency === "daily") {
       if (reminderDay !== null) throw new Error("treatments: daily frequency must have null reminderDay");
@@ -393,7 +397,7 @@ export function parseCSVPayload(raw: string): ExportPayload {
     return { id, treatmentId, scheduledAt, status };
   });
 
-  return { version: EXPORT_VERSION, exportedAt: "", habits, habitLogs, treatments, treatmentLogs };
+  return { version: EXPORT_VERSION, exportedAt: null, habits, habitLogs, treatments, treatmentLogs };
 }
 
 // OWASP recommendation for PBKDF2-HMAC-SHA256 as of 2023.
@@ -415,6 +419,9 @@ export type EncryptedEnvelope = {
   iv: string;
   iterations: number;
   data: string;
+  // withAad is true in envelopes created after the AAD fix (July 2026).
+  // Old envelopes without this field are decrypted without AAD for backward compatibility.
+  withAad?: true;
 };
 
 export function isEncryptedEnvelope(v: unknown): v is EncryptedEnvelope {
@@ -477,18 +484,22 @@ export async function encryptPayload(
   crypto.getRandomValues(salt);
   crypto.getRandomValues(iv);
   const key = await deriveKey(password, salt, PBKDF2_ITERATIONS);
+  const saltB64 = toBase64(salt);
+  const ivB64 = toBase64(iv);
+  const aad = new TextEncoder().encode(`${format}|${saltB64}|${ivB64}|${String(PBKDF2_ITERATIONS)}`);
   const encrypted = await crypto.subtle.encrypt(
-    { name: "AES-GCM", iv },
+    { name: "AES-GCM", iv, additionalData: aad },
     key,
     new TextEncoder().encode(serialized),
   );
   const envelope: EncryptedEnvelope = {
     encrypted: true,
     format,
-    salt: toBase64(salt),
-    iv: toBase64(iv),
+    salt: saltB64,
+    iv: ivB64,
     iterations: PBKDF2_ITERATIONS,
     data: toBase64(encrypted),
+    withAad: true,
   };
   return JSON.stringify(envelope);
 }
@@ -501,7 +512,10 @@ export async function decryptPayload(envelopeJson: string, password: string): Pr
   const data = fromBase64(parsed.data);
   const key = await deriveKey(password, salt, parsed.iterations);
   try {
-    const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data);
+    const algorithm: AesGcmParams = parsed.withAad === true
+      ? { name: "AES-GCM", iv, additionalData: new TextEncoder().encode(`${parsed.format}|${parsed.salt}|${parsed.iv}|${String(parsed.iterations)}`) }
+      : { name: "AES-GCM", iv };
+    const decrypted = await crypto.subtle.decrypt(algorithm, key, data);
     return { content: new TextDecoder().decode(decrypted), format: parsed.format };
   } catch {
     throw new WrongPasswordError();

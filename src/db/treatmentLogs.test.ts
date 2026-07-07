@@ -49,6 +49,7 @@ describe("upsertTreatmentLogForDate", () => {
     expect(mockDb.run).toHaveBeenCalledWith(
       expect.stringContaining("ON CONFLICT"),
       ["3", "2024-06-01", "taken"],
+      expect.anything(),
     );
     expect(mockDb.run).toHaveBeenCalledTimes(1);
   });

@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { logError } from "@/utils/logger";
 import { useShallow } from "zustand/shallow";
 import {
@@ -24,16 +24,21 @@ export function useTreatments() {
       })),
     );
 
+  const loadId = useRef(0);
+
   const loadTreatments = useCallback(async () => {
+    const id = ++loadId.current;
     useTreatmentsStore.setState({ loading: true, error: null });
     try {
       const data = await getAllTreatments();
+      if (id !== loadId.current) return;
       setTreatments(data);
     } catch (e: unknown) {
+      if (id !== loadId.current) return;
       logError("useTreatments.loadTreatments", e);
       useTreatmentsStore.setState({ error: e instanceof Error ? e.message : "error" });
     } finally {
-      useTreatmentsStore.setState({ loading: false });
+      if (id === loadId.current) useTreatmentsStore.setState({ loading: false });
     }
   }, [setTreatments]);
 

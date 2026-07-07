@@ -1,6 +1,6 @@
 # Privacy Policy for EsperanzApp
 
-*Last updated: July 5, 2026*
+*Last updated: July 7, 2026*
 
 ## 1. Overview
 
@@ -16,7 +16,7 @@ Two non-medical items are stored in your browser's `localStorage`: your language
 
 **Update check.** The application checks at startup whether a newer version is available, using the Google Play In-App Updates API (`@capawesome/capacitor-app-update`). This call is made through Google Play Services and does not transmit any health data. The information exchanged is limited to identifying the current installed version of the application and retrieving the latest available version from the Play Store. This call is subject to Google's own privacy practices for the Google Play platform. The same check is also available manually via the "Check for updates" button in Settings.
 
-**Exact alarm scheduling.** On Android 12 and later, the application uses the `SCHEDULE_EXACT_ALARM` permission to deliver treatment reminders at the exact time you configured. This permission is granted automatically on Android 12 and 13. On Android 14 and later, it requires the user to manually enable "Alarms & Reminders" in the device's app settings; the application guides you there automatically when it detects the permission is missing. No personal data is involved in this process.
+**Exact alarm scheduling.** The primary purpose of EsperanzApp is to remind users to take their treatments and medications at a specific time they have chosen. To fulfil this purpose reliably, the application uses the `SCHEDULE_EXACT_ALARM` permission on Android 12 and later. This permission is the technical requirement for scheduling a notification that fires at a precise moment rather than within a loose time window defined by the operating system. Exact scheduling is not a secondary feature: it is the reason a user configures a reminder time in the first place. A medication reminder that fires 10 or 20 minutes late is not an acceptable outcome for someone following a treatment schedule. The permission is granted automatically on Android 12 and 13. On Android 14 and later, the user explicitly enables it through the dedicated system screen for "Alarms and Reminders" specific to EsperanzApp; the application detects when the permission is missing and opens this screen automatically. This permission is used solely for scheduling treatment and medication reminders. No personal data is transmitted, collected, or shared as part of this process. Treatment reminders are identified by names freely chosen by the user. The application does not require or suggest any specific medication name, dosage, or clinical detail. A reminder can simply be labelled "Morning routine" or "My evening treatment" or any other label the user prefers.
 
 ## 3. Data We Do Not Collect
 
@@ -56,6 +56,10 @@ EsperanzApp is not intended for children under the age of 13 and does not knowin
 
 This privacy policy may be updated from time to time. Any changes will be published on this page with an updated date.
 
-## 9. Contact
+## 9. Medical disclaimer
+
+EsperanzApp is a personal habit and routine tracking application. It is not a medical device and does not provide medical advice, diagnosis, or treatment recommendations. It does not replace a qualified healthcare professional. Any decision relating to a medical treatment, medication schedule, or health condition should be made in consultation with a licensed healthcare provider.
+
+## 10. Contact
 
 For any privacy-related questions: [contact@quentingenet.fr](mailto:contact@quentingenet.fr)

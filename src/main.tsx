@@ -1,6 +1,7 @@
 import { Component, StrictMode, type ErrorInfo, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { Capacitor } from "@capacitor/core";
+import i18next from "i18next";
 import "@/i18n";
 import App from "./App";
 import { DbErrorScreen } from "./components/shared/DbErrorScreen";
@@ -22,7 +23,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
     if (this.state.hasError) {
       return (
         <div style={{ padding: "2rem", textAlign: "center" }}>
-          <p>Something went wrong. Please restart the app.</p>
+          <p>{i18next.t("app.crash", { defaultValue: "Something went wrong. Please restart the app." })}</p>
         </div>
       );
     }

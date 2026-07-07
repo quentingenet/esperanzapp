@@ -7,6 +7,7 @@ import { EmptyState, PageHeader } from "@/components/shared";
 import { useHabits } from "@/hooks";
 import { getAllHabitLogs } from "@/db";
 import { mergeRelapseRestart } from "@/utils/habitLogUtils";
+import { logError } from "@/utils/logger";
 import { COLORS } from "@/theme/tokens";
 import type { HabitLog } from "@/types";
 
@@ -20,25 +21,31 @@ const EVENT_COLORS = { start: COLORS.eventStart, relapse: COLORS.eventRelapse } 
 
 export function History() {
   const { t } = useTranslation();
-  const { habits, loadHabits } = useHabits();
+  const { habits, loadHabits, loading: habitsLoading } = useHabits();
   const [items, setItems] = useState<HistoryItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
 
   useEffect(() => { void loadHabits(); }, [loadHabits]);
 
   useEffect(() => {
     const guard = { cancelled: false };
     async function load() {
-      const allLogs = await getAllHabitLogs();
-      if (guard.cancelled) return;
-      const habitMap = new Map(habits.map((h) => [h.id, h]));
-      const all: HistoryItem[] = allLogs.flatMap((log) => {
-        const habit = habitMap.get(log.habitId);
-        if (!habit) return [];
-        return [{ ...log, habitLabel: habit.label, habitColor: habit.color }];
-      });
-      all.sort((a, b) => b.eventDate.localeCompare(a.eventDate));
-
-      setItems(mergeRelapseRestart(all));
+      try {
+        const allLogs = await getAllHabitLogs();
+        if (guard.cancelled) return;
+        const habitMap = new Map(habits.map((h) => [h.id, h]));
+        const all: HistoryItem[] = allLogs.flatMap((log) => {
+          const habit = habitMap.get(log.habitId);
+          if (!habit) return [];
+          return [{ ...log, habitLabel: habit.label, habitColor: habit.color }];
+        });
+        all.sort((a, b) => b.eventDate.localeCompare(a.eventDate));
+        setItems(mergeRelapseRestart(all));
+      } catch (e: unknown) {
+        logError("History.load", e);
+      } finally {
+        if (!guard.cancelled) setHistoryLoading(false);
+      }
     }
     void load();
     return () => { guard.cancelled = true; };
@@ -48,7 +55,7 @@ export function History() {
     <Box sx={{ pb: "calc(96px + max(env(safe-area-inset-bottom), 28px))" }}>
       <PageHeader title={t("history.title")} />
       <Box sx={{ px: 2, pt: 1 }}>
-        {items.length === 0 && <EmptyState emoji="📅" message={t("history.empty")} />}
+        {items.length === 0 && !habitsLoading && !historyLoading && <EmptyState emoji="📅" message={t("history.empty")} />}
         {items.map((item, idx) => (
           <Box key={item.id}>
             <Box sx={{ display: "flex", gap: 2, py: 1.5 }}>

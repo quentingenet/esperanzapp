@@ -34,7 +34,12 @@ CREATE TABLE IF NOT EXISTS treatments (
   frequency        TEXT NOT NULL CHECK(frequency IN ('daily', 'weekly', 'monthly')),
   reminder_time    TEXT NOT NULL DEFAULT '08:00',
   reminder_enabled INTEGER NOT NULL DEFAULT 1,
-  reminder_day     INTEGER DEFAULT NULL,
+  reminder_day     INTEGER DEFAULT NULL
+    CHECK(
+      (frequency = 'daily'   AND reminder_day IS NULL)
+      OR (frequency = 'weekly'  AND reminder_day BETWEEN 0 AND 6)
+      OR (frequency = 'monthly' AND (reminder_day = 0 OR reminder_day BETWEEN 1 AND 28))
+    ),
   created_at       TEXT NOT NULL
 );
 
@@ -137,5 +142,58 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
       await db.execute("ALTER TABLE treatments ADD COLUMN sort_index INTEGER NOT NULL DEFAULT 0");
     }
     await markApplied(db, "sort_index_treatments");
+  }
+
+  if (!(await isApplied(db, "treatments_reminder_day_check"))) {
+    // Clean up any leftover table from a previous interrupted run before starting.
+    await db.execute("DROP TABLE IF EXISTS treatments_new");
+    // PRAGMA foreign_keys must be set outside a transaction in SQLite.
+    await db.execute("PRAGMA foreign_keys = OFF");
+    await db.beginTransaction();
+    try {
+      await db.execute(`
+        CREATE TABLE treatments_new (
+          id               INTEGER PRIMARY KEY AUTOINCREMENT,
+          label            TEXT NOT NULL,
+          frequency        TEXT NOT NULL CHECK(frequency IN ('daily', 'weekly', 'monthly')),
+          reminder_time    TEXT NOT NULL DEFAULT '08:00',
+          reminder_enabled INTEGER NOT NULL DEFAULT 1,
+          reminder_day     INTEGER DEFAULT NULL
+            CHECK(
+              (frequency = 'daily'   AND reminder_day IS NULL)
+              OR (frequency = 'weekly'  AND reminder_day BETWEEN 0 AND 6)
+              OR (frequency = 'monthly' AND (reminder_day = 0 OR reminder_day BETWEEN 1 AND 28))
+            ),
+          created_at       TEXT NOT NULL,
+          sort_index       INTEGER NOT NULL DEFAULT 0
+        )
+      `, false);
+      await db.execute(`
+        INSERT INTO treatments_new (id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at, sort_index)
+        SELECT
+          id, label, frequency, reminder_time, reminder_enabled,
+          CASE frequency
+            WHEN 'daily'   THEN NULL
+            WHEN 'weekly'  THEN CASE WHEN reminder_day BETWEEN 0 AND 6 THEN reminder_day ELSE 1 END
+            WHEN 'monthly' THEN CASE WHEN reminder_day = 0 OR reminder_day BETWEEN 1 AND 28 THEN reminder_day ELSE 1 END
+            ELSE NULL
+          END,
+          created_at, sort_index
+        FROM treatments
+      `, false);
+      await db.execute("DROP TABLE treatments", false);
+      await db.execute("ALTER TABLE treatments_new RENAME TO treatments", false);
+      await db.run(
+        "INSERT OR IGNORE INTO schema_migrations (name, applied_at) VALUES (?, ?)",
+        ["treatments_reminder_day_check", new Date().toISOString()],
+        false,
+      );
+      await db.commitTransaction();
+    } catch (err) {
+      await db.rollbackTransaction().catch(() => {});
+      await db.execute("PRAGMA foreign_keys = ON");
+      throw err;
+    }
+    await db.execute("PRAGMA foreign_keys = ON");
   }
 }

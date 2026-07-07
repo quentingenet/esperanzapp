@@ -1,6 +1,7 @@
 {
   "app": {
-    "by": "por"
+    "by": "por",
+    "crash": "Algo deu errado. Por favor, reinicie o aplicativo."
   },
   "common": {
     "save": "Salvar",
@@ -90,7 +91,6 @@
       "lastRelapse": "Última recaída: {{date}}"
     },
     "form": {
-      "name": "Nome do hábito",
       "namePlaceholder": "ex: Álcool, Tabaco…",
       "startDate": "Data de início"
     },
@@ -334,6 +334,9 @@
     },
     "diagCopied": "Copiado",
     "diagNoEntries": "Sem entradas",
+    "diagTitle": "Diagnósticos",
+    "diagSubtitle": "hora · contexto · nome do erro (sem dados pessoais)",
+    "diagCopy": "Copiar",
     "kofi": "Apoiar o projeto"
   },
   "milestones": {

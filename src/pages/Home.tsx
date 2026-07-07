@@ -17,7 +17,7 @@ import { SORT_PATH, CHECK_PATH } from "@/utils/svgPaths";
 
 export function Home() {
   const { t } = useTranslation();
-  const { habits, error: habitsError, loadHabits, addHabitWithInitialLog, deleteHabit, reorderHabits, saveHabitsOrder } = useHabits();
+  const { habits, loading: habitsLoading, error: habitsError, loadHabits, addHabitWithInitialLog, deleteHabit, reorderHabits, saveHabitsOrder } = useHabits();
   const { getStatsBatch, recordRelapse } = useHabitLogs();
   const userName = useOnboardingStore((s) => s.userName);
   const [statsMap, setStatsMap] = useState<Partial<Record<string, HabitStats>>>({});
@@ -98,7 +98,7 @@ export function Home() {
           )}
         </Box>
       )}
-      {habits.length === 0 && <EmptyState emoji="🌱" message={t("habits.empty")} />}
+      {habits.length === 0 && !habitsLoading && <EmptyState emoji="🌱" message={t("habits.empty")} />}
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
         <SortableList
           items={sortableHabits}

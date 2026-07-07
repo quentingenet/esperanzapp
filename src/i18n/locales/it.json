@@ -1,6 +1,7 @@
 {
   "app": {
-    "by": "di"
+    "by": "di",
+    "crash": "Si è verificato un errore. Riavvia l'app."
   },
   "common": {
     "save": "Salva",
@@ -90,7 +91,6 @@
       "lastRelapse": "Ultima ricaduta: {{date}}"
     },
     "form": {
-      "name": "Nome dell'abitudine",
       "namePlaceholder": "es. Alcol, Tabacco…",
       "startDate": "Data di inizio"
     },
@@ -334,6 +334,9 @@
     },
     "diagCopied": "Copiato",
     "diagNoEntries": "Nessuna voce",
+    "diagTitle": "Diagnostica",
+    "diagSubtitle": "ora · contesto · nome dell'errore (nessun dato personale)",
+    "diagCopy": "Copia",
     "kofi": "Supporta il progetto"
   },
   "milestones": {

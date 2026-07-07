@@ -148,7 +148,7 @@ async function importPayload(payload: ReturnType<typeof parseExportPayload>): Pr
       if (!db) return;
       // Every statement must opt out of the plugin's implicit transaction because
       // runInTransaction already opened one. Android rejects nested transactions.
-      await clearAllData(db, false);
+      await clearAllData(db);
       // Insert with original IDs so foreign-key relationships are preserved.
       for (const [index, h] of payload.habits.entries()) {
         await db.run(

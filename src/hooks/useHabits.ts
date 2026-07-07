@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useShallow } from "zustand/shallow";
 import {
   createHabitWithInitialLog as dbCreateHabitWithInitialLog,
@@ -23,16 +23,21 @@ export function useHabits() {
     })),
   );
 
+  const loadId = useRef(0);
+
   const loadHabits = useCallback(async () => {
+    const id = ++loadId.current;
     useHabitsStore.setState({ loading: true, error: null });
     try {
       const data = await getAllHabits();
+      if (id !== loadId.current) return;
       setHabits(data);
     } catch (e) {
+      if (id !== loadId.current) return;
       logError("useHabits.loadHabits", e);
       useHabitsStore.setState({ error: e instanceof Error ? e.message : "error" });
     } finally {
-      useHabitsStore.setState({ loading: false });
+      if (id === loadId.current) useHabitsStore.setState({ loading: false });
     }
   }, [setHabits]);
 

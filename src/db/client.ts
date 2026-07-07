@@ -120,16 +120,15 @@ export function runInTransaction<T>(
 
 export function clearAllData(
   dbConn?: SQLiteDBConnection | null,
-  transaction = true,
 ): Promise<void> {
   const fn = async (db: SQLiteDBConnection) => {
-    await db.execute("DELETE FROM treatment_logs", transaction);
-    await db.execute("DELETE FROM habit_logs", transaction);
-    await db.execute("DELETE FROM treatments", transaction);
-    await db.execute("DELETE FROM habits", transaction);
+    await db.execute("DELETE FROM treatment_logs", false);
+    await db.execute("DELETE FROM habit_logs", false);
+    await db.execute("DELETE FROM treatments", false);
+    await db.execute("DELETE FROM habits", false);
   };
   if (dbConn) return fn(dbConn);
-  return withDbVoid(fn);
+  return runInTransaction((db) => (db ? fn(db) : Promise.resolve()));
 }
 
 export async function closeDatabase(): Promise<void> {

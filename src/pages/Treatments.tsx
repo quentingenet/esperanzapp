@@ -31,7 +31,7 @@ import { SORT_PATH, CHECK_PATH } from "@/utils/svgPaths";
 export function Treatments() {
   const { t } = useTranslation();
   const dateLocale = useDateLocale();
-  const { treatments, error: treatmentsError, loadTreatments, addTreatment, editTreatment, deleteTreatment, reorderTreatments, saveTreatmentsOrder } = useTreatments();
+  const { treatments, loading: treatmentsLoading, error: treatmentsError, loadTreatments, addTreatment, editTreatment, deleteTreatment, reorderTreatments, saveTreatmentsOrder } = useTreatments();
   const { logStatus, logStatusForDate, getLogsByDate } = useTreatmentLogs();
   const { scheduleReminder, cancelReminder, requestPermission, openExactAlarmSettings } = useNotifications();
   const mountedRef = useRef(true);
@@ -123,7 +123,7 @@ export function Treatments() {
     if (editReminderEnabled && !editTime) return;
     if (editReminderEnabled && editTarget.frequency !== "daily" && editReminderDay === null) return;
     const reminderTime = editReminderEnabled && editTime ? format(editTime, "HH:mm") : editTarget.reminderTime;
-    const reminderDay = editReminderEnabled ? editReminderDay : null;
+    const reminderDay = editTarget.frequency === "daily" ? null : editReminderDay;
     const updatedFields = { label: editLabel.trim(), reminderTime, reminderEnabled: editReminderEnabled, reminderDay };
     setIsSaving(true);
     void editTreatment(editTarget.id, updatedFields)
@@ -144,7 +144,8 @@ export function Treatments() {
             }
             const status = await scheduleReminder({ ...editTarget, ...updatedFields });
             if (status === "permission-denied") toast.info(t("treatments.form.permissionDenied"));
-            else if (status === "error") { toast.info(t("treatments.reminderAlarmSettingsNeeded")); void openExactAlarmSettings(); }
+            else if (status === "exact-alarm-denied") { toast.info(t("treatments.reminderAlarmSettingsNeeded")); void openExactAlarmSettings(); }
+            else if (status === "schedule-failed") toast.info(t("treatments.reminderSyncFailed"));
           } else {
             await cancelReminder(editTarget.id);
           }
@@ -207,7 +208,7 @@ export function Treatments() {
             )}
           </Box>
         )}
-        {treatments.length === 0 && <EmptyState emoji="💊" message={t("treatments.empty")} />}
+        {treatments.length === 0 && !treatmentsLoading && <EmptyState emoji="💊" message={t("treatments.empty")} />}
         <SortableList
           items={treatments}
           active={sortMode}
@@ -238,6 +239,7 @@ export function Treatments() {
                       }
                     } catch (e: unknown) {
                       logError("Treatments.logStatusForDate", e);
+                      throw e;
                     }
                   }}
                 />
@@ -253,7 +255,8 @@ export function Treatments() {
               if (created.reminderEnabled) {
                 const status = await scheduleReminder(created);
                 if (status === "permission-denied") toast.info(t("treatments.form.permissionDenied"));
-                else if (status === "error") { toast.info(t("treatments.reminderAlarmSettingsNeeded")); void openExactAlarmSettings(); }
+                else if (status === "exact-alarm-denied") { toast.info(t("treatments.reminderAlarmSettingsNeeded")); void openExactAlarmSettings(); }
+            else if (status === "schedule-failed") toast.info(t("treatments.reminderSyncFailed"));
               }
             })
             .catch(() => { toast.error(t("common.error")); });

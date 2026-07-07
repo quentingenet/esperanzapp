@@ -1,6 +1,7 @@
 {
   "app": {
-    "by": "von"
+    "by": "von",
+    "crash": "Ein Fehler ist aufgetreten. Bitte starte die App neu."
   },
   "common": {
     "save": "Speichern",
@@ -90,7 +91,6 @@
       "lastRelapse": "Letzter Rückfall: {{date}}"
     },
     "form": {
-      "name": "Name der Gewohnheit",
       "namePlaceholder": "z. B. Alkohol, Tabak…",
       "startDate": "Startdatum"
     },
@@ -334,6 +334,9 @@
     },
     "diagCopied": "Kopiert",
     "diagNoEntries": "Keine Einträge",
+    "diagTitle": "Diagnose",
+    "diagSubtitle": "Zeit · Kontext · Fehlername (keine persönlichen Daten)",
+    "diagCopy": "Kopieren",
     "kofi": "Projekt unterstützen"
   },
   "milestones": {

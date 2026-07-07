@@ -1,9 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  createHabitLog,
-  getHabitLogsByHabitId,
-  getAllHabitLogs,
-} from "./habitLogs";
+import { getHabitLogsByHabitId, getAllHabitLogs } from "./habitLogs";
+import { createHabitLog } from "./testHelpers";
 
 const mockDb = { run: vi.fn(), query: vi.fn() };
 vi.mock("./client", () => ({ withDb: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb), withDbVoid: (fn: (db: typeof mockDb) => Promise<void>) => fn(mockDb) }));

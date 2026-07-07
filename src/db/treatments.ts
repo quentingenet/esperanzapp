@@ -1,7 +1,7 @@
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import type { Frequency, Treatment } from "@/types";
 import { isFrequency } from "@/utils";
-import { getDb, runInTransaction, withDb, withDbVoid } from "./client";
+import { runInTransaction, withDb, withDbVoid } from "./client";
 import { updateSortOrder } from "./sortOrder";
 
 function validateTreatmentReminderInvariant(frequency: Frequency, reminderDay: number | null): void {
@@ -42,13 +42,18 @@ export function createTreatment(data: Omit<Treatment, "id">, dbConn?: SQLiteDBCo
     await db.run(
       "INSERT INTO treatments (label, frequency, reminder_time, reminder_enabled, reminder_day, created_at) VALUES (?, ?, ?, ?, ?, ?)",
       [data.label, data.frequency, data.reminderTime, data.reminderEnabled ? 1 : 0, data.reminderDay ?? null, data.createdAt],
+      false,
     );
     const idRow = await db.query("SELECT last_insert_rowid() AS id");
     const lastId = (idRow.values?.[0] as { id?: number } | undefined)?.id;
     if (!lastId) throw new Error("Failed to insert treatment");
     return { ...data, id: String(lastId) };
   };
-  return fn(dbConn ?? getDb());
+  if (dbConn) return fn(dbConn);
+  return runInTransaction((db) => {
+    if (!db) throw new Error("DB not initialized");
+    return fn(db);
+  });
 }
 
 export function getAllTreatments(): Promise<Treatment[]> {
@@ -65,8 +70,9 @@ export function updateTreatmentsSortOrder(orderedIds: string[]): Promise<void> {
 export function updateTreatment(
   id: string,
   data: Partial<Omit<Treatment, "id" | "createdAt">>,
+  dbConn?: SQLiteDBConnection | null,
 ): Promise<void> {
-  return withDbVoid(async (db) => {
+  const fn = async (db: SQLiteDBConnection): Promise<void> => {
     if (data.frequency !== undefined) {
       const reminderDay = data.reminderDay !== undefined ? data.reminderDay : null;
       validateTreatmentReminderInvariant(data.frequency, reminderDay);
@@ -82,14 +88,20 @@ export function updateTreatment(
     if (data.reminderEnabled !== undefined) { fields.push("reminder_enabled = ?"); values.push(data.reminderEnabled ? 1 : 0); }
     if (data.reminderDay !== undefined) { fields.push("reminder_day = ?"); values.push(data.reminderDay ?? null); }
     if (!fields.length) return;
-    await db.run(`UPDATE treatments SET ${fields.join(", ")} WHERE id = ?`, [...values, id]);
-  });
+    await db.run(`UPDATE treatments SET ${fields.join(", ")} WHERE id = ?`, [...values, id], false);
+  };
+  if (dbConn) return fn(dbConn);
+  return withDbVoid(fn);
 }
 
-export function deleteTreatment(id: string): Promise<void> {
+export function deleteTreatment(id: string, dbConn?: SQLiteDBConnection | null): Promise<void> {
+  const fn = async (db: SQLiteDBConnection): Promise<void> => {
+    await db.run("DELETE FROM treatment_logs WHERE treatment_id = ?", [id], false);
+    await db.run("DELETE FROM treatments WHERE id = ?", [id], false);
+  };
+  if (dbConn) return fn(dbConn);
   return runInTransaction(async (database) => {
     if (!database) return;
-    await database.run("DELETE FROM treatment_logs WHERE treatment_id = ?", [id], false);
-    await database.run("DELETE FROM treatments WHERE id = ?", [id], false);
+    return fn(database);
   });
 }

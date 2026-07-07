@@ -1,6 +1,6 @@
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import type { Habit } from "@/types";
-import { getDb, runInTransaction, withDb } from "./client";
+import { runInTransaction, withDb } from "./client";
 import { updateSortOrder } from "./sortOrder";
 
 type HabitRow = {
@@ -39,12 +39,6 @@ async function insertHabit(
   const lastId = (idRow.values?.[0] as { id?: number } | undefined)?.id;
   if (!lastId) throw new Error("Failed to insert habit");
   return { ...data, id: String(lastId) };
-}
-
-// Not called from production code; kept as a direct-insert utility for integration tests.
-export function createHabit(data: Omit<Habit, "id">, dbConn?: SQLiteDBConnection | null): Promise<Habit> {
-  const fn = (database: SQLiteDBConnection): Promise<Habit> => insertHabit(database, data);
-  return fn(dbConn ?? getDb());
 }
 
 export function createHabitWithInitialLog(

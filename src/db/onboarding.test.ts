@@ -34,6 +34,7 @@ describe("setOnboardingValue", () => {
     expect(mockDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO onboarding"),
       ["user_name", "Alice"],
+      expect.anything(),
     );
     expect(mockDb.run.mock.calls[0]![0]).toContain("ON CONFLICT");
   });
@@ -41,6 +42,6 @@ describe("setOnboardingValue", () => {
   it("upserts tutorial_completed", async () => {
     mockDb.run.mockResolvedValue({});
     await setOnboardingValue("tutorial_completed", "true");
-    expect(mockDb.run).toHaveBeenCalledWith(expect.any(String), ["tutorial_completed", "true"]);
+    expect(mockDb.run).toHaveBeenCalledWith(expect.any(String), ["tutorial_completed", "true"], expect.anything());
   });
 });

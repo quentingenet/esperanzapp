@@ -1,12 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useTreatmentLogs } from "./useTreatmentLogs";
-import { upsertTreatmentLogForDate } from "@/db";
+import { upsertTreatmentLogForDate, getTreatmentLogsByDate } from "@/db";
 import type { TreatmentLog } from "@/types";
 
 
 vi.mock("@/db", () => ({
   upsertTreatmentLogForDate: vi.fn(),
+  getTreatmentLogsByDate: vi.fn(),
 }));
 
 const log: TreatmentLog = {
@@ -51,5 +52,26 @@ describe("useTreatmentLogs", () => {
     });
     expect(upsertTreatmentLogForDate).toHaveBeenCalledWith("1", "2024-01-15", "taken");
     expect(returned).toEqual(log);
+  });
+
+  it("getLogsByDate fetches logs for the given date", async () => {
+    vi.mocked(getTreatmentLogsByDate).mockResolvedValueOnce([log]);
+    const { result } = renderHook(() => useTreatmentLogs());
+    let logs: TreatmentLog[] | undefined;
+    await act(async () => {
+      logs = await result.current.getLogsByDate("2024-01-15");
+    });
+    expect(getTreatmentLogsByDate).toHaveBeenCalledWith("2024-01-15");
+    expect(logs).toEqual([log]);
+  });
+
+  it("getLogsByDate returns empty array when no logs for date", async () => {
+    vi.mocked(getTreatmentLogsByDate).mockResolvedValueOnce([]);
+    const { result } = renderHook(() => useTreatmentLogs());
+    let logs: TreatmentLog[] | undefined;
+    await act(async () => {
+      logs = await result.current.getLogsByDate("2024-01-15");
+    });
+    expect(logs).toEqual([]);
   });
 });

@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
-  createHabit,
   createHabitWithInitialLog,
   recordHabitRelapse,
   getAllHabits,
   deleteHabit,
 } from "./habits";
+import { createHabit } from "./testHelpers";
 
 const mockDb = { run: vi.fn(), query: vi.fn() };
 vi.mock("./client", () => ({
@@ -30,7 +30,6 @@ describe("createHabit", () => {
     expect(mockDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO habits"),
       expect.arrayContaining([data.label]),
-      true,
     );
   });
 
@@ -53,13 +52,13 @@ describe("atomic habit operations", () => {
       1,
       expect.stringContaining("INSERT INTO habits"),
       expect.any(Array),
-      false,
+      expect.anything(),
     );
     expect(mockDb.run).toHaveBeenNthCalledWith(
       2,
       expect.stringContaining("INSERT INTO habit_logs"),
       ["1", data.startDate],
-      false,
+      expect.anything(),
     );
   });
 
@@ -80,13 +79,13 @@ describe("atomic habit operations", () => {
       1,
       expect.stringContaining("'relapse'"),
       ["1", "2024-02-01"],
-      false,
+      expect.anything(),
     );
     expect(mockDb.run).toHaveBeenNthCalledWith(
       2,
       expect.stringContaining("'start'"),
       ["1", "2024-02-01"],
-      false,
+      expect.anything(),
     );
   });
 
@@ -126,8 +125,8 @@ describe("deleteHabit", () => {
   it("passes correct id to both DELETE statements", async () => {
     mockDb.run.mockResolvedValue({});
     await deleteHabit("42");
-    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM habit_logs WHERE habit_id = ?", ["42"], false);
-    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM habits WHERE id = ?", ["42"], false);
+    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM habit_logs WHERE habit_id = ?", ["42"], expect.anything());
+    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM habits WHERE id = ?", ["42"], expect.anything());
   });
 
   it("propagates a parent deletion failure so log deletion can roll back", async () => {

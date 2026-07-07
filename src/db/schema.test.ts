@@ -7,6 +7,9 @@ function makeDb(migrationApplied = false) {
     execute: vi.fn().mockResolvedValue(undefined),
     run: vi.fn().mockResolvedValue({ changes: { lastId: 1 } }),
     query: vi.fn().mockResolvedValue({ values: migrationApplied ? [{ "1": 1 }] : [] }),
+    beginTransaction: vi.fn().mockResolvedValue(undefined),
+    commitTransaction: vi.fn().mockResolvedValue(undefined),
+    rollbackTransaction: vi.fn().mockResolvedValue(undefined),
   } as unknown as SQLiteDBConnection;
 }
 
@@ -73,6 +76,114 @@ describe("runSchema", () => {
       .mockRejectedValueOnce(new Error("constraint violation"));
     vi.mocked(db.query).mockResolvedValue({ values: [] }); // migration not applied
     await expect(runSchema(db)).rejects.toThrow("constraint violation");
+  });
+});
+
+describe("treatments_reminder_day_check migration", () => {
+  it("wraps table rebuild in a transaction", async () => {
+    const db = makeDb(false);
+    await runSchema(db);
+    expect(vi.mocked(db.beginTransaction)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(db.commitTransaction)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(db.rollbackTransaction)).not.toHaveBeenCalled();
+  });
+
+  it("drops treatments_new before starting to clean up any previous partial run", async () => {
+    const db = makeDb(false);
+    await runSchema(db);
+    const sqls = executedSql(db);
+    const dropNewIdx = sqls.findIndex((s) => s.includes("DROP TABLE IF EXISTS treatments_new"));
+    const beginIdx = sqls.findIndex((s) => s.includes("PRAGMA foreign_keys = OFF"));
+    expect(dropNewIdx).toBeGreaterThanOrEqual(0);
+    expect(dropNewIdx).toBeLessThan(beginIdx);
+  });
+
+  it("sets PRAGMA foreign_keys OFF before transaction and ON after commit", async () => {
+    const db = makeDb(false);
+    await runSchema(db);
+    const sqls = executedSql(db);
+    expect(sqls.some((s) => s.includes("PRAGMA foreign_keys = OFF"))).toBe(true);
+    expect(sqls.some((s) => s.includes("PRAGMA foreign_keys = ON"))).toBe(true);
+  });
+
+  it("rollbacks and re-enables foreign keys when DDL fails", async () => {
+    const db = makeDb(false);
+    let callCount = 0;
+    vi.mocked(db.execute).mockImplementation(async (sql) => {
+      if (sql.includes("CREATE TABLE treatments_new")) {
+        callCount++;
+        if (callCount === 1) throw new Error("disk full");
+      }
+      return {};
+    });
+    await expect(runSchema(db)).rejects.toThrow("disk full");
+    expect(vi.mocked(db.rollbackTransaction)).toHaveBeenCalledTimes(1);
+    expect(executedSql(db).some((s) => s.includes("PRAGMA foreign_keys = ON"))).toBe(true);
+  });
+
+  it("skips table rebuild when already applied", async () => {
+    const db = makeDb(true);
+    await runSchema(db);
+    expect(executedSql(db).some((s) => s.includes("treatments_new"))).toBe(false);
+    expect(vi.mocked(db.beginTransaction)).not.toHaveBeenCalled();
+  });
+
+  it("marks the migration as applied after commit", async () => {
+    const db = makeDb(false);
+    await runSchema(db);
+    const marked = vi.mocked(db.run).mock.calls.some(
+      (c) =>
+        c[0].includes("INSERT OR IGNORE INTO schema_migrations") &&
+        Array.isArray(c[1]) &&
+        c[1].includes("treatments_reminder_day_check"),
+    );
+    expect(marked).toBe(true);
+  });
+});
+
+describe("reminder_day sanitization logic", () => {
+  type Row = { frequency: "daily" | "weekly" | "monthly"; reminder_day: number | null };
+
+  function sanitize(row: Row): number | null {
+    if (row.frequency === "daily") return null;
+    if (row.frequency === "weekly") {
+      return row.reminder_day !== null && row.reminder_day >= 0 && row.reminder_day <= 6
+        ? row.reminder_day
+        : 1;
+    }
+    if (row.reminder_day === 0 || (row.reminder_day !== null && row.reminder_day >= 1 && row.reminder_day <= 28)) {
+      return row.reminder_day;
+    }
+    return 1;
+  }
+
+  beforeEach(() => vi.clearAllMocks());
+
+  it("forces reminder_day to null for daily treatments", () => {
+    expect(sanitize({ frequency: "daily", reminder_day: 3 })).toBeNull();
+    expect(sanitize({ frequency: "daily", reminder_day: null })).toBeNull();
+  });
+
+  it("keeps valid weekly reminder_day (0 to 6)", () => {
+    expect(sanitize({ frequency: "weekly", reminder_day: 0 })).toBe(0);
+    expect(sanitize({ frequency: "weekly", reminder_day: 6 })).toBe(6);
+  });
+
+  it("corrects invalid weekly reminder_day to 1", () => {
+    expect(sanitize({ frequency: "weekly", reminder_day: null })).toBe(1);
+    expect(sanitize({ frequency: "weekly", reminder_day: 7 })).toBe(1);
+  });
+
+  it("keeps valid monthly reminder_day (0 or 1 to 28)", () => {
+    expect(sanitize({ frequency: "monthly", reminder_day: 0 })).toBe(0);
+    expect(sanitize({ frequency: "monthly", reminder_day: 1 })).toBe(1);
+    expect(sanitize({ frequency: "monthly", reminder_day: 28 })).toBe(28);
+  });
+
+  it("corrects out-of-range monthly reminder_day to 1", () => {
+    expect(sanitize({ frequency: "monthly", reminder_day: null })).toBe(1);
+    expect(sanitize({ frequency: "monthly", reminder_day: 29 })).toBe(1);
+    expect(sanitize({ frequency: "monthly", reminder_day: 31 })).toBe(1);
   });
 });
 

@@ -25,10 +25,12 @@ describe("runInTransaction", () => {
 
   describe("with initialized db", () => {
     beforeEach(async () => {
-      vi.clearAllMocks();
       vi.mocked(Capacitor.getPlatform).mockReturnValue("android");
       const { initDatabase } = await import("./client");
       await initDatabase();
+      // Clear mock call counts after schema init so migration calls (beginTransaction etc.)
+      // don't pollute assertions in individual tests.
+      vi.clearAllMocks();
     });
 
     it("serializes concurrent transactions so fn bodies never interleave", async () => {

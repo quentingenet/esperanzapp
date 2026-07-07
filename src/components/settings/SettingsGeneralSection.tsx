@@ -22,7 +22,7 @@ import { useOnboarding, useAppUpdate, useNotifications } from "@/hooks";
 import { useOnboardingStore } from "@/store";
 import { toast } from "@/store/toastStore";
 import { SUPPORTED_LOCALES } from "@/i18n";
-import { getLogEntries, logError } from "@/utils/logger";
+import { getLogEntries, logError, safeLocalStorageSet } from "@/utils/logger";
 import { KofiButton } from "./KofiButton";
 
 declare const __APP_VERSION__: string;
@@ -115,7 +115,7 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
 
   const handleLanguageChange = (value: string) => {
     void i18n.changeLanguage(value);
-    localStorage.setItem("i18n_lang", value);
+    safeLocalStorageSet("i18n_lang", value);
     toast.success(t("common.saved"));
   };
 
@@ -272,10 +272,10 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
     </Dialog>
 
     <Dialog open={diagOpen} onClose={() => { setDiagOpen(false); }} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ fontWeight: 700 }}>Diagnostics</DialogTitle>
+      <DialogTitle sx={{ fontWeight: 700 }}>{t("settings.diagTitle")}</DialogTitle>
       <DialogContent>
         <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
-          time · context · error name (no user data stored)
+          {t("settings.diagSubtitle")}
         </Typography>
         <Box
           component="pre"
@@ -286,7 +286,7 @@ export function SettingsGeneralSection({ onReplayTutorial, onShowTerms }: Settin
       </DialogContent>
       <DialogActions>
         <Button onClick={() => { setDiagOpen(false); }}>{t("common.close")}</Button>
-        <Button variant="contained" onClick={handleCopyDiag}>Copy</Button>
+        <Button variant="contained" onClick={handleCopyDiag}>{t("settings.diagCopy")}</Button>
       </DialogActions>
     </Dialog>
     </>

@@ -15,7 +15,7 @@ type HabitsActions = {
 
 export const useHabitsStore = create<HabitsState & HabitsActions>((set) => ({
   habits: [],
-  loading: false,
+  loading: true,
   error: null,
   setHabits: (habits) => set({ habits }),
   addHabit: (habit) => set((s) => ({ habits: [...s.habits, habit] })),

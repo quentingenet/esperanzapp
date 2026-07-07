@@ -35,6 +35,7 @@ export function TreatmentForm({ onSubmit }: TreatmentFormProps) {
   const [reminderEnabled, setReminderEnabled] = useState(true);
   const [reminderDay, setReminderDay] = useState<number | null>(null);
   const [time, setTime] = useState<Date | null>(new Date());
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleFrequencyChange = (value: string) => {
     const f = value as Frequency;
@@ -45,35 +46,40 @@ export function TreatmentForm({ onSubmit }: TreatmentFormProps) {
   };
 
   const handleSubmit = async () => {
-    if (!label.trim()) return;
-    let effectiveReminderEnabled = reminderEnabled;
-    if (reminderEnabled) {
-      if (!time) return;
-      if (frequency !== "daily" && reminderDay === null) return;
-      if (Capacitor.isNativePlatform()) {
-        const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
-        if (display === "prompt") {
-          const granted = await requestPermission();
-          if (!granted) { effectiveReminderEnabled = false; toast.info(t("treatments.form.permissionDenied")); }
-        } else if (display === "denied") {
-          effectiveReminderEnabled = false;
-          toast.info(t("treatments.form.permissionDenied"));
+    if (isSaving || !label.trim()) return;
+    setIsSaving(true);
+    try {
+      let effectiveReminderEnabled = reminderEnabled;
+      if (reminderEnabled) {
+        if (!time) return;
+        if (frequency !== "daily" && reminderDay === null) return;
+        if (Capacitor.isNativePlatform()) {
+          const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
+          if (display === "prompt") {
+            const granted = await requestPermission();
+            if (!granted) { effectiveReminderEnabled = false; toast.info(t("treatments.form.permissionDenied")); }
+          } else if (display === "denied") {
+            effectiveReminderEnabled = false;
+            toast.info(t("treatments.form.permissionDenied"));
+          }
         }
       }
+      onSubmit({
+        label: label.trim(),
+        frequency,
+        reminderEnabled: effectiveReminderEnabled,
+        reminderDay: frequency === "daily" ? null : reminderDay,
+        reminderTime: effectiveReminderEnabled && time ? format(time, "HH:mm") : "08:00",
+      });
+      setLabel("");
+      setFrequency("daily");
+      setReminderEnabled(true);
+      setReminderDay(null);
+      setTime(new Date());
+      setOpen(false);
+    } finally {
+      setIsSaving(false);
     }
-    onSubmit({
-      label: label.trim(),
-      frequency,
-      reminderEnabled: effectiveReminderEnabled,
-      reminderDay: effectiveReminderEnabled ? reminderDay : null,
-      reminderTime: effectiveReminderEnabled && time ? format(time, "HH:mm") : "08:00",
-    });
-    setLabel("");
-    setFrequency("daily");
-    setReminderEnabled(true);
-    setReminderDay(null);
-    setTime(new Date());
-    setOpen(false);
   };
 
   const showDaySelect = reminderEnabled && frequency !== "daily";
@@ -134,7 +140,7 @@ export function TreatmentForm({ onSubmit }: TreatmentFormProps) {
             )}
             <Button
               fullWidth variant="contained" onClick={() => { void handleSubmit(); }}
-              disabled={!label.trim() || (reminderEnabled && (!time || (frequency !== "daily" && reminderDay === null)))}
+              disabled={isSaving || !label.trim() || (reminderEnabled && (!time || (frequency !== "daily" && reminderDay === null)))}
               aria-label={t("common.save")} sx={{ minHeight: 48, borderRadius: 2 }}
             >
               {t("common.save")}

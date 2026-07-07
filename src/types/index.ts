@@ -59,15 +59,6 @@ export interface Grade {
   bgColor: string;
 }
 
-export interface HabitIcon {
-  id: string;
-  labelKey: string;
-  descKey: string;
-  svgPath: string;
-  color: string;
-  bgColor: string;
-}
-
 export type NavTab = "home" | "milestones" | "treatments" | "history" | "settings";
 
 export interface BottomNavProps {

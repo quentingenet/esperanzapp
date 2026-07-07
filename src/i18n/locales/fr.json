@@ -1,6 +1,7 @@
 {
   "app": {
-    "by": "par"
+    "by": "par",
+    "crash": "Une erreur est survenue. Veuillez redémarrer l'application."
   },
   "common": {
     "save": "Enregistrer",
@@ -90,7 +91,6 @@
       "lastRelapse": "Dernière rechute : {{date}}"
     },
     "form": {
-      "name": "Nom de l'habitude",
       "namePlaceholder": "ex : Alcool, Tabac…",
       "startDate": "Date de départ"
     },
@@ -334,6 +334,9 @@
     },
     "diagCopied": "Copié",
     "diagNoEntries": "Aucune entrée",
+    "diagTitle": "Diagnostics",
+    "diagSubtitle": "heure · contexte · nom de l'erreur (aucune donnée personnelle)",
+    "diagCopy": "Copier",
     "kofi": "Soutenir le développement"
   },
   "milestones": {

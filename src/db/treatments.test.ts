@@ -29,6 +29,7 @@ describe("createTreatment", () => {
     expect(mockDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO treatments"),
       expect.arrayContaining([data.label, data.frequency, data.reminderTime, 1, null]),
+      expect.anything(),
     );
   });
 
@@ -56,6 +57,7 @@ describe("updateTreatment", () => {
     expect(mockDb.run).toHaveBeenCalledWith(
       expect.stringContaining("UPDATE treatments SET"),
       ["Sertraline", "weekly", 1, "3"],
+      expect.anything(),
     );
   });
 
@@ -82,6 +84,7 @@ describe("updateTreatment", () => {
     expect(mockDb.run).toHaveBeenCalledWith(
       expect.stringContaining("UPDATE treatments SET"),
       [null, "3"],
+      expect.anything(),
     );
   });
 

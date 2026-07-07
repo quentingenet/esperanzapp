@@ -1,5 +1,6 @@
 import type { OnboardingKey } from "@/types";
 import { withDb, withDbVoid } from "./client";
+import { safeLocalStorageSet } from "@/utils/logger";
 
 type OnboardingRow = {
   value: string;
@@ -19,8 +20,9 @@ export function setOnboardingValue(key: OnboardingKey, value: string): Promise<v
       await db.run(
         "INSERT INTO onboarding (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
         [key, value],
+        false,
       );
     },
-    () => { localStorage.setItem(`onboarding_${key}`, value); },
+    () => { safeLocalStorageSet(`onboarding_${key}`, value); },
   );
 }

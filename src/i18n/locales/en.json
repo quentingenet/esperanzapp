@@ -1,6 +1,7 @@
 {
   "app": {
-    "by": "by"
+    "by": "by",
+    "crash": "Something went wrong. Please restart the app."
   },
   "common": {
     "save": "Save",
@@ -90,7 +91,6 @@
       "lastRelapse": "Last relapse: {{date}}"
     },
     "form": {
-      "name": "Habit name",
       "namePlaceholder": "e.g. Alcohol, Tobacco…",
       "startDate": "Start date"
     },
@@ -334,6 +334,9 @@
     },
     "diagCopied": "Copied",
     "diagNoEntries": "No entries",
+    "diagTitle": "Diagnostics",
+    "diagSubtitle": "time · context · error name (no user data stored)",
+    "diagCopy": "Copy",
     "kofi": "Support the project"
   },
   "milestones": {

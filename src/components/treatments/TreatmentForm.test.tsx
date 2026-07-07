@@ -154,6 +154,58 @@ describe("TreatmentForm", () => {
     expect(payload["reminderTime"]).toBe("08:00");
   });
 
+  it("weekly + reminder disabled: reminderDay preserved in payload", async () => {
+    const onSubmit = vi.fn();
+    const user = userEvent.setup();
+    render(<TreatmentForm onSubmit={onSubmit} />);
+    await openForm(user);
+    await user.type(screen.getByRole("textbox", { name: "treatments.form.name" }), "Med");
+    await user.click(screen.getByRole("combobox"));
+    await user.click(screen.getByRole("option", { name: "treatments.form.frequencies.weekly" }));
+    await user.click(screen.getByRole("switch"));
+    await user.click(screen.getByRole("button", { name: "common.save" }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    const payload = onSubmit.mock.calls[0]![0] as Record<string, unknown>;
+    expect(payload["reminderEnabled"]).toBe(false);
+    expect(payload["reminderDay"]).toBe(1);
+  });
+
+  it("monthly + reminder disabled: reminderDay preserved in payload", async () => {
+    const onSubmit = vi.fn();
+    const user = userEvent.setup();
+    render(<TreatmentForm onSubmit={onSubmit} />);
+    await openForm(user);
+    await user.type(screen.getByRole("textbox", { name: "treatments.form.name" }), "Med");
+    await user.click(screen.getByRole("combobox"));
+    await user.click(screen.getByRole("option", { name: "treatments.form.frequencies.monthly" }));
+    await user.click(screen.getByRole("switch"));
+    await user.click(screen.getByRole("button", { name: "common.save" }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    const payload = onSubmit.mock.calls[0]![0] as Record<string, unknown>;
+    expect(payload["reminderEnabled"]).toBe(false);
+    expect(payload["reminderDay"]).toBe(1);
+  });
+
+  it("isSaving: button disabled while native permission check is in flight", async () => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+    let resolveCheck!: (v: { display: "granted" }) => void;
+    vi.mocked(LocalNotifications.checkPermissions).mockReturnValue(
+      new Promise((res) => { resolveCheck = res; }),
+    );
+    const onSubmit = vi.fn();
+    const user = userEvent.setup();
+    render(<TreatmentForm onSubmit={onSubmit} />);
+    await openForm(user);
+    await user.type(screen.getByRole("textbox", { name: "treatments.form.name" }), "Med");
+    void user.click(screen.getByRole("button", { name: "common.save" }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "common.save" })).toBeDisabled();
+    });
+    expect(onSubmit).not.toHaveBeenCalled();
+    resolveCheck({ display: "granted" });
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+  });
+
   it("form resets and drawer closes after successful submit", async () => {
     const user = userEvent.setup();
     render(<TreatmentForm onSubmit={vi.fn()} />);

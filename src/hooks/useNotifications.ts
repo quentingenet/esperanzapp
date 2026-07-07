@@ -70,14 +70,14 @@ export function useNotifications() {
   }, []);
 
   const scheduleReminder = useCallback(
-    async (treatment: Treatment): Promise<"scheduled" | "permission-denied" | "disabled" | "error"> => {
+    async (treatment: Treatment): Promise<"scheduled" | "permission-denied" | "disabled" | "exact-alarm-denied" | "schedule-failed" | "unverified"> => {
       if (!Capacitor.isNativePlatform()) return "disabled";
       if (!treatment.reminderEnabled) return "disabled";
       const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
       if (display !== "granted") return "permission-denied";
 
       const [h, m] = treatment.reminderTime.split(":").map(Number) as [number, number];
-      if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return "error";
+      if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return "schedule-failed";
 
       // Pre-cancel both the base ID and all 12 potential last-day IDs so frequency changes
       // (e.g. last-day -> daily) don't leave stale notifications in pending.
@@ -101,7 +101,7 @@ export function useNotifications() {
           });
           idsToVerify = [baseId];
         } else if (treatment.frequency === "weekly") {
-          if (treatment.reminderDay === null) return "error";
+          if (treatment.reminderDay === null) return "schedule-failed";
           const weekday = jsWeekdayToCapacitor(treatment.reminderDay);
           await LocalNotifications.schedule({
             notifications: [{
@@ -125,7 +125,7 @@ export function useNotifications() {
             if (target > now) break;
             startOffset++;
           }
-          if (startOffset >= 12) return "error";
+          if (startOffset >= 12) return "schedule-failed";
 
           const notifications = Array.from({ length: 12 }, (_, i) => {
             const mo = addMonths(now, startOffset + i);
@@ -142,7 +142,8 @@ export function useNotifications() {
           await LocalNotifications.schedule({ notifications });
           idsToVerify = lastDayIds;
         } else {
-          const day = treatment.reminderDay ?? 1;
+          if (treatment.reminderDay === null) return "schedule-failed";
+          const day = treatment.reminderDay;
           await LocalNotifications.schedule({
             notifications: [{
               id: baseId,
@@ -156,11 +157,22 @@ export function useNotifications() {
 
         // Verify the notification(s) were actually registered — guards against silent failure on
         // Android 14+ when SCHEDULE_EXACT_ALARM is not granted.
-        const pending = await LocalNotifications.getPending().catch(() => ({ notifications: [] as Array<{ id: number }> }));
-        if (!idsToVerify.every((id) => pending.notifications.some((n) => n.id === id))) return "error";
+        let pending: { notifications: Array<{ id: number }> };
+        try {
+          pending = await LocalNotifications.getPending();
+        } catch {
+          return "unverified";
+        }
+        if (!idsToVerify.every((id) => pending.notifications.some((n) => n.id === id))) {
+          if (Capacitor.getPlatform() === "android") {
+            const { value: canExact } = await ExactAlarm.canScheduleExactAlarms().catch(() => ({ value: true }));
+            if (!canExact) return "exact-alarm-denied";
+          }
+          return "schedule-failed";
+        }
         return "scheduled";
       } catch {
-        return "error";
+        return "schedule-failed";
       }
     },
     [],
@@ -178,15 +190,35 @@ export function useNotifications() {
   const rescheduleAll = useCallback(
     async (treatments: Treatment[]): Promise<boolean> => {
       if (!Capacitor.isNativePlatform()) return false;
-      const pending = await LocalNotifications.getPending().catch(() => ({ notifications: [] }));
-      const treatmentPending = pending.notifications.filter(
-        (n) => n.id >= NOTIF_DOMAIN_OFFSET.treatments && n.id < NOTIF_DOMAIN_OFFSET.milestones,
-      );
-      if (treatmentPending.length > 0) {
-        await LocalNotifications.cancel({ notifications: treatmentPending.map((n) => ({ id: n.id })) }).catch(() => {});
-      }
+
+      // Schedule first so no window exists where notifications are cancelled but not yet re-created.
+      // Each scheduleReminder pre-cancels its own IDs before scheduling, so frequency changes are safe.
       const results = await Promise.allSettled(treatments.map((t) => scheduleReminder(t)));
-      return results.some((r) => r.status === "fulfilled" && r.value === "error");
+      const anyFailed = results.some(
+        (r) => r.status === "fulfilled" && (r.value === "exact-alarm-denied" || r.value === "schedule-failed"),
+      );
+
+      // Compute the IDs that are legitimately expected to be pending after scheduling.
+      const expectedIds = new Set<number>();
+      for (const t of treatments) {
+        if (!t.reminderEnabled) continue;
+        if (t.frequency === "monthly" && t.reminderDay === 0) {
+          for (const id of getLastDayNotificationIds(t.id)) expectedIds.add(id);
+        } else {
+          expectedIds.add(getNotificationId("treatments", t.id));
+        }
+      }
+
+      // Cancel any treatment-domain IDs that are no longer expected (deleted/disabled treatments).
+      const pending = await LocalNotifications.getPending().catch(() => ({ notifications: [] }));
+      const orphans = pending.notifications.filter(
+        (n) => n.id >= NOTIF_DOMAIN_OFFSET.treatments && n.id < NOTIF_DOMAIN_OFFSET.milestones && !expectedIds.has(n.id),
+      );
+      if (orphans.length > 0) {
+        await LocalNotifications.cancel({ notifications: orphans.map((n) => ({ id: n.id })) }).catch(() => {});
+      }
+
+      return anyFailed;
     },
     [scheduleReminder],
   );

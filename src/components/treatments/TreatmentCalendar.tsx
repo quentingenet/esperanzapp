@@ -17,6 +17,7 @@ import { format, isAfter, isBefore, startOfDay, subYears } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { useCalendar, useDateLocale } from "@/hooks";
 import { toast } from "@/store/toastStore";
+import { logError } from "@/utils/logger";
 import { COLORS } from "@/theme/tokens";
 import type { TreatmentCalendarProps, TreatmentStatus } from "@/types";
 import { getPastOccurrences } from "./treatmentCalendarUtils";
@@ -44,14 +45,14 @@ export function TreatmentCalendar({ treatmentId, frequency, reminderDay, created
     const seq = ++refreshSeq.current;
     void getTreatmentStatusMap(treatmentId)
       .then((map) => { if (mountedRef.current && seq === refreshSeq.current) setStatusMap(map); })
-      .catch(() => {});
-  }, [treatmentId, getTreatmentStatusMap]);
+      .catch((e: unknown) => { logError("TreatmentCalendar.refreshMap", e); toast.error(t("common.error")); });
+  }, [treatmentId, getTreatmentStatusMap, t]);
 
   useEffect(() => {
     const guard = { cancelled: false };
     void getTreatmentStatusMap(treatmentId).then((map) => {
       if (!guard.cancelled) setStatusMap(map);
-    }).catch(() => {});
+    }).catch((e: unknown) => { logError("TreatmentCalendar.loadMap", e); });
     return () => { guard.cancelled = true; };
   }, [treatmentId, getTreatmentStatusMap]);
 

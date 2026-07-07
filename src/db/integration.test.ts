@@ -12,10 +12,8 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import { createInitializedSqliteConnection, type RealSqliteConn } from "@/test/realSqliteConnection";
-import { createHabit } from "./habits";
-import { createHabitLog } from "./habitLogs";
-import { createTreatment } from "./treatments";
-import { createTreatmentLog } from "./treatmentLogs";
+import { createTreatment, updateTreatment, deleteTreatment } from "./treatments";
+import { createHabit, createHabitLog, createTreatmentLog } from "./testHelpers";
 import { clearAllData } from "./client";
 import {
   buildExportPayload,
@@ -160,6 +158,20 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     expect(await countRows(conn, "treatment_logs")).toBe(0);
   });
 
+  it("deleteTreatment removes the treatment and all its logs atomically", async () => {
+    const treatment = await createTreatment(TREATMENT_DATA, asConn(conn));
+    await createTreatmentLog({ treatmentId: treatment.id, scheduledAt: "2024-01-01", status: "taken" }, asConn(conn));
+    await createTreatmentLog({ treatmentId: treatment.id, scheduledAt: "2024-01-02", status: "missed" }, asConn(conn));
+
+    expect(await countRows(conn, "treatments")).toBe(1);
+    expect(await countRows(conn, "treatment_logs")).toBe(2);
+
+    await deleteTreatment(treatment.id, asConn(conn));
+
+    expect(await countRows(conn, "treatments")).toBe(0);
+    expect(await countRows(conn, "treatment_logs")).toBe(0);
+  });
+
   // Database constraints
 
   it("UNIQUE index rejects duplicate treatment_log for same (treatment_id, scheduled_at)", async () => {
@@ -192,6 +204,40 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
         asConn(conn),
       ),
     ).rejects.toThrow();
+  });
+
+  // reminder_day CHECK constraint — weekly/monthly with reminderEnabled=false
+
+  it("createTreatment weekly with reminderEnabled=false keeps valid reminderDay", async () => {
+    const treatment = await createTreatment(
+      { label: "Aspirin", frequency: "weekly", reminderTime: "08:00", reminderEnabled: false, reminderDay: 1, createdAt: "2024-01-01T08:00:00Z" },
+      asConn(conn),
+    );
+    expect(+treatment.id).toBeGreaterThan(0);
+    const rows = await allRows(conn, "treatments");
+    expect(rows[0]?.reminder_day).toBe(1);
+    expect(rows[0]?.reminder_enabled).toBe(0);
+  });
+
+  it("createTreatment monthly with reminderEnabled=false keeps valid reminderDay", async () => {
+    const treatment = await createTreatment(
+      { label: "Metformin", frequency: "monthly", reminderTime: "08:00", reminderEnabled: false, reminderDay: 15, createdAt: "2024-01-01T08:00:00Z" },
+      asConn(conn),
+    );
+    expect(+treatment.id).toBeGreaterThan(0);
+    const rows = await allRows(conn, "treatments");
+    expect(rows[0]?.reminder_day).toBe(15);
+  });
+
+  it("updateTreatment disabling reminder on weekly treatment preserves reminderDay", async () => {
+    const treatment = await createTreatment(
+      { label: "Aspirin", frequency: "weekly", reminderTime: "08:00", reminderEnabled: true, reminderDay: 3, createdAt: "2024-01-01T08:00:00Z" },
+      asConn(conn),
+    );
+    await updateTreatment(treatment.id, { reminderEnabled: false }, asConn(conn));
+    const rows = await allRows(conn, "treatments");
+    expect(rows[0]?.reminder_enabled).toBe(0);
+    expect(rows[0]?.reminder_day).toBe(3);
   });
 
   // JSON export and import round trip
@@ -374,5 +420,70 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     const encrypted = await encryptPayload(JSON.stringify(payload), "correct-pass", "json");
     const { WrongPasswordError } = await import("@/utils/exportSerialization");
     await expect(decryptPayload(encrypted, "wrong-pass")).rejects.toBeInstanceOf(WrongPasswordError);
+  });
+
+  // reminder_day = null preserved across JSON round-trip (daily treatment)
+
+  it("daily treatment JSON round-trip preserves reminder_day = null in DB", async () => {
+    const treatment = await createTreatment(TREATMENT_DATA, asConn(conn)); // daily, reminderDay: null
+    const payload = buildExportPayload([], [], [treatment], [], new Date().toISOString());
+    await clearAllData(asConn(conn));
+    await importDirectly(conn, parseExportPayload(JSON.stringify(payload)));
+    const rows = await allRows(conn, "treatments");
+    expect(rows[0]?.frequency).toBe("daily");
+    expect(rows[0]?.reminder_day).toBeNull();
+  });
+
+  // clearAllData atomicity: mid-import failure rolls back to original state
+
+  it("failed import inside transaction restores original data (no partial state)", async () => {
+    const habit = await createHabit(HABIT_DATA, asConn(conn));
+    await createHabitLog({ habitId: habit.id, eventType: "start", eventDate: "2024-01-01" }, asConn(conn));
+
+    // Simulate importPayload: begin → clear → insert good → insert bad → rollback
+    await conn.beginTransaction();
+    try {
+      await clearAllData(asConn(conn));
+      await conn.run(
+        "INSERT INTO habits (id, label, icon, color, bg_color, start_date, created_at, sort_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        ["42", "NewHabit", "🎯", "#000", "#fff", "2024-06-01", "2024-06-01T00:00:00Z", 0],
+      );
+      // FK violation: habit_id 99999 does not exist → throws
+      await conn.run(
+        "INSERT INTO habit_logs (id, habit_id, event_type, event_date) VALUES (?, ?, ?, ?)",
+        ["99", "99999", "start", "2024-06-01"],
+      );
+      await conn.commitTransaction();
+    } catch {
+      await conn.rollbackTransaction();
+    }
+
+    // Rollback restores original data — no partial import persisted
+    expect(await countRows(conn, "habits")).toBe(1);
+    expect((await allRows(conn, "habits"))[0]?.label).toBe(HABIT_DATA.label);
+    expect(await countRows(conn, "habit_logs")).toBe(1);
+  });
+
+  // updateTreatment frequency change + reminderDay recalculated
+
+  it("updateTreatment frequency change daily→weekly enforces reminderDay invariant", async () => {
+    const treatment = await createTreatment(TREATMENT_DATA, asConn(conn)); // daily, reminderDay: null
+
+    // daily → weekly with valid reminderDay=1
+    await updateTreatment(treatment.id, { frequency: "weekly", reminderDay: 1 }, asConn(conn));
+    const rows = await allRows(conn, "treatments");
+    expect(rows[0]?.frequency).toBe("weekly");
+    expect(rows[0]?.reminder_day).toBe(1);
+
+    // weekly → daily with null (valid)
+    await updateTreatment(treatment.id, { frequency: "daily", reminderDay: null }, asConn(conn));
+    const rows2 = await allRows(conn, "treatments");
+    expect(rows2[0]?.frequency).toBe("daily");
+    expect(rows2[0]?.reminder_day).toBeNull();
+
+    // daily → weekly without reminderDay → application rejects (invariant violation)
+    await expect(
+      updateTreatment(treatment.id, { frequency: "weekly" }, asConn(conn)),
+    ).rejects.toThrow("weekly must have reminderDay");
   });
 });

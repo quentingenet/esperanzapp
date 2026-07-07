@@ -66,6 +66,14 @@ export function getLogEntries(): readonly LogEntry[] {
   return ring;
 }
 
+export function safeLocalStorageSet(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch (e: unknown) {
+    logError("localStorage.setItem", e);
+  }
+}
+
 export function clearLog(): void {
   ring.length = 0;
 }
