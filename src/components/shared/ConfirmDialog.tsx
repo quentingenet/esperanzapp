@@ -11,11 +11,13 @@ interface ConfirmDialogProps {
   title: string;
   body?: string;
   confirmLabel?: string;
+  confirmColor?: "error" | "primary" | "success" | "warning" | "info";
+  cancelLabel?: string;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-export function ConfirmDialog({ open, title, body, confirmLabel, onConfirm, onCancel }: ConfirmDialogProps) {
+export function ConfirmDialog({ open, title, body, confirmLabel, confirmColor, cancelLabel, onConfirm, onCancel }: ConfirmDialogProps) {
   const { t } = useTranslation();
   return (
     <Dialog open={open} onClose={onCancel} maxWidth="xs" fullWidth>
@@ -26,8 +28,8 @@ export function ConfirmDialog({ open, title, body, confirmLabel, onConfirm, onCa
         </DialogContent>
       )}
       <DialogActions sx={{ px: 3, pb: 2.5, gap: 1 }}>
-        <Button fullWidth variant="outlined" onClick={onCancel}>{t("common.cancel")}</Button>
-        <Button fullWidth variant="contained" color="error" onClick={onConfirm}>
+        <Button fullWidth variant="outlined" onClick={onCancel}>{cancelLabel ?? t("common.cancel")}</Button>
+        <Button fullWidth variant="contained" color={confirmColor ?? "error"} onClick={onConfirm}>
           {confirmLabel ?? t("common.delete")}
         </Button>
       </DialogActions>

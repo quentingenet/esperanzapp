@@ -102,7 +102,13 @@
       "separator": "e",
       "total": "ovvero {{count}} giorni"
     },
-    "seeMore": "Vedi dettagli"
+    "seeMore": "Vedi dettagli",
+    "notifPrompt": {
+      "title": "Attivare le notifiche?",
+      "body": "Ricevi un messaggio ad ogni traguardo: 1 giorno, 7 giorni, 1 mese. Resterai accompagnato nel tuo cammino.",
+      "confirm": "Sì, attiva",
+      "skip": "Non ora"
+    }
   },
   "habitTypes": {
     "alcohol": {

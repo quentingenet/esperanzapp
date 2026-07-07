@@ -6,15 +6,8 @@ import { getAllHabitLogs, getAllHabits } from "@/db";
 import { NOTIF_DOMAIN_OFFSET } from "@/hooks/useNotifications";
 import { GRADES } from "./grades";
 import { logError } from "@/utils/logger";
+import { stableHash31 } from "./stableHash31";
 import type { HabitLog } from "@/types";
-
-function stableHash31(s: string): number {
-  let h = 5381;
-  for (let i = 0; i < s.length; i++) {
-    h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
-  }
-  return (h & 0x7fffffff) || 1;
-}
 
 export function getMilestoneNotificationId(habitId: string, gradeIndex: number): number {
   const numericId = parseInt(habitId, 10);

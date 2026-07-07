@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import { HabitCard, HabitDetailModal, HabitForm } from "@/components/habits";
 import { ConfirmDialog, EmptyState, SortableList } from "@/components/shared";
-import { useHabits, useHabitLogs } from "@/hooks";
+import { useHabits, useHabitLogs, useNotifications } from "@/hooks";
 import { useOnboardingStore } from "@/store";
 import { toast } from "@/store/toastStore";
 import { getGrade, getNextGrade } from "@/utils/grades";
@@ -20,10 +20,12 @@ export function Home() {
   const { t } = useTranslation();
   const { habits, loading: habitsLoading, error: habitsError, loadHabits, addHabitWithInitialLog, deleteHabit, reorderHabits, saveHabitsOrder } = useHabits();
   const { getStatsBatch, recordRelapse } = useHabitLogs();
+  const { getPermissionStatus, requestPermission, getExactAlarmStatus, openExactAlarmSettings } = useNotifications();
   const userName = useOnboardingStore((s) => s.userName);
   const [statsMap, setStatsMap] = useState<Partial<Record<string, HabitStats>>>({});
   const [detailHabit, setDetailHabit] = useState<{ habit: Habit; stats: HabitStats } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Habit | null>(null);
+  const [showNotifPrompt, setShowNotifPrompt] = useState(false);
   const [sortMode, setSortMode] = useState(false);
 
   useEffect(() => { void loadHabits(); }, [loadHabits]);
@@ -130,7 +132,12 @@ export function Home() {
       </Box>
       <HabitForm existingHabits={habits} onSubmit={(data) => {
         void addHabitWithInitialLog({ ...data, createdAt: new Date().toISOString() })
-          .then(() => { void loadHabits(); toast.success(t("common.created")); })
+          .then(async () => {
+            void loadHabits();
+            toast.success(t("common.created"));
+            const granted = await getPermissionStatus();
+            if (granted === false) setShowNotifPrompt(true);
+          })
           .catch((e: unknown) => { logError("Home.addHabit", e); toast.error(t("common.error")); });
       }} />
 
@@ -149,6 +156,25 @@ export function Home() {
         title={t("habits.deleteConfirm")}
         onConfirm={handleDeleteConfirmed}
         onCancel={() => { setDeleteTarget(null); }}
+      />
+
+      <ConfirmDialog
+        open={showNotifPrompt}
+        title={t("habits.notifPrompt.title")}
+        body={t("habits.notifPrompt.body")}
+        confirmLabel={t("habits.notifPrompt.confirm")}
+        confirmColor="primary"
+        cancelLabel={t("habits.notifPrompt.skip")}
+        onConfirm={() => {
+          setShowNotifPrompt(false);
+          void requestPermission().then(async (granted) => {
+            if (granted) {
+              const exactOk = await getExactAlarmStatus();
+              if (!exactOk) void openExactAlarmSettings();
+            }
+          });
+        }}
+        onCancel={() => { setShowNotifPrompt(false); }}
       />
     </Box>
   );

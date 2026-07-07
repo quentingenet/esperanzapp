@@ -102,7 +102,13 @@
       "separator": "et",
       "total": "soit {{count}} jours"
     },
-    "seeMore": "Voir les details"
+    "seeMore": "Voir les details",
+    "notifPrompt": {
+      "title": "Activer les notifications ?",
+      "body": "Reçois un message à chaque jalon : 1 jour, 7 jours, 1 mois. Tu seras accompagné dans tes progrès.",
+      "confirm": "Oui, activer",
+      "skip": "Pas maintenant"
+    }
   },
   "habitTypes": {
     "alcohol": {

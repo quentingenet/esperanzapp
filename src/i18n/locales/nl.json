@@ -102,7 +102,13 @@
       "separator": "en",
       "total": "dat zijn {{count}} dagen"
     },
-    "seeMore": "Details bekijken"
+    "seeMore": "Details bekijken",
+    "notifPrompt": {
+      "title": "Meldingen inschakelen?",
+      "body": "Ontvang een bericht bij elke mijlpaal: 1 dag, 7 dagen, 1 maand. Je blijft ondersteund onderweg.",
+      "confirm": "Ja, inschakelen",
+      "skip": "Niet nu"
+    }
   },
   "habitTypes": {
     "alcohol": {

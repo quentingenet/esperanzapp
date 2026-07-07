@@ -4,6 +4,7 @@ import { Capacitor } from "@capacitor/core";
 import { LocalNotifications, Weekday } from "@capacitor/local-notifications";
 import { ExactAlarm } from "@/plugins/ExactAlarm";
 import i18n from "@/i18n";
+import { stableHash31 } from "@/utils/stableHash31";
 import type { Treatment } from "@/types";
 
 export const NOTIF_DOMAIN_OFFSET = {
@@ -12,14 +13,6 @@ export const NOTIF_DOMAIN_OFFSET = {
 } as const;
 
 export type NotifDomain = keyof typeof NOTIF_DOMAIN_OFFSET;
-
-function stableHash31(s: string): number {
-  let h = 5381;
-  for (let i = 0; i < s.length; i++) {
-    h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
-  }
-  return (h & 0x7fffffff) || 1; // positive 31-bit, never 0
-}
 
 export function getNotificationId(domain: NotifDomain, id: string): number {
   const offset = NOTIF_DOMAIN_OFFSET[domain];

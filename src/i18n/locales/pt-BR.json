@@ -102,7 +102,13 @@
       "separator": "e",
       "total": "ou seja {{count}} dias"
     },
-    "seeMore": "Ver detalhes"
+    "seeMore": "Ver detalhes",
+    "notifPrompt": {
+      "title": "Ativar notificações?",
+      "body": "Receba uma mensagem em cada marco: 1 dia, 7 dias, 1 mês. Você será acompanhado na sua jornada.",
+      "confirm": "Sim, ativar",
+      "skip": "Agora não"
+    }
   },
   "habitTypes": {
     "alcohol": {

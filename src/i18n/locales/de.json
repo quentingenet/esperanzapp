@@ -102,7 +102,13 @@
       "separator": "und",
       "total": "das sind {{count}} Tage"
     },
-    "seeMore": "Details anzeigen"
+    "seeMore": "Details anzeigen",
+    "notifPrompt": {
+      "title": "Benachrichtigungen aktivieren?",
+      "body": "Erhalte eine Nachricht bei jedem Meilenstein: 1 Tag, 7 Tage, 1 Monat. Du bleibst auf deinem Weg begleitet.",
+      "confirm": "Ja, aktivieren",
+      "skip": "Nicht jetzt"
+    }
   },
   "habitTypes": {
     "alcohol": {
