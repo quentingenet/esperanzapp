@@ -1,4 +1,5 @@
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
+import { logError } from "@/utils/logger";
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -190,10 +191,19 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
       );
       await db.commitTransaction();
     } catch (err) {
-      await db.rollbackTransaction().catch(() => {});
+      await db.rollbackTransaction().catch((rollbackErr: unknown) => {
+        logError("schema.migration.treatments_reminder_day_check.rollback", rollbackErr);
+      });
       await db.execute("PRAGMA foreign_keys = ON");
       throw err;
     }
     await db.execute("PRAGMA foreign_keys = ON");
+    const fkCheck = await db.query("PRAGMA foreign_key_check").catch(() => ({ values: [] }));
+    if ((fkCheck.values ?? []).length > 0) {
+      logError(
+        "schema.migration.treatments_reminder_day_check.fk_check",
+        new Error(`${String((fkCheck.values ?? []).length)} foreign key violation(s) detected after migration`),
+      );
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import SvgIcon from "@mui/material/SvgIcon";
@@ -10,7 +10,7 @@ import { useHabits, useHabitLogs, useNotifications } from "@/hooks";
 import { useOnboardingStore } from "@/store";
 import { toast } from "@/store/toastStore";
 import { getGrade, getNextGrade } from "@/utils/grades";
-import { cancelMilestoneNotifications, scheduleMilestoneNotifications } from "@/utils/milestoneNotifications";
+import { cancelMilestoneNotifications, scheduleMilestoneNotifications, rescheduleAllMilestoneNotifications } from "@/utils/milestoneNotifications";
 import { logError } from "@/utils/logger";
 import type { Habit, HabitStats } from "@/types";
 
@@ -27,6 +27,7 @@ export function Home() {
   const [deleteTarget, setDeleteTarget] = useState<Habit | null>(null);
   const [showNotifPrompt, setShowNotifPrompt] = useState(false);
   const [sortMode, setSortMode] = useState(false);
+  const isSavingOrderRef = useRef(false);
 
   useEffect(() => { void loadHabits(); }, [loadHabits]);
   useEffect(() => { if (habitsError) toast.error(t("common.error")); }, [habitsError, t]);
@@ -42,9 +43,9 @@ export function Home() {
   const handleRelapse = (habit: Habit, date: string) => {
     void recordRelapse(habit.id, date)
       .then(() => {
-        void cancelMilestoneNotifications(habit.id).then(() =>
-          scheduleMilestoneNotifications(habit.id, habit.label, date),
-        );
+        void cancelMilestoneNotifications(habit.id)
+          .then(() => scheduleMilestoneNotifications(habit.id, habit.label, date))
+          .catch((e: unknown) => { logError("Home.handleRelapse.notifications", e); });
         void loadHabits();
         setDetailHabit(null);
       })
@@ -60,12 +61,16 @@ export function Home() {
   };
 
   const handleExitSort = useCallback(() => {
+    if (isSavingOrderRef.current) return;
+    isSavingOrderRef.current = true;
     setSortMode(false);
-    void saveHabitsOrder().catch((e: unknown) => {
-      logError("Home.saveHabitsOrder", e);
-      toast.error(t("common.error"));
-      void loadHabits();
-    });
+    void saveHabitsOrder()
+      .catch((e: unknown) => {
+        logError("Home.saveHabitsOrder", e);
+        toast.error(t("common.error"));
+        void loadHabits();
+      })
+      .finally(() => { isSavingOrderRef.current = false; });
   }, [saveHabitsOrder, t, loadHabits]);
 
   const sortableHabits = habits.filter((h) => statsMap[h.id]?.startDate);
@@ -169,6 +174,7 @@ export function Home() {
           setShowNotifPrompt(false);
           void requestPermission().then(async (granted) => {
             if (granted) {
+              void rescheduleAllMilestoneNotifications();
               const exactOk = await getExactAlarmStatus();
               if (!exactOk) void openExactAlarmSettings();
             }

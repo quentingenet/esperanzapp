@@ -21,22 +21,22 @@ export function getNotificationId(domain: NotifDomain, id: string): number {
   // String/UUID IDs (e.g. imported from external systems) fall back to hash % 999_999;
   // collision probability is low (~1/999_999 per pair) but non-zero.
   const numericId = parseInt(id, 10);
-  // Cap at 999_999 so the slot stays within the domain range [offset, offset+999_999].
-  // IDs >= 1_000_000 (e.g. from external imports) would otherwise overflow into the next domain.
-  const slot = Number.isInteger(numericId) && numericId > 0 && numericId <= 999_999 && String(numericId) === id
+  // Cap at 499_999 so base IDs stay in [offset+1, offset+499_999].
+  // The upper half [offset+500_000, offset+999_999] is reserved for last-day one-shots.
+  const slot = Number.isInteger(numericId) && numericId > 0 && numericId <= 499_999 && String(numericId) === id
     ? numericId
-    : stableHash31(id) % 999_999;
+    : (stableHash31(id) % 499_999) + 1;
   return offset + slot;
 }
 
 // Returns 12 stable notification IDs for "last day of month" multi-shots (months 0..11 ahead).
-// Uses a hash of (treatmentId + "~ld~" + monthIndex) to avoid collisions with base IDs.
-// All IDs fall within [NOTIF_DOMAIN_OFFSET.treatments + 1, NOTIF_DOMAIN_OFFSET.milestones - 1].
+// Occupies the upper half of the treatments domain [offset+500_000, offset+999_999],
+// leaving [offset+1, offset+499_999] for base treatment IDs — no overlap possible.
 export function getLastDayNotificationIds(treatmentId: string): number[] {
-  const offset = NOTIF_DOMAIN_OFFSET.treatments;
+  const base = NOTIF_DOMAIN_OFFSET.treatments + 500_000;
   return Array.from({ length: 12 }, (_, i) => {
-    const slot = (stableHash31(treatmentId + "~ld~" + String(i)) % 999_999) + 1;
-    return offset + slot;
+    const slot = stableHash31(treatmentId + "~ld~" + String(i)) % 500_000;
+    return base + slot;
   });
 }
 

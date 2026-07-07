@@ -87,6 +87,7 @@ export function updateHabitsSortOrder(orderedIds: string[]): Promise<void> {
 export function deleteHabit(id: string): Promise<void> {
   return runInTransaction(async (database) => {
     if (!database) return;
+    // Explicit delete is the canonical path; ON DELETE CASCADE on habit_logs is a safety net.
     await database.run("DELETE FROM habit_logs WHERE habit_id = ?", [id], false);
     await database.run("DELETE FROM habits WHERE id = ?", [id], false);
   });

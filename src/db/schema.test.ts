@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { runSchema } from "./schema";
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 
+const mocks = vi.hoisted(() => ({ logError: vi.fn() }));
+vi.mock("@/utils/logger", () => ({ logError: mocks.logError }));
+
 function makeDb(migrationApplied = false) {
   return {
     execute: vi.fn().mockResolvedValue(undefined),
@@ -138,6 +141,36 @@ describe("treatments_reminder_day_check migration", () => {
         c[1].includes("treatments_reminder_day_check"),
     );
     expect(marked).toBe(true);
+  });
+
+  it("runs PRAGMA foreign_key_check after commit and does not log when no violations", async () => {
+    const db = makeDb(false);
+    await runSchema(db);
+    const checked = vi.mocked(db.query).mock.calls.some((c) => c[0].includes("foreign_key_check"));
+    expect(checked).toBe(true);
+    expect(mocks.logError).not.toHaveBeenCalledWith(
+      expect.stringContaining("fk_check"),
+      expect.anything(),
+    );
+  });
+
+  it("logs an error when rollback itself fails during migration failure", async () => {
+    mocks.logError.mockClear();
+    const db = makeDb(false);
+    let ddlCallCount = 0;
+    vi.mocked(db.execute).mockImplementation(async (sql) => {
+      if (sql.includes("CREATE TABLE treatments_new")) {
+        ddlCallCount++;
+        if (ddlCallCount === 1) throw new Error("disk full");
+      }
+      return {};
+    });
+    vi.mocked(db.rollbackTransaction).mockRejectedValueOnce(new Error("rollback failed"));
+    await expect(runSchema(db)).rejects.toThrow("disk full");
+    expect(mocks.logError).toHaveBeenCalledWith(
+      expect.stringContaining("rollback"),
+      expect.any(Error),
+    );
   });
 });
 

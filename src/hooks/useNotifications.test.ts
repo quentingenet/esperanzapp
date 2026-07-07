@@ -49,6 +49,19 @@ describe("getNotificationId", () => {
     expect(id).toBeGreaterThanOrEqual(NOTIF_DOMAIN_OFFSET.treatments);
     expect(id).toBeLessThan(NOTIF_DOMAIN_OFFSET.milestones);
   });
+
+  it("base IDs are in [offset+1, offset+499_999] and last-day IDs are in [offset+500_000, offset+999_999]", () => {
+    const baseId = getNotificationId("treatments", "42");
+    const lastDayIds = getLastDayNotificationIds("42");
+    const LO = NOTIF_DOMAIN_OFFSET.treatments;
+    expect(baseId).toBeGreaterThanOrEqual(LO + 1);
+    expect(baseId).toBeLessThan(LO + 500_000);
+    for (const id of lastDayIds) {
+      expect(id).toBeGreaterThanOrEqual(LO + 500_000);
+      expect(id).toBeLessThan(LO + 1_000_000);
+    }
+    expect(lastDayIds).not.toContain(baseId);
+  });
 });
 
 describe("useNotifications", () => {
