@@ -164,43 +164,87 @@
     }
   },
   "grades": {
-    "awakening": {
-      "label": "Awakening"
+    "firstStep": {
+      "label": "First Step"
     },
-    "firstBreath": {
-      "label": "First Breath"
+    "alive": {
+      "label": "Alive"
     },
-    "anchoring": {
-      "label": "Anchoring"
+    "oneWeek": {
+      "label": "One Week"
     },
-    "solidity": {
-      "label": "Solidity"
+    "twoWeeks": {
+      "label": "Two Weeks"
     },
-    "clarity": {
-      "label": "Clarity"
+    "newHabit": {
+      "label": "New Habit"
     },
-    "mastery": {
-      "label": "Mastery"
+    "oneMonth": {
+      "label": "One Month"
     },
-    "freedom": {
-      "label": "Freedom"
+    "inFlow": {
+      "label": "In the Flow"
     },
-    "fulfilledAwakening": {
-      "label": "Fulfilled Awakening"
+    "twoMonths": {
+      "label": "Two Months"
     },
-    "legend": {
-      "label": "Legend"
+    "altitude": {
+      "label": "High Ground"
+    },
+    "threeMonths": {
+      "label": "Three Months"
+    },
+    "century": {
+      "label": "Century"
+    },
+    "fourMonths": {
+      "label": "Four Months"
+    },
+    "halfway": {
+      "label": "Halfway"
+    },
+    "metamorphosis": {
+      "label": "Metamorphosis"
+    },
+    "champion": {
+      "label": "Champion"
+    },
+    "tenMonths": {
+      "label": "Ten Months"
+    },
+    "oneYear": {
+      "label": "One Year"
+    },
+    "livingLegend": {
+      "label": "Living Legend"
+    },
+    "twoYears": {
+      "label": "Two Years"
+    },
+    "millennium": {
+      "label": "Millennium"
     },
     "messages": {
-      "awakening": "Day one. This is where it starts.",
-      "firstBreath": "7 days. You're holding. Keep going.",
-      "anchoring": "2 weeks. This is no longer chance, it's a choice.",
-      "solidity": "One month. You've proven something to yourself.",
-      "clarity": "2 months. Things are becoming clearer.",
-      "mastery": "3 months. You're taking back control.",
-      "freedom": "6 months. You're not the same person you were on day one.",
-      "fulfilledAwakening": "One year. Few people get here. You did.",
-      "legend": "2 years and beyond. Rare. Real. You."
+      "firstStep": "Day one. The longest one. You made it.",
+      "alive": "Three days. You didn't let go.",
+      "oneWeek": "Seven days without giving in. Not a coincidence.",
+      "twoWeeks": "Two weeks. You're moving forward.",
+      "newHabit": "Three weeks. You don't have to believe in it for it to work.",
+      "oneMonth": "One month. Do you still remember the first day?",
+      "inFlow": "45 days. Not too early to celebrate, not too late to believe in it.",
+      "twoMonths": "60 days. You've changed, even if you can't see it yet.",
+      "altitude": "75 days. Who would have thought?",
+      "threeMonths": "Three months. No reason to stop now.",
+      "century": "100. Just to see that number.",
+      "fourMonths": "Four months. You built new habits. Ones you actually chose.",
+      "halfway": "Five months. This isn't willpower anymore. This is who you are.",
+      "metamorphosis": "Six months as the version of you that you prefer.",
+      "champion": "250 days. No one around you measures how big this is.",
+      "tenMonths": "300 days. Closer to a year than to the start.",
+      "oneYear": "One year. You can say 'last year' now.",
+      "livingLegend": "500 days. At this point, it's just who you are.",
+      "twoYears": "Two years. A life before, a life after.",
+      "millennium": "A thousand days. Just like that."
     },
     "daysLeft_one": "{{count}} day left",
     "daysLeft_other": "{{count}} days left"

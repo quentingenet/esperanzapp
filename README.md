@@ -7,6 +7,15 @@
 ![Capacitor](https://img.shields.io/badge/Capacitor-119EFF?style=for-the-badge&logo=Capacitor&logoColor=white)
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
 ![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)
+[![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20the%20dev-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/quentingenet)
+
+<p align="center">
+  <a href="https://ko-fi.com/quentingenet" target="_blank">
+    <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support EsperanzApp on Ko-fi"/>
+  </a>
+  <br/>
+  <em>Find EsperanzApp useful? Support its development - iOS release is on the roadmap...</em>
+</p>
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/quentingenet/esperanzapp/main/assets/logo-app-store.png" alt="EsperanzApp" width="720"/>

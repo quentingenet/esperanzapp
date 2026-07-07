@@ -27,6 +27,7 @@ import { toast } from "@/store/toastStore";
 import { NOTIF_DOMAIN_OFFSET, getNotificationId, getLastDayNotificationIds } from "@/hooks/useNotifications";
 import { theme } from "@/theme";
 import { logError, safeLocalStorageSet } from "@/utils/logger";
+import { rescheduleAllMilestoneNotifications } from "@/utils/milestoneNotifications";
 import type { SupportedLocale } from "@/i18n";
 import type { NavTab } from "@/types";
 
@@ -47,8 +48,11 @@ function AppStartRescheduler() {
           toast.info(t("treatments.reminderAlarmSettingsNeeded"));
         }
       } catch {
-        // Notification failures must not prevent the app from starting.
+        // Treatment notification failures must not prevent the app from starting.
       }
+      // Runs independently: rescheduleAllMilestoneNotifications has its own internal try/catch
+      // and must not be skipped if the treatment reschedule above throws.
+      await rescheduleAllMilestoneNotifications();
     })();
     return () => { guard.cancelled = true; };
   }, [rescheduleAll, getExactAlarmStatus, t]);

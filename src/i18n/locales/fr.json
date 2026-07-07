@@ -164,43 +164,87 @@
     }
   },
   "grades": {
-    "awakening": {
-      "label": "Éveil"
+    "firstStep": {
+      "label": "Premier pas"
     },
-    "firstBreath": {
-      "label": "Premier souffle"
+    "alive": {
+      "label": "En vie"
     },
-    "anchoring": {
-      "label": "Ancrage"
+    "oneWeek": {
+      "label": "Une semaine"
     },
-    "solidity": {
-      "label": "Solidité"
+    "twoWeeks": {
+      "label": "Deux semaines"
     },
-    "clarity": {
-      "label": "Clarté"
+    "newHabit": {
+      "label": "Nouvelle habitude"
     },
-    "mastery": {
-      "label": "Maîtrise"
+    "oneMonth": {
+      "label": "Un mois"
     },
-    "freedom": {
-      "label": "Liberté"
+    "inFlow": {
+      "label": "Dans le flow"
     },
-    "fulfilledAwakening": {
-      "label": "Éveil accompli"
+    "twoMonths": {
+      "label": "Deux mois"
     },
-    "legend": {
-      "label": "Légende"
+    "altitude": {
+      "label": "En altitude"
+    },
+    "threeMonths": {
+      "label": "Trois mois"
+    },
+    "century": {
+      "label": "Centenaire"
+    },
+    "fourMonths": {
+      "label": "Quatre mois"
+    },
+    "halfway": {
+      "label": "Mi-chemin"
+    },
+    "metamorphosis": {
+      "label": "Métamorphose"
+    },
+    "champion": {
+      "label": "Champion"
+    },
+    "tenMonths": {
+      "label": "Dix mois"
+    },
+    "oneYear": {
+      "label": "Un an"
+    },
+    "livingLegend": {
+      "label": "Légende vivante"
+    },
+    "twoYears": {
+      "label": "Deux ans"
+    },
+    "millennium": {
+      "label": "Millénaire"
     },
     "messages": {
-      "awakening": "Premier jour. C'est là que tout commence.",
-      "firstBreath": "7 jours. Tu tiens. Continue.",
-      "anchoring": "2 semaines. Ce n'est plus du hasard, c'est une décision.",
-      "solidity": "Un mois. Tu as prouvé quelque chose à toi-même.",
-      "clarity": "2 mois. Les choses deviennent plus claires.",
-      "mastery": "3 mois. Tu es en train de reprendre le contrôle.",
-      "freedom": "6 mois. Tu n'es plus la même personne qu'au premier jour.",
-      "fulfilledAwakening": "Un an. Peu de gens arrivent là. Toi, tu l'as fait.",
-      "legend": "Plus de 2 ans. C'est rare. C'est réel. C'est toi."
+      "firstStep": "Le premier jour est le plus long. Tu l'as passé.",
+      "alive": "Trois jours. Tu n'as pas lâché.",
+      "oneWeek": "Sept jours sans céder. Pas une coïncidence.",
+      "twoWeeks": "Deux semaines. Tu avances.",
+      "newHabit": "Trois semaines. Tu n'as pas besoin d'y croire pour que ça marche.",
+      "oneMonth": "Un mois. Tu te souviens encore du premier jour ?",
+      "inFlow": "45 jours. Ni trop tôt pour fêter, ni trop tard pour y croire.",
+      "twoMonths": "60 jours. T'as changé, même si tu ne le vois pas encore.",
+      "altitude": "75 jours. Qui aurait dit ?",
+      "threeMonths": "Trois mois. Pas de raison d'arrêter maintenant.",
+      "century": "100. Juste pour voir ce chiffre.",
+      "fourMonths": "Quatre mois. Tu t'es refait des automatismes que tu choisis, cette fois.",
+      "halfway": "Cinq mois. On ne parle plus de volonté, là. C'est toi.",
+      "metamorphosis": "Six mois que tu es la version de toi que tu préfères.",
+      "champion": "250 jours. Personne autour de toi ne mesure à quel point c'est grand.",
+      "tenMonths": "300 jours. Plus proche d'un an que d'un départ.",
+      "oneYear": "Un an. Tu peux dire 'l'année dernière' maintenant.",
+      "livingLegend": "500 jours. À ce stade, c'est juste qui tu es.",
+      "twoYears": "Deux ans. Une vie avant, une vie après.",
+      "millennium": "Mille jours. Quand même."
     },
     "daysLeft_one": "{{count}} jour restant",
     "daysLeft_other": "{{count}} jours restants"

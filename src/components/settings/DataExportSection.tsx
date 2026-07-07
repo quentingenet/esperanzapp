@@ -19,6 +19,7 @@ import { useTreatmentsStore } from "@/store/treatmentsStore";
 import { toast } from "@/store/toastStore";
 import { getImportErrorTranslationKey } from "@/utils/importErrorMessage";
 import { logError } from "@/utils/logger";
+import { rescheduleAllMilestoneNotifications } from "@/utils/milestoneNotifications";
 
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_IMPORT_BYTES = 10 * 1024 * 1024;
@@ -165,6 +166,7 @@ export function DataExportSection() {
             await rescheduleAll(freshTreatments);
           }
         }
+        await rescheduleAllMilestoneNotifications();
       } catch (e) {
         logError("DataExportSection.refreshAfterImport", e);
         // Import succeeded; only the UI refresh failed. Warn without blocking success.

@@ -10,6 +10,7 @@ import { useHabits, useHabitLogs } from "@/hooks";
 import { useOnboardingStore } from "@/store";
 import { toast } from "@/store/toastStore";
 import { getGrade, getNextGrade } from "@/utils/grades";
+import { cancelMilestoneNotifications, scheduleMilestoneNotifications } from "@/utils/milestoneNotifications";
 import { logError } from "@/utils/logger";
 import type { Habit, HabitStats } from "@/types";
 
@@ -38,7 +39,13 @@ export function Home() {
 
   const handleRelapse = (habit: Habit, date: string) => {
     void recordRelapse(habit.id, date)
-      .then(() => { void loadHabits(); setDetailHabit(null); })
+      .then(() => {
+        void cancelMilestoneNotifications(habit.id).then(() =>
+          scheduleMilestoneNotifications(habit.id, habit.label, date),
+        );
+        void loadHabits();
+        setDetailHabit(null);
+      })
       .catch((e: unknown) => { logError("Home.handleRelapse", e); toast.error(t("common.error")); });
   };
 

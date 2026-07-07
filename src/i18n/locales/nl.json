@@ -164,43 +164,87 @@
     }
   },
   "grades": {
-    "awakening": {
-      "label": "Ontwaken"
+    "firstStep": {
+      "label": "Eerste stap"
     },
-    "firstBreath": {
-      "label": "Eerste Adem"
+    "alive": {
+      "label": "Levend"
     },
-    "anchoring": {
-      "label": "Verankering"
+    "oneWeek": {
+      "label": "Een week"
     },
-    "solidity": {
-      "label": "Stevigheid"
+    "twoWeeks": {
+      "label": "Twee weken"
     },
-    "clarity": {
-      "label": "Helderheid"
+    "newHabit": {
+      "label": "Nieuwe gewoonte"
     },
-    "mastery": {
-      "label": "Meesterschap"
+    "oneMonth": {
+      "label": "Een maand"
     },
-    "freedom": {
-      "label": "Vrijheid"
+    "inFlow": {
+      "label": "In de flow"
     },
-    "fulfilledAwakening": {
-      "label": "Vervuld Ontwaken"
+    "twoMonths": {
+      "label": "Twee maanden"
     },
-    "legend": {
-      "label": "Legende"
+    "altitude": {
+      "label": "Op hoogte"
+    },
+    "threeMonths": {
+      "label": "Drie maanden"
+    },
+    "century": {
+      "label": "Honderd dagen"
+    },
+    "fourMonths": {
+      "label": "Vier maanden"
+    },
+    "halfway": {
+      "label": "Halverwege"
+    },
+    "metamorphosis": {
+      "label": "Metamorfose"
+    },
+    "champion": {
+      "label": "Kampioen"
+    },
+    "tenMonths": {
+      "label": "Tien maanden"
+    },
+    "oneYear": {
+      "label": "Een jaar"
+    },
+    "livingLegend": {
+      "label": "Levende legende"
+    },
+    "twoYears": {
+      "label": "Twee jaar"
+    },
+    "millennium": {
+      "label": "Millennium"
     },
     "messages": {
-      "awakening": "Eerste dag. Hier begint het allemaal.",
-      "firstBreath": "7 dagen. Je houdt vol. Ga door.",
-      "anchoring": "2 weken. Dit is geen toeval meer, het is een beslissing.",
-      "solidity": "Een maand. Je hebt jezelf iets bewezen.",
-      "clarity": "2 maanden. De dingen worden duidelijker.",
-      "mastery": "3 maanden. Je neemt de controle terug.",
-      "freedom": "6 maanden. Je bent niet meer dezelfde persoon als op de eerste dag.",
-      "fulfilledAwakening": "Een jaar. Weinig mensen komen hier. Jij wel.",
-      "legend": "Meer dan 2 jaar. Zeldzaam. Echt. Jij."
+      "firstStep": "De eerste dag is de langste. Die heb je gehad.",
+      "alive": "Drie dagen. Je hebt niet losgelaten.",
+      "oneWeek": "Zeven dagen zonder toe te geven. Geen toeval.",
+      "twoWeeks": "Twee weken. Je gaat vooruit.",
+      "newHabit": "Drie weken. Je hoeft er niet in te geloven voor het werkt.",
+      "oneMonth": "Een maand. Herinner je de eerste dag nog?",
+      "inFlow": "45 dagen. Nooit te vroeg om te vieren, nooit te laat om te geloven.",
+      "twoMonths": "60 dagen. Je bent veranderd, ook al zie je het nog niet.",
+      "altitude": "75 dagen. Wie had dat gedacht?",
+      "threeMonths": "Drie maanden. Geen reden om nu te stoppen.",
+      "century": "100. Alleen maar om dat getal te zien.",
+      "fourMonths": "Vier maanden. Je hebt nieuwe gewoonten opgebouwd, die je deze keer zelf hebt gekozen.",
+      "halfway": "Vijf maanden. Dit gaat niet meer over wilskracht. Dit ben jij.",
+      "metamorphosis": "Zes maanden als de versie van jezelf die je het liefst bent.",
+      "champion": "250 dagen. Niemand om je heen begrijpt hoe groot dit is.",
+      "tenMonths": "300 dagen. Dichter bij een jaar dan bij het begin.",
+      "oneYear": "Een jaar. Je kunt nu 'vorig jaar' zeggen.",
+      "livingLegend": "500 dagen. Dit is gewoon wie je bent.",
+      "twoYears": "Twee jaar. Een leven voor, een leven na.",
+      "millennium": "Duizend dagen. Zomaar."
     },
     "daysLeft_one": "{{count}} dag over",
     "daysLeft_other": "{{count}} dagen over"

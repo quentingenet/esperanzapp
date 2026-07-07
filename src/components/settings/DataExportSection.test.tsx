@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => ({
   rescheduleAll: vi.fn(),
   requestPermission: vi.fn(),
   getTreatmentsState: vi.fn(),
+  rescheduleAllMilestoneNotifications: vi.fn(),
   toast: { error: vi.fn(), success: vi.fn(), info: vi.fn(), warning: vi.fn() },
 }));
 
@@ -45,6 +46,10 @@ vi.mock("@/store/treatmentsStore", () => ({
 }));
 
 vi.mock("@/store/toastStore", () => ({ toast: mocks.toast }));
+
+vi.mock("@/utils/milestoneNotifications", () => ({
+  rescheduleAllMilestoneNotifications: mocks.rescheduleAllMilestoneNotifications,
+}));
 
 vi.mock("@/utils/importErrorMessage", () => ({
   getImportErrorTranslationKey: () => "export.error",
@@ -142,6 +147,7 @@ describe("DataExportSection — plain JSON import flow", () => {
     mocks.loadTreatments.mockResolvedValue(undefined);
     mocks.requestPermission.mockResolvedValue(true);
     mocks.rescheduleAll.mockResolvedValue(undefined);
+    mocks.rescheduleAllMilestoneNotifications.mockResolvedValue(undefined);
     mocks.getTreatmentsState.mockReturnValue({ treatments: [] });
   });
 
@@ -200,6 +206,27 @@ describe("DataExportSection — plain JSON import flow", () => {
     expect(mocks.rescheduleAll).not.toHaveBeenCalled();
   });
 
+  it("rescheduleAllMilestoneNotifications is called after successful import regardless of treatments", async () => {
+    mocks.getTreatmentsState.mockReturnValue({ treatments: [] });
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    await openImportWarnDialog(user, MINIMAL_JSON_FILE);
+    await user.click(screen.getByRole("button", { name: "export.importConfirm" }));
+    await waitFor(() => expect(mocks.rescheduleAllMilestoneNotifications).toHaveBeenCalledTimes(1));
+    // And not called when import fails
+    expect(mocks.importJSON).toHaveBeenCalledTimes(1);
+  });
+
+  it("rescheduleAllMilestoneNotifications is NOT called when import fails", async () => {
+    mocks.importJSON.mockRejectedValue(new Error("bad file"));
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    await openImportWarnDialog(user, MINIMAL_JSON_FILE);
+    await user.click(screen.getByRole("button", { name: "export.importConfirm" }));
+    await waitFor(() => expect(mocks.toast.error).toHaveBeenCalledTimes(1));
+    expect(mocks.rescheduleAllMilestoneNotifications).not.toHaveBeenCalled();
+  });
+
   it("import error shows toast.error and no success toast", async () => {
     mocks.importJSON.mockRejectedValue(new Error("bad"));
     const user = userEvent.setup();
@@ -228,6 +255,7 @@ describe("DataExportSection — CSV import", () => {
     mocks.loadTreatments.mockResolvedValue(undefined);
     mocks.requestPermission.mockResolvedValue(true);
     mocks.rescheduleAll.mockResolvedValue(undefined);
+    mocks.rescheduleAllMilestoneNotifications.mockResolvedValue(undefined);
     mocks.getTreatmentsState.mockReturnValue({ treatments: [] });
   });
 
@@ -255,6 +283,7 @@ describe("DataExportSection — encrypted import flow", () => {
     mocks.loadTreatments.mockResolvedValue(undefined);
     mocks.requestPermission.mockResolvedValue(true);
     mocks.rescheduleAll.mockResolvedValue(undefined);
+    mocks.rescheduleAllMilestoneNotifications.mockResolvedValue(undefined);
     mocks.getTreatmentsState.mockReturnValue({ treatments: [] });
   });
 

@@ -9,6 +9,7 @@ import {
 import { useHabitsStore } from "@/store/habitsStore";
 import { todayLocalDate } from "@/utils";
 import { logError } from "@/utils/logger";
+import { cancelMilestoneNotifications, scheduleMilestoneNotifications } from "@/utils/milestoneNotifications";
 import type { Habit } from "@/types";
 
 export function useHabits() {
@@ -48,6 +49,7 @@ export function useHabits() {
       }
       const created = await dbCreateHabitWithInitialLog(data, data.startDate);
       storeAdd(created);
+      void scheduleMilestoneNotifications(created.id, created.label, data.startDate);
       return created;
     },
     [storeAdd],
@@ -57,6 +59,7 @@ export function useHabits() {
     async (id: string): Promise<void> => {
       await dbDeleteHabit(id);
       removeHabit(id);
+      void cancelMilestoneNotifications(id);
     },
     [removeHabit],
   );
