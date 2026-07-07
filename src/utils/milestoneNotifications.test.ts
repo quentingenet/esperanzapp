@@ -256,6 +256,31 @@ describe("rescheduleAllMilestoneNotifications", () => {
     expect(LocalNotifications.schedule).not.toHaveBeenCalled();
   });
 
+  it("purges orphan milestone notifications from a deleted habit", async () => {
+    // habit "1" is alive; habit "2" was deleted but left a pending notification.
+    const orphanId = getMilestoneNotificationId("2", 0);
+    type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
+    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
+      notifications: [{ id: orphanId }],
+    } as PendingResult);
+    await rescheduleAllMilestoneNotifications();
+    const calls = vi.mocked(LocalNotifications.cancel).mock.calls;
+    const lastCancelNotifs = calls[calls.length - 1]![0].notifications;
+    expect(lastCancelNotifs).toContainEqual({ id: orphanId });
+  });
+
+  it("does not cancel expected milestone IDs as orphans", async () => {
+    // getPending returns a still-pending expected ID (e.g. from previous session).
+    const expectedId = getMilestoneNotificationId("1", 0);
+    type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
+    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
+      notifications: [{ id: expectedId }],
+    } as PendingResult);
+    await rescheduleAllMilestoneNotifications();
+    // Only one cancel call: the per-habit pre-cancel; expectedId is not an orphan.
+    expect(LocalNotifications.cancel).toHaveBeenCalledOnce();
+  });
+
   it("uses the most recent start log as streak start", async () => {
     // Old start + relapse + recent restart yesterday → all 20 milestones are in the future
     const logsWithRelapse: HabitLog[] = [

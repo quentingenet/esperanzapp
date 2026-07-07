@@ -89,11 +89,27 @@ export async function rescheduleAllMilestoneNotifications(): Promise<void> {
       logsByHabit.get(log.habitId)?.push(log);
     }
 
+    // Build expected IDs for all live habits before cancel/schedule so the orphan
+    // purge below can identify notifications from since-deleted habits.
+    const expectedIds = new Set<number>(
+      habits.flatMap((h) => GRADES.map((_, i) => getMilestoneNotificationId(h.id, i))),
+    );
+
     for (const habit of habits) {
       const streakStart = getStreakStart(logsByHabit.get(habit.id) ?? []);
       if (!streakStart) continue;
       await cancelMilestoneNotifications(habit.id);
       await scheduleMilestoneNotifications(habit.id, habit.label, streakStart);
+    }
+
+    // Purge milestone notifications whose habit was deleted. Mirrors rescheduleAll() for treatments.
+    const MILESTONES_DOMAIN_END = NOTIF_DOMAIN_OFFSET.milestones + 1_000_000;
+    const pending = await LocalNotifications.getPending().catch(() => ({ notifications: [] }));
+    const orphans = pending.notifications.filter(
+      (n) => n.id >= NOTIF_DOMAIN_OFFSET.milestones && n.id < MILESTONES_DOMAIN_END && !expectedIds.has(n.id),
+    );
+    if (orphans.length > 0) {
+      await LocalNotifications.cancel({ notifications: orphans.map((n) => ({ id: n.id })) }).catch(() => {});
     }
   } catch (e) {
     logError("rescheduleAllMilestoneNotifications", e);

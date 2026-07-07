@@ -28,16 +28,16 @@ export function Home() {
   const [showNotifPrompt, setShowNotifPrompt] = useState(false);
   const [sortMode, setSortMode] = useState(false);
   const isSavingOrderRef = useRef(false);
+  const statsLoadSeqRef = useRef(0);
 
   useEffect(() => { void loadHabits(); }, [loadHabits]);
   useEffect(() => { if (habitsError) toast.error(t("common.error")); }, [habitsError, t]);
 
   useEffect(() => {
-    const guard = { cancelled: false };
+    const seq = ++statsLoadSeqRef.current;
     void getStatsBatch(habits.map((h) => h.id)).then((map) => {
-      if (!guard.cancelled) setStatsMap(map);
+      if (seq === statsLoadSeqRef.current) setStatsMap(map);
     }).catch((e: unknown) => { logError("Home.getStatsBatch", e); });
-    return () => { guard.cancelled = true; };
   }, [habits, getStatsBatch]);
 
   const handleRelapse = (habit: Habit, date: string) => {

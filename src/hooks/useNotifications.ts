@@ -18,8 +18,8 @@ export function getNotificationId(domain: NotifDomain, id: string): number {
   const offset = NOTIF_DOMAIN_OFFSET[domain];
   // Treatment IDs are SQLite AUTOINCREMENT integers stored as strings ("1", "2", …).
   // Using the integer directly eliminates all collision risk for the common case.
-  // String/UUID IDs (e.g. imported from external systems) fall back to hash % 999_999;
-  // collision probability is low (~1/999_999 per pair) but non-zero.
+  // String/UUID IDs (e.g. imported from external systems) fall back to (hash % 499_999) + 1;
+  // collision probability is low (~1/499_999 per pair) but non-zero.
   const numericId = parseInt(id, 10);
   // Cap at 499_999 so base IDs stay in [offset+1, offset+499_999].
   // The upper half [offset+500_000, offset+999_999] is reserved for last-day one-shots.
