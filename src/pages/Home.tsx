@@ -23,6 +23,7 @@ export function Home() {
   const { getPermissionStatus, requestPermission, getExactAlarmStatus, openExactAlarmSettings } = useNotifications();
   const userName = useOnboardingStore((s) => s.userName);
   const [statsMap, setStatsMap] = useState<Partial<Record<string, HabitStats>>>({});
+  const [notifPermGranted, setNotifPermGranted] = useState<boolean | null>(null);
   const [detailHabit, setDetailHabit] = useState<{ habit: Habit; stats: HabitStats } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Habit | null>(null);
   const [showNotifPrompt, setShowNotifPrompt] = useState(false);
@@ -32,6 +33,9 @@ export function Home() {
 
   useEffect(() => { void loadHabits(); }, [loadHabits]);
   useEffect(() => { if (habitsError) toast.error(t("common.error")); }, [habitsError, t]);
+  useEffect(() => {
+    void getPermissionStatus().then((status) => { setNotifPermGranted(status); });
+  }, [getPermissionStatus]);
 
   useEffect(() => {
     const seq = ++statsLoadSeqRef.current;
@@ -59,6 +63,17 @@ export function Home() {
       .catch((e: unknown) => { logError("Home.handleDelete", e); toast.error(t("common.error")); });
     setDeleteTarget(null);
   };
+
+  const handleActivateNotifications = useCallback(() => {
+    void requestPermission().then(async (granted) => {
+      if (granted) {
+        setNotifPermGranted(true);
+        void rescheduleAllMilestoneNotifications();
+        const exactOk = await getExactAlarmStatus();
+        if (!exactOk) void openExactAlarmSettings();
+      }
+    });
+  }, [requestPermission, getExactAlarmStatus, openExactAlarmSettings]);
 
   const handleExitSort = useCallback(() => {
     if (isSavingOrderRef.current) return;
@@ -110,6 +125,31 @@ export function Home() {
               </Typography>
             </Box>
           )}
+        </Box>
+      )}
+      {notifPermGranted === false && habits.length > 0 && (
+        <Box
+          sx={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            bgcolor: "action.selected", borderRadius: 2, px: 2, py: 1.5, mb: 1.5,
+            border: "1px solid", borderColor: "divider",
+          }}
+        >
+          <Typography variant="body2" color="text.secondary" sx={{ flex: 1 }}>
+            {t("habits.notifBanner.message")}
+          </Typography>
+          <Box
+            component="button"
+            onClick={handleActivateNotifications}
+            sx={{
+              border: "none", bgcolor: "primary.main", color: "primary.contrastText",
+              borderRadius: 1, px: 1.5, py: 0.5, cursor: "pointer", ml: 1.5,
+              fontSize: "0.8rem", fontWeight: 600, flexShrink: 0,
+              "&:hover": { opacity: 0.9 },
+            }}
+          >
+            {t("habits.notifBanner.action")}
+          </Box>
         </Box>
       )}
       {habits.length === 0 && !habitsLoading && <EmptyState emoji="🌱" message={t("habits.empty")} />}
@@ -174,6 +214,7 @@ export function Home() {
           setShowNotifPrompt(false);
           void requestPermission().then(async (granted) => {
             if (granted) {
+              setNotifPermGranted(true);
               void rescheduleAllMilestoneNotifications();
               const exactOk = await getExactAlarmStatus();
               if (!exactOk) void openExactAlarmSettings();

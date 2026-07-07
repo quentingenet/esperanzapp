@@ -103,6 +103,10 @@
       "total": "dat zijn {{count}} dagen"
     },
     "seeMore": "Details bekijken",
+    "notifBanner": {
+      "message": "Mijlpaalnotificaties uitgeschakeld",
+      "action": "Inschakelen"
+    },
     "notifPrompt": {
       "title": "Meldingen inschakelen?",
       "body": "Ontvang een bericht bij elke mijlpaal: 1 dag, 7 dagen, 1 maand. Je blijft ondersteund onderweg.",

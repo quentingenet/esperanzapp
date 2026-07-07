@@ -103,6 +103,10 @@
       "total": "soit {{count}} jours"
     },
     "seeMore": "Voir les details",
+    "notifBanner": {
+      "message": "Les notifications de jalons sont désactivées",
+      "action": "Activer"
+    },
     "notifPrompt": {
       "title": "Activer les notifications ?",
       "body": "Reçois un message à chaque jalon : 1 jour, 7 jours, 1 mois. Tu seras accompagné dans tes progrès.",

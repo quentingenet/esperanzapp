@@ -103,6 +103,10 @@
       "total": "ovvero {{count}} giorni"
     },
     "seeMore": "Vedi dettagli",
+    "notifBanner": {
+      "message": "Notifiche traguardi disattivate",
+      "action": "Attiva"
+    },
     "notifPrompt": {
       "title": "Attivare le notifiche?",
       "body": "Ricevi un messaggio ad ogni traguardo: 1 giorno, 7 giorni, 1 mese. Resterai accompagnato nel tuo cammino.",

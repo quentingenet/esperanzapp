@@ -21,7 +21,9 @@ export function getMilestoneNotificationId(habitId: string, gradeIndex: number):
 export async function cancelMilestoneNotifications(habitId: string): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
   const ids = GRADES.map((_, i) => ({ id: getMilestoneNotificationId(habitId, i) }));
-  await LocalNotifications.cancel({ notifications: ids }).catch(() => {});
+  await LocalNotifications.cancel({ notifications: ids }).catch((e: unknown) => {
+    logError("cancelMilestoneNotifications", e);
+  });
 }
 
 export async function scheduleMilestoneNotifications(

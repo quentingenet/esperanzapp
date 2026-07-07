@@ -103,6 +103,10 @@
       "total": "ou seja {{count}} dias"
     },
     "seeMore": "Ver detalhes",
+    "notifBanner": {
+      "message": "Notificações de marcos desativadas",
+      "action": "Ativar"
+    },
     "notifPrompt": {
       "title": "Ativar notificações?",
       "body": "Receba uma mensagem em cada marco: 1 dia, 7 dias, 1 mês. Você será acompanhado na sua jornada.",

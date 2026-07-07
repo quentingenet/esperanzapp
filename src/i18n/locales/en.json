@@ -103,6 +103,10 @@
       "total": "that is {{count}} days"
     },
     "seeMore": "See details",
+    "notifBanner": {
+      "message": "Milestone notifications are disabled",
+      "action": "Enable"
+    },
     "notifPrompt": {
       "title": "Enable notifications?",
       "body": "Get a message at every milestone: 1 day, 7 days, 1 month. Stay supported throughout your journey.",

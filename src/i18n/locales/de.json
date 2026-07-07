@@ -103,6 +103,10 @@
       "total": "das sind {{count}} Tage"
     },
     "seeMore": "Details anzeigen",
+    "notifBanner": {
+      "message": "Meilenstein-Benachrichtigungen deaktiviert",
+      "action": "Aktivieren"
+    },
     "notifPrompt": {
       "title": "Benachrichtigungen aktivieren?",
       "body": "Erhalte eine Nachricht bei jedem Meilenstein: 1 Tag, 7 Tage, 1 Monat. Du bleibst auf deinem Weg begleitet.",

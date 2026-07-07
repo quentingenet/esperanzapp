@@ -103,6 +103,10 @@
       "total": "es decir {{count}} días"
     },
     "seeMore": "Ver detalles",
+    "notifBanner": {
+      "message": "Notificaciones de hitos desactivadas",
+      "action": "Activar"
+    },
     "notifPrompt": {
       "title": "¿Activar notificaciones?",
       "body": "Recibe un mensaje en cada hito: 1 día, 7 días, 1 mes. Te acompañaremos en tu camino.",
