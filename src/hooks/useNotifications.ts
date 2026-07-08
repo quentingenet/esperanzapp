@@ -120,11 +120,10 @@ export function useNotifications() {
           }
           if (startOffset >= 12) return "schedule-failed";
 
-          const notifications = Array.from({ length: 12 }, (_, i) => {
+          const notifications = lastDayIds.map((notifId, i) => {
             const mo = addMonths(now, startOffset + i);
             const lastDayNum = getDaysInMonth(mo);
             const target = new Date(mo.getFullYear(), mo.getMonth(), lastDayNum, h, m, 0, 0);
-            const notifId = lastDayIds[i]!;
             return {
               id: notifId,
               title: "EsperanzApp",

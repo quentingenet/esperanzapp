@@ -33,6 +33,9 @@ export async function scheduleMilestoneNotifications(
 ): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
   const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
+  // Notifications are best-effort: if permission isn't granted, we return silently.
+  // Home.tsx shows a persistent banner when notifPermGranted===false so the user
+  // can grant permission later; rescheduleAllMilestoneNotifications() is then called.
   if (display !== "granted") return;
 
   const start = parse(streakStartDate, "yyyy-MM-dd", new Date());
@@ -106,6 +109,8 @@ export async function rescheduleAllMilestoneNotifications(): Promise<void> {
 
     // Purge milestone notifications whose habit was deleted. Mirrors rescheduleAll() for treatments.
     const MILESTONES_DOMAIN_END = NOTIF_DOMAIN_OFFSET.milestones + 1_000_000;
+    // If getPending() fails (plugin timeout, Android restriction), skip the orphan purge
+    // rather than aborting the whole reschedule. Orphans will be caught on the next boot.
     const pending = await LocalNotifications.getPending().catch(() => ({ notifications: [] }));
     const orphans = pending.notifications.filter(
       (n) => n.id >= NOTIF_DOMAIN_OFFSET.milestones && n.id < MILESTONES_DOMAIN_END && !expectedIds.has(n.id),

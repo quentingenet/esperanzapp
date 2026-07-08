@@ -118,6 +118,10 @@ function validateNoOrphans(payload: ReturnType<typeof parseExportPayload>): void
     if (!habitIds.has(log.habitId))
       throw new InconsistentImportDataError(`import: habitLog "${log.id}" references unknown habitId "${log.habitId}"`);
   }
+  // Note: we verify that a start log exists but not that starts and relapses alternate strictly.
+  // Two consecutive starts without a relapse between them are accepted here; computeStats()
+  // handles them gracefully (first start wins for streak) and this state is unreachable
+  // through the app's own UI (recordHabitRelapse always inserts relapse+start atomically).
   for (const habitId of habitIds) {
     if (!payload.habitLogs.some((l) => l.habitId === habitId && l.eventType === "start"))
       throw new InconsistentImportDataError(`import: habit "${habitId}" has no start log`);

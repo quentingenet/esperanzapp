@@ -22,7 +22,7 @@ export function Home() {
   const { getStatsBatch, recordRelapse } = useHabitLogs();
   const { getPermissionStatus, requestPermission, getExactAlarmStatus, openExactAlarmSettings } = useNotifications();
   const userName = useOnboardingStore((s) => s.userName);
-  const [statsMap, setStatsMap] = useState<Partial<Record<string, HabitStats>>>({});
+  const [statsMap, setStatsMap] = useState<Partial<Record<string, HabitStats>> | null>(null);
   const [notifPermGranted, setNotifPermGranted] = useState<boolean | null>(null);
   const [detailHabit, setDetailHabit] = useState<{ habit: Habit; stats: HabitStats } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Habit | null>(null);
@@ -88,7 +88,7 @@ export function Home() {
       .finally(() => { isSavingOrderRef.current = false; });
   }, [saveHabitsOrder, t, loadHabits]);
 
-  const sortableHabits = habits.filter((h) => statsMap[h.id]?.startDate);
+  const sortableHabits = statsMap ? habits.filter((h) => statsMap[h.id]?.startDate) : [];
 
   return (
     <Box sx={{ px: 2, pt: "calc(env(safe-area-inset-top) + 16px)", pb: "calc(80px + env(safe-area-inset-bottom))" }}>
@@ -152,14 +152,14 @@ export function Home() {
           </Box>
         </Box>
       )}
-      {habits.length === 0 && !habitsLoading && <EmptyState emoji="🌱" message={t("habits.empty")} />}
+      {habits.length === 0 && !habitsLoading && statsMap !== null && <EmptyState emoji="🌱" message={t("habits.empty")} />}
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
         <SortableList
           items={sortableHabits}
           active={sortMode}
           onReorder={(ids) => { reorderHabits(ids); }}
           renderItem={(h, handleProps) => {
-            const stats = statsMap[h.id];
+            const stats = statsMap?.[h.id];
             if (!stats) return null;
             return (
               <HabitCard
