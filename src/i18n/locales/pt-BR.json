@@ -24,7 +24,9 @@
     "showPassword": "Mostrar senha",
     "reorder": "Reordenar",
     "enabled": "Ativado",
-    "disabled": "Desativado"
+    "disabled": "Desativado",
+    "yes": "Sim",
+    "no": "Não"
   },
   "nav": {
     "home": "Início",
@@ -342,6 +344,7 @@
     "saveConfirmBody": "O arquivo será salvo na pasta Documentos do aplicativo no seu telefone. No Android 11+, acessível apenas pelo app Arquivos integrado ou por USB.",
     "filesystemError": "Não foi possível salvar o arquivo. Verifique o armazenamento.",
     "documentsUnavailable": "Não foi possível salvar em Documentos. Tente usar Compartilhar.",
+    "formatLabel": "Formato de exportação",
     "encryptSwitch": "Criptografar com senha",
     "encryptPassword": "Senha",
     "encryptPasswordConfirm": "Confirmar senha",
@@ -358,7 +361,7 @@
     "importReschedulePermissionDenied": "Permissão negada : os lembretes importados não serão agendados.",
     "importRefreshFailed": "Importação concluída, mas a tela não atualizou. Reinicie o aplicativo se os dados não aparecerem.",
     "importFileTooLarge": "Arquivo muito grande. Tamanho máximo: 10 MB.",
-    "fileProtectionHint": "Considere proteger seu arquivo ativando a criptografia por senha acima."
+    "fileProtectionHint": "Sem senha, este arquivo é salvo sem criptografia e pode ser lido por qualquer pessoa com acesso."
   },
   "settings": {
     "language": "Idioma",

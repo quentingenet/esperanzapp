@@ -6,12 +6,12 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import SvgIcon from "@mui/material/SvgIcon";
-import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import { useExport, useHabits, useNotifications, useTreatments } from "@/hooks";
@@ -194,28 +194,38 @@ export function DataExportSection() {
       <Dialog open={exportOpen} onClose={() => { setExportOpen(false); resetExportEncryptState(); }} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 700 }}>{t("export.exportBtn")}</DialogTitle>
         <DialogContent>
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1.5, mb: 2 }}>
-            <Typography variant="body2" sx={{ fontWeight: useCSVExport ? 400 : 700, color: useCSVExport ? "text.secondary" : "primary.main" }}>JSON</Typography>
-            <Switch checked={useCSVExport} onChange={(e) => { setUseCSVExport(e.target.checked); }} />
-            <Typography variant="body2" sx={{ fontWeight: useCSVExport ? 700 : 400, color: useCSVExport ? "primary.main" : "text.secondary" }}>CSV</Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 2.5 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ mb: 1 }}>
+              {t("export.formatLabel")}
+            </Typography>
+            <ToggleButtonGroup
+              value={useCSVExport ? "csv" : "json"}
+              exclusive
+              onChange={(_e, val: string | null) => { if (val !== null) setUseCSVExport(val === "csv"); }}
+            >
+              <ToggleButton value="json" sx={{ px: 3, fontWeight: 700 }}>JSON</ToggleButton>
+              <ToggleButton value="csv" sx={{ px: 3, fontWeight: 700 }}>CSV</ToggleButton>
+            </ToggleButtonGroup>
           </Box>
 
-          <FormControlLabel
-            control={
-              <Switch
-                checked={encryptExport}
-                onChange={(e) => {
-                  setEncryptExport(e.target.checked);
-                  if (!e.target.checked) {
-                    setExportPassword("");
-                    setExportPasswordConfirm("");
-                  }
-                }}
-              />
-            }
-            label={t("export.encryptSwitch")}
-            sx={{ mb: 1 }}
-          />
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 1 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ mb: 1 }}>
+              {t("export.encryptSwitch")}
+            </Typography>
+            <ToggleButtonGroup
+              value={encryptExport ? "yes" : "no"}
+              exclusive
+              onChange={(_e, val: string | null) => {
+                if (val === null) return;
+                const next = val === "yes";
+                setEncryptExport(next);
+                if (!next) { setExportPassword(""); setExportPasswordConfirm(""); }
+              }}
+            >
+              <ToggleButton value="no" sx={{ px: 3, fontWeight: 700 }}>{t("common.no")}</ToggleButton>
+              <ToggleButton value="yes" sx={{ px: 3, fontWeight: 700 }}>{t("common.yes")}</ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
 
           {encryptExport && (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mt: 1, mb: 1 }}>

@@ -75,9 +75,19 @@ describe("scheduleMilestoneNotifications", () => {
     expect(scheduledNotifs()).toHaveLength(GRADES.length);
   });
 
-  it("skips the first milestone when it fell earlier today and schedules the rest", async () => {
-    // now = noon, startDate = yesterday → day-1 milestone was at 10 AM this morning (past)
+  it("includes a same-day milestone whose hour already passed so Android fires it immediately", async () => {
+    // now = noon, startDate = yesterday → day-1 milestone was at 10 AM this morning (past hour,
+    // but still today). It is scheduled so Android fires it immediately via setExactAndAllowWhileIdle,
+    // which is better than silently dropping it due to the cancel-then-reschedule startup pattern.
     vi.setSystemTime(new Date("2025-01-15T12:00:00.000Z"));
+    await scheduleMilestoneNotifications("1", "Alcool", "2025-01-14");
+    expect(LocalNotifications.schedule).toHaveBeenCalledOnce();
+    expect(scheduledNotifs()).toHaveLength(GRADES.length);
+  });
+
+  it("skips a milestone that fell on a previous day (truly missed)", async () => {
+    // now = 2025-01-16 noon, startDate = 2025-01-14 → day-1 milestone was 2025-01-15 (yesterday)
+    vi.setSystemTime(new Date("2025-01-16T12:00:00.000Z"));
     await scheduleMilestoneNotifications("1", "Alcool", "2025-01-14");
     expect(LocalNotifications.schedule).toHaveBeenCalledOnce();
     expect(scheduledNotifs()).toHaveLength(GRADES.length - 1);

@@ -10,9 +10,9 @@ import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import type { PrivacyModalProps } from "@/types";
-import { KofiButton } from "@/components/settings";
+import { KofiButton } from "@/components/settings/KofiButton";
 
-const GITHUB_URL = "https://github.com/QuentinGenet/esperanzapp";
+const GITHUB_URL = "https://github.com/quentingenet/esperanzapp";
 
 const POINTS = ["noAccount", "noServer", "localEncryption", "encryptedExport", "noTracking", "openSource"] as const;
 

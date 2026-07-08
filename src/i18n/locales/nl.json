@@ -24,7 +24,9 @@
     "showPassword": "Wachtwoord weergeven",
     "reorder": "Herordenen",
     "enabled": "Actief",
-    "disabled": "Inactief"
+    "disabled": "Inactief",
+    "yes": "Ja",
+    "no": "Nee"
   },
   "nav": {
     "home": "Home",
@@ -342,6 +344,7 @@
     "saveConfirmBody": "Het bestand wordt opgeslagen in de map Documenten van de app op uw telefoon. Op Android 11+ alleen toegankelijk via de ingebouwde Bestanden-app of USB.",
     "filesystemError": "Kan het bestand niet opslaan. Controleer de opslagruimte.",
     "documentsUnavailable": "Opslaan in Documenten mislukt. Gebruik Delen in plaats daarvan.",
+    "formatLabel": "Exportformaat",
     "encryptSwitch": "Versleutelen met wachtwoord",
     "encryptPassword": "Wachtwoord",
     "encryptPasswordConfirm": "Wachtwoord bevestigen",
@@ -358,7 +361,7 @@
     "importReschedulePermissionDenied": "Toestemming geweigerd : geïmporteerde herinneringen worden niet gepland.",
     "importRefreshFailed": "Import geslaagd, maar het scherm kon niet vernieuwen. Herstart de app als de gegevens niet verschijnen.",
     "importFileTooLarge": "Bestand te groot. Maximale grootte: 10 MB.",
-    "fileProtectionHint": "Overweeg je bestand te beveiligen door bovenstaande wachtwoordversleuteling in te schakelen."
+    "fileProtectionHint": "Zonder wachtwoord wordt dit bestand onversleuteld opgeslagen en is leesbaar voor iedereen met toegang."
   },
   "settings": {
     "language": "Taal",

@@ -24,7 +24,9 @@
     "showPassword": "Afficher le mot de passe",
     "reorder": "Réordonner",
     "enabled": "Activé",
-    "disabled": "Désactivé"
+    "disabled": "Désactivé",
+    "yes": "Oui",
+    "no": "Non"
   },
   "nav": {
     "home": "Accueil",
@@ -342,6 +344,7 @@
     "saveConfirmBody": "Le fichier sera enregistré dans le dossier Documents de l'app sur ton téléphone. Sur Android 11+, accessible via l'appli Fichiers intégrée ou USB uniquement.",
     "filesystemError": "Impossible d'écrire le fichier. Vérifiez l'espace de stockage.",
     "documentsUnavailable": "Impossible d'enregistrer dans Documents. Utilisez Partager à la place.",
+    "formatLabel": "Format d'export",
     "encryptSwitch": "Chiffrer avec un mot de passe",
     "encryptPassword": "Mot de passe",
     "encryptPasswordConfirm": "Confirmer le mot de passe",
@@ -358,7 +361,7 @@
     "importReschedulePermissionDenied": "Permission refusée : les rappels importés ne seront pas planifiés.",
     "importRefreshFailed": "Import réussi, mais l'affichage n'a pas pu se rafraîchir. Redémarre l'application si les données n'apparaissent pas.",
     "importFileTooLarge": "Fichier trop volumineux. Taille maximale autorisée : 10 Mo.",
-    "fileProtectionHint": "Pense à protéger ton fichier en activant le chiffrement par mot de passe ci-dessus."
+    "fileProtectionHint": "Sans mot de passe, ce fichier est enregistré en clair et lisible par quiconque y a accès."
   },
   "settings": {
     "language": "Langue",

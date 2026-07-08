@@ -24,7 +24,9 @@
     "showPassword": "Mostrar contraseña",
     "reorder": "Reordenar",
     "enabled": "Activado",
-    "disabled": "Desactivado"
+    "disabled": "Desactivado",
+    "yes": "Sí",
+    "no": "No"
   },
   "nav": {
     "home": "Inicio",
@@ -342,6 +344,7 @@
     "saveConfirmBody": "El archivo se guardará en la carpeta Documentos de la app en tu teléfono. En Android 11+, accesible solo desde la app Archivos integrada o por USB.",
     "filesystemError": "No se pudo guardar el archivo. Comprueba el almacenamiento.",
     "documentsUnavailable": "No se pudo guardar en Documentos. Usa Compartir en su lugar.",
+    "formatLabel": "Formato de exportación",
     "encryptSwitch": "Cifrar con contraseña",
     "encryptPassword": "Contraseña",
     "encryptPasswordConfirm": "Confirmar contraseña",
@@ -358,7 +361,7 @@
     "importReschedulePermissionDenied": "Permiso denegado : los recordatorios importados no se programarán.",
     "importRefreshFailed": "Importación completada, pero la pantalla no se actualizó. Reinicia la aplicación si los datos no aparecen.",
     "importFileTooLarge": "Archivo demasiado grande. Tamaño máximo: 10 MB.",
-    "fileProtectionHint": "Considera proteger tu archivo activando el cifrado con contraseña arriba."
+    "fileProtectionHint": "Sin contraseña, este archivo se guarda sin cifrar y puede ser leído por cualquiera con acceso."
   },
   "settings": {
     "language": "Idioma",

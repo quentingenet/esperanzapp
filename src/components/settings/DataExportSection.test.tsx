@@ -343,6 +343,31 @@ describe("DataExportSection — export flow", () => {
     await waitFor(() => expect(mocks.exportJSON).toHaveBeenCalledTimes(1));
   });
 
+  it("switching to CSV format and clicking Share calls exportCSV", async () => {
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    await user.click(screen.getByRole("button", { name: "export.exportBtn" }));
+    await screen.findByRole("button", { name: "export.shareBtn" });
+    await user.click(screen.getByRole("button", { name: "CSV" }));
+    await user.click(screen.getByRole("button", { name: "export.shareBtn" }));
+    await waitFor(() => expect(mocks.exportCSV).toHaveBeenCalledTimes(1));
+    expect(mocks.exportJSON).not.toHaveBeenCalled();
+  });
+
+  it("enabling encryption disables Share until passwords match, then exports with password", async () => {
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    await user.click(screen.getByRole("button", { name: "export.exportBtn" }));
+    await screen.findByRole("button", { name: "export.shareBtn" });
+    await user.click(screen.getByRole("button", { name: "common.yes" }));
+    expect(screen.getByLabelText("export.encryptPassword")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "export.shareBtn" })).toBeDisabled();
+    await user.type(screen.getByLabelText("export.encryptPassword"), "password123");
+    await user.type(screen.getByLabelText("export.encryptPasswordConfirm"), "password123");
+    await user.click(screen.getByRole("button", { name: "export.shareBtn" }));
+    await waitFor(() => expect(mocks.exportJSON).toHaveBeenCalledWith("password123"));
+  });
+
   it("Save button then confirm calls saveJSON and shows success toast", async () => {
     const user = userEvent.setup();
     render(<DataExportSection />);

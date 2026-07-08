@@ -24,7 +24,9 @@
     "showPassword": "Passwort anzeigen",
     "reorder": "Neu anordnen",
     "enabled": "Aktiviert",
-    "disabled": "Deaktiviert"
+    "disabled": "Deaktiviert",
+    "yes": "Ja",
+    "no": "Nein"
   },
   "nav": {
     "home": "Start",
@@ -342,6 +344,7 @@
     "saveConfirmBody": "Die Datei wird im Ordner Dokumente der App auf Ihrem Telefon gespeichert. Ab Android 11 nur über die integrierte Dateien-App oder USB zugänglich.",
     "filesystemError": "Datei konnte nicht geschrieben werden. Speicher prüfen.",
     "documentsUnavailable": "Speichern in Dokumente fehlgeschlagen. Bitte Teilen verwenden.",
+    "formatLabel": "Exportformat",
     "encryptSwitch": "Mit Passwort verschlüsseln",
     "encryptPassword": "Passwort",
     "encryptPasswordConfirm": "Passwort bestätigen",
@@ -358,7 +361,7 @@
     "importReschedulePermissionDenied": "Berechtigung verweigert : importierte Erinnerungen werden nicht geplant.",
     "importRefreshFailed": "Import erfolgreich, aber die Anzeige konnte nicht aktualisiert werden. Starte die App neu, wenn die Daten nicht erscheinen.",
     "importFileTooLarge": "Datei zu groß. Maximale Größe: 10 MB.",
-    "fileProtectionHint": "Schütze deine Datei, indem du oben die Passwortverschlüsselung aktivierst."
+    "fileProtectionHint": "Ohne Passwort wird diese Datei unverschlüsselt gespeichert und ist für jeden mit Zugriff lesbar."
   },
   "settings": {
     "language": "Sprache",

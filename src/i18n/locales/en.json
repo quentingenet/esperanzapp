@@ -24,7 +24,9 @@
     "showPassword": "Show password",
     "reorder": "Reorder",
     "enabled": "Enabled",
-    "disabled": "Disabled"
+    "disabled": "Disabled",
+    "yes": "Yes",
+    "no": "No"
   },
   "nav": {
     "home": "Home",
@@ -342,6 +344,7 @@
     "saveConfirmBody": "The file will be saved to the app's Documents folder on your phone. On Android 11 and later, accessible via the built-in Files app or USB only.",
     "filesystemError": "Unable to write file. Check your device storage.",
     "documentsUnavailable": "Could not save to Documents. Try using Share instead.",
+    "formatLabel": "Export format",
     "encryptSwitch": "Encrypt with a password",
     "encryptPassword": "Password",
     "encryptPasswordConfirm": "Confirm password",
@@ -358,7 +361,7 @@
     "importReschedulePermissionDenied": "Permission denied : imported reminders will not be scheduled.",
     "importRefreshFailed": "Import succeeded, but the display could not refresh. Restart the app if data does not appear.",
     "importFileTooLarge": "File too large. Maximum allowed size: 10 MB.",
-    "fileProtectionHint": "Consider protecting your file by enabling password encryption above."
+    "fileProtectionHint": "Without a password, this file is unencrypted and readable by anyone who can access it."
   },
   "settings": {
     "language": "Language",

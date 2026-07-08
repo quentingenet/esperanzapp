@@ -40,6 +40,14 @@ export async function scheduleMilestoneNotifications(
 
   const start = parse(streakStartDate, "yyyy-MM-dd", new Date());
   const now = new Date();
+  // Allow same-day milestones even if their scheduled hour is already past:
+  // rescheduleAllMilestoneNotifications() cancels ALL pending alarms then reschedules,
+  // so if the app opens at 10:05 on a milestone day, the 10:00 alarm was cancelled and
+  // `target <= now` would drop it entirely. Scheduling a past-time notification with
+  // setExactAndAllowWhileIdle fires it immediately, which is far better than silence.
+  // Only milestones from previous days are skipped (truly missed).
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
 
   // Each grade fires at a different time of day (10:00, 10:10, 10:20 …) so that multiple
   // habits reaching different milestones on the same day don't all ping simultaneously.
@@ -52,7 +60,7 @@ export async function scheduleMilestoneNotifications(
       const target = addDays(start, grade.days);
       const totalMin = BASE_MINUTES + i * STAGGER_MINUTES;
       target.setHours(Math.floor(totalMin / 60), totalMin % 60, 0, 0);
-      if (target <= now) return null;
+      if (target < startOfToday) return null;
 
       const label = i18n.t(grade.labelKey);
       const message = i18n.t(grade.messageKey);

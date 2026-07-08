@@ -1,6 +1,6 @@
 {
   "name": "esperanzapp",
-  "version": "1.1.54",
+  "version": "1.1.55",
   "private": true,
   "description": "EsperanzApp - Private - Free - Liberating",
   "author": "Quentin Genet <contact@quentingenet.fr>",
@@ -16,6 +16,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint .",
+    "audit:prod": "npm audit --omit=dev",
     "format": "prettier --write .",
     "cap:sync": "vite build && npx cap sync"
   },

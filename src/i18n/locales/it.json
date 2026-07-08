@@ -24,7 +24,9 @@
     "showPassword": "Mostra password",
     "reorder": "Riordina",
     "enabled": "Attivo",
-    "disabled": "Disattivo"
+    "disabled": "Disattivo",
+    "yes": "Sì",
+    "no": "No"
   },
   "nav": {
     "home": "Home",
@@ -342,6 +344,7 @@
     "saveConfirmBody": "Il file verrà salvato nella cartella Documenti dell'app sul tuo telefono. Su Android 11+, accessibile solo tramite l'app File integrata o via USB.",
     "filesystemError": "Impossibile salvare il file. Controlla lo spazio di archiviazione.",
     "documentsUnavailable": "Impossibile salvare in Documenti. Usa Condividi invece.",
+    "formatLabel": "Formato di esportazione",
     "encryptSwitch": "Cifra con password",
     "encryptPassword": "Password",
     "encryptPasswordConfirm": "Conferma password",
@@ -358,7 +361,7 @@
     "importReschedulePermissionDenied": "Autorizzazione negata : i promemoria importati non saranno pianificati.",
     "importRefreshFailed": "Import riuscito, ma la schermata non si è aggiornata. Riavvia l'app se i dati non appaiono.",
     "importFileTooLarge": "File troppo grande. Dimensione massima: 10 MB.",
-    "fileProtectionHint": "Considera di proteggere il file attivando la crittografia con password sopra."
+    "fileProtectionHint": "Senza password, questo file viene salvato senza crittografia ed è leggibile da chiunque vi abbia accesso."
   },
   "settings": {
     "language": "Lingua",
