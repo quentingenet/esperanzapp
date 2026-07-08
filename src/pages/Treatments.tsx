@@ -35,6 +35,7 @@ export function Treatments() {
   const { logStatus, logStatusForDate, getLogsByDate } = useTreatmentLogs();
   const { scheduleReminder, cancelReminder, requestPermission, openExactAlarmSettings } = useNotifications();
   const mountedRef = useRef(true);
+  const isSavingOrderRef = useRef(false);
   useEffect(() => () => { mountedRef.current = false; }, []);
 
   const [logsMap, setLogsMap] = useState<Record<string, TreatmentLog | null>>({});
@@ -161,12 +162,16 @@ export function Treatments() {
   const showEditDaySelect = editReminderEnabled && editTarget !== null && editTarget.frequency !== "daily";
 
   const handleExitSort = useCallback(() => {
+    if (isSavingOrderRef.current) return;
+    isSavingOrderRef.current = true;
     setSortMode(false);
-    void saveTreatmentsOrder().catch((e: unknown) => {
-      logError("Treatments.saveTreatmentsOrder", e);
-      toast.error(t("common.error"));
-      void loadTreatments();
-    });
+    void saveTreatmentsOrder()
+      .catch((e: unknown) => {
+        logError("Treatments.saveTreatmentsOrder", e);
+        toast.error(t("common.error"));
+        void loadTreatments();
+      })
+      .finally(() => { isSavingOrderRef.current = false; });
   }, [saveTreatmentsOrder, t, loadTreatments]);
 
   return (

@@ -124,7 +124,7 @@ export function useNotifications() {
             const mo = addMonths(now, startOffset + i);
             const lastDayNum = getDaysInMonth(mo);
             const target = new Date(mo.getFullYear(), mo.getMonth(), lastDayNum, h, m, 0, 0);
-            const notifId = lastDayIds[i] ?? (NOTIF_DOMAIN_OFFSET.treatments + 1);
+            const notifId = lastDayIds[i]!;
             return {
               id: notifId,
               title: "EsperanzApp",

@@ -146,8 +146,25 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
   }
 
   if (!(await isApplied(db, "treatments_reminder_day_check"))) {
+    // Recovery: if a previous run failed after DROP treatments but rollbackTransaction also failed,
+    // treatments was recreated empty by SCHEMA on this startup. Restore from the snapshot.
+    const backupExists = await db.query(
+      "SELECT 1 FROM sqlite_master WHERE type='table' AND name='treatments_backup'",
+    ).catch(() => ({ values: [] as unknown[] }));
+    if ((backupExists.values ?? []).length > 0) {
+      await db.execute(`
+        INSERT OR IGNORE INTO treatments
+          (id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at, sort_index)
+        SELECT id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at, sort_index
+        FROM treatments_backup
+      `).catch(() => {});
+      await db.execute("DROP TABLE IF EXISTS treatments_backup").catch(() => {});
+    }
+
     // Clean up any leftover table from a previous interrupted run before starting.
     await db.execute("DROP TABLE IF EXISTS treatments_new");
+    // Snapshot current data so a failed rollback can be recovered on the next startup.
+    await db.execute("CREATE TABLE treatments_backup AS SELECT * FROM treatments");
     // PRAGMA foreign_keys must be set outside a transaction in SQLite.
     await db.execute("PRAGMA foreign_keys = OFF");
     await db.beginTransaction();
@@ -190,6 +207,8 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
         false,
       );
       await db.commitTransaction();
+      // Migration succeeded — the snapshot is no longer needed.
+      await db.execute("DROP TABLE IF EXISTS treatments_backup").catch(() => {});
     } catch (err) {
       await db.rollbackTransaction().catch((rollbackErr: unknown) => {
         logError("schema.migration.treatments_reminder_day_check.rollback", rollbackErr);

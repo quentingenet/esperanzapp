@@ -31,7 +31,7 @@ export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, h
   const { t } = useTranslation();
   const dateLocale = useDateLocale();
   const progress = getProgressToNext(stats.currentStreak);
-  const formattedStart = format(parseISO(stats.startDate), "P", { locale: dateLocale });
+  const formattedStart = stats.startDate ? format(parseISO(stats.startDate), "P", { locale: dateLocale }) : "";
   const formattedLastRelapse = stats.lastRelapseDate
     ? format(parseISO(stats.lastRelapseDate), "P", { locale: dateLocale })
     : null;
