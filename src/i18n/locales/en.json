@@ -348,7 +348,7 @@
     "importConfirm": "Replace",
     "editName": "Edit my name",
     "privacyWarningTitle": "This data is personal and sensitive",
-    "privacyWarningBody": "The exported file contains health information. Once saved to the Documents folder, it may be accessible by other applications or anyone with access to this device.",
+    "privacyWarningBody": "The exported file contains health information. It can be read by anyone with physical access to this device (Files app, USB). Enable encryption if the device is not secured.",
     "saveConfirmBody": "The file will be saved to the app's Documents folder on your phone. On Android 11 and later, accessible via the built-in Files app or USB only.",
     "filesystemError": "Unable to write file. Check your device storage.",
     "documentsUnavailable": "Could not save to Documents. Try using Share instead.",

@@ -348,7 +348,7 @@
     "importConfirm": "Ersetzen",
     "editName": "Meinen Namen ändern",
     "privacyWarningTitle": "Diese Daten sind persönlich und sensibel",
-    "privacyWarningBody": "Die exportierte Datei enthält Gesundheitsinformationen. Einmal im Ordner Dokumente gespeichert, kann sie von anderen Apps oder Personen mit Gerätezugang eingesehen werden.",
+    "privacyWarningBody": "Die exportierte Datei enthält Gesundheitsinformationen. Sie kann von Personen mit physischem Gerätezugang (Dateien-App, USB) gelesen werden. Aktiviere die Verschlüsselung, wenn das Gerät nicht gesichert ist.",
     "saveConfirmBody": "Die Datei wird im Ordner Dokumente der App auf Ihrem Telefon gespeichert. Ab Android 11 nur über die integrierte Dateien-App oder USB zugänglich.",
     "filesystemError": "Datei konnte nicht geschrieben werden. Speicher prüfen.",
     "documentsUnavailable": "Speichern in Dokumente fehlgeschlagen. Bitte Teilen verwenden.",

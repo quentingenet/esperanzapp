@@ -348,7 +348,7 @@
     "importConfirm": "Vervangen",
     "editName": "Mijn naam wijzigen",
     "privacyWarningTitle": "Deze gegevens zijn persoonlijk en gevoelig",
-    "privacyWarningBody": "Het geëxporteerde bestand bevat gezondheidsinformatie. Eenmaal opgeslagen in de map Documenten kan het toegankelijk zijn voor andere apps of voor iedereen met toegang tot dit apparaat.",
+    "privacyWarningBody": "Het geëxporteerde bestand bevat gezondheidsinformatie. Het kan worden gelezen door iedereen met fysieke toegang tot dit apparaat (Bestanden-app, USB). Activeer versleuteling als het apparaat niet beveiligd is.",
     "saveConfirmBody": "Het bestand wordt opgeslagen in de map Documenten van de app op uw telefoon. Op Android 11+ alleen toegankelijk via de ingebouwde Bestanden-app of USB.",
     "filesystemError": "Kan het bestand niet opslaan. Controleer de opslagruimte.",
     "documentsUnavailable": "Opslaan in Documenten mislukt. Gebruik Delen in plaats daarvan.",

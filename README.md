@@ -58,7 +58,7 @@ Charts, streaks, history timeline: visualize your progress and understand your p
 French · English · Spanish · German · Portuguese (BR) · Dutch · Italian, with full i18n support.
 
 🔒 **Private by design**
-No account required. No internet connection needed. Your data is stored in a local SQLite database and leaves your device only when you explicitly export or share it.
+No account required. No backend, no analytics, no advertising. Your data is stored in a local SQLite database and leaves your device only when you explicitly export or share it.
 
 📤 **Export your data**
 Export your history as JSON or CSV at any time, and save it wherever you want. Your data belongs to you.
@@ -156,7 +156,7 @@ Output: `android/app/build/outputs/`
 
 ## Android permissions
 
-EsperanzApp requests the **minimum permissions necessary** to function. No internet access, no contacts, no camera, no location.
+EsperanzApp requests the **minimum permissions necessary** to function. No `INTERNET` permission is declared by the app. No contacts, no camera, no location.
 
 | Permission               | Prompted?                     | Requested by                          | Why                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | ------------------------ | ----------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -176,7 +176,7 @@ The app offers two export paths.
 
 **Share** writes the file to the app's private cache, a temporary folder only EsperanzApp can access, then opens the Android Share Sheet so you pick the destination (file manager, cloud storage, email, USB, etc.). The app hands the file off to your chosen app and immediately loses access to it.
 
-**Save to phone** writes the file directly to the `Documents` folder on the device, accessible through any file manager. This folder is not private app storage: on Android 9 and earlier it may be readable by other apps with storage permissions, and on Android 10+ scoped storage applies but the folder remains browsable. The in-app warning shown before saving makes this explicit.
+**Save to phone** writes the file to the app's dedicated Documents folder (`Android/data/com.quentingenet.esperanzapp/files/Documents/`). This is app-specific storage, not the device's shared public Documents folder. On Android 11 and later, this path is not accessible to third-party file managers; it can be browsed with the built-in Files app or via USB. The in-app warning shown before saving explains this.
 
 ---
 
