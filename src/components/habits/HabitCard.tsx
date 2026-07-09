@@ -38,7 +38,7 @@ export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, h
   const streakDisplay = formatStreakDisplay(stats.currentStreak, t as (key: string, opts?: Record<string, unknown>) => string);
 
   return (
-    <Card elevation={0} sx={{ border: `1px solid ${nextGrade?.grade.color ?? grade.color}`, borderRadius: "16px" }}>
+    <Card elevation={0} sx={{ border: "0.5px solid #c5ddf0", borderRadius: "16px" }}>
       <CardActionArea onClick={onClick} aria-label={habit.label} sx={{ minHeight: 44 }}>
         <CardContent sx={{ p: 2 }}>
           <Box sx={{ display: "flex", alignItems: "flex-start", gap: handleProps ? 0.5 : 0 }}>

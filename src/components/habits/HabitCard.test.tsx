@@ -192,34 +192,4 @@ describe("HabitCard streak display", () => {
     expect(screen.getByText(/dans 12 jours/)).toBeInTheDocument();
   });
 
-  it("renders without error when nextGrade has a specific color", () => {
-    const nextGrade = { grade: { ...grade, color: "#b71c1c" }, daysLeft: 100 };
-    expect(() =>
-      render(
-        <HabitCard
-          habit={habit}
-          stats={makeStats(10)}
-          grade={grade}
-          nextGrade={nextGrade}
-          onClick={vi.fn()}
-          onDelete={vi.fn()}
-        />,
-      ),
-    ).not.toThrow();
-  });
-
-  it("renders without error when nextGrade is null (uses current grade color)", () => {
-    expect(() =>
-      render(
-        <HabitCard
-          habit={habit}
-          stats={makeStats(7300)}
-          grade={{ ...grade, color: "#827717" }}
-          nextGrade={null}
-          onClick={vi.fn()}
-          onDelete={vi.fn()}
-        />,
-      ),
-    ).not.toThrow();
-  });
 });
