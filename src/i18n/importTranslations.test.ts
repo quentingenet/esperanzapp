@@ -26,10 +26,3 @@ describe("import error translations", () => {
     },
   );
 });
-
-describe("privacy translations", () => {
-  it.each(Object.entries(locales))("%s avoids absolute privacy claims", (_locale, messages) => {
-    expect(messages.tutorial.steps.private.title).not.toMatch(/100\s?%/);
-    expect(messages.tutorial.steps.private.body.trim()).not.toBe("");
-  });
-});

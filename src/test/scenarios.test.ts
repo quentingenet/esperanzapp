@@ -148,7 +148,7 @@ describe("Scenario: relapse → milestone chain rescheduled", () => {
 
   it("cancel then reschedule produces fresh future notifications after relapse", async () => {
     // Initial schedule from old streak start.
-    await scheduleMilestoneNotifications("1", "Alcool", "2025-05-01");
+    await scheduleMilestoneNotifications("1", "2025-05-01");
     const firstScheduleCount = vi.mocked(LocalNotifications.schedule).mock.calls.length;
     vi.clearAllMocks();
     vi.mocked(LocalNotifications.cancel).mockResolvedValue({} as never);
@@ -156,7 +156,7 @@ describe("Scenario: relapse → milestone chain rescheduled", () => {
 
     // Relapse today → cancel old, schedule from today.
     await cancelMilestoneNotifications("1");
-    await scheduleMilestoneNotifications("1", "Alcool", "2025-06-01");
+    await scheduleMilestoneNotifications("1", "2025-06-01");
 
     expect(LocalNotifications.cancel).toHaveBeenCalledOnce();
     expect(LocalNotifications.schedule).toHaveBeenCalledOnce();

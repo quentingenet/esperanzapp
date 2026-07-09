@@ -59,7 +59,7 @@ export function useHabits() {
       }
       const created = await dbCreateHabitWithInitialLog(data, data.startDate);
       storeAdd(created);
-      void scheduleMilestoneNotifications(created.id, created.label, data.startDate);
+      void scheduleMilestoneNotifications(created.id, data.startDate);
       return created;
     },
     [storeAdd],

@@ -56,24 +56,24 @@ describe("scheduleMilestoneNotifications", () => {
 
   it("does nothing on non-native platform", async () => {
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
-    await scheduleMilestoneNotifications("1", "Alcool", "2025-01-15");
+    await scheduleMilestoneNotifications("1", "2025-01-15");
     expect(LocalNotifications.checkPermissions).not.toHaveBeenCalled();
     expect(LocalNotifications.schedule).not.toHaveBeenCalled();
   });
 
   it("does nothing when notification permission is denied", async () => {
     vi.mocked(LocalNotifications.checkPermissions).mockResolvedValue({ display: "denied" });
-    await scheduleMilestoneNotifications("1", "Alcool", "2025-01-15");
+    await scheduleMilestoneNotifications("1", "2025-01-15");
     expect(LocalNotifications.schedule).not.toHaveBeenCalled();
   });
 
   it("does not call schedule when all milestones are in the past", async () => {
-    await scheduleMilestoneNotifications("1", "Alcool", "1990-01-01");
+    await scheduleMilestoneNotifications("1", "1990-01-01");
     expect(LocalNotifications.schedule).not.toHaveBeenCalled();
   });
 
   it("schedules all milestones when start date is today", async () => {
-    await scheduleMilestoneNotifications("1", "Alcool", "2025-01-15");
+    await scheduleMilestoneNotifications("1", "2025-01-15");
     expect(LocalNotifications.schedule).toHaveBeenCalledOnce();
     expect(scheduledNotifs()).toHaveLength(GRADES.length);
   });
@@ -83,7 +83,7 @@ describe("scheduleMilestoneNotifications", () => {
     // but still today). It is scheduled so Android fires it immediately via setExactAndAllowWhileIdle,
     // which is better than silently dropping it due to the cancel-then-reschedule startup pattern.
     vi.setSystemTime(new Date("2025-01-15T12:00:00.000Z"));
-    await scheduleMilestoneNotifications("1", "Alcool", "2025-01-14");
+    await scheduleMilestoneNotifications("1", "2025-01-14");
     expect(LocalNotifications.schedule).toHaveBeenCalledOnce();
     expect(scheduledNotifs()).toHaveLength(GRADES.length);
   });
@@ -91,25 +91,25 @@ describe("scheduleMilestoneNotifications", () => {
   it("skips a milestone that fell on a previous day (truly missed)", async () => {
     // now = 2025-01-16 noon, startDate = 2025-01-14 → day-1 milestone was 2025-01-15 (yesterday)
     vi.setSystemTime(new Date("2025-01-16T12:00:00.000Z"));
-    await scheduleMilestoneNotifications("1", "Alcool", "2025-01-14");
+    await scheduleMilestoneNotifications("1", "2025-01-14");
     expect(LocalNotifications.schedule).toHaveBeenCalledOnce();
     expect(scheduledNotifs()).toHaveLength(GRADES.length - 1);
   });
 
   it("all notifications use allowWhileIdle: true", async () => {
-    await scheduleMilestoneNotifications("1", "Alcool", "2025-01-15");
+    await scheduleMilestoneNotifications("1", "2025-01-15");
     const notifs = scheduledNotifs<{ schedule: { allowWhileIdle: boolean } }>();
     expect(notifs.every((n) => n.schedule.allowWhileIdle)).toBe(true);
   });
 
   it("all notification IDs are in the milestones domain", async () => {
-    await scheduleMilestoneNotifications("1", "Alcool", "2025-01-15");
+    await scheduleMilestoneNotifications("1", "2025-01-15");
     const notifs = scheduledNotifs<{ id: number }>();
     expect(notifs.every((n) => n.id >= NOTIF_DOMAIN_OFFSET.milestones)).toBe(true);
   });
 
   it("notification title uses simple hyphen - as separator (not en-dash or em-dash)", async () => {
-    await scheduleMilestoneNotifications("1", "Alcool", "2025-01-15");
+    await scheduleMilestoneNotifications("1", "2025-01-15");
     const notifs = scheduledNotifs<{ title: string }>();
     for (const n of notifs) {
       expect(n.title).toContain(" - ");
@@ -119,28 +119,27 @@ describe("scheduleMilestoneNotifications", () => {
   });
 
   it("notification title includes the grade emoji", async () => {
-    await scheduleMilestoneNotifications("1", "Alcool", "2025-01-15");
+    await scheduleMilestoneNotifications("1", "2025-01-15");
     const notifs = scheduledNotifs<{ title: string }>();
     for (let i = 0; i < notifs.length; i++) {
       expect(notifs[i]!.title).toContain(GRADES[i]!.emoji);
     }
   });
 
-  it("notification body includes the grade message key and habit label separated by -", async () => {
-    await scheduleMilestoneNotifications("1", "Alcool", "2025-01-15");
+  it("notification body contains the grade message (no habit label for lock screen privacy)", async () => {
+    await scheduleMilestoneNotifications("1", "2025-01-15");
     const notifs = scheduledNotifs<{ body: string }>();
     const first = notifs[0];
     expect(first?.body).toContain(GRADES[0].messageKey);
-    expect(first?.body).toContain("Alcool");
-    expect(first?.body).toContain(" - ");
+    expect(first?.body).not.toContain(" - ");
   });
 
   it("produces unique IDs across two different habits", async () => {
-    await scheduleMilestoneNotifications("1", "Alcool", "2025-01-15");
+    await scheduleMilestoneNotifications("1", "2025-01-15");
     const ids1 = new Set(scheduledNotifs<{ id: number }>().map((n) => n.id));
     vi.mocked(LocalNotifications.schedule).mockClear();
 
-    await scheduleMilestoneNotifications("2", "Tabac", "2025-01-15");
+    await scheduleMilestoneNotifications("2", "2025-01-15");
     const ids2 = new Set(scheduledNotifs<{ id: number }>().map((n) => n.id));
 
     const collision = [...ids1].filter((id) => ids2.has(id));
@@ -148,14 +147,14 @@ describe("scheduleMilestoneNotifications", () => {
   });
 
   it("all notifications have group 'milestones' (Option A — Android grouping)", async () => {
-    await scheduleMilestoneNotifications("1", "Alcool", "2025-01-15");
+    await scheduleMilestoneNotifications("1", "2025-01-15");
     const notifs = scheduledNotifs<{ group: string }>();
     expect(notifs.length).toBeGreaterThan(0);
     expect(notifs.every((n) => n.group === "milestones")).toBe(true);
   });
 
   it("each grade fires 10 minutes later than the previous one (Option B — time stagger)", async () => {
-    await scheduleMilestoneNotifications("1", "Alcool", "2025-01-15");
+    await scheduleMilestoneNotifications("1", "2025-01-15");
     const notifs = scheduledNotifs<{ schedule: { at: Date } }>();
     expect(notifs).toHaveLength(GRADES.length);
     for (let i = 0; i < notifs.length; i++) {

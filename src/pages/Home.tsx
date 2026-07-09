@@ -72,7 +72,7 @@ export function Home() {
     void recordRelapse(habit.id, date)
       .then(() => {
         void cancelMilestoneNotifications(habit.id)
-          .then(() => scheduleMilestoneNotifications(habit.id, habit.label, date))
+          .then(() => scheduleMilestoneNotifications(habit.id, date))
           .catch((e: unknown) => {
             logError("Home.handleRelapse.notifications", e);
           });

@@ -104,11 +104,6 @@ export async function withDbVoid(
   return fn(db);
 }
 
-export function getDb(): SQLiteDBConnection {
-  if (!db) throw new Error("Database not initialized. Call initDatabase() first.");
-  return db;
-}
-
 let txQueue: Promise<unknown> = Promise.resolve();
 
 export function runInTransaction<T>(fn: (db: SQLiteDBConnection | null) => Promise<T>): Promise<T> {

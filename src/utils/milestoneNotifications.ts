@@ -31,7 +31,6 @@ export async function cancelMilestoneNotifications(habitId: string): Promise<voi
 
 export async function scheduleMilestoneNotifications(
   habitId: string,
-  habitLabel: string,
   streakStartDate: string,
 ): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
@@ -73,7 +72,7 @@ export async function scheduleMilestoneNotifications(
     return {
       id: getMilestoneNotificationId(habitId, i),
       title: `${grade.emoji} ${String(grade.days)} ${daysLabel} - ${label}`,
-      body: `${message} - ${habitLabel}`,
+      body: message,
       group: "milestones",
       schedule: { at: target, allowWhileIdle: true },
     };
@@ -115,7 +114,7 @@ export async function rescheduleAllMilestoneNotifications(): Promise<void> {
       const streakStart = getStreakStart(logsByHabit.get(habit.id) ?? []);
       if (!streakStart) continue;
       await cancelMilestoneNotifications(habit.id);
-      await scheduleMilestoneNotifications(habit.id, habit.label, streakStart);
+      await scheduleMilestoneNotifications(habit.id, streakStart);
     }
 
     // Purge milestone notifications whose habit was deleted. Mirrors rescheduleAll() for treatments.

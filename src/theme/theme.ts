@@ -1,4 +1,5 @@
 import { createTheme } from "@mui/material/styles";
+import type { Shadows } from "@mui/material/styles";
 import { COLORS } from "./tokens";
 
 export const theme = createTheme({
@@ -24,33 +25,7 @@ export const theme = createTheme({
   shape: {
     borderRadius: 12,
   },
-  shadows: [
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-    "none",
-  ],
+  shadows: Array(25).fill("none") as unknown as Shadows,
   typography: {
     fontFamily: "system-ui, -apple-system, sans-serif",
   },

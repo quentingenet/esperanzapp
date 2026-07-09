@@ -3,7 +3,6 @@ import type React from "react";
 export type EventType = "start" | "relapse";
 export type Frequency = "daily" | "weekly" | "monthly";
 export type TreatmentStatus = "taken" | "missed" | "pending";
-export type DayStatus = "start" | "active" | "relapse" | "taken" | "missed" | "pending" | "none";
 export type OnboardingKey = "privacy_accepted" | "tutorial_completed" | "user_name";
 
 export interface Habit {
@@ -74,8 +73,6 @@ export interface GradeBadgeProps {
 export interface EmptyStateProps {
   emoji?: string;
   message: string;
-  ctaLabel?: string;
-  onCta?: () => void;
 }
 
 export interface PageHeaderProps {

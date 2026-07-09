@@ -1,9 +1,8 @@
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import type { EmptyStateProps } from "@/types";
 
-export function EmptyState({ emoji, message, ctaLabel, onCta }: EmptyStateProps) {
+export function EmptyState({ emoji, message }: EmptyStateProps) {
   return (
     <Box
       sx={{
@@ -25,16 +24,6 @@ export function EmptyState({ emoji, message, ctaLabel, onCta }: EmptyStateProps)
       <Typography color="text.secondary" sx={{ fontSize: "1rem", maxWidth: 280 }}>
         {message}
       </Typography>
-      {ctaLabel && onCta && (
-        <Button
-          variant="contained"
-          onClick={onCta}
-          aria-label={ctaLabel}
-          sx={{ minHeight: 44, borderRadius: 2, mt: 1 }}
-        >
-          {ctaLabel}
-        </Button>
-      )}
     </Box>
   );
 }

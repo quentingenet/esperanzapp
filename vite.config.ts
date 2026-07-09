@@ -1,6 +1,5 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
-import { viteStaticCopy } from "vite-plugin-static-copy";
 import { fileURLToPath, URL } from "url";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
@@ -11,15 +10,7 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(version),
   },
-  plugins: [
-    react(),
-    viteStaticCopy({
-      targets: [{ src: "node_modules/sql.js/dist/sql-wasm.wasm", dest: "assets" }],
-    }),
-  ],
-  optimizeDeps: {
-    exclude: ["jeep-sqlite"],
-  },
+  plugins: [react()],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

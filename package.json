@@ -7,7 +7,6 @@
   "license": "GPL-3.0",
   "type": "module",
   "scripts": {
-    "postinstall": "mkdir -p public/assets && cp node_modules/sql.js/dist/sql-wasm.wasm public/assets/",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "build:release": "node -e \"const t=require('child_process').execSync('git describe --tags --abbrev=0').toString().trim().replace(/^v/,''),p=require('./package.json').version;if(t!==p){require('child_process').execSync('npm version '+t+' --no-git-tag-version',{stdio:'inherit'})}\" && npm run build",
@@ -43,7 +42,6 @@
     "i18next": "^26.3.3",
     "i18next-browser-languagedetector": "^8.2.1",
     "i18next-resources-to-backend": "^1.2.1",
-    "jeep-sqlite": "^2.8.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-i18next": "^17.0.8",
@@ -70,7 +68,6 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.62.0",
     "vite": "^8.1.0",
-    "vite-plugin-static-copy": "^4.1.1",
     "vitest": "^4.1.9"
   }
 }
