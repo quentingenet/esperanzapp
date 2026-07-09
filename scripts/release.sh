@@ -36,7 +36,7 @@ echo ""
 if [[ -f "$AAB" ]]; then
   echo "AAB signé : android/$AAB"
   echo ""
-  echo "Prochaine étape : Play Console > Production > Créer une version"
+  echo "Next step : Play Console > Production > Créer une version"
   echo "  https://play.google.com/console"
 else
   echo "Erreur : AAB introuvable à android/$AAB"
