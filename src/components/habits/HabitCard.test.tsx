@@ -14,8 +14,8 @@ const i18nMap: Record<string, string> = {
   "habits.streak.total": "soit {{count}} jours",
   "common.day_one": "jour",
   "common.day_other": "jours",
-  "grades.daysLeft_one": "{{count}} jour restant",
-  "grades.daysLeft_other": "{{count}} jours restants",
+  "grades.nextMilestone_one": "Prochain jalon : {{label}} dans {{count}} jour",
+  "grades.nextMilestone_other": "Prochain jalon : {{label}} dans {{count}} jours",
   "common.delete": "Supprimer",
   "common.reorder": "Réordonner",
 };
@@ -161,8 +161,8 @@ describe("HabitCard streak display", () => {
     expect(screen.getByText(/2 ans/)).toBeInTheDocument();
   });
 
-  it("uses singular form when 1 day remains to next grade", () => {
-    const nextGrade = { grade, daysLeft: 1 };
+  it("shows nextMilestone text with singular day when 1 day remains", () => {
+    const nextGrade = { grade: { ...grade, labelKey: "grades.oneWeek.label" }, daysLeft: 1 };
     render(
       <HabitCard
         habit={habit}
@@ -173,7 +173,53 @@ describe("HabitCard streak display", () => {
         onDelete={vi.fn()}
       />,
     );
-    expect(screen.getByText(/1 jour restant/)).toBeInTheDocument();
-    expect(screen.queryByText(/1 jours restants/)).not.toBeInTheDocument();
+    expect(screen.getByText(/dans 1 jour$/)).toBeInTheDocument();
+    expect(screen.queryByText(/dans 1 jours/)).not.toBeInTheDocument();
+  });
+
+  it("shows nextMilestone text with plural days when multiple days remain", () => {
+    const nextGrade = { grade: { ...grade, labelKey: "grades.oneMonth.label" }, daysLeft: 12 };
+    render(
+      <HabitCard
+        habit={habit}
+        stats={makeStats(18)}
+        grade={grade}
+        nextGrade={nextGrade}
+        onClick={vi.fn()}
+        onDelete={vi.fn()}
+      />,
+    );
+    expect(screen.getByText(/dans 12 jours/)).toBeInTheDocument();
+  });
+
+  it("renders without error when nextGrade has a specific color", () => {
+    const nextGrade = { grade: { ...grade, color: "#b71c1c" }, daysLeft: 100 };
+    expect(() =>
+      render(
+        <HabitCard
+          habit={habit}
+          stats={makeStats(10)}
+          grade={grade}
+          nextGrade={nextGrade}
+          onClick={vi.fn()}
+          onDelete={vi.fn()}
+        />,
+      ),
+    ).not.toThrow();
+  });
+
+  it("renders without error when nextGrade is null (uses current grade color)", () => {
+    expect(() =>
+      render(
+        <HabitCard
+          habit={habit}
+          stats={makeStats(7300)}
+          grade={{ ...grade, color: "#827717" }}
+          nextGrade={null}
+          onClick={vi.fn()}
+          onDelete={vi.fn()}
+        />,
+      ),
+    ).not.toThrow();
   });
 });

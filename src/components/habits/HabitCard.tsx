@@ -38,7 +38,7 @@ export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, h
   const streakDisplay = formatStreakDisplay(stats.currentStreak, t as (key: string, opts?: Record<string, unknown>) => string);
 
   return (
-    <Card elevation={0} sx={{ border: "0.5px solid #c5ddf0", borderRadius: "16px" }}>
+    <Card elevation={0} sx={{ border: `1px solid ${nextGrade?.grade.color ?? grade.color}`, borderRadius: "16px" }}>
       <CardActionArea onClick={onClick} aria-label={habit.label} sx={{ minHeight: 44 }}>
         <CardContent sx={{ p: 2 }}>
           <Box sx={{ display: "flex", alignItems: "flex-start", gap: handleProps ? 0.5 : 0 }}>
@@ -86,7 +86,7 @@ export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, h
                     <GradeBadge grade={grade} size="sm" />
                     {nextGrade && (
                       <Typography variant="caption" color="text.secondary" sx={{ fontSize: "10px" }}>
-                        {"→ "}{t(nextGrade.grade.labelKey)}{" "}{t("grades.daysLeft", { count: nextGrade.daysLeft })}
+                        {t("grades.nextMilestone", { label: t(nextGrade.grade.labelKey), count: nextGrade.daysLeft })}
                       </Typography>
                     )}
                   </Box>

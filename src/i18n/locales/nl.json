@@ -236,6 +236,15 @@
     "millennium": {
       "label": "Millennium"
     },
+    "fiveYears": {
+      "label": "Vijf jaar"
+    },
+    "tenYears": {
+      "label": "Tien jaar"
+    },
+    "twentyYears": {
+      "label": "Twintig jaar"
+    },
     "messages": {
       "firstStep": "De eerste dag is de langste. Die heb je gehad.",
       "alive": "Drie dagen. Je hebt niet losgelaten.",
@@ -256,10 +265,15 @@
       "oneYear": "Een jaar. Je kunt nu 'vorig jaar' zeggen.",
       "livingLegend": "500 dagen. Dit is gewoon wie je bent.",
       "twoYears": "Twee jaar. Een leven voor, een leven na.",
-      "millennium": "Duizend dagen. Zomaar."
+      "millennium": "Duizend dagen. Zomaar.",
+      "fiveYears": "Vijf jaar. Geen keuze meer. Een manier van leven.",
+      "tenYears": "Tien jaar. Je nam een beslissing en hield die vast.",
+      "twentyYears": "Twintig jaar. Sommigen geloven nog steeds niet dat het mogelijk is."
     },
     "daysLeft_one": "{{count}} dag over",
-    "daysLeft_other": "{{count}} dagen over"
+    "daysLeft_other": "{{count}} dagen over",
+    "nextMilestone_one": "Volgende mijlpaal: {{label}} over {{count}} dag",
+    "nextMilestone_other": "Volgende mijlpaal: {{label}} over {{count}} dagen"
   },
   "relapse": {
     "title": "Opnieuw beginnen",

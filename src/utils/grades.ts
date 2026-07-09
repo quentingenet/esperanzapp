@@ -21,6 +21,9 @@ export const GRADES: [Grade, ...Grade[]] = [
   { days: 500,  labelKey: "grades.livingLegend.label",  emoji: "🎸", messageKey: "grades.messages.livingLegend",  color: "#0277bd", bgColor: "#e1f5fe" },
   { days: 730,  labelKey: "grades.twoYears.label",      emoji: "🌟", messageKey: "grades.messages.twoYears",      color: "#e8b060", bgColor: "#fef8e8" },
   { days: 1000, labelKey: "grades.millennium.label",    emoji: "🔮", messageKey: "grades.messages.millennium",    color: "#4a148c", bgColor: "#f3e5f5" },
+  { days: 1825, labelKey: "grades.fiveYears.label",    emoji: "🎖️", messageKey: "grades.messages.fiveYears",    color: "#b71c1c", bgColor: "#ffebee" },
+  { days: 3650, labelKey: "grades.tenYears.label",     emoji: "💎", messageKey: "grades.messages.tenYears",     color: "#0d47a1", bgColor: "#e3f2fd" },
+  { days: 7300, labelKey: "grades.twentyYears.label",  emoji: "👑", messageKey: "grades.messages.twentyYears",  color: "#827717", bgColor: "#f9fbe7" },
 ];
 
 export function getGrade(days: number): Grade {

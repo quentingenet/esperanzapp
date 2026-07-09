@@ -236,6 +236,15 @@
     "millennium": {
       "label": "Millennium"
     },
+    "fiveYears": {
+      "label": "Five years"
+    },
+    "tenYears": {
+      "label": "Ten years"
+    },
+    "twentyYears": {
+      "label": "Twenty years"
+    },
     "messages": {
       "firstStep": "Day one. The longest one. You made it.",
       "alive": "Three days. You didn't let go.",
@@ -256,10 +265,15 @@
       "oneYear": "One year. You can say 'last year' now.",
       "livingLegend": "500 days. At this point, it's just who you are.",
       "twoYears": "Two years. A life before, a life after.",
-      "millennium": "A thousand days. Just like that."
+      "millennium": "A thousand days. Just like that.",
+      "fiveYears": "Five years. Not a choice anymore. A way of life.",
+      "tenYears": "Ten years. You made a decision, and you kept it.",
+      "twentyYears": "Twenty years. Some still don't believe it's possible."
     },
     "daysLeft_one": "{{count}} day left",
-    "daysLeft_other": "{{count}} days left"
+    "daysLeft_other": "{{count}} days left",
+    "nextMilestone_one": "Next milestone: {{label}} in {{count}} day",
+    "nextMilestone_other": "Next milestone: {{label}} in {{count}} days"
   },
   "relapse": {
     "title": "Start again",

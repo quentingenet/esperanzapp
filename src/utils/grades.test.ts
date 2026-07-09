@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import { GRADES, getGrade, getNextGrade, getProgressToNext } from "./grades";
 
 describe("GRADES", () => {
-  it("contains 20 entries", () => {
-    expect(GRADES).toHaveLength(20);
+  it("contains 23 entries", () => {
+    expect(GRADES).toHaveLength(23);
   });
 
   it("is sorted by days ascending", () => {
@@ -12,9 +12,9 @@ describe("GRADES", () => {
     }
   });
 
-  it("starts at day 1 and ends at day 1000", () => {
+  it("starts at day 1 and ends at day 7300", () => {
     expect(GRADES[0].days).toBe(1);
-    expect(GRADES[GRADES.length - 1]!.days).toBe(1000);
+    expect(GRADES[GRADES.length - 1]!.days).toBe(7300);
   });
 
   it("every entry has all required fields", () => {
@@ -36,6 +36,9 @@ describe("GRADES", () => {
     expect(days).toContain(180);
     expect(days).toContain(365);
     expect(days).toContain(1000);
+    expect(days).toContain(1825);
+    expect(days).toContain(3650);
+    expect(days).toContain(7300);
   });
 });
 
@@ -85,8 +88,16 @@ describe("getGrade", () => {
     expect(getGrade(1000).days).toBe(1000);
   });
 
-  it("returns millennium for days beyond 1000", () => {
-    expect(getGrade(1500)).toBe(GRADES[GRADES.length - 1]);
+  it("returns fiveYears at day 1825", () => {
+    expect(getGrade(1825).days).toBe(1825);
+  });
+
+  it("returns tenYears at day 3650", () => {
+    expect(getGrade(3650).days).toBe(3650);
+  });
+
+  it("returns twentyYears at day 7300 and beyond", () => {
+    expect(getGrade(7300).days).toBe(7300);
     expect(getGrade(9999)).toBe(GRADES[GRADES.length - 1]);
   });
 });
@@ -111,8 +122,14 @@ describe("getNextGrade", () => {
     expect(result?.daysLeft).toBe(3);
   });
 
-  it("returns null when at or beyond millennium (1000+)", () => {
-    expect(getNextGrade(1000)).toBeNull();
+  it("returns fiveYears as next when at millennium (day 1000)", () => {
+    const result = getNextGrade(1000);
+    expect(result?.grade.days).toBe(1825);
+    expect(result?.daysLeft).toBe(825);
+  });
+
+  it("returns null only at or beyond twentyYears (7300+)", () => {
+    expect(getNextGrade(7300)).toBeNull();
     expect(getNextGrade(9999)).toBeNull();
   });
 });
@@ -136,13 +153,17 @@ describe("getProgressToNext", () => {
     }
   });
 
-  it("returns 100 when at millennium (1000+)", () => {
-    expect(getProgressToNext(1000)).toBe(100);
-    expect(getProgressToNext(1500)).toBe(100);
+  it("returns 100 only at or beyond twentyYears (7300+)", () => {
+    expect(getProgressToNext(7300)).toBe(100);
+    expect(getProgressToNext(9999)).toBe(100);
+  });
+
+  it("returns < 100 at millennium (day 1000) since fiveYears comes next", () => {
+    expect(getProgressToNext(1000)).toBeLessThan(100);
   });
 
   it("never returns value outside 0-100", () => {
-    const testDays = [0, 1, 2, 5, 13, 29, 59, 89, 179, 364, 729, 999, 1000, 9999];
+    const testDays = [0, 1, 2, 5, 13, 29, 59, 89, 179, 364, 729, 999, 1000, 1824, 1825, 3649, 3650, 7299, 7300, 9999];
     for (const days of testDays) {
       const p = getProgressToNext(days);
       expect(p).toBeGreaterThanOrEqual(0);

@@ -236,6 +236,15 @@
     "millennium": {
       "label": "Millennium"
     },
+    "fiveYears": {
+      "label": "Fünf Jahre"
+    },
+    "tenYears": {
+      "label": "Zehn Jahre"
+    },
+    "twentyYears": {
+      "label": "Zwanzig Jahre"
+    },
     "messages": {
       "firstStep": "Der erste Tag ist der schwerste. Du hast ihn geschafft.",
       "alive": "Drei Tage. Du hast nicht aufgegeben.",
@@ -256,10 +265,15 @@
       "oneYear": "Ein Jahr. Du kannst jetzt 'letztes Jahr' sagen.",
       "livingLegend": "500 Tage. Das bist einfach du.",
       "twoYears": "Zwei Jahre. Ein Leben davor, ein Leben danach.",
-      "millennium": "Tausend Tage. Einfach so."
+      "millennium": "Tausend Tage. Einfach so.",
+      "fiveYears": "Fünf Jahre. Keine Entscheidung mehr. Eine Lebensweise.",
+      "tenYears": "Zehn Jahre. Du hast eine Entscheidung getroffen und gehalten.",
+      "twentyYears": "Zwanzig Jahre. Manche glauben immer noch nicht, dass es möglich ist."
     },
     "daysLeft_one": "{{count}} Tag verbleibend",
-    "daysLeft_other": "{{count}} Tage verbleibend"
+    "daysLeft_other": "{{count}} Tage verbleibend",
+    "nextMilestone_one": "Nächstes Ziel: {{label}} in {{count}} Tag",
+    "nextMilestone_other": "Nächstes Ziel: {{label}} in {{count}} Tagen"
   },
   "relapse": {
     "title": "Neu beginnen",
