@@ -12,9 +12,10 @@ export function useAppUpdate() {
     setStatus("checking");
     try {
       const info = await AppUpdate.getAppUpdateInfo();
-      const result: UpdateCheckStatus = info.updateAvailability === AppUpdateAvailability.UPDATE_AVAILABLE
-        ? "available"
-        : "up-to-date";
+      const result: UpdateCheckStatus =
+        info.updateAvailability === AppUpdateAvailability.UPDATE_AVAILABLE
+          ? "available"
+          : "up-to-date";
       setStatus(result);
       return result;
     } catch {

@@ -20,16 +20,20 @@ const mocks = vi.hoisted(() => ({
   toast: { error: vi.fn(), success: vi.fn(), info: vi.fn(), warning: vi.fn() },
 }));
 
+vi.mock("@/services", () => ({
+  exportToJSON: mocks.exportJSON,
+  exportToCSV: mocks.exportCSV,
+  saveJSONToFolder: mocks.saveJSON,
+  saveCSVToFolder: mocks.saveCSV,
+  importFromJSON: mocks.importJSON,
+  importFromCSV: mocks.importCSV,
+}));
+
+vi.mock("@/utils/exportSerialization", () => ({
+  peekIsEncrypted: mocks.detectEncrypted,
+}));
+
 vi.mock("@/hooks", () => ({
-  useExport: () => ({
-    exportJSON: mocks.exportJSON,
-    exportCSV: mocks.exportCSV,
-    saveJSON: mocks.saveJSON,
-    saveCSV: mocks.saveCSV,
-    importJSON: mocks.importJSON,
-    importCSV: mocks.importCSV,
-    detectEncrypted: mocks.detectEncrypted,
-  }),
   useHabits: () => ({ loadHabits: mocks.loadHabits }),
   useTreatments: () => ({ loadTreatments: mocks.loadTreatments }),
   useNotifications: () => ({
@@ -89,10 +93,7 @@ function simulateFileSelection(file: File) {
 }
 
 // Go through the common import steps up to (and including) the destructive warning dialog.
-async function openImportWarnDialog(
-  user: ReturnType<typeof userEvent.setup>,
-  file: File,
-) {
+async function openImportWarnDialog(user: ReturnType<typeof userEvent.setup>, file: File) {
   simulateFileSelection(file);
   await user.click(screen.getByRole("button", { name: "export.importBtn" }));
   await user.click(await screen.findByRole("button", { name: "export.chooseFileBtn" }));
@@ -184,7 +185,17 @@ describe("DataExportSection — plain JSON import flow", () => {
 
   it("rescheduleAll is called when imported treatments have reminders", async () => {
     mocks.getTreatmentsState.mockReturnValue({
-      treatments: [{ id: "1", label: "Med", frequency: "daily", reminderTime: "08:00", reminderEnabled: true, reminderDay: null, createdAt: "2024-01-01T00:00:00.000Z" }],
+      treatments: [
+        {
+          id: "1",
+          label: "Med",
+          frequency: "daily",
+          reminderTime: "08:00",
+          reminderEnabled: true,
+          reminderDay: null,
+          createdAt: "2024-01-01T00:00:00.000Z",
+        },
+      ],
     });
     const user = userEvent.setup();
     render(<DataExportSection />);

@@ -14,9 +14,31 @@ export function Settings() {
   const [tutorialOpen, setTutorialOpen] = useState(false);
 
   return (
-    <Box sx={{ minHeight: "100dvh", bgcolor: "background.default", pb: "calc(80px + env(safe-area-inset-bottom))" }}>
-      <Box sx={{ position: "sticky", top: 0, zIndex: 10, bgcolor: "background.default", borderBottom: 1, borderColor: "divider", pt: "env(safe-area-inset-top)" }}>
-        <Tabs value={tab} onChange={(_, v: number) => { setTab(v); }} variant="fullWidth">
+    <Box
+      sx={{
+        minHeight: "100dvh",
+        bgcolor: "background.default",
+        pb: "calc(80px + env(safe-area-inset-bottom))",
+      }}
+    >
+      <Box
+        sx={{
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+          bgcolor: "background.default",
+          borderBottom: 1,
+          borderColor: "divider",
+          pt: "env(safe-area-inset-top)",
+        }}
+      >
+        <Tabs
+          value={tab}
+          onChange={(_, v: number) => {
+            setTab(v);
+          }}
+          variant="fullWidth"
+        >
           <Tab label={t("settings.tabs.settings")} aria-label={t("settings.tabs.settings")} />
           <Tab label={t("settings.tabs.data")} aria-label={t("settings.tabs.data")} />
         </Tabs>
@@ -24,16 +46,33 @@ export function Settings() {
 
       {tab === 0 && (
         <SettingsGeneralSection
-          onReplayTutorial={() => { setTutorialOpen(true); }}
-          onShowTerms={() => { setTermsOpen(true); }}
+          onReplayTutorial={() => {
+            setTutorialOpen(true);
+          }}
+          onShowTerms={() => {
+            setTermsOpen(true);
+          }}
         />
       )}
       {tab === 1 && <DataExportSection />}
 
-      <PrivacyModal open={termsOpen} onAccept={() => { setTermsOpen(false); }} readOnly />
+      <PrivacyModal
+        open={termsOpen}
+        onAccept={() => {
+          setTermsOpen(false);
+        }}
+        readOnly
+      />
 
       <Dialog open={tutorialOpen} fullScreen>
-        <OnboardingSlider onComplete={() => { setTutorialOpen(false); }} onSkip={() => { setTutorialOpen(false); }} />
+        <OnboardingSlider
+          onComplete={() => {
+            setTutorialOpen(false);
+          }}
+          onSkip={() => {
+            setTutorialOpen(false);
+          }}
+        />
       </Dialog>
     </Box>
   );

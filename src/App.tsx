@@ -16,16 +16,29 @@ import { LocalNotifications } from "@capacitor/local-notifications";
 import { useTranslation } from "react-i18next";
 import { AppToast } from "@/components/shared/AppToast";
 import { BottomNav } from "@/components/shared/BottomNav";
-import { LanguageSelector, PrivacyModal, OnboardingSlider, UserNameInput } from "@/components/onboarding";
+import {
+  LanguageSelector,
+  PrivacyModal,
+  OnboardingSlider,
+  UserNameInput,
+} from "@/components/onboarding";
 const Home = lazy(() => import("@/pages/Home").then((m) => ({ default: m.Home })));
-const Milestones = lazy(() => import("@/pages/Milestones").then((m) => ({ default: m.Milestones })));
-const Treatments = lazy(() => import("@/pages/Treatments").then((m) => ({ default: m.Treatments })));
+const Milestones = lazy(() =>
+  import("@/pages/Milestones").then((m) => ({ default: m.Milestones })),
+);
+const Treatments = lazy(() =>
+  import("@/pages/Treatments").then((m) => ({ default: m.Treatments })),
+);
 const History = lazy(() => import("@/pages/History").then((m) => ({ default: m.History })));
 const Settings = lazy(() => import("@/pages/Settings").then((m) => ({ default: m.Settings })));
 import { useOnboarding, useNotifications, useAppUpdate } from "@/hooks";
 import { getAllTreatments } from "@/db";
 import { toast } from "@/store/toastStore";
-import { NOTIF_DOMAIN_OFFSET, getNotificationId, getLastDayNotificationIds } from "@/hooks/useNotifications";
+import {
+  NOTIF_DOMAIN_OFFSET,
+  getNotificationId,
+  getLastDayNotificationIds,
+} from "@/hooks/useNotifications";
 import { theme } from "@/theme";
 import { logError, safeLocalStorageSet } from "@/utils/logger";
 import { rescheduleAllMilestoneNotifications } from "@/utils/milestoneNotifications";
@@ -55,7 +68,9 @@ function AppStartRescheduler() {
       // and must not be skipped if the treatment reschedule above throws.
       await rescheduleAllMilestoneNotifications();
     })();
-    return () => { guard.cancelled = true; };
+    return () => {
+      guard.cancelled = true;
+    };
   }, [rescheduleAll, getExactAlarmStatus, t]);
 
   // Renew "last day of month" one-shots when they fire while the app is in foreground.
@@ -65,12 +80,15 @@ function AppStartRescheduler() {
     let handle: PluginListenerHandle | undefined;
     let disposed = false;
     void LocalNotifications.addListener("localNotificationReceived", (notif) => {
-      if (notif.id < NOTIF_DOMAIN_OFFSET.treatments || notif.id >= NOTIF_DOMAIN_OFFSET.milestones) return;
+      if (notif.id < NOTIF_DOMAIN_OFFSET.treatments || notif.id >= NOTIF_DOMAIN_OFFSET.milestones)
+        return;
       void (async () => {
         try {
           const treatments = await getAllTreatments();
           const treatment = treatments.find(
-            (t) => getNotificationId("treatments", t.id) === notif.id || getLastDayNotificationIds(t.id).includes(notif.id),
+            (t) =>
+              getNotificationId("treatments", t.id) === notif.id ||
+              getLastDayNotificationIds(t.id).includes(notif.id),
           );
           if (treatment?.frequency === "monthly" && treatment.reminderDay === 0) {
             await scheduleReminder(treatment);
@@ -79,13 +97,22 @@ function AppStartRescheduler() {
           // Notification failures must not crash.
         }
       })();
-    }).then((h) => {
-      if (disposed) void h.remove().catch((e: unknown) => { logError("AppStartRescheduler.notifReceived.removeDisposed", e); });
-      else handle = h;
-    }).catch((e: unknown) => { logError("AppStartRescheduler.notifReceived", e); });
+    })
+      .then((h) => {
+        if (disposed)
+          void h.remove().catch((e: unknown) => {
+            logError("AppStartRescheduler.notifReceived.removeDisposed", e);
+          });
+        else handle = h;
+      })
+      .catch((e: unknown) => {
+        logError("AppStartRescheduler.notifReceived", e);
+      });
     return () => {
       disposed = true;
-      void handle?.remove().catch((e: unknown) => { logError("AppStartRescheduler.notifReceived.remove", e); });
+      void handle?.remove().catch((e: unknown) => {
+        logError("AppStartRescheduler.notifReceived.remove", e);
+      });
     };
   }, [scheduleReminder]);
 
@@ -101,20 +128,39 @@ function AppUpdateChecker() {
     if (!Capacitor.isNativePlatform()) return;
     let mounted = true;
     const timer = setTimeout(() => {
-      void checkForUpdate().then((result) => { if (mounted && result === "available") setOpen(true); });
+      void checkForUpdate().then((result) => {
+        if (mounted && result === "available") setOpen(true);
+      });
     }, 3000);
-    return () => { mounted = false; clearTimeout(timer); };
+    return () => {
+      mounted = false;
+      clearTimeout(timer);
+    };
   }, [checkForUpdate]);
 
   return (
     <Dialog open={open} maxWidth="xs" fullWidth>
       <DialogTitle sx={{ fontWeight: 700 }}>{t("update.available")}</DialogTitle>
       <DialogContent>
-        <Typography variant="body2" color="text.secondary">{t("update.availableBody")}</Typography>
+        <Typography variant="body2" color="text.secondary">
+          {t("update.availableBody")}
+        </Typography>
       </DialogContent>
       <DialogActions sx={{ px: 2, pb: 2, gap: 1 }}>
-        <Button onClick={() => { setOpen(false); }}>{t("update.later")}</Button>
-        <Button variant="contained" onClick={() => { setOpen(false); void openUpdate(); }}>
+        <Button
+          onClick={() => {
+            setOpen(false);
+          }}
+        >
+          {t("update.later")}
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => {
+            setOpen(false);
+            void openUpdate();
+          }}
+        >
           {t("update.updateNow")}
         </Button>
       </DialogActions>
@@ -143,10 +189,13 @@ function DevWebBanner() {
 }
 
 function AppContent() {
-  const { currentStep, acceptPrivacy, advanceLanguage, completeTutorial, saveName } = useOnboarding();
+  const { currentStep, acceptPrivacy, advanceLanguage, completeTutorial, saveName } =
+    useOnboarding();
   const [activeTab, setActiveTab] = useState<NavTab>("home");
   const activeTabRef = useRef<NavTab>("home");
-  useEffect(() => { activeTabRef.current = activeTab; });
+  useEffect(() => {
+    activeTabRef.current = activeTab;
+  });
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
@@ -157,15 +206,24 @@ function AppContent() {
       if (notifId >= NOTIF_DOMAIN_OFFSET.treatments && notifId < NOTIF_DOMAIN_OFFSET.milestones) {
         setActiveTab("treatments");
       }
-    }).then((h) => {
-      if (disposed) { void h.remove().catch((e: unknown) => { logError("AppContent.notificationActionPerformed.removeDisposed", e); }); }
-      else { handle = h; }
-    }).catch((e: unknown) => {
-      logError("AppContent.notificationActionPerformed", e);
-    });
+    })
+      .then((h) => {
+        if (disposed) {
+          void h.remove().catch((e: unknown) => {
+            logError("AppContent.notificationActionPerformed.removeDisposed", e);
+          });
+        } else {
+          handle = h;
+        }
+      })
+      .catch((e: unknown) => {
+        logError("AppContent.notificationActionPerformed", e);
+      });
     return () => {
       disposed = true;
-      void handle?.remove().catch((e: unknown) => { logError("AppContent.notificationActionPerformed.remove", e); });
+      void handle?.remove().catch((e: unknown) => {
+        logError("AppContent.notificationActionPerformed.remove", e);
+      });
     };
   }, []);
 
@@ -186,17 +244,19 @@ function AppContent() {
           logError("AppContent.backButton.exitApp", e);
         });
       }
-    }).then((handle) => {
-      if (disposed) {
-        void handle.remove().catch((e: unknown) => {
-          logError("AppContent.backButton.removeDisposed", e);
-        });
-      } else {
-        listener = handle;
-      }
-    }).catch((e: unknown) => {
-      logError("AppContent.backButton.addListener", e);
-    });
+    })
+      .then((handle) => {
+        if (disposed) {
+          void handle.remove().catch((e: unknown) => {
+            logError("AppContent.backButton.removeDisposed", e);
+          });
+        } else {
+          listener = handle;
+        }
+      })
+      .catch((e: unknown) => {
+        logError("AppContent.backButton.addListener", e);
+      });
 
     return () => {
       disposed = true;
@@ -209,7 +269,14 @@ function AppContent() {
   }, []);
 
   if (currentStep === "privacy") {
-    return <PrivacyModal open onAccept={() => { void acceptPrivacy(); }} />;
+    return (
+      <PrivacyModal
+        open
+        onAccept={() => {
+          void acceptPrivacy();
+        }}
+      />
+    );
   }
   if (currentStep === "language") {
     return (
@@ -224,16 +291,24 @@ function AppContent() {
   if (currentStep === "tutorial") {
     return (
       <OnboardingSlider
-        onComplete={() => { void completeTutorial(); }}
-        onSkip={() => { void completeTutorial(); }}
+        onComplete={() => {
+          void completeTutorial();
+        }}
+        onSkip={() => {
+          void completeTutorial();
+        }}
       />
     );
   }
   if (currentStep === "name") {
     return (
       <UserNameInput
-        onSave={(name) => { void saveName(name); }}
-        onSkip={() => { void saveName(""); }}
+        onSave={(name) => {
+          void saveName(name);
+        }}
+        onSkip={() => {
+          void saveName("");
+        }}
       />
     );
   }
@@ -263,11 +338,20 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Suspense fallback={
-        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100dvh" }}>
-          <CircularProgress />
-        </Box>
-      }>
+      <Suspense
+        fallback={
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100dvh",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        }
+      >
         <AppContent />
         <AppToast />
       </Suspense>

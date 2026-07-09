@@ -23,7 +23,11 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
     if (this.state.hasError) {
       return (
         <div style={{ padding: "2rem", textAlign: "center" }}>
-          <p>{i18next.t("app.crash", { defaultValue: "Something went wrong. Please restart the app." })}</p>
+          <p>
+            {i18next.t("app.crash", {
+              defaultValue: "Something went wrong. Please restart the app.",
+            })}
+          </p>
         </div>
       );
     }
@@ -44,9 +48,7 @@ async function bootstrap() {
 
   createRoot(root).render(
     <StrictMode>
-      <ErrorBoundary>
-        {dbFailed ? <DbErrorScreen /> : <App />}
-      </ErrorBoundary>
+      <ErrorBoundary>{dbFailed ? <DbErrorScreen /> : <App />}</ErrorBoundary>
     </StrictMode>,
   );
 }

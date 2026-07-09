@@ -12,17 +12,23 @@ import { useTreatmentsStore } from "@/store/treatmentsStore";
 import type { Treatment } from "@/types";
 
 export function useTreatments() {
-  const { treatments, loading, error, setTreatments, addTreatment: storeAdd, removeTreatment } =
-    useTreatmentsStore(
-      useShallow((s) => ({
-        treatments: s.treatments,
-        loading: s.loading,
-        error: s.error,
-        setTreatments: s.setTreatments,
-        addTreatment: s.addTreatment,
-        removeTreatment: s.removeTreatment,
-      })),
-    );
+  const {
+    treatments,
+    loading,
+    error,
+    setTreatments,
+    addTreatment: storeAdd,
+    removeTreatment,
+  } = useTreatmentsStore(
+    useShallow((s) => ({
+      treatments: s.treatments,
+      loading: s.loading,
+      error: s.error,
+      setTreatments: s.setTreatments,
+      addTreatment: s.addTreatment,
+      removeTreatment: s.removeTreatment,
+    })),
+  );
 
   const loadId = useRef(0);
 
@@ -52,7 +58,10 @@ export function useTreatments() {
   );
 
   const editTreatment = useCallback(
-    async (id: string, data: Pick<Treatment, "label" | "reminderTime" | "reminderEnabled" | "reminderDay">): Promise<void> => {
+    async (
+      id: string,
+      data: Pick<Treatment, "label" | "reminderTime" | "reminderEnabled" | "reminderDay">,
+    ): Promise<void> => {
       await dbUpdateTreatment(id, data);
       useTreatmentsStore.getState().updateTreatment(id, data);
     },
@@ -70,7 +79,9 @@ export function useTreatments() {
   const reorderTreatments = useCallback(
     (orderedIds: string[]): void => {
       const byId = new Map(treatments.map((t) => [t.id, t]));
-      const sorted = orderedIds.map((id) => byId.get(id)).filter((t): t is Treatment => t !== undefined);
+      const sorted = orderedIds
+        .map((id) => byId.get(id))
+        .filter((t): t is Treatment => t !== undefined);
       const orderedSet = new Set(orderedIds);
       const remaining = treatments.filter((t) => !orderedSet.has(t.id));
       setTreatments([...sorted, ...remaining]);
@@ -78,12 +89,19 @@ export function useTreatments() {
     [treatments, setTreatments],
   );
 
-  const saveTreatmentsOrder = useCallback(
-    async (): Promise<void> => {
-      await updateTreatmentsSortOrder(treatments.map((t) => t.id));
-    },
-    [treatments],
-  );
+  const saveTreatmentsOrder = useCallback(async (): Promise<void> => {
+    await updateTreatmentsSortOrder(treatments.map((t) => t.id));
+  }, [treatments]);
 
-  return { treatments, loading, error, loadTreatments, addTreatment, editTreatment, deleteTreatment, reorderTreatments, saveTreatmentsOrder };
+  return {
+    treatments,
+    loading,
+    error,
+    loadTreatments,
+    addTreatment,
+    editTreatment,
+    deleteTreatment,
+    reorderTreatments,
+    saveTreatmentsOrder,
+  };
 }

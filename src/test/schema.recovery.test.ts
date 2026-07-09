@@ -57,10 +57,10 @@ describe("Schema recovery: treatments_backup residual", () => {
     `);
 
     for (const name of PRE_MIGRATION_NAMES) {
-      await conn.run(
-        "INSERT INTO schema_migrations (name, applied_at) VALUES (?, ?)",
-        [name, "2025-01-01T00:00:00.000Z"],
-      );
+      await conn.run("INSERT INTO schema_migrations (name, applied_at) VALUES (?, ?)", [
+        name,
+        "2025-01-01T00:00:00.000Z",
+      ]);
     }
 
     // This row must survive the crash and be visible after recovery.

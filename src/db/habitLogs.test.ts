@@ -1,14 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getHabitLogsByHabitId, getAllHabitLogs } from "./habitLogs";
-import { createHabitLog } from "./testHelpers";
+import { createHabitLog } from "@/test/testHelpers";
 
 const mockDb = { run: vi.fn(), query: vi.fn() };
-vi.mock("./client", () => ({ withDb: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb), withDbVoid: (fn: (db: typeof mockDb) => Promise<void>) => fn(mockDb) }));
+vi.mock("./client", () => ({
+  withDb: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb),
+  withDbVoid: (fn: (db: typeof mockDb) => Promise<void>) => fn(mockDb),
+}));
 
 const ROW = { id: 5, habit_id: 1, event_type: "start", event_date: "2024-01-01" };
 const LOG = { id: "5", habitId: "1", eventType: "start" as const, eventDate: "2024-01-01" };
 
-beforeEach(() => { vi.clearAllMocks(); });
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe("createHabitLog", () => {
   it("inserts and returns log with id", async () => {
@@ -51,4 +56,3 @@ describe("getAllHabitLogs", () => {
     expect(await getAllHabitLogs()).toHaveLength(1);
   });
 });
-

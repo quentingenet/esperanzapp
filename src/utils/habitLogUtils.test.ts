@@ -2,7 +2,12 @@ import { describe, it, expect } from "vitest";
 import { mergeRelapseRestart } from "./habitLogUtils";
 import type { HabitLog } from "@/types";
 
-function log(id: string, habitId: string, eventType: "start" | "relapse", eventDate: string): HabitLog {
+function log(
+  id: string,
+  habitId: string,
+  eventType: "start" | "relapse",
+  eventDate: string,
+): HabitLog {
   return { id, habitId, eventType, eventDate };
 }
 
@@ -25,10 +30,7 @@ describe("mergeRelapseRestart", () => {
   });
 
   it("filters same-day start and marks relapse as relapseRestart", () => {
-    const input = [
-      log("1", "h1", "relapse", "2024-01-05"),
-      log("2", "h1", "start", "2024-01-05"),
-    ];
+    const input = [log("1", "h1", "relapse", "2024-01-05"), log("2", "h1", "start", "2024-01-05")];
     const result = mergeRelapseRestart(input);
     expect(result).toHaveLength(1);
     expect(result[0]!.eventType).toBe("relapse");
@@ -36,10 +38,7 @@ describe("mergeRelapseRestart", () => {
   });
 
   it("keeps start on a different day and does not add displayKey to it", () => {
-    const input = [
-      log("1", "h1", "start", "2024-01-01"),
-      log("2", "h1", "relapse", "2024-01-10"),
-    ];
+    const input = [log("1", "h1", "start", "2024-01-01"), log("2", "h1", "relapse", "2024-01-10")];
     const result = mergeRelapseRestart(input);
     expect(result).toHaveLength(2);
     const startEntry = result.find((r) => r.eventType === "start");
@@ -47,10 +46,7 @@ describe("mergeRelapseRestart", () => {
   });
 
   it("does not filter start of a different habit when another habit has a same-day relapse", () => {
-    const input = [
-      log("1", "h1", "relapse", "2024-01-05"),
-      log("2", "h2", "start", "2024-01-05"),
-    ];
+    const input = [log("1", "h1", "relapse", "2024-01-05"), log("2", "h2", "start", "2024-01-05")];
     const result = mergeRelapseRestart(input);
     expect(result).toHaveLength(2);
     const h2Entry = result.find((r) => r.habitId === "h2");
@@ -60,8 +56,22 @@ describe("mergeRelapseRestart", () => {
 
   it("preserves extra fields from subtype", () => {
     const input = [
-      { id: "1", habitId: "h1", eventType: "relapse" as const, eventDate: "2024-01-05", habitLabel: "Smoking", habitColor: "#ff0000" },
-      { id: "2", habitId: "h1", eventType: "start" as const, eventDate: "2024-01-05", habitLabel: "Smoking", habitColor: "#ff0000" },
+      {
+        id: "1",
+        habitId: "h1",
+        eventType: "relapse" as const,
+        eventDate: "2024-01-05",
+        habitLabel: "Smoking",
+        habitColor: "#ff0000",
+      },
+      {
+        id: "2",
+        habitId: "h1",
+        eventType: "start" as const,
+        eventDate: "2024-01-05",
+        habitLabel: "Smoking",
+        habitColor: "#ff0000",
+      },
     ];
     const result = mergeRelapseRestart(input);
     expect(result).toHaveLength(1);

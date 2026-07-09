@@ -1,8 +1,11 @@
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import type { Habit, HabitLog, TreatmentLog } from "@/types";
-import { getDb, withDb } from "./client";
+import { getDb, withDb } from "@/db/client";
 
-export async function createHabit(data: Omit<Habit, "id">, dbConn?: SQLiteDBConnection | null): Promise<Habit> {
+export async function createHabit(
+  data: Omit<Habit, "id">,
+  dbConn?: SQLiteDBConnection | null,
+): Promise<Habit> {
   const db = dbConn ?? getDb();
   await db.run(
     "INSERT INTO habits (label, icon, color, bg_color, start_date, created_at) VALUES (?, ?, ?, ?, ?, ?)",
@@ -14,12 +17,16 @@ export async function createHabit(data: Omit<Habit, "id">, dbConn?: SQLiteDBConn
   return { ...data, id: String(lastId) };
 }
 
-export function createHabitLog(data: Omit<HabitLog, "id">, dbConn?: SQLiteDBConnection | null): Promise<HabitLog> {
+export function createHabitLog(
+  data: Omit<HabitLog, "id">,
+  dbConn?: SQLiteDBConnection | null,
+): Promise<HabitLog> {
   const fn = async (db: SQLiteDBConnection): Promise<HabitLog> => {
-    await db.run(
-      "INSERT INTO habit_logs (habit_id, event_type, event_date) VALUES (?, ?, ?)",
-      [data.habitId, data.eventType, data.eventDate],
-    );
+    await db.run("INSERT INTO habit_logs (habit_id, event_type, event_date) VALUES (?, ?, ?)", [
+      data.habitId,
+      data.eventType,
+      data.eventDate,
+    ]);
     const idRow = await db.query("SELECT last_insert_rowid() AS id");
     const lastId = (idRow.values?.[0] as { id?: number } | undefined)?.id;
     if (!lastId) throw new Error("Failed to insert habit log");
@@ -29,7 +36,10 @@ export function createHabitLog(data: Omit<HabitLog, "id">, dbConn?: SQLiteDBConn
   return withDb(fn, { ...data, id: String(Date.now()) });
 }
 
-export function createTreatmentLog(data: Omit<TreatmentLog, "id">, dbConn?: SQLiteDBConnection | null): Promise<TreatmentLog> {
+export function createTreatmentLog(
+  data: Omit<TreatmentLog, "id">,
+  dbConn?: SQLiteDBConnection | null,
+): Promise<TreatmentLog> {
   const fn = async (db: SQLiteDBConnection): Promise<TreatmentLog> => {
     await db.run(
       "INSERT INTO treatment_logs (treatment_id, scheduled_at, status) VALUES (?, ?, ?)",

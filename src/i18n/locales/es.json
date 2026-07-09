@@ -85,7 +85,6 @@
   },
   "habits": {
     "add": "Añadir un hábito",
-    "delete": "Eliminar este hábito",
     "deleteConfirm": "¿Eliminar este hábito y todo su historial?",
     "empty": "Ningún hábito por ahora.\nEmpieza añadiendo uno.",
     "counter": {
@@ -276,7 +275,6 @@
     "nextMilestone_other": "Próximo hito: {{label}} en {{count}} días"
   },
   "relapse": {
-    "title": "Volver a empezar",
     "confirmTitle": "Un paso al lado",
     "confirmBody": "Esos días son tuyos. Se quedan.",
     "confirmButton": "Sí, volver a empezar",
@@ -293,7 +291,6 @@
     "title": "Mis tratamientos",
     "add": "Añadir un tratamiento",
     "edit": "Editar tratamiento",
-    "delete": "Eliminar este tratamiento",
     "deleteConfirm": "¿Eliminar este tratamiento y todo su historial?",
     "empty": "Ningún tratamiento por ahora.\nAgrega uno y configura un recordatorio para no olvidarlo.",
     "taken": "Tomado",
@@ -306,7 +303,6 @@
     "form": {
       "name": "Nombre del medicamento",
       "namePlaceholder": "ej: Metformina, Sertralina…",
-      "frequency": "Frecuencia",
       "reminderTime": "Hora del recordatorio",
       "enableReminder": "Activar recordatorio",
       "permissionDenied": "Permiso de notificación denegado. El recordatorio ha sido desactivado.",
@@ -325,12 +321,10 @@
     "reminderAlarmSettingsNeeded": "Activa 'Alarmas y recordatorios' en tus ajustes para recibir recordatorios a tiempo."
   },
   "stats": {
-    "title": "Estadísticas",
     "currentStreak": "Racha actual",
     "longestStreak": "Racha más larga",
     "totalRelapses": "Recaídas totales",
     "averageStreak": "Promedio de rachas",
-    "startDate": "Desde el",
     "noData": "Aún no hay datos"
   },
   "history": {

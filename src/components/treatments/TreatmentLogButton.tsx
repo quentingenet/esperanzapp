@@ -11,7 +11,9 @@ export function TreatmentLogButton({ todayLog, onLog }: TreatmentLogButtonProps)
       <Button
         variant={status === "taken" ? "contained" : "outlined"}
         color="success"
-        onClick={() => { onLog("taken"); }}
+        onClick={() => {
+          onLog("taken");
+        }}
         aria-label={t("treatments.taken")}
         sx={{ minHeight: 44, flex: 1, borderRadius: 2 }}
       >
@@ -20,7 +22,9 @@ export function TreatmentLogButton({ todayLog, onLog }: TreatmentLogButtonProps)
       <Button
         variant={status === "missed" ? "contained" : "outlined"}
         color="error"
-        onClick={() => { onLog("missed"); }}
+        onClick={() => {
+          onLog("missed");
+        }}
         aria-label={t("treatments.missed")}
         sx={{ minHeight: 44, flex: 1, borderRadius: 2 }}
       >

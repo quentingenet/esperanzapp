@@ -32,8 +32,11 @@ const habit: Habit = {
 };
 
 // Shorthand to extract the notifications array from the first LocalNotifications.schedule call
-function scheduledNotifs<T = { id: number; title: string; body: string; schedule: { allowWhileIdle: boolean } }>(): T[] {
-  return (vi.mocked(LocalNotifications.schedule).mock.calls[0]![0] as { notifications: T[] }).notifications;
+function scheduledNotifs<
+  T = { id: number; title: string; body: string; schedule: { allowWhileIdle: boolean } },
+>(): T[] {
+  return (vi.mocked(LocalNotifications.schedule).mock.calls[0]![0] as { notifications: T[] })
+    .notifications;
 }
 
 describe("scheduleMilestoneNotifications", () => {
@@ -65,7 +68,7 @@ describe("scheduleMilestoneNotifications", () => {
   });
 
   it("does not call schedule when all milestones are in the past", async () => {
-    await scheduleMilestoneNotifications("1", "Alcool", "2020-01-01");
+    await scheduleMilestoneNotifications("1", "Alcool", "1990-01-01");
     expect(LocalNotifications.schedule).not.toHaveBeenCalled();
   });
 
@@ -173,11 +176,11 @@ describe("getMilestoneNotificationId", () => {
     expect(id).not.toBe(getMilestoneNotificationId("2", 0));
   });
 
-  it("numeric and hash-colliding habits share the same IDs (known collision risk, ~1/49999)", () => {
-    // "habit-86009" hashes to stableHash31("habit-86009") % 49_999 === 1 (same slot as numeric "1")
+  it("numeric and hash-colliding habits share the same IDs (known collision risk, ~1/43478)", () => {
+    // "habit-46982" hashes to stableHash31("habit-46982") % 43_478 === 1 (same slot as numeric "1")
     // This is a real but low-probability collision: two habits can clobber each other's notifications.
     for (let i = 0; i < GRADES.length; i++) {
-      expect(getMilestoneNotificationId("1", i)).toBe(getMilestoneNotificationId("habit-86009", i));
+      expect(getMilestoneNotificationId("1", i)).toBe(getMilestoneNotificationId("habit-46982", i));
     }
   });
 });
@@ -202,7 +205,9 @@ describe("cancelMilestoneNotifications", () => {
   it("cancels exactly GRADES.length notification IDs", async () => {
     await cancelMilestoneNotifications("1");
     expect(LocalNotifications.cancel).toHaveBeenCalledOnce();
-    const { notifications } = (vi.mocked(LocalNotifications.cancel).mock.calls[0]![0] as { notifications: unknown[] });
+    const { notifications } = vi.mocked(LocalNotifications.cancel).mock.calls[0]![0] as {
+      notifications: unknown[];
+    };
     expect(notifications).toHaveLength(GRADES.length);
   });
 
@@ -294,15 +299,17 @@ describe("rescheduleAllMilestoneNotifications", () => {
   it("uses the most recent start log as streak start", async () => {
     // Old start + relapse + recent restart yesterday → all 20 milestones are in the future
     const logsWithRelapse: HabitLog[] = [
-      { id: "1", habitId: "1", eventType: "start",   eventDate: "2024-01-01" },
-      { id: "2", habitId: "1", eventType: "relapse",  eventDate: "2025-01-14" },
-      { id: "3", habitId: "1", eventType: "start",   eventDate: "2025-01-14" },
+      { id: "1", habitId: "1", eventType: "start", eventDate: "2024-01-01" },
+      { id: "2", habitId: "1", eventType: "relapse", eventDate: "2025-01-14" },
+      { id: "3", habitId: "1", eventType: "start", eventDate: "2025-01-14" },
     ];
     vi.mocked(getAllHabitLogs).mockResolvedValue(logsWithRelapse);
     await rescheduleAllMilestoneNotifications();
     // The recent restart (yesterday) means all milestones fire in the future
     // If the old streak (2024-01-01) were used instead, most would be past
-    const notifs = (vi.mocked(LocalNotifications.schedule).mock.calls[0]![0] as { notifications: unknown[] }).notifications;
+    const notifs = (
+      vi.mocked(LocalNotifications.schedule).mock.calls[0]![0] as { notifications: unknown[] }
+    ).notifications;
     expect(notifs).toHaveLength(GRADES.length);
   });
 });

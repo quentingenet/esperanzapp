@@ -2,7 +2,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useTreatments } from "./useTreatments";
 import { useTreatmentsStore } from "@/store/treatmentsStore";
-import { getAllTreatments, createTreatment, deleteTreatment, updateTreatment, updateTreatmentsSortOrder } from "@/db";
+import {
+  getAllTreatments,
+  createTreatment,
+  deleteTreatment,
+  updateTreatment,
+  updateTreatmentsSortOrder,
+} from "@/db";
 import type { Treatment } from "@/types";
 
 vi.mock("@/db", () => ({
@@ -88,9 +94,19 @@ describe("useTreatments", () => {
     useTreatmentsStore.setState({ treatments: [treatment] });
     const { result } = renderHook(() => useTreatments());
     await act(async () => {
-      await result.current.editTreatment("1", { label: "Sertraline 50mg", reminderTime: "09:00", reminderEnabled: true, reminderDay: null });
+      await result.current.editTreatment("1", {
+        label: "Sertraline 50mg",
+        reminderTime: "09:00",
+        reminderEnabled: true,
+        reminderDay: null,
+      });
     });
-    expect(updateTreatment).toHaveBeenCalledWith("1", { label: "Sertraline 50mg", reminderTime: "09:00", reminderEnabled: true, reminderDay: null });
+    expect(updateTreatment).toHaveBeenCalledWith("1", {
+      label: "Sertraline 50mg",
+      reminderTime: "09:00",
+      reminderEnabled: true,
+      reminderDay: null,
+    });
     expect(result.current.treatments[0]!.label).toBe("Sertraline 50mg");
     expect(result.current.treatments[0]!.reminderTime).toBe("09:00");
   });

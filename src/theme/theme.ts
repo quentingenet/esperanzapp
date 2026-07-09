@@ -1,4 +1,5 @@
 import { createTheme } from "@mui/material/styles";
+import { COLORS } from "./tokens";
 
 export const theme = createTheme({
   palette: {
@@ -64,7 +65,7 @@ export const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          border: "0.5px solid #c5ddf0",
+          border: `0.5px solid ${COLORS.cardBorder}`,
           boxShadow: "none",
         },
       },

@@ -10,6 +10,7 @@ import { EmptyState, GradeBadge, PageHeader } from "@/components/shared";
 import { HabitMilestoneTab } from "@/components/habits";
 import { useHabits, useHabitLogs } from "@/hooks";
 import { useOnboardingStore } from "@/store";
+import { COLORS } from "@/theme/tokens";
 import { logError } from "@/utils/logger";
 import { getGrade } from "@/utils/grades";
 import type { HabitStats } from "@/types";
@@ -23,21 +24,31 @@ export function Milestones() {
   const userName = useOnboardingStore((s) => s.userName);
   const [statsMap, setStatsMap] = useState<Partial<Record<string, HabitStats>>>({});
 
-  useEffect(() => { void loadHabits(); }, [loadHabits]);
+  useEffect(() => {
+    void loadHabits();
+  }, [loadHabits]);
 
   useEffect(() => {
     const guard = { cancelled: false };
-    void getStatsBatch(habits.map((h) => h.id)).then((map) => {
-      if (!guard.cancelled) setStatsMap(map);
-    }).catch((e: unknown) => { logError("Milestones.getStatsBatch", e); });
-    return () => { guard.cancelled = true; };
+    void getStatsBatch(habits.map((h) => h.id))
+      .then((map) => {
+        if (!guard.cancelled) setStatsMap(map);
+      })
+      .catch((e: unknown) => {
+        logError("Milestones.getStatsBatch", e);
+      });
+    return () => {
+      guard.cancelled = true;
+    };
   }, [habits, getStatsBatch]);
 
   return (
     <Box sx={{ pb: "calc(96px + max(env(safe-area-inset-bottom), 28px))" }}>
       <PageHeader title={t("milestones.title")} />
       <Box sx={{ px: 2, pt: 1, display: "flex", flexDirection: "column", gap: 1.5 }}>
-        {habits.length === 0 && !habitsLoading && <EmptyState emoji="🏆" message={t("milestones.noHabits")} />}
+        {habits.length === 0 && !habitsLoading && (
+          <EmptyState emoji="🏆" message={t("milestones.noHabits")} />
+        )}
         {habits.map((habit, index) => {
           const stats = statsMap[habit.id];
           const grade = getGrade(stats?.currentStreak ?? 0);
@@ -48,7 +59,7 @@ export function Milestones() {
               elevation={0}
               disableGutters
               sx={{
-                border: "0.5px solid #c5ddf0",
+                border: `0.5px solid ${COLORS.cardBorder}`,
                 borderRadius: "16px",
                 "&.MuiAccordion-root": { borderRadius: "16px" },
                 "&:before": { display: "none" },
@@ -63,11 +74,27 @@ export function Milestones() {
                 }
                 sx={{ minHeight: 56, px: 2 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flex: 1, minWidth: 0, pr: 1 }}>
-                  <SvgIcon aria-hidden="true" sx={{ width: 20, height: 20, color: habit.color, flexShrink: 0 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                    flex: 1,
+                    minWidth: 0,
+                    pr: 1,
+                  }}
+                >
+                  <SvgIcon
+                    aria-hidden="true"
+                    sx={{ width: 20, height: 20, color: habit.color, flexShrink: 0 }}
+                  >
                     <path d={habit.icon} />
                   </SvgIcon>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600, flex: 1, minWidth: 0 }} noWrap>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontWeight: 600, flex: 1, minWidth: 0 }}
+                    noWrap
+                  >
                     {habit.label}
                   </Typography>
                   <GradeBadge grade={grade} size="sm" />

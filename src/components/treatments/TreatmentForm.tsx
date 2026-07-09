@@ -54,10 +54,15 @@ export function TreatmentForm({ onSubmit }: TreatmentFormProps) {
         if (!time) return;
         if (frequency !== "daily" && reminderDay === null) return;
         if (Capacitor.isNativePlatform()) {
-          const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
+          const { display } = await LocalNotifications.checkPermissions().catch(() => ({
+            display: "denied" as const,
+          }));
           if (display === "prompt") {
             const granted = await requestPermission();
-            if (!granted) { effectiveReminderEnabled = false; toast.info(t("treatments.form.permissionDenied")); }
+            if (!granted) {
+              effectiveReminderEnabled = false;
+              toast.info(t("treatments.form.permissionDenied"));
+            }
           } else if (display === "denied") {
             effectiveReminderEnabled = false;
             toast.info(t("treatments.form.permissionDenied"));
@@ -88,60 +93,127 @@ export function TreatmentForm({ onSubmit }: TreatmentFormProps) {
     <>
       <Fab
         color="primary"
-        onClick={() => { setOpen(true); }}
+        onClick={() => {
+          setOpen(true);
+        }}
         aria-label={t("treatments.add")}
-        sx={{ position: "fixed", bottom: "calc(80px + max(env(safe-area-inset-bottom), 28px))", right: 16, width: 56, height: 56 }}
+        sx={{
+          position: "fixed",
+          bottom: "calc(80px + max(env(safe-area-inset-bottom), 28px))",
+          right: 16,
+          width: 56,
+          height: 56,
+        }}
       >
-        <SvgIcon aria-hidden="true"><path d={ADD_PATH} /></SvgIcon>
+        <SvgIcon aria-hidden="true">
+          <path d={ADD_PATH} />
+        </SvgIcon>
       </Fab>
-      <Drawer anchor="bottom" open={open} onClose={() => { setOpen(false); }} slotProps={{ paper: { sx: { borderRadius: "16px 16px 0 0", maxHeight: "80dvh" } } }}>
+      <Drawer
+        anchor="bottom"
+        open={open}
+        onClose={() => {
+          setOpen(false);
+        }}
+        slotProps={{ paper: { sx: { borderRadius: "16px 16px 0 0", maxHeight: "80dvh" } } }}
+      >
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={dateLocale}>
           <Box sx={{ px: 2, pt: 2, pb: "calc(24px + env(safe-area-inset-bottom))" }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t("treatments.add")}</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              {t("treatments.add")}
+            </Typography>
             <TextField
-              fullWidth label={t("treatments.form.name")} value={label}
-              onChange={(e) => { setLabel(e.target.value); }}
-              placeholder={t("treatments.form.namePlaceholder")} sx={{ mb: 2 }}
+              fullWidth
+              label={t("treatments.form.name")}
+              value={label}
+              onChange={(e) => {
+                setLabel(e.target.value);
+              }}
+              placeholder={t("treatments.form.namePlaceholder")}
+              sx={{ mb: 2 }}
             />
-            <Select fullWidth value={frequency} onChange={(e) => { handleFrequencyChange(e.target.value); }} sx={{ mb: 2 }}>
+            <Select
+              fullWidth
+              value={frequency}
+              onChange={(e) => {
+                handleFrequencyChange(e.target.value);
+              }}
+              sx={{ mb: 2 }}
+            >
               {FREQUENCIES.map((f) => (
-                <MenuItem key={f} value={f}>{t(`treatments.form.frequencies.${f}`)}</MenuItem>
+                <MenuItem key={f} value={f}>
+                  {t(`treatments.form.frequencies.${f}`)}
+                </MenuItem>
               ))}
             </Select>
             <FormControlLabel
-              control={<Switch checked={reminderEnabled} onChange={(e) => { setReminderEnabled(e.target.checked); }} />}
+              control={
+                <Switch
+                  checked={reminderEnabled}
+                  onChange={(e) => {
+                    setReminderEnabled(e.target.checked);
+                  }}
+                />
+              }
               label={t("treatments.form.enableReminder")}
               sx={{ mb: 1 }}
             />
             {reminderEnabled && (
-              <TimePicker value={time} onChange={setTime} label={t("treatments.form.reminderTime")} sx={{ width: "100%", mb: 2 }} />
+              <TimePicker
+                value={time}
+                onChange={setTime}
+                label={t("treatments.form.reminderTime")}
+                sx={{ width: "100%", mb: 2 }}
+              />
             )}
             {showDaySelect && (
               <Select
                 fullWidth
                 value={reminderDay ?? ""}
-                onChange={(e) => { setReminderDay(e.target.value); }}
+                onChange={(e) => {
+                  setReminderDay(e.target.value);
+                }}
                 sx={{ mb: 2 }}
                 displayEmpty
-                MenuProps={{ slotProps: { paper: { sx: { maxHeight: "50vh", pb: "env(safe-area-inset-bottom)" } } } }}
+                MenuProps={{
+                  slotProps: {
+                    paper: { sx: { maxHeight: "50vh", pb: "env(safe-area-inset-bottom)" } },
+                  },
+                }}
               >
-                <MenuItem value="" disabled>{t("treatments.form.reminderDay")}</MenuItem>
+                <MenuItem value="" disabled>
+                  {t("treatments.form.reminderDay")}
+                </MenuItem>
                 {frequency === "weekly"
-                  ? WEEK_DAYS.map((d) => <MenuItem key={d} value={d}>{weekDayLabel(d, dateLocale)}</MenuItem>)
-                  : MONTH_DAYS.map((d) => (
-                      <MenuItem key={d.key} value={d.value}>
-                        {d.key === "firstDay" ? t("treatments.form.firstDay")
-                          : d.key === "lastDay" ? t("treatments.form.lastDay")
-                          : t("treatments.form.dayOfMonth", { day: d.value })}
+                  ? WEEK_DAYS.map((d) => (
+                      <MenuItem key={d} value={d}>
+                        {weekDayLabel(d, dateLocale)}
                       </MenuItem>
                     ))
-                }
+                  : MONTH_DAYS.map((d) => (
+                      <MenuItem key={d.key} value={d.value}>
+                        {d.key === "firstDay"
+                          ? t("treatments.form.firstDay")
+                          : d.key === "lastDay"
+                            ? t("treatments.form.lastDay")
+                            : t("treatments.form.dayOfMonth", { day: d.value })}
+                      </MenuItem>
+                    ))}
               </Select>
             )}
             <Button
-              fullWidth variant="contained" onClick={() => { void handleSubmit(); }}
-              disabled={isSaving || !label.trim() || (reminderEnabled && (!time || (frequency !== "daily" && reminderDay === null)))}
-              aria-label={t("common.save")} sx={{ minHeight: 48, borderRadius: 2 }}
+              fullWidth
+              variant="contained"
+              onClick={() => {
+                void handleSubmit();
+              }}
+              disabled={
+                isSaving ||
+                !label.trim() ||
+                (reminderEnabled && (!time || (frequency !== "daily" && reminderDay === null)))
+              }
+              aria-label={t("common.save")}
+              sx={{ minHeight: 48, borderRadius: 2 }}
             >
               {t("common.save")}
             </Button>

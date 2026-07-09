@@ -22,12 +22,24 @@ function TypeItem({ config, selected, onSelect }: TypeItemProps) {
   return (
     <ListItemButton
       selected={selected}
-      onClick={() => { onSelect(config.id); }}
+      onClick={() => {
+        onSelect(config.id);
+      }}
       aria-label={t(`habitTypes.${config.id}.label`)}
       sx={{ borderRadius: 2, mb: 0.5, minHeight: 56 }}
     >
       <Box
-        sx={{ width: 36, height: 36, borderRadius: 1.5, bgcolor: config.bgColor, display: "flex", alignItems: "center", justifyContent: "center", mr: 1.5, flexShrink: 0 }}
+        sx={{
+          width: 36,
+          height: 36,
+          borderRadius: 1.5,
+          bgcolor: config.bgColor,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mr: 1.5,
+          flexShrink: 0,
+        }}
       >
         <SvgIcon aria-hidden="true" sx={{ width: 20, height: 20, color: config.color }}>
           <path d={config.svgPath} />
@@ -51,23 +63,34 @@ const SUBSTANCES = HABIT_TYPES.filter((h) => h.group === "substances");
 const BEHAVIOURS = HABIT_TYPES.filter((h) => h.group === "behaviours");
 const CUSTOM_CONFIG = HABIT_TYPES.find((h) => h.id === "custom");
 
-export function HabitDropdown({ selectedId, customLabel, onSelect, onCustomChange }: HabitDropdownProps) {
+export function HabitDropdown({
+  selectedId,
+  customLabel,
+  onSelect,
+  onCustomChange,
+}: HabitDropdownProps) {
   const { t } = useTranslation();
   return (
     <Box>
       <Typography variant="overline" color="text.secondary" sx={{ px: 1 }}>
         {t("habitTypes.groups.custom")}
       </Typography>
-      {CUSTOM_CONFIG && <TypeItem config={CUSTOM_CONFIG} selected={selectedId === "custom"} onSelect={onSelect} />}
+      {CUSTOM_CONFIG && (
+        <TypeItem config={CUSTOM_CONFIG} selected={selectedId === "custom"} onSelect={onSelect} />
+      )}
       {selectedId === "custom" && (
         <Box sx={{ px: 1, mt: 1, mb: 1 }}>
           <TextField
             fullWidth
             autoFocus
             value={customLabel}
-            onChange={(e) => { onCustomChange(e.target.value); }}
+            onChange={(e) => {
+              onCustomChange(e.target.value);
+            }}
             placeholder={t("habits.form.namePlaceholder")}
-            slotProps={{ htmlInput: { "aria-label": t("habitTypes.groups.custom"), maxLength: 60 } }}
+            slotProps={{
+              htmlInput: { "aria-label": t("habitTypes.groups.custom"), maxLength: 60 },
+            }}
           />
         </Box>
       )}

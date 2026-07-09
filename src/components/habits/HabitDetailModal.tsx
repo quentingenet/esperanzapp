@@ -12,7 +12,9 @@ import { useTranslation } from "react-i18next";
 import { RelapseDialog } from "./RelapseDialog";
 import { HabitMilestoneTab } from "./HabitMilestoneTab";
 import { HabitHistoryTab } from "./HabitHistoryTab";
-const HabitStatsTab = lazy(() => import("./HabitStatsTab").then((m) => ({ default: m.HabitStatsTab })));
+const HabitStatsTab = lazy(() =>
+  import("./HabitStatsTab").then((m) => ({ default: m.HabitStatsTab })),
+);
 import { useHabitLogs } from "@/hooks";
 import { logError } from "@/utils/logger";
 import { mergeRelapseRestart } from "@/utils/habitLogUtils";
@@ -30,7 +32,13 @@ interface HabitDetailModalProps {
   onRelapse: (date: string) => void;
 }
 
-export function HabitDetailModal({ habit, stats, userName, onClose, onRelapse }: HabitDetailModalProps) {
+export function HabitDetailModal({
+  habit,
+  stats,
+  userName,
+  onClose,
+  onRelapse,
+}: HabitDetailModalProps) {
   const { t } = useTranslation();
   const [tab, setTab] = useState(0);
   const [relapseOpen, setRelapseOpen] = useState(false);
@@ -39,10 +47,16 @@ export function HabitDetailModal({ habit, stats, userName, onClose, onRelapse }:
 
   useEffect(() => {
     const guard = { cancelled: false };
-    void getLogsByHabit(habit.id).then((logs) => {
-      if (!guard.cancelled) setRawLogs(logs);
-    }).catch((e: unknown) => { logError("HabitDetailModal.getLogsByHabit", e); });
-    return () => { guard.cancelled = true; };
+    void getLogsByHabit(habit.id)
+      .then((logs) => {
+        if (!guard.cancelled) setRawLogs(logs);
+      })
+      .catch((e: unknown) => {
+        logError("HabitDetailModal.getLogsByHabit", e);
+      });
+    return () => {
+      guard.cancelled = true;
+    };
   }, [habit.id, getLogsByHabit]);
 
   const sorted = [...rawLogs].sort((a, b) => b.eventDate.localeCompare(a.eventDate));
@@ -50,12 +64,35 @@ export function HabitDetailModal({ habit, stats, userName, onClose, onRelapse }:
 
   return (
     <>
-      <Dialog open fullWidth maxWidth="sm" onClose={onClose} slotProps={{ paper: { sx: { borderRadius: 3, m: 2, height: "80dvh", maxHeight: "80dvh", display: "flex", flexDirection: "column" } } }}>
+      <Dialog
+        open
+        fullWidth
+        maxWidth="sm"
+        onClose={onClose}
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 3,
+              m: 2,
+              height: "80dvh",
+              maxHeight: "80dvh",
+              display: "flex",
+              flexDirection: "column",
+            },
+          },
+        }}
+      >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, px: 2, pt: 2, pb: 1 }}>
-          <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: habit.color, flexShrink: 0 }} />
-          <Typography variant="h6" sx={{ fontWeight: 700, flex: 1 }}>{habit.label}</Typography>
+          <Box
+            sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: habit.color, flexShrink: 0 }}
+          />
+          <Typography variant="h6" sx={{ fontWeight: 700, flex: 1 }}>
+            {habit.label}
+          </Typography>
           <IconButton onClick={onClose} size="small" aria-label={t("common.close")}>
-            <SvgIcon fontSize="small"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></SvgIcon>
+            <SvgIcon fontSize="small">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+            </SvgIcon>
           </IconButton>
         </Box>
 
@@ -65,14 +102,23 @@ export function HabitDetailModal({ habit, stats, userName, onClose, onRelapse }:
             color="error"
             size="small"
             fullWidth
-            onClick={() => { setRelapseOpen(true); }}
+            onClick={() => {
+              setRelapseOpen(true);
+            }}
             sx={{ borderRadius: 2, minHeight: 40 }}
           >
             {t("habitDetail.relapse")}
           </Button>
         </Box>
 
-        <Tabs value={tab} onChange={(_, v: number) => { setTab(v); }} variant="fullWidth" sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Tabs
+          value={tab}
+          onChange={(_, v: number) => {
+            setTab(v);
+          }}
+          variant="fullWidth"
+          sx={{ borderBottom: 1, borderColor: "divider" }}
+        >
           <Tab label={t("habitDetail.milestones")} sx={{ fontSize: "0.82rem" }} />
           <Tab label={t("habitDetail.history")} sx={{ fontSize: "0.82rem" }} />
           <Tab label={t("habitDetail.stats")} sx={{ fontSize: "0.82rem" }} />
@@ -94,8 +140,13 @@ export function HabitDetailModal({ habit, stats, userName, onClose, onRelapse }:
         habit={habit}
         stats={stats}
         userName={userName}
-        onConfirm={(date) => { setRelapseOpen(false); onRelapse(date); }}
-        onCancel={() => { setRelapseOpen(false); }}
+        onConfirm={(date) => {
+          setRelapseOpen(false);
+          onRelapse(date);
+        }}
+        onCancel={() => {
+          setRelapseOpen(false);
+        }}
       />
     </>
   );

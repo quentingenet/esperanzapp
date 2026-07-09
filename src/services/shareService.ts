@@ -36,7 +36,11 @@ export function downloadBlobWeb(content: string, filename: string, mime: string)
   URL.revokeObjectURL(url);
 }
 
-export async function shareFile(filename: string, content: string, mime: string): Promise<ShareOutcome> {
+export async function shareFile(
+  filename: string,
+  content: string,
+  mime: string,
+): Promise<ShareOutcome> {
   if (!Capacitor.isNativePlatform()) {
     downloadBlobWeb(content, filename, mime);
     return "ok";
@@ -62,7 +66,11 @@ export async function shareFile(filename: string, content: string, mime: string)
   }
 }
 
-export async function saveToFolder(filename: string, content: string, mime: string): Promise<SaveOutcome> {
+export async function saveToFolder(
+  filename: string,
+  content: string,
+  mime: string,
+): Promise<SaveOutcome> {
   if (!Capacitor.isNativePlatform()) {
     downloadBlobWeb(content, filename, mime);
     return "ok";

@@ -1,4 +1,5 @@
 import {
+  CorruptFileError,
   ImportStorageError,
   InconsistentImportDataError,
   InvalidImportFileError,
@@ -16,6 +17,7 @@ export type ImportErrorTranslationKey =
 
 export function getImportErrorTranslationKey(error: unknown): ImportErrorTranslationKey {
   if (error instanceof WrongPasswordError) return "export.encryptedImportError";
+  if (error instanceof CorruptFileError) return "export.importInvalidFile";
   if (error instanceof UnsupportedImportVersionError) return "export.importUnsupportedVersion";
   if (error instanceof InconsistentImportDataError) return "export.importInconsistentData";
   if (error instanceof InvalidImportFileError) return "export.importInvalidFile";

@@ -40,7 +40,9 @@ describe("runInTransaction", () => {
 
       const tx1 = runInTransaction(async () => {
         order.push("tx1");
-        await new Promise<void>((r) => { release = r; });
+        await new Promise<void>((r) => {
+          release = r;
+        });
         order.push("tx1-done");
       });
 
@@ -82,7 +84,9 @@ describe("runInTransaction", () => {
     it("wraps fn in a transaction (BEGIN / COMMIT visible to fn runs in order)", async () => {
       const { runInTransaction } = await import("./client");
       const order: string[] = [];
-      await runInTransaction(async () => { order.push("body"); });
+      await runInTransaction(async () => {
+        order.push("body");
+      });
       expect(order).toEqual(["body"]);
       expect(sqliteTestDb.beginTransaction).toHaveBeenCalledTimes(1);
       expect(sqliteTestDb.commitTransaction).toHaveBeenCalledTimes(1);
@@ -111,7 +115,9 @@ describe("runInTransaction", () => {
     it("passes captured db connection to callback", async () => {
       const { runInTransaction } = await import("./client");
       let receivedDb: unknown = undefined;
-      await runInTransaction(async (db) => { receivedDb = db; });
+      await runInTransaction(async (db) => {
+        receivedDb = db;
+      });
       expect(receivedDb).not.toBeNull();
       expect(receivedDb).not.toBeUndefined();
     });

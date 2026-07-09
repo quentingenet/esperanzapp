@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -9,7 +9,7 @@ import Typography from "@mui/material/Typography";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { format } from "date-fns";
+import { format, startOfDay } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { HabitDropdown } from "./HabitDropdown";
 import { useDateLocale } from "@/hooks";
@@ -24,7 +24,20 @@ export function HabitForm({ onSubmit, existingHabits }: HabitFormProps) {
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<HabitTypeId | null>(null);
   const [customLabel, setCustomLabel] = useState("");
-  const [startDate, setStartDate] = useState<Date | null>(new Date());
+  const [today, setToday] = useState<Date>(() => startOfDay(new Date()));
+  const [startDate, setStartDate] = useState<Date | null>(() => startOfDay(new Date()));
+
+  useEffect(() => {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const ms = tomorrow.getTime() - now.getTime() + 500;
+    const timer = setTimeout(() => {
+      const newToday = startOfDay(new Date());
+      setStartDate((d) => (d && startOfDay(d).getTime() === today.getTime() ? newToday : d));
+      setToday(newToday);
+    }, ms);
+    return () => clearTimeout(timer);
+  }, [today]);
 
   const config = selectedId != null ? getHabitTypeConfig(selectedId) : undefined;
 
@@ -36,7 +49,8 @@ export function HabitForm({ onSubmit, existingHabits }: HabitFormProps) {
 
   const handleSubmit = () => {
     if (!config || !startDate || selectedId === null || isDuplicate) return;
-    const label = selectedId === "custom" ? customLabel.trim() : t(`habitTypes.${selectedId}.label`);
+    const label =
+      selectedId === "custom" ? customLabel.trim() : t(`habitTypes.${selectedId}.label`);
     if (!label) return;
     onSubmit({
       label,
@@ -47,7 +61,7 @@ export function HabitForm({ onSubmit, existingHabits }: HabitFormProps) {
     });
     setSelectedId(null);
     setCustomLabel("");
-    setStartDate(new Date());
+    setStartDate(today);
     setOpen(false);
   };
 
@@ -61,16 +75,28 @@ export function HabitForm({ onSubmit, existingHabits }: HabitFormProps) {
     <>
       <Fab
         color="primary"
-        onClick={() => { setOpen(true); }}
+        onClick={() => {
+          setOpen(true);
+        }}
         aria-label={t("habits.add")}
-        sx={{ position: "fixed", bottom: "calc(80px + max(env(safe-area-inset-bottom), 28px))", right: 16, width: 56, height: 56 }}
+        sx={{
+          position: "fixed",
+          bottom: "calc(80px + max(env(safe-area-inset-bottom), 28px))",
+          right: 16,
+          width: 56,
+          height: 56,
+        }}
       >
-        <SvgIcon aria-hidden="true"><path d={ADD_PATH} /></SvgIcon>
+        <SvgIcon aria-hidden="true">
+          <path d={ADD_PATH} />
+        </SvgIcon>
       </Fab>
       <Drawer
         anchor="bottom"
         open={open}
-        onClose={() => { setOpen(false); }}
+        onClose={() => {
+          setOpen(false);
+        }}
         slotProps={{ paper: { sx: { borderRadius: "16px 16px 0 0", maxHeight: "90dvh" } } }}
       >
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={dateLocale}>
@@ -96,8 +122,10 @@ export function HabitForm({ onSubmit, existingHabits }: HabitFormProps) {
                 value={startDate}
                 onChange={setStartDate}
                 label={t("habits.form.startDate")}
-                maxDate={new Date()}
-                slotProps={{ textField: { fullWidth: true, "aria-label": t("habits.form.startDate") } }}
+                maxDate={today}
+                slotProps={{
+                  textField: { fullWidth: true, "aria-label": t("habits.form.startDate") },
+                }}
               />
             </Box>
             <Button

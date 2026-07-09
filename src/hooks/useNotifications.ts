@@ -23,9 +23,10 @@ export function getNotificationId(domain: NotifDomain, id: string): number {
   const numericId = parseInt(id, 10);
   // Cap at 499_999 so base IDs stay in [offset+1, offset+499_999].
   // The upper half [offset+500_000, offset+999_999] is reserved for last-day one-shots.
-  const slot = Number.isInteger(numericId) && numericId > 0 && numericId <= 499_999 && String(numericId) === id
-    ? numericId
-    : (stableHash31(id) % 499_999) + 1;
+  const slot =
+    Number.isInteger(numericId) && numericId > 0 && numericId <= 499_999 && String(numericId) === id
+      ? numericId
+      : (stableHash31(id) % 499_999) + 1;
   return offset + slot;
 }
 
@@ -54,19 +55,31 @@ function jsWeekdayToCapacitor(jsDay: number): Weekday {
   return JS_TO_CAPACITOR_WEEKDAY[jsDay] ?? Weekday.Monday;
 }
 
-
 export function useNotifications() {
   const requestPermission = useCallback(async (): Promise<boolean> => {
     if (!Capacitor.isNativePlatform()) return false;
-    const { display } = await LocalNotifications.requestPermissions().catch(() => ({ display: "denied" as const }));
+    const { display } = await LocalNotifications.requestPermissions().catch(() => ({
+      display: "denied" as const,
+    }));
     return display === "granted";
   }, []);
 
   const scheduleReminder = useCallback(
-    async (treatment: Treatment): Promise<"scheduled" | "permission-denied" | "disabled" | "exact-alarm-denied" | "schedule-failed" | "unverified"> => {
+    async (
+      treatment: Treatment,
+    ): Promise<
+      | "scheduled"
+      | "permission-denied"
+      | "disabled"
+      | "exact-alarm-denied"
+      | "schedule-failed"
+      | "unverified"
+    > => {
       if (!Capacitor.isNativePlatform()) return "disabled";
       if (!treatment.reminderEnabled) return "disabled";
-      const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
+      const { display } = await LocalNotifications.checkPermissions().catch(() => ({
+        display: "denied" as const,
+      }));
       if (display !== "granted") return "permission-denied";
 
       const [h, m] = treatment.reminderTime.split(":").map(Number) as [number, number];
@@ -85,24 +98,28 @@ export function useNotifications() {
 
         if (treatment.frequency === "daily") {
           await LocalNotifications.schedule({
-            notifications: [{
-              id: baseId,
-              title: "EsperanzApp",
-              body: i18n.t("notifications.genericReminder"),
-              schedule: { on: { hour: h, minute: m }, allowWhileIdle: true },
-            }],
+            notifications: [
+              {
+                id: baseId,
+                title: "EsperanzApp",
+                body: i18n.t("notifications.genericReminder"),
+                schedule: { on: { hour: h, minute: m }, allowWhileIdle: true },
+              },
+            ],
           });
           idsToVerify = [baseId];
         } else if (treatment.frequency === "weekly") {
           if (treatment.reminderDay === null) return "schedule-failed";
           const weekday = jsWeekdayToCapacitor(treatment.reminderDay);
           await LocalNotifications.schedule({
-            notifications: [{
-              id: baseId,
-              title: "EsperanzApp",
-              body: i18n.t("notifications.genericReminder"),
-              schedule: { on: { weekday, hour: h, minute: m }, allowWhileIdle: true },
-            }],
+            notifications: [
+              {
+                id: baseId,
+                title: "EsperanzApp",
+                body: i18n.t("notifications.genericReminder"),
+                schedule: { on: { weekday, hour: h, minute: m }, allowWhileIdle: true },
+              },
+            ],
           });
           idsToVerify = [baseId];
         } else if (treatment.reminderDay === 0) {
@@ -114,7 +131,15 @@ export function useNotifications() {
           while (startOffset < 12) {
             const candidate = addMonths(now, startOffset);
             const lastDayNum = getDaysInMonth(candidate);
-            const target = new Date(candidate.getFullYear(), candidate.getMonth(), lastDayNum, h, m, 0, 0);
+            const target = new Date(
+              candidate.getFullYear(),
+              candidate.getMonth(),
+              lastDayNum,
+              h,
+              m,
+              0,
+              0,
+            );
             if (target > now) break;
             startOffset++;
           }
@@ -137,12 +162,14 @@ export function useNotifications() {
           if (treatment.reminderDay === null) return "schedule-failed";
           const day = treatment.reminderDay;
           await LocalNotifications.schedule({
-            notifications: [{
-              id: baseId,
-              title: "EsperanzApp",
-              body: i18n.t("notifications.genericReminder"),
-              schedule: { on: { day, hour: h, minute: m }, allowWhileIdle: true },
-            }],
+            notifications: [
+              {
+                id: baseId,
+                title: "EsperanzApp",
+                body: i18n.t("notifications.genericReminder"),
+                schedule: { on: { day, hour: h, minute: m }, allowWhileIdle: true },
+              },
+            ],
           });
           idsToVerify = [baseId];
         }
@@ -157,7 +184,9 @@ export function useNotifications() {
         }
         if (!idsToVerify.every((id) => pending.notifications.some((n) => n.id === id))) {
           if (Capacitor.getPlatform() === "android") {
-            const { value: canExact } = await ExactAlarm.canScheduleExactAlarms().catch(() => ({ value: true }));
+            const { value: canExact } = await ExactAlarm.canScheduleExactAlarms().catch(() => ({
+              value: true,
+            }));
             if (!canExact) return "exact-alarm-denied";
           }
           return "schedule-failed";
@@ -187,7 +216,9 @@ export function useNotifications() {
       // Each scheduleReminder pre-cancels its own IDs before scheduling, so frequency changes are safe.
       const results = await Promise.allSettled(treatments.map((t) => scheduleReminder(t)));
       const anyFailed = results.some(
-        (r) => r.status === "fulfilled" && (r.value === "exact-alarm-denied" || r.value === "schedule-failed"),
+        (r) =>
+          r.status === "fulfilled" &&
+          (r.value === "exact-alarm-denied" || r.value === "schedule-failed"),
       );
 
       // Compute the IDs that are legitimately expected to be pending after scheduling.
@@ -204,10 +235,15 @@ export function useNotifications() {
       // Cancel any treatment-domain IDs that are no longer expected (deleted/disabled treatments).
       const pending = await LocalNotifications.getPending().catch(() => ({ notifications: [] }));
       const orphans = pending.notifications.filter(
-        (n) => n.id >= NOTIF_DOMAIN_OFFSET.treatments && n.id < NOTIF_DOMAIN_OFFSET.milestones && !expectedIds.has(n.id),
+        (n) =>
+          n.id >= NOTIF_DOMAIN_OFFSET.treatments &&
+          n.id < NOTIF_DOMAIN_OFFSET.milestones &&
+          !expectedIds.has(n.id),
       );
       if (orphans.length > 0) {
-        await LocalNotifications.cancel({ notifications: orphans.map((n) => ({ id: n.id })) }).catch(() => {});
+        await LocalNotifications.cancel({
+          notifications: orphans.map((n) => ({ id: n.id })),
+        }).catch(() => {});
       }
 
       return anyFailed;
@@ -218,7 +254,9 @@ export function useNotifications() {
   // Returns null on web (not applicable), true/false on native.
   const getPermissionStatus = useCallback(async (): Promise<boolean | null> => {
     if (!Capacitor.isNativePlatform()) return null;
-    const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
+    const { display } = await LocalNotifications.checkPermissions().catch(() => ({
+      display: "denied" as const,
+    }));
     return display === "granted";
   }, []);
 
@@ -233,5 +271,13 @@ export function useNotifications() {
     await ExactAlarm.requestExactAlarmPermission().catch(() => {});
   }, []);
 
-  return { requestPermission, scheduleReminder, cancelReminder, rescheduleAll, getPermissionStatus, getExactAlarmStatus, openExactAlarmSettings };
+  return {
+    requestPermission,
+    scheduleReminder,
+    cancelReminder,
+    rescheduleAll,
+    getPermissionStatus,
+    getExactAlarmStatus,
+    openExactAlarmSettings,
+  };
 }

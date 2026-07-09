@@ -25,7 +25,9 @@ export function History() {
   const [items, setItems] = useState<HistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
 
-  useEffect(() => { void loadHabits(); }, [loadHabits]);
+  useEffect(() => {
+    void loadHabits();
+  }, [loadHabits]);
 
   useEffect(() => {
     const guard = { cancelled: false };
@@ -48,25 +50,46 @@ export function History() {
       }
     }
     void load();
-    return () => { guard.cancelled = true; };
+    return () => {
+      guard.cancelled = true;
+    };
   }, [habits]);
 
   return (
     <Box sx={{ pb: "calc(96px + max(env(safe-area-inset-bottom), 28px))" }}>
       <PageHeader title={t("history.title")} />
       <Box sx={{ px: 2, pt: 1 }}>
-        {items.length === 0 && !habitsLoading && !historyLoading && <EmptyState emoji="📅" message={t("history.empty")} />}
+        {items.length === 0 && !habitsLoading && !historyLoading && (
+          <EmptyState emoji="📅" message={t("history.empty")} />
+        )}
         {items.map((item, idx) => (
           <Box key={item.id}>
             <Box sx={{ display: "flex", gap: 2, py: 1.5 }}>
               <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", pt: 0.5 }}>
-                <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: EVENT_COLORS[item.eventType], flexShrink: 0 }} />
-                {idx < items.length - 1 && <Box sx={{ width: 2, bgcolor: "divider", flex: 1, mt: 0.5, minHeight: 16 }} />}
+                <Box
+                  sx={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: "50%",
+                    bgcolor: EVENT_COLORS[item.eventType],
+                    flexShrink: 0,
+                  }}
+                />
+                {idx < items.length - 1 && (
+                  <Box sx={{ width: 2, bgcolor: "divider", flex: 1, mt: 0.5, minHeight: 16 }} />
+                )}
               </Box>
               <Box sx={{ pb: 1 }}>
-                <Typography variant="caption" color="text.secondary">{item.eventDate.slice(0, 10)}</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: item.habitColor }}>{item.habitLabel}</Typography>
-                <Typography variant="body2" color={item.eventType === "relapse" ? "error" : "primary"}>
+                <Typography variant="caption" color="text.secondary">
+                  {item.eventDate.slice(0, 10)}
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: item.habitColor }}>
+                  {item.habitLabel}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color={item.eventType === "relapse" ? "error" : "primary"}
+                >
                   {t(item.displayKey ?? `history.${item.eventType}`)}
                 </Typography>
               </Box>

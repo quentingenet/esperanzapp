@@ -1,6 +1,6 @@
 # Privacy Policy for EsperanzApp
 
-*Last updated: July 7, 2026*
+_Last updated: July 7, 2026_
 
 ## 1. Overview
 

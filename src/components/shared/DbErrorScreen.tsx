@@ -21,23 +21,25 @@ export function DbErrorScreen() {
   };
 
   return (
-    <div style={{
-      padding: "32px",
-      fontFamily: "sans-serif",
-      textAlign: "center",
-      maxWidth: "480px",
-      margin: "0 auto",
-      marginTop: "64px",
-    }}>
-      <h2 style={{ color: "#c62828", marginBottom: "16px" }}>
-        {t("startup.dbErrorTitle")}
-      </h2>
+    <div
+      style={{
+        padding: "32px",
+        fontFamily: "sans-serif",
+        textAlign: "center",
+        maxWidth: "480px",
+        margin: "0 auto",
+        marginTop: "64px",
+      }}
+    >
+      <h2 style={{ color: "#c62828", marginBottom: "16px" }}>{t("startup.dbErrorTitle")}</h2>
       <p style={{ color: "#555", lineHeight: 1.6, marginBottom: "32px" }}>
         {resetFailed ? t("startup.dbErrorResetFailed") : t("startup.dbErrorBody")}
       </p>
       {!resetFailed && (
         <button
-          onClick={() => { void handleReset(); }}
+          onClick={() => {
+            void handleReset();
+          }}
           disabled={resetting}
           style={{
             padding: "14px 28px",

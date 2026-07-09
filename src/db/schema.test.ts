@@ -134,12 +134,14 @@ describe("treatments_reminder_day_check migration", () => {
   it("marks the migration as applied after commit", async () => {
     const db = makeDb(false);
     await runSchema(db);
-    const marked = vi.mocked(db.run).mock.calls.some(
-      (c) =>
-        c[0].includes("INSERT OR IGNORE INTO schema_migrations") &&
-        Array.isArray(c[1]) &&
-        c[1].includes("treatments_reminder_day_check"),
-    );
+    const marked = vi
+      .mocked(db.run)
+      .mock.calls.some(
+        (c) =>
+          c[0].includes("INSERT OR IGNORE INTO schema_migrations") &&
+          Array.isArray(c[1]) &&
+          c[1].includes("treatments_reminder_day_check"),
+      );
     expect(marked).toBe(true);
   });
 
@@ -184,7 +186,10 @@ describe("reminder_day sanitization logic", () => {
         ? row.reminder_day
         : 1;
     }
-    if (row.reminder_day === 0 || (row.reminder_day !== null && row.reminder_day >= 1 && row.reminder_day <= 28)) {
+    if (
+      row.reminder_day === 0 ||
+      (row.reminder_day !== null && row.reminder_day >= 1 && row.reminder_day <= 28)
+    ) {
       return row.reminder_day;
     }
     return 1;
@@ -221,7 +226,12 @@ describe("reminder_day sanitization logic", () => {
 });
 
 describe("dedup rule logic", () => {
-  type Row = { id: number; treatment_id: number; scheduled_at: string; status: "taken" | "missed" | "pending" };
+  type Row = {
+    id: number;
+    treatment_id: number;
+    scheduled_at: string;
+    status: "taken" | "missed" | "pending";
+  };
 
   function priority(s: string): number {
     return s === "taken" ? 0 : s === "missed" ? 1 : 2;

@@ -5,7 +5,9 @@ import type { HabitLog } from "@/types";
 // so in practice there is never more than one relapse per (habitId, eventDate). Corrupt imports
 // could produce duplicates; in that case every relapse for that day gets the displayKey (harmless
 // extra entries) and every same-day start is filtered out (history may look incomplete).
-export function mergeRelapseRestart<T extends HabitLog>(logs: T[]): Array<T & { displayKey?: string }> {
+export function mergeRelapseRestart<T extends HabitLog>(
+  logs: T[],
+): Array<T & { displayKey?: string }> {
   const relapseKeys = new Set(
     logs.filter((l) => l.eventType === "relapse").map((l) => `${l.habitId}:${l.eventDate}`),
   );

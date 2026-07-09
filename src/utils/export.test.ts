@@ -21,6 +21,7 @@ import {
   saveCSVToFolder,
   importFromJSON,
   importFromCSV,
+  CorruptFileError,
   ImportStorageError,
   InconsistentImportDataError,
   InvalidImportFileError,
@@ -39,7 +40,11 @@ vi.mock("@/db", () => ({
   getAllTreatments: vi.fn().mockResolvedValue([]),
   getAllTreatmentLogs: vi.fn().mockResolvedValue([]),
   clearAllData: vi.fn().mockResolvedValue(undefined),
-  runInTransaction: vi.fn().mockImplementation(async (fn: (db: typeof mockTransactionDb) => Promise<void>) => fn(mockTransactionDb)),
+  runInTransaction: vi
+    .fn()
+    .mockImplementation(async (fn: (db: typeof mockTransactionDb) => Promise<void>) =>
+      fn(mockTransactionDb),
+    ),
 }));
 
 const mockHabit: Habit = {
@@ -119,13 +124,7 @@ describe("exportTimestamp", () => {
 
 describe("parseExportPayload", () => {
   it("parses valid JSON payload", () => {
-    const payload = buildExportPayload(
-      [mockHabit],
-      [],
-      [],
-      [],
-      "2024-01-01T00:00:00.000Z",
-    );
+    const payload = buildExportPayload([mockHabit], [], [], [], "2024-01-01T00:00:00.000Z");
     const parsed = parseExportPayload(JSON.stringify(payload));
     expect(parsed.version).toBe("1");
     expect(parsed.habits[0]?.label).toBe("Alcohol");
@@ -136,7 +135,14 @@ describe("parseExportPayload", () => {
   });
 
   it("throws on wrong version", () => {
-    const bad = JSON.stringify({ version: "99", exportedAt: "", habits: [], habitLogs: [], treatments: [], treatmentLogs: [] });
+    const bad = JSON.stringify({
+      version: "99",
+      exportedAt: "",
+      habits: [],
+      habitLogs: [],
+      treatments: [],
+      treatmentLogs: [],
+    });
     expect(() => parseExportPayload(bad)).toThrow("Unsupported export version");
   });
 
@@ -155,13 +161,23 @@ describe("parseExportPayload", () => {
   });
 
   it("throws when habits array is missing", () => {
-    const bad = JSON.stringify({ version: "1", exportedAt: "", habitLogs: [], treatments: [], treatmentLogs: [] });
+    const bad = JSON.stringify({
+      version: "1",
+      exportedAt: "",
+      habitLogs: [],
+      treatments: [],
+      treatmentLogs: [],
+    });
     expect(() => parseExportPayload(bad)).toThrow("Unsupported or invalid export format");
   });
 
   it("throws when habit has invalid hex color", () => {
     const bad = JSON.stringify({
-      version: "1", exportedAt: "", habitLogs: [], treatments: [], treatmentLogs: [],
+      version: "1",
+      exportedAt: "",
+      habitLogs: [],
+      treatments: [],
+      treatmentLogs: [],
       habits: [{ ...mockHabit, color: "notahex" }],
     });
     expect(() => parseExportPayload(bad)).toThrow("habits: color must be a hex color");
@@ -169,7 +185,11 @@ describe("parseExportPayload", () => {
 
   it("throws when habit has invalid createdAt", () => {
     const bad = JSON.stringify({
-      version: "1", exportedAt: "", habitLogs: [], treatments: [], treatmentLogs: [],
+      version: "1",
+      exportedAt: "",
+      habitLogs: [],
+      treatments: [],
+      treatmentLogs: [],
       habits: [{ ...mockHabit, createdAt: "not-a-datetime" }],
     });
     expect(() => parseExportPayload(bad)).toThrow("habits: createdAt must be a valid date-time");
@@ -177,7 +197,11 @@ describe("parseExportPayload", () => {
 
   it("throws when habit has non-integer id (uuid)", () => {
     const bad = JSON.stringify({
-      version: "1", exportedAt: "", habitLogs: [], treatments: [], treatmentLogs: [],
+      version: "1",
+      exportedAt: "",
+      habitLogs: [],
+      treatments: [],
+      treatmentLogs: [],
       habits: [{ ...mockHabit, id: "uuid-abc-123" }],
     });
     expect(() => parseExportPayload(bad)).toThrow("habits: id must be a positive integer string");
@@ -185,48 +209,81 @@ describe("parseExportPayload", () => {
 
   it("throws when habitLog has non-integer habitId", () => {
     const bad = JSON.stringify({
-      version: "1", exportedAt: "", habits: [mockHabit], treatments: [], treatmentLogs: [],
+      version: "1",
+      exportedAt: "",
+      habits: [mockHabit],
+      treatments: [],
+      treatmentLogs: [],
       habitLogs: [{ ...mockHabitLog, habitId: "uuid-abc-123" }],
     });
-    expect(() => parseExportPayload(bad)).toThrow("habitLogs: habitId must be a positive integer string");
+    expect(() => parseExportPayload(bad)).toThrow(
+      "habitLogs: habitId must be a positive integer string",
+    );
   });
 
   it("throws when treatmentLog has non-integer treatmentId", () => {
     const bad = JSON.stringify({
-      version: "1", exportedAt: "", habits: [], habitLogs: [],
+      version: "1",
+      exportedAt: "",
+      habits: [],
+      habitLogs: [],
       treatments: [mockTreatment],
       treatmentLogs: [{ ...mockTreatmentLog, treatmentId: "uuid-abc-123" }],
     });
-    expect(() => parseExportPayload(bad)).toThrow("treatmentLogs: treatmentId must be a positive integer string");
+    expect(() => parseExportPayload(bad)).toThrow(
+      "treatmentLogs: treatmentId must be a positive integer string",
+    );
   });
 
   it("throws when daily treatment has non-null reminderDay", () => {
     const bad = JSON.stringify({
-      version: "1", exportedAt: "", habits: [], habitLogs: [], treatmentLogs: [],
+      version: "1",
+      exportedAt: "",
+      habits: [],
+      habitLogs: [],
+      treatmentLogs: [],
       treatments: [{ ...mockTreatment, frequency: "daily", reminderDay: 3 }],
     });
-    expect(() => parseExportPayload(bad)).toThrow("treatments: daily frequency must have null reminderDay");
+    expect(() => parseExportPayload(bad)).toThrow(
+      "treatments: daily frequency must have null reminderDay",
+    );
   });
 
   it("throws when weekly treatment has out-of-range reminderDay", () => {
     const bad = JSON.stringify({
-      version: "1", exportedAt: "", habits: [], habitLogs: [], treatmentLogs: [],
+      version: "1",
+      exportedAt: "",
+      habits: [],
+      habitLogs: [],
+      treatmentLogs: [],
       treatments: [{ ...mockTreatment, frequency: "weekly", reminderDay: 8 }],
     });
-    expect(() => parseExportPayload(bad)).toThrow("treatments: weekly frequency must have reminderDay 0-6");
+    expect(() => parseExportPayload(bad)).toThrow(
+      "treatments: weekly frequency must have reminderDay 0-6",
+    );
   });
 
   it("throws when monthly treatment has out-of-range reminderDay (29)", () => {
     const bad = JSON.stringify({
-      version: "1", exportedAt: "", habits: [], habitLogs: [], treatmentLogs: [],
+      version: "1",
+      exportedAt: "",
+      habits: [],
+      habitLogs: [],
+      treatmentLogs: [],
       treatments: [{ ...mockTreatment, frequency: "monthly", reminderDay: 29 }],
     });
-    expect(() => parseExportPayload(bad)).toThrow("treatments: monthly frequency must have reminderDay 0 or 1-28");
+    expect(() => parseExportPayload(bad)).toThrow(
+      "treatments: monthly frequency must have reminderDay 0 or 1-28",
+    );
   });
 
   it("accepts monthly treatment with reminderDay 0 (last day sentinel)", () => {
     const ok = JSON.stringify({
-      version: "1", exportedAt: "", habits: [], habitLogs: [], treatmentLogs: [],
+      version: "1",
+      exportedAt: "",
+      habits: [],
+      habitLogs: [],
+      treatmentLogs: [],
       treatments: [{ ...mockTreatment, frequency: "monthly", reminderDay: 0 }],
     });
     expect(() => parseExportPayload(ok)).not.toThrow();
@@ -234,38 +291,75 @@ describe("parseExportPayload", () => {
 
   it("accepts monthly treatment with reminderDay 28 (max calendar day)", () => {
     const ok = JSON.stringify({
-      version: "1", exportedAt: "", habits: [], habitLogs: [], treatmentLogs: [],
+      version: "1",
+      exportedAt: "",
+      habits: [],
+      habitLogs: [],
+      treatmentLogs: [],
       treatments: [{ ...mockTreatment, frequency: "monthly", reminderDay: 28 }],
     });
     expect(() => parseExportPayload(ok)).not.toThrow();
   });
 
   it("accepts a valid ISO exportedAt", () => {
-    const ok = JSON.stringify({ version: "1", exportedAt: "2024-06-01T12:00:00.000Z", habits: [], habitLogs: [], treatments: [], treatmentLogs: [] });
+    const ok = JSON.stringify({
+      version: "1",
+      exportedAt: "2024-06-01T12:00:00.000Z",
+      habits: [],
+      habitLogs: [],
+      treatments: [],
+      treatmentLogs: [],
+    });
     expect(() => parseExportPayload(ok)).not.toThrow();
   });
 
   it("accepts an empty string exportedAt (metadata unavailable)", () => {
-    const ok = JSON.stringify({ version: "1", exportedAt: "", habits: [], habitLogs: [], treatments: [], treatmentLogs: [] });
+    const ok = JSON.stringify({
+      version: "1",
+      exportedAt: "",
+      habits: [],
+      habitLogs: [],
+      treatments: [],
+      treatmentLogs: [],
+    });
     const parsed = parseExportPayload(ok);
     expect(parsed.exportedAt).toBeNull();
   });
 
   it("accepts missing exportedAt (treated as null)", () => {
-    const ok = JSON.stringify({ version: "1", habits: [], habitLogs: [], treatments: [], treatmentLogs: [] });
+    const ok = JSON.stringify({
+      version: "1",
+      habits: [],
+      habitLogs: [],
+      treatments: [],
+      treatmentLogs: [],
+    });
     const parsed = parseExportPayload(ok);
     expect(parsed.exportedAt).toBeNull();
   });
 
   it("throws when exportedAt is a non-empty non-ISO string", () => {
-    const bad = JSON.stringify({ version: "1", exportedAt: "not-a-date", habits: [], habitLogs: [], treatments: [], treatmentLogs: [] });
+    const bad = JSON.stringify({
+      version: "1",
+      exportedAt: "not-a-date",
+      habits: [],
+      habitLogs: [],
+      treatments: [],
+      treatmentLogs: [],
+    });
     expect(() => parseExportPayload(bad)).toThrow("exportedAt must be a valid ISO date-time");
   });
 });
 
 describe("payloadToCSV", () => {
   it("includes section headers", () => {
-    const payload = buildExportPayload([mockHabit], [mockHabitLog], [mockTreatment], [mockTreatmentLog], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [mockHabit],
+      [mockHabitLog],
+      [mockTreatment],
+      [mockTreatmentLog],
+      "2024-01-01T00:00:00.000Z",
+    );
     const csv = payloadToCSV(payload);
     expect(csv).toContain("HABITS");
     expect(csv).toContain("HABIT_LOGS");
@@ -274,13 +368,25 @@ describe("payloadToCSV", () => {
   });
 
   it("includes column headers", () => {
-    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [mockHabit],
+      [mockHabitLog],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const csv = payloadToCSV(payload);
     expect(csv).toContain("id,label,icon,color,bgColor,startDate,createdAt");
   });
 
   it("includes habit data", () => {
-    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [mockHabit],
+      [mockHabitLog],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const csv = payloadToCSV(payload);
     expect(csv).toContain("Alcohol");
   });
@@ -326,7 +432,13 @@ describe("parseCSVPayload", () => {
 
   it("round-trips reminderEnabled=false as '0'", () => {
     const treatmentNoReminder: Treatment = { ...mockTreatment, reminderEnabled: false };
-    const payload = buildExportPayload([], [], [treatmentNoReminder], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [],
+      [],
+      [treatmentNoReminder],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const csv = payloadToCSV(payload);
     expect(csv).toContain(",0,");
     const parsed = parseCSVPayload(csv);
@@ -340,7 +452,9 @@ describe("parseCSVPayload", () => {
   });
 
   it("throws on non-empty content with no recognised section headers", () => {
-    expect(() => parseCSVPayload("name,email\njohn,doe")).toThrow("Unsupported or invalid CSV format");
+    expect(() => parseCSVPayload("name,email\njohn,doe")).toThrow(
+      "Unsupported or invalid CSV format",
+    );
   });
 
   it("throws on empty file", () => {
@@ -400,17 +514,23 @@ describe("parseCSVPayload", () => {
 
   it("throws on non-integer habitId in HABIT_LOGS CSV", () => {
     const csv = `${H}\n\nHABIT_LOGS\nid,habitId,eventType,eventDate\n1,uuid-123,start,2024-01-01\n\n${TR}\n\n${TL}`;
-    expect(() => parseCSVPayload(csv)).toThrow("habitLogs: habitId must be a positive integer string");
+    expect(() => parseCSVPayload(csv)).toThrow(
+      "habitLogs: habitId must be a positive integer string",
+    );
   });
 
   it("throws on daily treatment with non-null reminderDay", () => {
     const csv = `${H}\n\n${HL}\n\nTREATMENTS\nid,label,frequency,reminderTime,reminderEnabled,reminderDay,createdAt\n1,Med,daily,08:00,1,3,2024-01-01T00:00:00Z\n\n${TL}`;
-    expect(() => parseCSVPayload(csv)).toThrow("treatments: daily frequency must have null reminderDay");
+    expect(() => parseCSVPayload(csv)).toThrow(
+      "treatments: daily frequency must have null reminderDay",
+    );
   });
 
   it("throws on weekly treatment with out-of-range reminderDay", () => {
     const csv = `${H}\n\n${HL}\n\nTREATMENTS\nid,label,frequency,reminderTime,reminderEnabled,reminderDay,createdAt\n1,Med,weekly,08:00,1,8,2024-01-01T00:00:00Z\n\n${TL}`;
-    expect(() => parseCSVPayload(csv)).toThrow("treatments: weekly frequency must have reminderDay 0-6");
+    expect(() => parseCSVPayload(csv)).toThrow(
+      "treatments: weekly frequency must have reminderDay 0-6",
+    );
   });
 
   it("throws on monthly treatment with out-of-range reminderDay (29)", () => {
@@ -494,7 +614,13 @@ describe("CSV multiline and special character round-trips", () => {
 
   it("full payload export -> import is lossless with multiline habit label", () => {
     const habit = { ...mockHabit, label: "Take\nyour\nmeds" };
-    const original = buildExportPayload([habit], [mockHabitLog], [mockTreatment], [mockTreatmentLog], "2024-01-01T00:00:00.000Z");
+    const original = buildExportPayload(
+      [habit],
+      [mockHabitLog],
+      [mockTreatment],
+      [mockTreatmentLog],
+      "2024-01-01T00:00:00.000Z",
+    );
     const csv = payloadToCSV(original);
     const parsed = parseCSVPayload(csv);
     expect(parsed.habits[0]?.label).toBe("Take\nyour\nmeds");
@@ -517,14 +643,20 @@ describe("exportToJSON", () => {
     const { Filesystem } = await import("@capacitor/filesystem");
     await exportToJSON();
     expect(Filesystem.writeFile).toHaveBeenCalledWith(
-      expect.objectContaining({ path: expect.stringMatching(/^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}\.json$/) }),
+      expect.objectContaining({
+        path: expect.stringMatching(
+          /^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}\.json$/,
+        ),
+      }),
     );
   });
 
   it("writes valid JSON content", async () => {
     const { Filesystem } = await import("@capacitor/filesystem");
     await exportToJSON();
-    const call = (Filesystem.writeFile as ReturnType<typeof vi.fn>).mock.calls[0]![0] as { data: string };
+    const call = (Filesystem.writeFile as ReturnType<typeof vi.fn>).mock.calls[0]![0] as {
+      data: string;
+    };
     const parsed: unknown = JSON.parse(call.data);
     expect(parsed).toHaveProperty("version", "1");
   });
@@ -543,14 +675,20 @@ describe("exportToCSV", () => {
     const { Filesystem } = await import("@capacitor/filesystem");
     await exportToCSV();
     expect(Filesystem.writeFile).toHaveBeenCalledWith(
-      expect.objectContaining({ path: expect.stringMatching(/^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}\.csv$/) }),
+      expect.objectContaining({
+        path: expect.stringMatching(
+          /^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}\.csv$/,
+        ),
+      }),
     );
   });
 
   it("writes content containing HABITS section", async () => {
     const { Filesystem } = await import("@capacitor/filesystem");
     await exportToCSV();
-    const call = (Filesystem.writeFile as ReturnType<typeof vi.fn>).mock.calls[0]![0] as { data: string };
+    const call = (Filesystem.writeFile as ReturnType<typeof vi.fn>).mock.calls[0]![0] as {
+      data: string;
+    };
     expect(call.data).toContain("HABITS");
   });
 });
@@ -569,7 +707,9 @@ describe("saveJSONToFolder", () => {
     await saveJSONToFolder();
     expect(Filesystem.writeFile).toHaveBeenCalledWith(
       expect.objectContaining({
-        path: expect.stringMatching(/^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}\.json$/),
+        path: expect.stringMatching(
+          /^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}\.json$/,
+        ),
         directory: Directory.Documents,
       }),
     );
@@ -596,7 +736,9 @@ describe("saveCSVToFolder", () => {
     await saveCSVToFolder();
     expect(Filesystem.writeFile).toHaveBeenCalledWith(
       expect.objectContaining({
-        path: expect.stringMatching(/^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}\.csv$/),
+        path: expect.stringMatching(
+          /^esperanzapp_export_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}\.csv$/,
+        ),
         directory: Directory.Documents,
       }),
     );
@@ -613,7 +755,13 @@ describe("importFromJSON", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("inserts habits and habit logs with their original IDs", async () => {
-    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [mockHabit],
+      [mockHabitLog],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await importFromJSON(file);
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
@@ -629,7 +777,13 @@ describe("importFromJSON", () => {
   });
 
   it("inserts treatments and treatment logs with their original IDs", async () => {
-    const payload = buildExportPayload([], [], [mockTreatment], [mockTreatmentLog], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [],
+      [],
+      [mockTreatment],
+      [mockTreatmentLog],
+      "2024-01-01T00:00:00.000Z",
+    );
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await importFromJSON(file);
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
@@ -646,26 +800,50 @@ describe("importFromJSON", () => {
 
   it("throws on orphan habitLog referencing unknown habitId", async () => {
     const orphanLog: HabitLog = { ...mockHabitLog, habitId: "999" };
-    const payload = buildExportPayload([mockHabit], [orphanLog], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [mockHabit],
+      [orphanLog],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await expect(importFromJSON(file)).rejects.toBeInstanceOf(InconsistentImportDataError);
   });
 
   it("throws on orphan treatmentLog referencing unknown treatmentId", async () => {
     const orphanLog: TreatmentLog = { ...mockTreatmentLog, treatmentId: "999" };
-    const payload = buildExportPayload([], [], [mockTreatment], [orphanLog], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [],
+      [],
+      [mockTreatment],
+      [orphanLog],
+      "2024-01-01T00:00:00.000Z",
+    );
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await expect(importFromJSON(file)).rejects.toBeInstanceOf(InconsistentImportDataError);
   });
 
   it("throws on duplicate habit IDs in import payload", async () => {
-    const payload = buildExportPayload([mockHabit, { ...mockHabit }], [], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [mockHabit, { ...mockHabit }],
+      [],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await expect(importFromJSON(file)).rejects.toBeInstanceOf(InconsistentImportDataError);
   });
 
   it("throws on duplicate treatment IDs in import payload", async () => {
-    const payload = buildExportPayload([], [], [mockTreatment, { ...mockTreatment }], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [],
+      [],
+      [mockTreatment, { ...mockTreatment }],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await expect(importFromJSON(file)).rejects.toBeInstanceOf(InconsistentImportDataError);
   });
@@ -682,7 +860,13 @@ describe("importFromJSON", () => {
   });
 
   it("throws when JSON version is wrong", async () => {
-    const bad = JSON.stringify({ version: "99", habits: [], habitLogs: [], treatments: [], treatmentLogs: [] });
+    const bad = JSON.stringify({
+      version: "99",
+      habits: [],
+      habitLogs: [],
+      treatments: [],
+      treatmentLogs: [],
+    });
     const file = new File([bad], "export.json", { type: "application/json" });
     await expect(importFromJSON(file)).rejects.toBeInstanceOf(UnsupportedImportVersionError);
   });
@@ -699,7 +883,13 @@ describe("importFromCSV", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("imports habits from CSV", async () => {
-    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [mockHabit],
+      [mockHabitLog],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const csv = payloadToCSV(payload);
     const file = new File([csv], "export.csv", { type: "text/csv" });
     await importFromCSV(file);
@@ -711,7 +901,13 @@ describe("importFromCSV", () => {
   });
 
   it("preserves original habit IDs in habit logs from CSV", async () => {
-    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [mockHabit],
+      [mockHabitLog],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const csv = payloadToCSV(payload);
     const file = new File([csv], "export.csv", { type: "text/csv" });
     await importFromCSV(file);
@@ -738,11 +934,22 @@ describe("import replace mode", () => {
 
   it("calls clearAllData before inserting records", async () => {
     const { clearAllData } = await import("@/db");
-    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [mockHabit],
+      [mockHabitLog],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     const order: string[] = [];
-    vi.mocked(clearAllData).mockImplementationOnce(async () => { order.push("clear"); });
-    mockTransactionDb.run.mockImplementationOnce(async () => { order.push("insert"); return { changes: { changes: 1 } }; });
+    vi.mocked(clearAllData).mockImplementationOnce(async () => {
+      order.push("clear");
+    });
+    mockTransactionDb.run.mockImplementationOnce(async () => {
+      order.push("insert");
+      return { changes: { changes: 1 } };
+    });
     await importFromJSON(file);
     expect(order[0]).toBe("clear");
     expect(order[1]).toBe("insert");
@@ -751,8 +958,15 @@ describe("import replace mode", () => {
 
   it("importing the same file twice calls clearAllData each time (no duplicates)", async () => {
     const { clearAllData } = await import("@/db");
-    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
-    const makeFile = () => new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
+    const payload = buildExportPayload(
+      [mockHabit],
+      [mockHabitLog],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
+    const makeFile = () =>
+      new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await importFromJSON(makeFile());
     await importFromJSON(makeFile());
     expect(vi.mocked(clearAllData)).toHaveBeenCalledTimes(2);
@@ -760,7 +974,13 @@ describe("import replace mode", () => {
 
   it("error during import propagates and does not swallow the failure", async () => {
     mockTransactionDb.run.mockRejectedValueOnce(new Error("insert failed"));
-    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [mockHabit],
+      [mockHabitLog],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await expect(importFromJSON(file)).rejects.toBeInstanceOf(ImportStorageError);
   });
@@ -806,7 +1026,9 @@ describe("encryption: encryptPayload / decryptPayload", () => {
 
   it("throws WrongPasswordError with incorrect password", async () => {
     const envelope = await encryptPayload("secret", "correctpassword", "json");
-    await expect(decryptPayload(envelope, "wrongpassword")).rejects.toBeInstanceOf(WrongPasswordError);
+    await expect(decryptPayload(envelope, "wrongpassword")).rejects.toBeInstanceOf(
+      WrongPasswordError,
+    );
   });
 
   it("throws WrongPasswordError with empty password", async () => {
@@ -829,7 +1051,7 @@ describe("encryption: encryptPayload / decryptPayload", () => {
   it("decryptPayload uses iterations from envelope, not a hardcoded value", async () => {
     const envelope = await encryptPayload("test", "pw", "json");
     const parsed = JSON.parse(envelope) as Record<string, unknown>;
-    expect(typeof (parsed["iterations"])).toBe("number");
+    expect(typeof parsed["iterations"]).toBe("number");
     const { content } = await decryptPayload(envelope, "pw");
     expect(content).toBe("test");
   });
@@ -873,7 +1095,9 @@ describe("encryption: encryptPayload / decryptPayload", () => {
     // We can't directly test this without exposing internals, so we verify that
     // an envelope without withAad that WAS encrypted with AAD throws WrongPasswordError
     // (proving the flag is actually checked), while a properly encrypted old-format succeeds.
-    await expect(decryptPayload(legacyEnvelope, "wrong-pw")).rejects.toBeInstanceOf(WrongPasswordError);
+    await expect(decryptPayload(legacyEnvelope, "wrong-pw")).rejects.toBeInstanceOf(
+      WrongPasswordError,
+    );
   });
 });
 
@@ -891,7 +1115,13 @@ describe("encryption: peekIsEncrypted", () => {
   });
 
   it("returns false for a plain CSV export file", async () => {
-    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [mockHabit],
+      [mockHabitLog],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const file = new File([payloadToCSV(payload)], "export.csv", { type: "text/csv" });
     expect(await peekIsEncrypted(file)).toBe(false);
   });
@@ -906,7 +1136,13 @@ describe("encryption: full round-trip through importFromJSON", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("imports an encrypted JSON export with the correct password", async () => {
-    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [mockHabit],
+      [mockHabitLog],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const serialized = JSON.stringify(payload, null, 2);
     const envelope = await encryptPayload(serialized, "correct-pw", "json");
     const file = new File([envelope], "export.json", { type: "application/json" });
@@ -926,7 +1162,13 @@ describe("encryption: full round-trip through importFromJSON", () => {
   });
 
   it("imports an encrypted CSV export (json-wrapped) with the correct password", async () => {
-    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [mockHabit],
+      [mockHabitLog],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const csvContent = payloadToCSV(payload);
     const envelope = await encryptPayload(csvContent, "correct-pw", "csv");
     const file = new File([envelope], "export.json", { type: "application/json" });
@@ -939,7 +1181,13 @@ describe("encryption: full round-trip through importFromJSON", () => {
   });
 
   it("plain (unencrypted) import is unchanged when no password is provided", async () => {
-    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [mockHabit],
+      [mockHabitLog],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await importFromJSON(file);
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
@@ -950,7 +1198,13 @@ describe("encryption: full round-trip through importFromJSON", () => {
   });
 
   it("simulates reinstall: encrypted export is importable with password alone, independent of device state", async () => {
-    const payload = buildExportPayload([mockHabit], [mockHabitLog], [], [], "2024-01-01T00:00:00.000Z");
+    const payload = buildExportPayload(
+      [mockHabit],
+      [mockHabitLog],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
     const envelope = await encryptPayload(JSON.stringify(payload), "user-password", "json");
     const file = new File([envelope], "export.json", { type: "application/json" });
     await importFromJSON(file, "user-password");
@@ -961,7 +1215,7 @@ describe("encryption: full round-trip through importFromJSON", () => {
     );
   });
 
-  it("throws InvalidImportFileError (not generic error) when envelope has corrupted Base64", async () => {
+  it("throws CorruptFileError (not generic error) when envelope has corrupted Base64", async () => {
     const corrupted = JSON.stringify({
       encrypted: true,
       format: "json",
@@ -971,6 +1225,6 @@ describe("encryption: full round-trip through importFromJSON", () => {
       data: "validBase64==",
     });
     const file = new File([corrupted], "export.json", { type: "application/json" });
-    await expect(importFromJSON(file, "any-password")).rejects.toBeInstanceOf(InvalidImportFileError);
+    await expect(importFromJSON(file, "any-password")).rejects.toBeInstanceOf(CorruptFileError);
   });
 });

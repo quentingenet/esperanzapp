@@ -53,32 +53,32 @@ CREATE TABLE IF NOT EXISTS treatment_logs (
 `;
 
 async function isApplied(db: SQLiteDBConnection, name: string): Promise<boolean> {
-  const result = await db.query(
-    "SELECT 1 FROM schema_migrations WHERE name = ?",
-    [name],
-  );
+  const result = await db.query("SELECT 1 FROM schema_migrations WHERE name = ?", [name]);
   return (result.values ?? []).length > 0;
 }
 
 async function markApplied(db: SQLiteDBConnection, name: string): Promise<void> {
-  await db.run(
-    "INSERT OR IGNORE INTO schema_migrations (name, applied_at) VALUES (?, ?)",
-    [name, new Date().toISOString()],
-  );
+  await db.run("INSERT OR IGNORE INTO schema_migrations (name, applied_at) VALUES (?, ?)", [
+    name,
+    new Date().toISOString(),
+  ]);
 }
 
 // Guard against SQLCipher versions that throw on CREATE INDEX even with IF NOT EXISTS
 // when the index already exists. On pre-C7 installs the index was created by the old
 // schema code (which had a catch-all try/catch), so we check sqlite_master first.
 async function indexExists(db: SQLiteDBConnection, indexName: string): Promise<boolean> {
-  const result = await db.query(
-    "SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = ?",
-    [indexName],
-  );
+  const result = await db.query("SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = ?", [
+    indexName,
+  ]);
   return (result.values ?? []).length > 0;
 }
 
-async function columnExists(db: SQLiteDBConnection, table: string, column: string): Promise<boolean> {
+async function columnExists(
+  db: SQLiteDBConnection,
+  table: string,
+  column: string,
+): Promise<boolean> {
   const result = await db.query(`PRAGMA table_info(${table})`);
   return ((result.values ?? []) as { name: string }[]).some((col) => col.name === column);
 }
@@ -119,14 +119,18 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
 
   if (!(await isApplied(db, "idx_habit_logs_habit_id"))) {
     if (!(await indexExists(db, "idx_habit_logs_habit_id"))) {
-      await db.execute("CREATE INDEX IF NOT EXISTS idx_habit_logs_habit_id ON habit_logs(habit_id)");
+      await db.execute(
+        "CREATE INDEX IF NOT EXISTS idx_habit_logs_habit_id ON habit_logs(habit_id)",
+      );
     }
     await markApplied(db, "idx_habit_logs_habit_id");
   }
 
   if (!(await isApplied(db, "idx_treatment_logs_scheduled_at"))) {
     if (!(await indexExists(db, "idx_treatment_logs_scheduled_at"))) {
-      await db.execute("CREATE INDEX IF NOT EXISTS idx_treatment_logs_scheduled_at ON treatment_logs(scheduled_at)");
+      await db.execute(
+        "CREATE INDEX IF NOT EXISTS idx_treatment_logs_scheduled_at ON treatment_logs(scheduled_at)",
+      );
     }
     await markApplied(db, "idx_treatment_logs_scheduled_at");
   }
@@ -148,16 +152,20 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
   if (!(await isApplied(db, "treatments_reminder_day_check"))) {
     // Recovery: if a previous run failed after DROP treatments but rollbackTransaction also failed,
     // treatments was recreated empty by SCHEMA on this startup. Restore from the snapshot.
-    const backupExists = await db.query(
-      "SELECT 1 FROM sqlite_master WHERE type='table' AND name='treatments_backup'",
-    ).catch(() => ({ values: [] as unknown[] }));
+    const backupExists = await db
+      .query("SELECT 1 FROM sqlite_master WHERE type='table' AND name='treatments_backup'")
+      .catch(() => ({ values: [] as unknown[] }));
     if ((backupExists.values ?? []).length > 0) {
-      await db.execute(`
+      await db
+        .execute(
+          `
         INSERT OR IGNORE INTO treatments
           (id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at, sort_index)
         SELECT id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at, sort_index
         FROM treatments_backup
-      `).catch(() => {});
+      `,
+        )
+        .catch(() => {});
       await db.execute("DROP TABLE IF EXISTS treatments_backup").catch(() => {});
     }
 
@@ -169,7 +177,8 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
     await db.execute("PRAGMA foreign_keys = OFF");
     await db.beginTransaction();
     try {
-      await db.execute(`
+      await db.execute(
+        `
         CREATE TABLE treatments_new (
           id               INTEGER PRIMARY KEY AUTOINCREMENT,
           label            TEXT NOT NULL,
@@ -185,8 +194,11 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
           created_at       TEXT NOT NULL,
           sort_index       INTEGER NOT NULL DEFAULT 0
         )
-      `, false);
-      await db.execute(`
+      `,
+        false,
+      );
+      await db.execute(
+        `
         INSERT INTO treatments_new (id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at, sort_index)
         SELECT
           id, label, frequency, reminder_time, reminder_enabled,
@@ -198,7 +210,9 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
           END,
           created_at, sort_index
         FROM treatments
-      `, false);
+      `,
+        false,
+      );
       await db.execute("DROP TABLE treatments", false);
       await db.execute("ALTER TABLE treatments_new RENAME TO treatments", false);
       await db.run(
@@ -221,7 +235,9 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
     if ((fkCheck.values ?? []).length > 0) {
       logError(
         "schema.migration.treatments_reminder_day_check.fk_check",
-        new Error(`${String((fkCheck.values ?? []).length)} foreign key violation(s) detected after migration`),
+        new Error(
+          `${String((fkCheck.values ?? []).length)} foreign key violation(s) detected after migration`,
+        ),
       );
     }
   }

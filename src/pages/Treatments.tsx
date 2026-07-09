@@ -31,12 +31,28 @@ import { SORT_PATH, CHECK_PATH } from "@/utils/svgPaths";
 export function Treatments() {
   const { t } = useTranslation();
   const dateLocale = useDateLocale();
-  const { treatments, loading: treatmentsLoading, error: treatmentsError, loadTreatments, addTreatment, editTreatment, deleteTreatment, reorderTreatments, saveTreatmentsOrder } = useTreatments();
+  const {
+    treatments,
+    loading: treatmentsLoading,
+    error: treatmentsError,
+    loadTreatments,
+    addTreatment,
+    editTreatment,
+    deleteTreatment,
+    reorderTreatments,
+    saveTreatmentsOrder,
+  } = useTreatments();
   const { logStatus, logStatusForDate, getLogsByDate } = useTreatmentLogs();
-  const { scheduleReminder, cancelReminder, requestPermission, openExactAlarmSettings } = useNotifications();
+  const { scheduleReminder, cancelReminder, requestPermission, openExactAlarmSettings } =
+    useNotifications();
   const mountedRef = useRef(true);
   const isSavingOrderRef = useRef(false);
-  useEffect(() => () => { mountedRef.current = false; }, []);
+  useEffect(
+    () => () => {
+      mountedRef.current = false;
+    },
+    [],
+  );
 
   const [logsMap, setLogsMap] = useState<Record<string, TreatmentLog | null>>({});
   const [today, setToday] = useState(todayLocalDate);
@@ -50,8 +66,12 @@ export function Treatments() {
   const [editReminderDay, setEditReminderDay] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => { void loadTreatments(); }, [loadTreatments]);
-  useEffect(() => { if (treatmentsError) toast.error(t("common.error")); }, [treatmentsError, t]);
+  useEffect(() => {
+    void loadTreatments();
+  }, [loadTreatments]);
+  useEffect(() => {
+    if (treatmentsError) toast.error(t("common.error"));
+  }, [treatmentsError, t]);
 
   // Refresh today at midnight so the display stays in sync if the app stays open overnight.
   useEffect(() => {
@@ -64,15 +84,23 @@ export function Treatments() {
 
   useEffect(() => {
     const guard = { cancelled: false };
-    void getLogsByDate(today).then((todayLogs) => {
-      if (guard.cancelled) return;
-      const map: Record<string, TreatmentLog | null> = Object.fromEntries(
-        treatments.map((tr) => [tr.id, null]),
-      );
-      for (const log of todayLogs) { map[log.treatmentId] = log; }
-      setLogsMap(map);
-    }).catch((e: unknown) => { logError("Treatments.getLogsByDate", e); });
-    return () => { guard.cancelled = true; };
+    void getLogsByDate(today)
+      .then((todayLogs) => {
+        if (guard.cancelled) return;
+        const map: Record<string, TreatmentLog | null> = Object.fromEntries(
+          treatments.map((tr) => [tr.id, null]),
+        );
+        for (const log of todayLogs) {
+          map[log.treatmentId] = log;
+        }
+        setLogsMap(map);
+      })
+      .catch((e: unknown) => {
+        logError("Treatments.getLogsByDate", e);
+      });
+    return () => {
+      guard.cancelled = true;
+    };
   }, [treatments, getLogsByDate, today]);
 
   const handleLog = async (treatment: Treatment, status: TreatmentStatus) => {
@@ -123,9 +151,15 @@ export function Treatments() {
     if (!editTarget || !editLabel.trim() || isSaving) return;
     if (editReminderEnabled && !editTime) return;
     if (editReminderEnabled && editTarget.frequency !== "daily" && editReminderDay === null) return;
-    const reminderTime = editReminderEnabled && editTime ? format(editTime, "HH:mm") : editTarget.reminderTime;
+    const reminderTime =
+      editReminderEnabled && editTime ? format(editTime, "HH:mm") : editTarget.reminderTime;
     const reminderDay = editTarget.frequency === "daily" ? null : editReminderDay;
-    const updatedFields = { label: editLabel.trim(), reminderTime, reminderEnabled: editReminderEnabled, reminderDay };
+    const updatedFields = {
+      label: editLabel.trim(),
+      reminderTime,
+      reminderEnabled: editReminderEnabled,
+      reminderDay,
+    };
     setIsSaving(true);
     void editTreatment(editTarget.id, updatedFields)
       .then(async () => {
@@ -135,18 +169,26 @@ export function Treatments() {
         try {
           if (editReminderEnabled) {
             if (Capacitor.isNativePlatform()) {
-              const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
+              const { display } = await LocalNotifications.checkPermissions().catch(() => ({
+                display: "denied" as const,
+              }));
               if (display === "prompt") {
                 const granted = await requestPermission();
-                if (!granted) { toast.info(t("treatments.form.permissionDenied")); return; }
+                if (!granted) {
+                  toast.info(t("treatments.form.permissionDenied"));
+                  return;
+                }
               } else if (display === "denied") {
-                toast.info(t("treatments.form.permissionDenied")); return;
+                toast.info(t("treatments.form.permissionDenied"));
+                return;
               }
             }
             const status = await scheduleReminder({ ...editTarget, ...updatedFields });
             if (status === "permission-denied") toast.info(t("treatments.form.permissionDenied"));
-            else if (status === "exact-alarm-denied") { toast.info(t("treatments.reminderAlarmSettingsNeeded")); void openExactAlarmSettings(); }
-            else if (status === "schedule-failed") toast.info(t("treatments.reminderSyncFailed"));
+            else if (status === "exact-alarm-denied") {
+              toast.info(t("treatments.reminderAlarmSettingsNeeded"));
+              void openExactAlarmSettings();
+            } else if (status === "schedule-failed") toast.info(t("treatments.reminderSyncFailed"));
           } else {
             await cancelReminder(editTarget.id);
           }
@@ -155,11 +197,16 @@ export function Treatments() {
           toast.info(t("treatments.reminderSyncFailed"));
         }
       })
-      .catch(() => { toast.error(t("common.error")); })
-      .finally(() => { if (mountedRef.current) setIsSaving(false); });
+      .catch(() => {
+        toast.error(t("common.error"));
+      })
+      .finally(() => {
+        if (mountedRef.current) setIsSaving(false);
+      });
   };
 
-  const showEditDaySelect = editReminderEnabled && editTarget !== null && editTarget.frequency !== "daily";
+  const showEditDaySelect =
+    editReminderEnabled && editTarget !== null && editTarget.frequency !== "daily";
 
   const handleExitSort = useCallback(() => {
     if (isSavingOrderRef.current) return;
@@ -171,7 +218,9 @@ export function Treatments() {
         toast.error(t("common.error"));
         void loadTreatments();
       })
-      .finally(() => { isSavingOrderRef.current = false; });
+      .finally(() => {
+        isSavingOrderRef.current = false;
+      });
   }, [saveTreatmentsOrder, t, loadTreatments]);
 
   return (
@@ -186,17 +235,27 @@ export function Treatments() {
                 aria-label={t("common.close")}
                 sx={{ color: "primary.main", borderRadius: 2 }}
               >
-                <SvgIcon aria-hidden="true"><path d={CHECK_PATH} /></SvgIcon>
+                <SvgIcon aria-hidden="true">
+                  <path d={CHECK_PATH} />
+                </SvgIcon>
               </IconButton>
             ) : (
               <Box
                 component="button"
-                onClick={() => { setSortMode(true); }}
+                onClick={() => {
+                  setSortMode(true);
+                }}
                 aria-label={t("treatments.reorderBtn")}
                 sx={{
-                  display: "flex", alignItems: "center", gap: 1,
-                  border: "none", background: "none", cursor: "pointer",
-                  color: "text.secondary", p: 1, borderRadius: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  border: "none",
+                  background: "none",
+                  cursor: "pointer",
+                  color: "text.secondary",
+                  p: 1,
+                  borderRadius: 2,
                   "&:hover": { bgcolor: "action.hover" },
                 }}
               >
@@ -213,21 +272,33 @@ export function Treatments() {
             )}
           </Box>
         )}
-        {treatments.length === 0 && !treatmentsLoading && <EmptyState emoji="💊" message={t("treatments.empty")} />}
+        {treatments.length === 0 && !treatmentsLoading && (
+          <EmptyState emoji="💊" message={t("treatments.empty")} />
+        )}
         <SortableList
           items={treatments}
           active={sortMode}
-          onReorder={(ids) => { reorderTreatments(ids); }}
+          onReorder={(ids) => {
+            reorderTreatments(ids);
+          }}
           renderItem={(tr, handleProps) => (
             <Box>
               <TreatmentCard
                 treatment={tr}
                 todayLog={logsMap[tr.id] ?? null}
-                onLog={(status) => { void handleLog(tr, status); }}
-                onDelete={() => { setDeleteTarget(tr); }}
-                onEdit={() => { openEdit(tr); }}
+                onLog={(status) => {
+                  void handleLog(tr, status);
+                }}
+                onDelete={() => {
+                  setDeleteTarget(tr);
+                }}
+                onEdit={() => {
+                  openEdit(tr);
+                }}
                 isExpanded={selectedId === tr.id}
-                onToggle={() => { setSelectedId(tr.id === selectedId ? null : tr.id); }}
+                onToggle={() => {
+                  setSelectedId(tr.id === selectedId ? null : tr.id);
+                }}
                 handleProps={handleProps}
               />
               {selectedId === tr.id && (
@@ -252,80 +323,128 @@ export function Treatments() {
             </Box>
           )}
         />
-        <TreatmentForm onSubmit={(data) => {
-          void addTreatment({ ...data, createdAt: new Date().toISOString() })
-            .then(async (created) => {
-              toast.success(t("common.created"));
-              void loadTreatments();
-              if (created.reminderEnabled) {
-                const status = await scheduleReminder(created);
-                if (status === "permission-denied") toast.info(t("treatments.form.permissionDenied"));
-                else if (status === "exact-alarm-denied") { toast.info(t("treatments.reminderAlarmSettingsNeeded")); void openExactAlarmSettings(); }
-            else if (status === "schedule-failed") toast.info(t("treatments.reminderSyncFailed"));
-              }
-            })
-            .catch(() => { toast.error(t("common.error")); });
-        }} />
+        <TreatmentForm
+          onSubmit={(data) => {
+            void addTreatment({ ...data, createdAt: new Date().toISOString() })
+              .then(async (created) => {
+                toast.success(t("common.created"));
+                void loadTreatments();
+                if (created.reminderEnabled) {
+                  const status = await scheduleReminder(created);
+                  if (status === "permission-denied")
+                    toast.info(t("treatments.form.permissionDenied"));
+                  else if (status === "exact-alarm-denied") {
+                    toast.info(t("treatments.reminderAlarmSettingsNeeded"));
+                    void openExactAlarmSettings();
+                  } else if (status === "schedule-failed")
+                    toast.info(t("treatments.reminderSyncFailed"));
+                }
+              })
+              .catch(() => {
+                toast.error(t("common.error"));
+              });
+          }}
+        />
       </Box>
 
       <ConfirmDialog
         open={deleteTarget !== null}
         title={t("treatments.deleteConfirm")}
-        onConfirm={() => { void handleDeleteConfirmed(); }}
-        onCancel={() => { setDeleteTarget(null); }}
+        onConfirm={() => {
+          void handleDeleteConfirmed();
+        }}
+        onCancel={() => {
+          setDeleteTarget(null);
+        }}
       />
 
       <Drawer
         anchor="bottom"
         open={editTarget !== null}
-        onClose={() => { setEditTarget(null); }}
+        onClose={() => {
+          setEditTarget(null);
+        }}
         slotProps={{ paper: { sx: { borderRadius: "16px 16px 0 0", maxHeight: "80dvh" } } }}
       >
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={dateLocale}>
           <Box sx={{ px: 2, pt: 2, pb: "calc(24px + env(safe-area-inset-bottom))" }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t("treatments.edit")}</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              {t("treatments.edit")}
+            </Typography>
             <TextField
               fullWidth
               label={t("treatments.form.name")}
               value={editLabel}
-              onChange={(e) => { setEditLabel(e.target.value); }}
+              onChange={(e) => {
+                setEditLabel(e.target.value);
+              }}
               sx={{ mb: 2 }}
             />
             <FormControlLabel
-              control={<Switch checked={editReminderEnabled} onChange={(e) => { setEditReminderEnabled(e.target.checked); }} />}
+              control={
+                <Switch
+                  checked={editReminderEnabled}
+                  onChange={(e) => {
+                    setEditReminderEnabled(e.target.checked);
+                  }}
+                />
+              }
               label={t("treatments.form.enableReminder")}
               sx={{ mb: 1 }}
             />
             {editReminderEnabled && (
-              <TimePicker value={editTime} onChange={setEditTime} label={t("treatments.form.reminderTime")} sx={{ width: "100%", mb: 2 }} />
+              <TimePicker
+                value={editTime}
+                onChange={setEditTime}
+                label={t("treatments.form.reminderTime")}
+                sx={{ width: "100%", mb: 2 }}
+              />
             )}
             {showEditDaySelect && (
               <Select
                 fullWidth
                 value={editReminderDay ?? ""}
-                onChange={(e) => { setEditReminderDay(e.target.value); }}
+                onChange={(e) => {
+                  setEditReminderDay(e.target.value);
+                }}
                 sx={{ mb: 2 }}
                 displayEmpty
-                MenuProps={{ slotProps: { paper: { sx: { maxHeight: "50vh", pb: "env(safe-area-inset-bottom)" } } } }}
+                MenuProps={{
+                  slotProps: {
+                    paper: { sx: { maxHeight: "50vh", pb: "env(safe-area-inset-bottom)" } },
+                  },
+                }}
               >
-                <MenuItem value="" disabled>{t("treatments.form.reminderDay")}</MenuItem>
+                <MenuItem value="" disabled>
+                  {t("treatments.form.reminderDay")}
+                </MenuItem>
                 {editTarget.frequency === "weekly"
-                  ? WEEK_DAYS.map((d) => <MenuItem key={d} value={d}>{weekDayLabel(d, dateLocale)}</MenuItem>)
-                  : MONTH_DAYS.map((d) => (
-                      <MenuItem key={d.key} value={d.value}>
-                        {d.key === "firstDay" ? t("treatments.form.firstDay")
-                          : d.key === "lastDay" ? t("treatments.form.lastDay")
-                          : t("treatments.form.dayOfMonth", { day: d.value })}
+                  ? WEEK_DAYS.map((d) => (
+                      <MenuItem key={d} value={d}>
+                        {weekDayLabel(d, dateLocale)}
                       </MenuItem>
                     ))
-                }
+                  : MONTH_DAYS.map((d) => (
+                      <MenuItem key={d.key} value={d.value}>
+                        {d.key === "firstDay"
+                          ? t("treatments.form.firstDay")
+                          : d.key === "lastDay"
+                            ? t("treatments.form.lastDay")
+                            : t("treatments.form.dayOfMonth", { day: d.value })}
+                      </MenuItem>
+                    ))}
               </Select>
             )}
             <Button
               fullWidth
               variant="contained"
               onClick={handleEditSave}
-              disabled={isSaving || !editLabel.trim() || (editReminderEnabled && (!editTime || (editTarget?.frequency !== "daily" && editReminderDay === null)))}
+              disabled={
+                isSaving ||
+                !editLabel.trim() ||
+                (editReminderEnabled &&
+                  (!editTime || (editTarget?.frequency !== "daily" && editReminderDay === null)))
+              }
               aria-label={t("common.save")}
               sx={{ minHeight: 48, borderRadius: 2 }}
             >

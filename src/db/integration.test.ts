@@ -11,9 +11,12 @@
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
-import { createInitializedSqliteConnection, type RealSqliteConn } from "@/test/realSqliteConnection";
+import {
+  createInitializedSqliteConnection,
+  type RealSqliteConn,
+} from "@/test/realSqliteConnection";
 import { createTreatment, updateTreatment, deleteTreatment } from "./treatments";
-import { createHabit, createHabitLog, createTreatmentLog } from "./testHelpers";
+import { createHabit, createHabitLog, createTreatmentLog } from "@/test/testHelpers";
 import { clearAllData } from "./client";
 import {
   buildExportPayload,
@@ -27,7 +30,7 @@ import {
 // Helpers to query the real DB directly (bypassing module-level withDb).
 async function countRows(conn: RealSqliteConn, table: string): Promise<number> {
   const r = await conn.query(`SELECT COUNT(*) as n FROM ${table}`);
-  return ((r.values[0] as { n: number } | undefined)?.n ?? 0);
+  return (r.values[0] as { n: number } | undefined)?.n ?? 0;
 }
 
 async function allRows(conn: RealSqliteConn, table: string): Promise<Record<string, unknown>[]> {
@@ -146,9 +149,15 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
 
   it("clearAllData removes all rows from all tables", async () => {
     const habit = await createHabit(HABIT_DATA, asConn(conn));
-    await createHabitLog({ habitId: habit.id, eventType: "start", eventDate: "2024-01-01" }, asConn(conn));
+    await createHabitLog(
+      { habitId: habit.id, eventType: "start", eventDate: "2024-01-01" },
+      asConn(conn),
+    );
     const treatment = await createTreatment(TREATMENT_DATA, asConn(conn));
-    await createTreatmentLog({ treatmentId: treatment.id, scheduledAt: "2024-01-01", status: "taken" }, asConn(conn));
+    await createTreatmentLog(
+      { treatmentId: treatment.id, scheduledAt: "2024-01-01", status: "taken" },
+      asConn(conn),
+    );
 
     await clearAllData(asConn(conn));
 
@@ -160,8 +169,14 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
 
   it("deleteTreatment removes the treatment and all its logs atomically", async () => {
     const treatment = await createTreatment(TREATMENT_DATA, asConn(conn));
-    await createTreatmentLog({ treatmentId: treatment.id, scheduledAt: "2024-01-01", status: "taken" }, asConn(conn));
-    await createTreatmentLog({ treatmentId: treatment.id, scheduledAt: "2024-01-02", status: "missed" }, asConn(conn));
+    await createTreatmentLog(
+      { treatmentId: treatment.id, scheduledAt: "2024-01-01", status: "taken" },
+      asConn(conn),
+    );
+    await createTreatmentLog(
+      { treatmentId: treatment.id, scheduledAt: "2024-01-02", status: "missed" },
+      asConn(conn),
+    );
 
     expect(await countRows(conn, "treatments")).toBe(1);
     expect(await countRows(conn, "treatment_logs")).toBe(2);
@@ -210,7 +225,14 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
 
   it("createTreatment weekly with reminderEnabled=false keeps valid reminderDay", async () => {
     const treatment = await createTreatment(
-      { label: "Aspirin", frequency: "weekly", reminderTime: "08:00", reminderEnabled: false, reminderDay: 1, createdAt: "2024-01-01T08:00:00Z" },
+      {
+        label: "Aspirin",
+        frequency: "weekly",
+        reminderTime: "08:00",
+        reminderEnabled: false,
+        reminderDay: 1,
+        createdAt: "2024-01-01T08:00:00Z",
+      },
       asConn(conn),
     );
     expect(+treatment.id).toBeGreaterThan(0);
@@ -221,7 +243,14 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
 
   it("createTreatment monthly with reminderEnabled=false keeps valid reminderDay", async () => {
     const treatment = await createTreatment(
-      { label: "Metformin", frequency: "monthly", reminderTime: "08:00", reminderEnabled: false, reminderDay: 15, createdAt: "2024-01-01T08:00:00Z" },
+      {
+        label: "Metformin",
+        frequency: "monthly",
+        reminderTime: "08:00",
+        reminderEnabled: false,
+        reminderDay: 15,
+        createdAt: "2024-01-01T08:00:00Z",
+      },
       asConn(conn),
     );
     expect(+treatment.id).toBeGreaterThan(0);
@@ -231,7 +260,14 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
 
   it("updateTreatment disabling reminder on weekly treatment preserves reminderDay", async () => {
     const treatment = await createTreatment(
-      { label: "Aspirin", frequency: "weekly", reminderTime: "08:00", reminderEnabled: true, reminderDay: 3, createdAt: "2024-01-01T08:00:00Z" },
+      {
+        label: "Aspirin",
+        frequency: "weekly",
+        reminderTime: "08:00",
+        reminderEnabled: true,
+        reminderDay: 3,
+        createdAt: "2024-01-01T08:00:00Z",
+      },
       asConn(conn),
     );
     await updateTreatment(treatment.id, { reminderEnabled: false }, asConn(conn));
@@ -244,7 +280,10 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
   // Uses direct INSERT with original IDs, exactly as exportService.importPayload.
   // This approach requires no last_insert_rowid() and no ID remapping.
 
-  async function importDirectly(conn: RealSqliteConn, payload: ReturnType<typeof parseExportPayload>): Promise<void> {
+  async function importDirectly(
+    conn: RealSqliteConn,
+    payload: ReturnType<typeof parseExportPayload>,
+  ): Promise<void> {
     for (const [index, h] of payload.habits.entries()) {
       await conn.run(
         "INSERT INTO habits (id, label, icon, color, bg_color, start_date, created_at, sort_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -260,7 +299,16 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     for (const [index, t] of payload.treatments.entries()) {
       await conn.run(
         "INSERT INTO treatments (id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at, sort_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        [t.id, t.label, t.frequency, t.reminderTime, t.reminderEnabled ? 1 : 0, t.reminderDay ?? null, t.createdAt, index],
+        [
+          t.id,
+          t.label,
+          t.frequency,
+          t.reminderTime,
+          t.reminderEnabled ? 1 : 0,
+          t.reminderDay ?? null,
+          t.createdAt,
+          index,
+        ],
       );
     }
     for (const tl of payload.treatmentLogs) {
@@ -289,7 +337,13 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     );
 
     // Export to JSON.
-    const payload = buildExportPayload([habit], [log1, log2], [treatment], [tlog], new Date().toISOString());
+    const payload = buildExportPayload(
+      [habit],
+      [log1, log2],
+      [treatment],
+      [tlog],
+      new Date().toISOString(),
+    );
     const json = JSON.stringify(payload, null, 2);
 
     // Clear and re-import using direct INSERT with original IDs.
@@ -336,7 +390,9 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
       asConn(conn),
     );
 
-    const csv = payloadToCSV(buildExportPayload([habit], [log], [treatment], [tlog], new Date().toISOString()));
+    const csv = payloadToCSV(
+      buildExportPayload([habit], [log], [treatment], [tlog], new Date().toISOString()),
+    );
     await clearAllData(asConn(conn));
     await importDirectly(conn, parseCSVPayload(csv));
 
@@ -354,11 +410,26 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
   // Sort order preservation across export/import
 
   it("import preserves custom sort order for habits and treatments", async () => {
-    const habitA = await createHabit({ ...HABIT_DATA, label: "Habit-A", createdAt: "2024-01-01T01:00:00Z" }, asConn(conn));
-    const habitB = await createHabit({ ...HABIT_DATA, label: "Habit-B", createdAt: "2024-01-01T02:00:00Z" }, asConn(conn));
-    const habitC = await createHabit({ ...HABIT_DATA, label: "Habit-C", createdAt: "2024-01-01T03:00:00Z" }, asConn(conn));
-    const treatA = await createTreatment({ ...TREATMENT_DATA, label: "Treat-A", createdAt: "2024-01-01T01:00:00Z" }, asConn(conn));
-    const treatB = await createTreatment({ ...TREATMENT_DATA, label: "Treat-B", createdAt: "2024-01-01T02:00:00Z" }, asConn(conn));
+    const habitA = await createHabit(
+      { ...HABIT_DATA, label: "Habit-A", createdAt: "2024-01-01T01:00:00Z" },
+      asConn(conn),
+    );
+    const habitB = await createHabit(
+      { ...HABIT_DATA, label: "Habit-B", createdAt: "2024-01-01T02:00:00Z" },
+      asConn(conn),
+    );
+    const habitC = await createHabit(
+      { ...HABIT_DATA, label: "Habit-C", createdAt: "2024-01-01T03:00:00Z" },
+      asConn(conn),
+    );
+    const treatA = await createTreatment(
+      { ...TREATMENT_DATA, label: "Treat-A", createdAt: "2024-01-01T01:00:00Z" },
+      asConn(conn),
+    );
+    const treatB = await createTreatment(
+      { ...TREATMENT_DATA, label: "Treat-B", createdAt: "2024-01-01T02:00:00Z" },
+      asConn(conn),
+    );
 
     // Set custom order: B(0) C(1) A(2) for habits, B(0) A(1) for treatments
     await conn.run("UPDATE habits SET sort_index = ? WHERE id = ?", [0, habitB.id]);
@@ -379,13 +450,22 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     await clearAllData(asConn(conn));
     await importDirectly(conn, parseExportPayload(JSON.stringify(payload)));
 
-    const habitRows = await conn.query("SELECT label FROM habits ORDER BY sort_index ASC, created_at ASC");
-    expect(habitRows.values.map((r: unknown) => (r as { label: string }).label))
-      .toEqual(["Habit-B", "Habit-C", "Habit-A"]);
+    const habitRows = await conn.query(
+      "SELECT label FROM habits ORDER BY sort_index ASC, created_at ASC",
+    );
+    expect(habitRows.values.map((r: unknown) => (r as { label: string }).label)).toEqual([
+      "Habit-B",
+      "Habit-C",
+      "Habit-A",
+    ]);
 
-    const treatRows = await conn.query("SELECT label FROM treatments ORDER BY sort_index ASC, created_at ASC");
-    expect(treatRows.values.map((r: unknown) => (r as { label: string }).label))
-      .toEqual(["Treat-B", "Treat-A"]);
+    const treatRows = await conn.query(
+      "SELECT label FROM treatments ORDER BY sort_index ASC, created_at ASC",
+    );
+    expect(treatRows.values.map((r: unknown) => (r as { label: string }).label)).toEqual([
+      "Treat-B",
+      "Treat-A",
+    ]);
   });
 
   // Encrypted JSON round trip
@@ -419,7 +499,9 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     const payload = buildExportPayload([], [], [], [], new Date().toISOString());
     const encrypted = await encryptPayload(JSON.stringify(payload), "correct-pass", "json");
     const { WrongPasswordError } = await import("@/utils/exportSerialization");
-    await expect(decryptPayload(encrypted, "wrong-pass")).rejects.toBeInstanceOf(WrongPasswordError);
+    await expect(decryptPayload(encrypted, "wrong-pass")).rejects.toBeInstanceOf(
+      WrongPasswordError,
+    );
   });
 
   // reminder_day = null preserved across JSON round-trip (daily treatment)
@@ -438,7 +520,10 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
 
   it("failed import inside transaction restores original data (no partial state)", async () => {
     const habit = await createHabit(HABIT_DATA, asConn(conn));
-    await createHabitLog({ habitId: habit.id, eventType: "start", eventDate: "2024-01-01" }, asConn(conn));
+    await createHabitLog(
+      { habitId: habit.id, eventType: "start", eventDate: "2024-01-01" },
+      asConn(conn),
+    );
 
     // Simulate importPayload: begin → clear → insert good → insert bad → rollback
     await conn.beginTransaction();

@@ -27,7 +27,7 @@ function loadLocale(language: string): Promise<unknown> {
   }
 }
 
-export const i18nInit = i18n
+void i18n
   .use(LanguageDetector)
   .use(resourcesToBackend(loadLocale))
   .use(initReactI18next)

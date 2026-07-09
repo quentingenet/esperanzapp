@@ -16,6 +16,7 @@ import {
   decryptPayload,
   isEncryptedEnvelope,
   WrongPasswordError,
+  CorruptFileError,
   UnsupportedExportVersionError,
 } from "../utils/exportSerialization";
 import { shareFile, saveToFolder } from "./shareService";
@@ -59,7 +60,13 @@ async function buildPayload() {
       getAllTreatments(),
       getAllTreatmentLogs(),
     ]);
-    return buildExportPayload(habits, habitLogs, treatments, treatmentLogs, new Date().toISOString());
+    return buildExportPayload(
+      habits,
+      habitLogs,
+      treatments,
+      treatmentLogs,
+      new Date().toISOString(),
+    );
   });
 }
 
@@ -67,11 +74,7 @@ export async function exportToJSON(password?: string): Promise<ShareOutcome> {
   const payload = await buildPayload();
   const serialized = JSON.stringify(payload, null, 2);
   const content = password ? await encryptPayload(serialized, password, "json") : serialized;
-  return shareFile(
-    `esperanzapp_export_${exportTimestamp()}.json`,
-    content,
-    "application/json",
-  );
+  return shareFile(`esperanzapp_export_${exportTimestamp()}.json`, content, "application/json");
 }
 
 export async function exportToCSV(password?: string): Promise<ShareOutcome> {
@@ -89,11 +92,7 @@ export async function saveJSONToFolder(password?: string): Promise<SaveOutcome> 
   const payload = await buildPayload();
   const serialized = JSON.stringify(payload, null, 2);
   const content = password ? await encryptPayload(serialized, password, "json") : serialized;
-  return saveToFolder(
-    `esperanzapp_export_${exportTimestamp()}.json`,
-    content,
-    "application/json",
-  );
+  return saveToFolder(`esperanzapp_export_${exportTimestamp()}.json`, content, "application/json");
 }
 
 export async function saveCSVToFolder(password?: string): Promise<SaveOutcome> {
@@ -101,7 +100,11 @@ export async function saveCSVToFolder(password?: string): Promise<SaveOutcome> {
   const csvContent = payloadToCSV(payload);
   if (password) {
     const content = await encryptPayload(csvContent, password, "csv");
-    return saveToFolder(`esperanzapp_export_${exportTimestamp()}.json`, content, "application/json");
+    return saveToFolder(
+      `esperanzapp_export_${exportTimestamp()}.json`,
+      content,
+      "application/json",
+    );
   }
   return saveToFolder(`esperanzapp_export_${exportTimestamp()}.csv`, csvContent, "text/csv");
 }
@@ -116,7 +119,9 @@ function validateNoOrphans(payload: ReturnType<typeof parseExportPayload>): void
       throw new InconsistentImportDataError(`import: duplicate habitLog ID "${log.id}" detected`);
     habitLogIds.add(log.id);
     if (!habitIds.has(log.habitId))
-      throw new InconsistentImportDataError(`import: habitLog "${log.id}" references unknown habitId "${log.habitId}"`);
+      throw new InconsistentImportDataError(
+        `import: habitLog "${log.id}" references unknown habitId "${log.habitId}"`,
+      );
   }
   // Note: we verify that a start log exists but not that starts and relapses alternate strictly.
   // Two consecutive starts without a relapse between them are accepted here; computeStats()
@@ -133,13 +138,19 @@ function validateNoOrphans(payload: ReturnType<typeof parseExportPayload>): void
   const treatmentLogKeys = new Set<string>();
   for (const log of payload.treatmentLogs) {
     if (treatmentLogIds.has(log.id))
-      throw new InconsistentImportDataError(`import: duplicate treatmentLog ID "${log.id}" detected`);
+      throw new InconsistentImportDataError(
+        `import: duplicate treatmentLog ID "${log.id}" detected`,
+      );
     treatmentLogIds.add(log.id);
     if (!treatmentIds.has(log.treatmentId))
-      throw new InconsistentImportDataError(`import: treatmentLog "${log.id}" references unknown treatmentId "${log.treatmentId}"`);
+      throw new InconsistentImportDataError(
+        `import: treatmentLog "${log.id}" references unknown treatmentId "${log.treatmentId}"`,
+      );
     const key = `${log.treatmentId}:${log.scheduledAt}`;
     if (treatmentLogKeys.has(key))
-      throw new InconsistentImportDataError(`import: duplicate treatment log for treatmentId "${log.treatmentId}" on "${log.scheduledAt}"`);
+      throw new InconsistentImportDataError(
+        `import: duplicate treatment log for treatmentId "${log.treatmentId}" on "${log.scheduledAt}"`,
+      );
     treatmentLogKeys.add(key);
   }
 }
@@ -171,7 +182,16 @@ async function importPayload(payload: ReturnType<typeof parseExportPayload>): Pr
       for (const [index, t] of payload.treatments.entries()) {
         await db.run(
           "INSERT INTO treatments (id, label, frequency, reminder_time, reminder_enabled, reminder_day, created_at, sort_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-          [t.id, t.label, t.frequency, t.reminderTime, t.reminderEnabled ? 1 : 0, t.reminderDay ?? null, t.createdAt, index],
+          [
+            t.id,
+            t.label,
+            t.frequency,
+            t.reminderTime,
+            t.reminderEnabled ? 1 : 0,
+            t.reminderDay ?? null,
+            t.createdAt,
+            index,
+          ],
           false,
         );
       }
@@ -209,6 +229,7 @@ async function resolveImportContent(
       return await decryptPayload(raw, password);
     } catch (err) {
       if (err instanceof WrongPasswordError) throw err;
+      if (err instanceof CorruptFileError) throw err;
       throw new InvalidImportFileError(err);
     }
   }
@@ -240,4 +261,4 @@ function parseImportContent(content: string, format: "json" | "csv") {
   }
 }
 
-export { WrongPasswordError };
+export { WrongPasswordError, CorruptFileError };

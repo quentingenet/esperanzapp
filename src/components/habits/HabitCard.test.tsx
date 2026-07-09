@@ -30,9 +30,9 @@ function mockT(key: string, opts?: Record<string, unknown>): string {
   const template = i18nMap[lookupKey] ?? lookupKey;
   if (!opts) return template;
   return template.replace(/\{\{(\w+)\}\}/g, (_, k: string) => {
-      const val = opts[k];
-      return typeof val === "string" || typeof val === "number" ? String(val) : "";
-    });
+    const val = opts[k];
+    return typeof val === "string" || typeof val === "number" ? String(val) : "";
+  });
 }
 
 vi.mock("react-i18next", async (importOriginal) => {
@@ -191,5 +191,4 @@ describe("HabitCard streak display", () => {
     );
     expect(screen.getByText(/dans 12 jours/)).toBeInTheDocument();
   });
-
 });

@@ -6,8 +6,10 @@ import { RelapseDialog } from "./RelapseDialog";
 import type { Habit, HabitStats } from "@/types";
 
 const tMap: Record<string, string> = {
-  "relapse.messages.before7days": "{{name}}, ces {{days}} jours comptent. Tu recommences aujourd'hui.",
-  "relapse.messages.between7and30days": "{{name}}, tu as tenu {{days}} jours. Ce n'est pas une défaite.",
+  "relapse.messages.before7days":
+    "{{name}}, ces {{days}} jours comptent. Tu recommences aujourd'hui.",
+  "relapse.messages.between7and30days":
+    "{{name}}, tu as tenu {{days}} jours. Ce n'est pas une défaite.",
   "relapse.messages.after30days": "{{name}}, tu as tenu {{days}} jours. C'est immense.",
   "relapse.messages.day0": "{{name}}, l'important c'est d'essayer.",
 };
@@ -33,7 +35,6 @@ vi.mock("react-i18next", async (importOriginal) => {
   };
 });
 
-
 const habit: Habit = {
   id: "h1",
   label: "No alcohol",
@@ -54,7 +55,10 @@ const stats: HabitStats = {
   currentStreakStart: "2025-06-21",
 };
 
-function renderDialog(open: boolean, overrides: { onConfirm?: (d: string) => void; onCancel?: () => void } = {}) {
+function renderDialog(
+  open: boolean,
+  overrides: { onConfirm?: (d: string) => void; onCancel?: () => void } = {},
+) {
   return render(
     <RelapseDialog
       open={open}

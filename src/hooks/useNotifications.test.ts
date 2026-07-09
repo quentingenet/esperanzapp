@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { getDaysInMonth } from "date-fns";
-import { useNotifications, getNotificationId, getLastDayNotificationIds, NOTIF_DOMAIN_OFFSET } from "./useNotifications";
+import {
+  useNotifications,
+  getNotificationId,
+  getLastDayNotificationIds,
+  NOTIF_DOMAIN_OFFSET,
+} from "./useNotifications";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { ExactAlarm } from "@/plugins/ExactAlarm";
@@ -25,12 +30,16 @@ describe("getNotificationId", () => {
   });
 
   it("treatment IDs are in [1_000_000, 2_000_000)", () => {
-    expect(getNotificationId("treatments", "abc")).toBeGreaterThanOrEqual(NOTIF_DOMAIN_OFFSET.treatments);
+    expect(getNotificationId("treatments", "abc")).toBeGreaterThanOrEqual(
+      NOTIF_DOMAIN_OFFSET.treatments,
+    );
     expect(getNotificationId("treatments", "abc")).toBeLessThan(NOTIF_DOMAIN_OFFSET.milestones);
   });
 
   it("milestone IDs are in [2_000_000, 3_000_000)", () => {
-    expect(getNotificationId("milestones", "abc")).toBeGreaterThanOrEqual(NOTIF_DOMAIN_OFFSET.milestones);
+    expect(getNotificationId("milestones", "abc")).toBeGreaterThanOrEqual(
+      NOTIF_DOMAIN_OFFSET.milestones,
+    );
     expect(getNotificationId("milestones", "abc")).toBeLessThan(3_000_000);
   });
 
@@ -39,7 +48,9 @@ describe("getNotificationId", () => {
   });
 
   it("produces no collisions across 50 sequential treatment IDs", () => {
-    const ids = Array.from({ length: 50 }, (_, i) => getNotificationId("treatments", String(i + 1)));
+    const ids = Array.from({ length: 50 }, (_, i) =>
+      getNotificationId("treatments", String(i + 1)),
+    );
     const unique = new Set(ids);
     expect(unique.size).toBe(50);
   });
@@ -116,7 +127,10 @@ describe("useNotifications", () => {
           expect.objectContaining({
             id: TREATMENT_3_NOTIF_ID,
             title: "EsperanzApp",
-            schedule: expect.objectContaining({ on: expect.objectContaining({ hour: 8, minute: 0 }), allowWhileIdle: true }),
+            schedule: expect.objectContaining({
+              on: expect.objectContaining({ hour: 8, minute: 0 }),
+              allowWhileIdle: true,
+            }),
           }),
         ]),
       }),
@@ -133,7 +147,10 @@ describe("useNotifications", () => {
       expect.objectContaining({
         notifications: expect.arrayContaining([
           expect.objectContaining({
-            schedule: expect.objectContaining({ on: expect.objectContaining({ weekday: 2, hour: 8, minute: 0 }), allowWhileIdle: true }),
+            schedule: expect.objectContaining({
+              on: expect.objectContaining({ weekday: 2, hour: 8, minute: 0 }),
+              allowWhileIdle: true,
+            }),
           }),
         ]),
       }),
@@ -150,7 +167,10 @@ describe("useNotifications", () => {
       expect.objectContaining({
         notifications: expect.arrayContaining([
           expect.objectContaining({
-            schedule: expect.objectContaining({ on: expect.objectContaining({ day: 15, hour: 8, minute: 0 }), allowWhileIdle: true }),
+            schedule: expect.objectContaining({
+              on: expect.objectContaining({ day: 15, hour: 8, minute: 0 }),
+              allowWhileIdle: true,
+            }),
           }),
         ]),
       }),
@@ -257,7 +277,9 @@ describe("useNotifications", () => {
       // First call: scheduleReminder verify — notifId found → "scheduled"
       .mockResolvedValueOnce({ notifications: [{ id: notifId }] } as PendingResult)
       // Second call: orphan check — notifId expected, orphanId is stale
-      .mockResolvedValueOnce({ notifications: [{ id: notifId }, { id: orphanId }] } as PendingResult);
+      .mockResolvedValueOnce({
+        notifications: [{ id: notifId }, { id: orphanId }],
+      } as PendingResult);
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.rescheduleAll([treatment]);
@@ -279,7 +301,9 @@ describe("useNotifications", () => {
     const outsideDomain = 42;
     vi.mocked(LocalNotifications.getPending)
       .mockResolvedValueOnce({ notifications: [{ id: notifId }] } as PendingResult)
-      .mockResolvedValueOnce({ notifications: [{ id: notifId }, { id: outsideDomain }] } as PendingResult);
+      .mockResolvedValueOnce({
+        notifications: [{ id: notifId }, { id: outsideDomain }],
+      } as PendingResult);
     const { result } = renderHook(() => useNotifications());
     await act(async () => {
       await result.current.rescheduleAll([treatment]);
@@ -306,7 +330,9 @@ describe("useNotifications", () => {
 
   it("rescheduleAll returns false when there are no treatments to schedule", async () => {
     type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
-    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({ notifications: [] } satisfies PendingResult);
+    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
+      notifications: [],
+    } satisfies PendingResult);
     const { result } = renderHook(() => useNotifications());
     let anyFailed: boolean | undefined;
     await act(async () => {
@@ -346,7 +372,9 @@ describe("useNotifications", () => {
     // Simulates a scheduling failure not caused by the exact-alarm permission.
     // getPending returns empty even though schedule() did not throw and canScheduleExactAlarms returns true.
     type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
-    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({ notifications: [] } satisfies PendingResult);
+    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
+      notifications: [],
+    } satisfies PendingResult);
     const { result } = renderHook(() => useNotifications());
     let status: string | undefined;
     await act(async () => {
@@ -359,7 +387,9 @@ describe("useNotifications", () => {
   it("scheduleReminder returns 'exact-alarm-denied' when notification not found in pending and exact alarm is not granted", async () => {
     // Simulates Android 14+ silent failure when SCHEDULE_EXACT_ALARM is revoked.
     type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
-    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({ notifications: [] } satisfies PendingResult);
+    vi.mocked(LocalNotifications.getPending).mockResolvedValueOnce({
+      notifications: [],
+    } satisfies PendingResult);
     vi.mocked(ExactAlarm.canScheduleExactAlarms).mockResolvedValueOnce({ value: false });
     const { result } = renderHook(() => useNotifications());
     let status: string | undefined;

@@ -1,4 +1,12 @@
-import type { EventType, Frequency, TreatmentStatus, Habit, HabitLog, Treatment, TreatmentLog } from "@/types";
+import type {
+  EventType,
+  Frequency,
+  TreatmentStatus,
+  Habit,
+  HabitLog,
+  Treatment,
+  TreatmentLog,
+} from "@/types";
 
 const EVENT_TYPES: readonly EventType[] = ["start", "relapse"];
 const FREQUENCIES: readonly Frequency[] = ["daily", "weekly", "monthly"];
@@ -26,7 +34,9 @@ export class UnsupportedExportVersionError extends Error {
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
 
-function isStr(v: unknown): v is string { return typeof v === "string" && v.length > 0; }
+function isStr(v: unknown): v is string {
+  return typeof v === "string" && v.length > 0;
+}
 // SQLite IDs are INTEGER PRIMARY KEY AUTOINCREMENT — only positive integer strings are valid.
 function isPosIntStr(v: unknown): v is string {
   if (typeof v !== "string" || v.length === 0) return false;
@@ -86,7 +96,8 @@ function validateHabitLog(v: unknown): HabitLog {
   const eventType = l["eventType"];
   const eventDate = l["eventDate"];
   if (!isPosIntStr(id)) throw new Error("habitLogs: id must be a positive integer string");
-  if (!isPosIntStr(habitId)) throw new Error("habitLogs: habitId must be a positive integer string");
+  if (!isPosIntStr(habitId))
+    throw new Error("habitLogs: habitId must be a positive integer string");
   if (!isStr(eventType) || !isEventType(eventType))
     throw new Error(`habitLogs: invalid eventType "${String(eventType)}"`);
   if (!isDate(eventDate)) throw new Error("habitLogs: eventDate must be YYYY-MM-DD");
@@ -108,7 +119,8 @@ function validateTreatment(v: unknown): Treatment {
   if (!isStr(frequency) || !isFrequency(frequency))
     throw new Error(`treatments: invalid frequency "${String(frequency)}"`);
   if (!isTime(reminderTime)) throw new Error("treatments: invalid reminderTime");
-  if (typeof reminderEnabled !== "boolean") throw new Error("treatments: reminderEnabled must be boolean");
+  if (typeof reminderEnabled !== "boolean")
+    throw new Error("treatments: reminderEnabled must be boolean");
   if (!isISODateTime(createdAt)) throw new Error("treatments: createdAt must be a valid date-time");
   let day: number | null;
   if (reminderDay === null) {
@@ -138,7 +150,8 @@ function validateTreatmentLog(v: unknown): TreatmentLog {
   const scheduledAt = l["scheduledAt"];
   const status = l["status"];
   if (!isPosIntStr(id)) throw new Error("treatmentLogs: id must be a positive integer string");
-  if (!isPosIntStr(treatmentId)) throw new Error("treatmentLogs: treatmentId must be a positive integer string");
+  if (!isPosIntStr(treatmentId))
+    throw new Error("treatmentLogs: treatmentId must be a positive integer string");
   if (!isStr(status) || !isTreatmentStatus(status))
     throw new Error(`treatmentLogs: invalid status "${String(status)}"`);
   if (!isDate(scheduledAt)) throw new Error("treatmentLogs: scheduledAt must be YYYY-MM-DD");
@@ -153,7 +166,6 @@ export type ExportPayload = {
   treatments: Treatment[];
   treatmentLogs: TreatmentLog[];
 };
-
 
 export function buildExportPayload(
   habits: Habit[],
@@ -189,7 +201,7 @@ export function parseExportPayload(raw: string): ExportPayload {
   }
   return {
     version: EXPORT_VERSION,
-    exportedAt: (typeof rawExportedAt === "string" && rawExportedAt !== "") ? rawExportedAt : null,
+    exportedAt: typeof rawExportedAt === "string" && rawExportedAt !== "" ? rawExportedAt : null,
     habits: (p["habits"] as unknown[]).map((v) => validateHabit(v)),
     habitLogs: (p["habitLogs"] as unknown[]).map((v) => validateHabitLog(v)),
     treatments: (p["treatments"] as unknown[]).map((v) => validateTreatment(v)),
@@ -225,9 +237,25 @@ export function payloadToCSV(payload: ExportPayload): string {
   sections.push(
     "",
     "TREATMENTS",
-    row(["id", "label", "frequency", "reminderTime", "reminderEnabled", "reminderDay", "createdAt"]),
+    row([
+      "id",
+      "label",
+      "frequency",
+      "reminderTime",
+      "reminderEnabled",
+      "reminderDay",
+      "createdAt",
+    ]),
     ...payload.treatments.map((t) =>
-      row([t.id, t.label, t.frequency, t.reminderTime, t.reminderEnabled ? "1" : "0", t.reminderDay !== null ? String(t.reminderDay) : "", t.createdAt]),
+      row([
+        t.id,
+        t.label,
+        t.frequency,
+        t.reminderTime,
+        t.reminderEnabled ? "1" : "0",
+        t.reminderDay !== null ? String(t.reminderDay) : "",
+        t.createdAt,
+      ]),
     ),
   );
 
@@ -243,7 +271,15 @@ export function payloadToCSV(payload: ExportPayload): string {
 
 const HABIT_COLS = ["id", "label", "icon", "color", "bgColor", "startDate", "createdAt"] as const;
 const HABIT_LOG_COLS = ["id", "habitId", "eventType", "eventDate"] as const;
-const TREATMENT_COLS = ["id", "label", "frequency", "reminderTime", "reminderEnabled", "reminderDay", "createdAt"] as const;
+const TREATMENT_COLS = [
+  "id",
+  "label",
+  "frequency",
+  "reminderTime",
+  "reminderEnabled",
+  "reminderDay",
+  "createdAt",
+] as const;
 const TREATMENT_LOG_COLS = ["id", "treatmentId", "scheduledAt", "status"] as const;
 
 // Character-by-character CSV tokenizer that correctly handles quoted fields containing
@@ -262,25 +298,31 @@ function tokenizeCSV(raw: string): string[][] {
       let closed = false;
       while (i < raw.length) {
         if (raw[i] === '"') {
-          if (raw[i + 1] === '"') { field += '"'; i += 2; }
-          else { i++; closed = true; break; }
+          if (raw[i + 1] === '"') {
+            field += '"';
+            i += 2;
+          } else {
+            i++;
+            closed = true;
+            break;
+          }
         } else {
           field += raw[i++] ?? "";
         }
       }
       if (!closed) throw new Error("Unterminated quoted field in CSV");
-    } else if (ch === ',') {
+    } else if (ch === ",") {
       row.push(field);
       field = "";
       i++;
-    } else if (ch === '\r') {
+    } else if (ch === "\r") {
       row.push(field);
       field = "";
       result.push(row);
       row = [];
       i++;
-      if (raw[i] === '\n') i++;
-    } else if (ch === '\n') {
+      if (raw[i] === "\n") i++;
+    } else if (ch === "\n") {
       row.push(field);
       field = "";
       result.push(row);
@@ -327,7 +369,9 @@ export function parseCSVPayload(raw: string): ExportPayload {
     const colRow = rows[start + 1];
     if (!colRow) throw new Error(`CSV section ${header}: missing column header row`);
     if (colRow.join(",") !== expectedCols.join(","))
-      throw new Error(`CSV section ${header}: expected columns "${expectedCols.join(",")}", got "${colRow.join(",")}"`);
+      throw new Error(
+        `CSV section ${header}: expected columns "${expectedCols.join(",")}", got "${colRow.join(",")}"`,
+      );
     const data: string[][] = [];
     for (let i = start + 2; i < rows.length; i++) {
       const r = rows[i];
@@ -344,60 +388,90 @@ export function parseCSVPayload(raw: string): ExportPayload {
   const treatmentRows = parseSection("TREATMENTS", TREATMENT_COLS);
   const treatmentLogRows = parseSection("TREATMENT_LOGS", TREATMENT_LOG_COLS);
 
-  const habits: Habit[] = habitRows.map(([id, label, icon, color, bgColor, startDate, createdAt]) => {
-    if (!isPosIntStr(id)) throw new Error("habits: id must be a positive integer string");
-    if (!isStr(label)) throw new Error("habits: label must be a non-empty string");
-    if (!isStr(icon)) throw new Error("habits: icon must be a non-empty string");
-    if (!isHexColor(color)) throw new Error("habits: color must be a hex color");
-    if (!isHexColor(bgColor)) throw new Error("habits: bgColor must be a hex color");
-    if (!isDate(startDate)) throw new Error("habits: startDate must be YYYY-MM-DD");
-    if (!isISODateTime(createdAt)) throw new Error("habits: createdAt must be a valid date-time");
-    return { id, label, icon, color, bgColor, startDate, createdAt };
-  });
+  const habits: Habit[] = habitRows.map(
+    ([id, label, icon, color, bgColor, startDate, createdAt]) => {
+      if (!isPosIntStr(id)) throw new Error("habits: id must be a positive integer string");
+      if (!isStr(label)) throw new Error("habits: label must be a non-empty string");
+      if (!isStr(icon)) throw new Error("habits: icon must be a non-empty string");
+      if (!isHexColor(color)) throw new Error("habits: color must be a hex color");
+      if (!isHexColor(bgColor)) throw new Error("habits: bgColor must be a hex color");
+      if (!isDate(startDate)) throw new Error("habits: startDate must be YYYY-MM-DD");
+      if (!isISODateTime(createdAt)) throw new Error("habits: createdAt must be a valid date-time");
+      return { id, label, icon, color, bgColor, startDate, createdAt };
+    },
+  );
 
   const habitLogs: HabitLog[] = logRows.map(([id, habitId, eventType, eventDate]) => {
     if (!isPosIntStr(id)) throw new Error("habitLogs: id must be a positive integer string");
-    if (!isPosIntStr(habitId)) throw new Error("habitLogs: habitId must be a positive integer string");
+    if (!isPosIntStr(habitId))
+      throw new Error("habitLogs: habitId must be a positive integer string");
     if (!isStr(eventType)) throw new Error("habitLogs: eventType must be a string");
     if (!isEventType(eventType)) throw new Error(`habitLogs: invalid eventType "${eventType}"`);
     if (!isDate(eventDate)) throw new Error("habitLogs: eventDate must be YYYY-MM-DD");
     return { id, habitId, eventType, eventDate };
   });
 
-  const treatments: Treatment[] = treatmentRows.map(([id, label, frequency, reminderTime, reminderEnabledStr, reminderDayStr, createdAt]) => {
-    if (!isPosIntStr(id)) throw new Error("treatments: id must be a positive integer string");
-    if (!isStr(label)) throw new Error("treatments: label must be a non-empty string");
-    if (!isStr(frequency)) throw new Error("treatments: frequency must be a string");
-    if (!isFrequency(frequency)) throw new Error(`treatments: invalid frequency "${frequency}"`);
-    if (!isTime(reminderTime)) throw new Error("treatments: invalid reminderTime");
-    if (!isISODateTime(createdAt)) throw new Error("treatments: createdAt must be a valid date-time");
-    const reminderDay = reminderDayStr !== "" ? Number(reminderDayStr) : null;
-    if (reminderDay !== null && (!Number.isInteger(reminderDay) || reminderDay < 0 || reminderDay > 28))
-      throw new Error("treatments: invalid reminderDay");
-    if (frequency === "daily") {
-      if (reminderDay !== null) throw new Error("treatments: daily frequency must have null reminderDay");
-    } else if (frequency === "weekly") {
-      if (reminderDay === null || reminderDay < 0 || reminderDay > 6)
-        throw new Error("treatments: weekly frequency must have reminderDay 0-6");
-    } else {
-      if (reminderDay === null || (reminderDay !== 0 && (reminderDay < 1 || reminderDay > 28)))
-        throw new Error("treatments: monthly frequency must have reminderDay 0 or 1-28");
-    }
-    if (reminderEnabledStr !== "0" && reminderEnabledStr !== "1")
-      throw new Error(`treatments: reminderEnabled must be "0" or "1", got "${reminderEnabledStr ?? ""}"`);
-    return { id, label, frequency, reminderTime, reminderEnabled: reminderEnabledStr === "1", reminderDay, createdAt };
-  });
+  const treatments: Treatment[] = treatmentRows.map(
+    ([id, label, frequency, reminderTime, reminderEnabledStr, reminderDayStr, createdAt]) => {
+      if (!isPosIntStr(id)) throw new Error("treatments: id must be a positive integer string");
+      if (!isStr(label)) throw new Error("treatments: label must be a non-empty string");
+      if (!isStr(frequency)) throw new Error("treatments: frequency must be a string");
+      if (!isFrequency(frequency)) throw new Error(`treatments: invalid frequency "${frequency}"`);
+      if (!isTime(reminderTime)) throw new Error("treatments: invalid reminderTime");
+      if (!isISODateTime(createdAt))
+        throw new Error("treatments: createdAt must be a valid date-time");
+      const reminderDay = reminderDayStr !== "" ? Number(reminderDayStr) : null;
+      if (
+        reminderDay !== null &&
+        (!Number.isInteger(reminderDay) || reminderDay < 0 || reminderDay > 28)
+      )
+        throw new Error("treatments: invalid reminderDay");
+      if (frequency === "daily") {
+        if (reminderDay !== null)
+          throw new Error("treatments: daily frequency must have null reminderDay");
+      } else if (frequency === "weekly") {
+        if (reminderDay === null || reminderDay < 0 || reminderDay > 6)
+          throw new Error("treatments: weekly frequency must have reminderDay 0-6");
+      } else {
+        if (reminderDay === null || (reminderDay !== 0 && (reminderDay < 1 || reminderDay > 28)))
+          throw new Error("treatments: monthly frequency must have reminderDay 0 or 1-28");
+      }
+      if (reminderEnabledStr !== "0" && reminderEnabledStr !== "1")
+        throw new Error(
+          `treatments: reminderEnabled must be "0" or "1", got "${reminderEnabledStr ?? ""}"`,
+        );
+      return {
+        id,
+        label,
+        frequency,
+        reminderTime,
+        reminderEnabled: reminderEnabledStr === "1",
+        reminderDay,
+        createdAt,
+      };
+    },
+  );
 
-  const treatmentLogs: TreatmentLog[] = treatmentLogRows.map(([id, treatmentId, scheduledAt, status]) => {
-    if (!isPosIntStr(id)) throw new Error("treatmentLogs: id must be a positive integer string");
-    if (!isPosIntStr(treatmentId)) throw new Error("treatmentLogs: treatmentId must be a positive integer string");
-    if (!isStr(status)) throw new Error("treatmentLogs: status must be a string");
-    if (!isTreatmentStatus(status)) throw new Error(`treatmentLogs: invalid status "${status}"`);
-    if (!isDate(scheduledAt)) throw new Error("treatmentLogs: scheduledAt must be YYYY-MM-DD");
-    return { id, treatmentId, scheduledAt, status };
-  });
+  const treatmentLogs: TreatmentLog[] = treatmentLogRows.map(
+    ([id, treatmentId, scheduledAt, status]) => {
+      if (!isPosIntStr(id)) throw new Error("treatmentLogs: id must be a positive integer string");
+      if (!isPosIntStr(treatmentId))
+        throw new Error("treatmentLogs: treatmentId must be a positive integer string");
+      if (!isStr(status)) throw new Error("treatmentLogs: status must be a string");
+      if (!isTreatmentStatus(status)) throw new Error(`treatmentLogs: invalid status "${status}"`);
+      if (!isDate(scheduledAt)) throw new Error("treatmentLogs: scheduledAt must be YYYY-MM-DD");
+      return { id, treatmentId, scheduledAt, status };
+    },
+  );
 
-  return { version: EXPORT_VERSION, exportedAt: null, habits, habitLogs, treatments, treatmentLogs };
+  return {
+    version: EXPORT_VERSION,
+    exportedAt: null,
+    habits,
+    habitLogs,
+    treatments,
+    treatmentLogs,
+  };
 }
 
 // OWASP recommendation for PBKDF2-HMAC-SHA256 as of 2023.
@@ -409,6 +483,13 @@ export class WrongPasswordError extends Error {
   constructor() {
     super("Wrong password");
     this.name = "WrongPasswordError";
+  }
+}
+
+export class CorruptFileError extends Error {
+  constructor() {
+    super("Corrupt file");
+    this.name = "CorruptFileError";
   }
 }
 
@@ -457,7 +538,11 @@ function fromBase64(s: string): Uint8Array<ArrayBuffer> {
   return bytes;
 }
 
-async function deriveKey(password: string, salt: Uint8Array<ArrayBuffer>, iterations: number): Promise<CryptoKey> {
+async function deriveKey(
+  password: string,
+  salt: Uint8Array<ArrayBuffer>,
+  iterations: number,
+): Promise<CryptoKey> {
   const keyMaterial = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(password),
@@ -486,7 +571,9 @@ export async function encryptPayload(
   const key = await deriveKey(password, salt, PBKDF2_ITERATIONS);
   const saltB64 = toBase64(salt);
   const ivB64 = toBase64(iv);
-  const aad = new TextEncoder().encode(`${format}|${saltB64}|${ivB64}|${String(PBKDF2_ITERATIONS)}`);
+  const aad = new TextEncoder().encode(
+    `${format}|${saltB64}|${ivB64}|${String(PBKDF2_ITERATIONS)}`,
+  );
   const encrypted = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv, additionalData: aad },
     key,
@@ -504,17 +591,32 @@ export async function encryptPayload(
   return JSON.stringify(envelope);
 }
 
-export async function decryptPayload(envelopeJson: string, password: string): Promise<{ content: string; format: "json" | "csv" }> {
+export async function decryptPayload(
+  envelopeJson: string,
+  password: string,
+): Promise<{ content: string; format: "json" | "csv" }> {
   const parsed: unknown = JSON.parse(envelopeJson);
-  if (!isEncryptedEnvelope(parsed)) throw new Error("Invalid encrypted envelope");
-  const salt = fromBase64(parsed.salt);
-  const iv = fromBase64(parsed.iv);
-  const data = fromBase64(parsed.data);
+  if (!isEncryptedEnvelope(parsed)) throw new CorruptFileError();
+  let salt: Uint8Array<ArrayBuffer>, iv: Uint8Array<ArrayBuffer>, data: Uint8Array<ArrayBuffer>;
+  try {
+    salt = fromBase64(parsed.salt);
+    iv = fromBase64(parsed.iv);
+    data = fromBase64(parsed.data);
+  } catch {
+    throw new CorruptFileError();
+  }
   const key = await deriveKey(password, salt, parsed.iterations);
   try {
-    const algorithm: AesGcmParams = parsed.withAad === true
-      ? { name: "AES-GCM", iv, additionalData: new TextEncoder().encode(`${parsed.format}|${parsed.salt}|${parsed.iv}|${String(parsed.iterations)}`) }
-      : { name: "AES-GCM", iv };
+    const algorithm: AesGcmParams =
+      parsed.withAad === true
+        ? {
+            name: "AES-GCM",
+            iv,
+            additionalData: new TextEncoder().encode(
+              `${parsed.format}|${parsed.salt}|${parsed.iv}|${String(parsed.iterations)}`,
+            ),
+          }
+        : { name: "AES-GCM", iv };
     const decrypted = await crypto.subtle.decrypt(algorithm, key, data);
     return { content: new TextDecoder().decode(decrypted), format: parsed.format };
   } catch {

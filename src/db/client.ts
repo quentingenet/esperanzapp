@@ -54,8 +54,14 @@ async function doInitDatabase(): Promise<void> {
     // DB file may be from a pre-encryption install or tied to a different Keystore key.
     // Surface as a recoverable error: the user can explicitly reset via DbErrorScreen.
     db = null;
-    try { await sqlite.closeConnection(DB_NAME, false); } catch { /* ignore */ }
-    throw new Error("Database file could not be opened with the current encryption key.", { cause });
+    try {
+      await sqlite.closeConnection(DB_NAME, false);
+    } catch {
+      /* ignore */
+    }
+    throw new Error("Database file could not be opened with the current encryption key.", {
+      cause,
+    });
   }
 
   try {
@@ -64,8 +70,16 @@ async function doInitDatabase(): Promise<void> {
   } catch (e) {
     const staleDb = db;
     db = null;
-    try { await staleDb.close(); } catch { /* ignore */ }
-    try { await sqlite.closeConnection(DB_NAME, false); } catch { /* ignore */ }
+    try {
+      await staleDb.close();
+    } catch {
+      /* ignore */
+    }
+    try {
+      await sqlite.closeConnection(DB_NAME, false);
+    } catch {
+      /* ignore */
+    }
     throw e;
   }
 }
@@ -97,9 +111,7 @@ export function getDb(): SQLiteDBConnection {
 
 let txQueue: Promise<unknown> = Promise.resolve();
 
-export function runInTransaction<T>(
-  fn: (db: SQLiteDBConnection | null) => Promise<T>,
-): Promise<T> {
+export function runInTransaction<T>(fn: (db: SQLiteDBConnection | null) => Promise<T>): Promise<T> {
   if (!db) return fn(null);
   const capturedDb = db;
   const run = async (): Promise<T> => {
@@ -118,9 +130,7 @@ export function runInTransaction<T>(
   return chained;
 }
 
-export function clearAllData(
-  dbConn?: SQLiteDBConnection | null,
-): Promise<void> {
+export function clearAllData(dbConn?: SQLiteDBConnection | null): Promise<void> {
   const fn = async (db: SQLiteDBConnection) => {
     await db.execute("DELETE FROM treatment_logs", false);
     await db.execute("DELETE FROM habit_logs", false);
@@ -143,10 +153,18 @@ export async function closeDatabase(): Promise<void> {
 // Deletes the stale DB file so the next initDatabase() call starts fresh.
 export async function deleteStaleDatabase(): Promise<void> {
   if (db) {
-    try { await db.close(); } catch { /* ignore */ }
+    try {
+      await db.close();
+    } catch {
+      /* ignore */
+    }
     db = null;
   }
-  try { await sqlite.closeConnection(DB_NAME, false); } catch { /* ignore */ }
+  try {
+    await sqlite.closeConnection(DB_NAME, false);
+  } catch {
+    /* ignore */
+  }
   // Create a plain (unencrypted) connection just to get a handle for deletion.
   // No open() call needed: delete() operates on the file path directly.
   // Do NOT catch the delete() error: if it fails, the caller must NOT reload
@@ -155,6 +173,10 @@ export async function deleteStaleDatabase(): Promise<void> {
   try {
     await conn.delete();
   } finally {
-    try { await sqlite.closeConnection(DB_NAME, false); } catch { /* ignore */ }
+    try {
+      await sqlite.closeConnection(DB_NAME, false);
+    } catch {
+      /* ignore */
+    }
   }
 }

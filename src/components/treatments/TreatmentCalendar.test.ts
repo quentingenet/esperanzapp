@@ -2,9 +2,13 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { getPastOccurrences } from "./treatmentCalendarUtils";
 import { format } from "date-fns";
 
-afterEach(() => { vi.useRealTimers(); });
+afterEach(() => {
+  vi.useRealTimers();
+});
 
-function fmt(d: Date) { return format(d, "yyyy-MM-dd"); }
+function fmt(d: Date) {
+  return format(d, "yyyy-MM-dd");
+}
 
 describe("getPastOccurrences", () => {
   it("returns empty array for daily frequency (caller handles daily separately)", () => {

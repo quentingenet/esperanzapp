@@ -21,9 +21,9 @@ vi.mock("@capawesome/capacitor-app-update", () => ({
 describe("useAppUpdate", () => {
   beforeEach(() => {
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
-    vi.mocked(AppUpdate.getAppUpdateInfo).mockResolvedValue(
-      { updateAvailability: AppUpdateAvailability.UPDATE_NOT_AVAILABLE } as never,
-    );
+    vi.mocked(AppUpdate.getAppUpdateInfo).mockResolvedValue({
+      updateAvailability: AppUpdateAvailability.UPDATE_NOT_AVAILABLE,
+    } as never);
     vi.mocked(AppUpdate.performImmediateUpdate).mockResolvedValue(undefined as never);
     vi.mocked(AppUpdate.openAppStore).mockResolvedValue(undefined);
   });
@@ -38,18 +38,22 @@ describe("useAppUpdate", () => {
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
     const { result } = renderHook(() => useAppUpdate());
     let status: string | undefined;
-    await act(async () => { status = await result.current.checkForUpdate(); });
+    await act(async () => {
+      status = await result.current.checkForUpdate();
+    });
     expect(status).toBe("up-to-date");
     expect(AppUpdate.getAppUpdateInfo).not.toHaveBeenCalled();
   });
 
   it("returns 'available' and sets status when an update is available", async () => {
-    vi.mocked(AppUpdate.getAppUpdateInfo).mockResolvedValue(
-      { updateAvailability: AppUpdateAvailability.UPDATE_AVAILABLE } as never,
-    );
+    vi.mocked(AppUpdate.getAppUpdateInfo).mockResolvedValue({
+      updateAvailability: AppUpdateAvailability.UPDATE_AVAILABLE,
+    } as never);
     const { result } = renderHook(() => useAppUpdate());
     let status: string | undefined;
-    await act(async () => { status = await result.current.checkForUpdate(); });
+    await act(async () => {
+      status = await result.current.checkForUpdate();
+    });
     expect(status).toBe("available");
     expect(result.current.status).toBe("available");
   });
@@ -57,7 +61,9 @@ describe("useAppUpdate", () => {
   it("returns 'up-to-date' and sets status when no update is available", async () => {
     const { result } = renderHook(() => useAppUpdate());
     let status: string | undefined;
-    await act(async () => { status = await result.current.checkForUpdate(); });
+    await act(async () => {
+      status = await result.current.checkForUpdate();
+    });
     expect(status).toBe("up-to-date");
     expect(result.current.status).toBe("up-to-date");
   });
@@ -66,14 +72,18 @@ describe("useAppUpdate", () => {
     vi.mocked(AppUpdate.getAppUpdateInfo).mockRejectedValue(new Error("network failure"));
     const { result } = renderHook(() => useAppUpdate());
     let status: string | undefined;
-    await act(async () => { status = await result.current.checkForUpdate(); });
+    await act(async () => {
+      status = await result.current.checkForUpdate();
+    });
     expect(status).toBe("error");
     expect(result.current.status).toBe("error");
   });
 
   it("openUpdate calls performImmediateUpdate on native platform", async () => {
     const { result } = renderHook(() => useAppUpdate());
-    await act(async () => { await result.current.openUpdate(); });
+    await act(async () => {
+      await result.current.openUpdate();
+    });
     expect(AppUpdate.performImmediateUpdate).toHaveBeenCalled();
     expect(AppUpdate.openAppStore).not.toHaveBeenCalled();
   });
@@ -81,14 +91,18 @@ describe("useAppUpdate", () => {
   it("openUpdate falls back to openAppStore when performImmediateUpdate throws", async () => {
     vi.mocked(AppUpdate.performImmediateUpdate).mockRejectedValue(new Error("not supported"));
     const { result } = renderHook(() => useAppUpdate());
-    await act(async () => { await result.current.openUpdate(); });
+    await act(async () => {
+      await result.current.openUpdate();
+    });
     expect(AppUpdate.openAppStore).toHaveBeenCalled();
   });
 
   it("openUpdate does nothing on non-native platform", async () => {
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
     const { result } = renderHook(() => useAppUpdate());
-    await act(async () => { await result.current.openUpdate(); });
+    await act(async () => {
+      await result.current.openUpdate();
+    });
     expect(AppUpdate.performImmediateUpdate).not.toHaveBeenCalled();
     expect(AppUpdate.openAppStore).not.toHaveBeenCalled();
   });

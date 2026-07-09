@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  CorruptFileError,
   ImportStorageError,
   InconsistentImportDataError,
   InvalidImportFileError,
@@ -11,6 +12,7 @@ import { getImportErrorTranslationKey } from "./importErrorMessage";
 describe("getImportErrorTranslationKey", () => {
   it.each([
     [new WrongPasswordError(), "export.encryptedImportError"],
+    [new CorruptFileError(), "export.importInvalidFile"],
     [new UnsupportedImportVersionError(), "export.importUnsupportedVersion"],
     [new InconsistentImportDataError("orphan"), "export.importInconsistentData"],
     [new InvalidImportFileError(), "export.importInvalidFile"],

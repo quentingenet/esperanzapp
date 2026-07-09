@@ -85,7 +85,6 @@
   },
   "habits": {
     "add": "Ajouter une habitude",
-    "delete": "Supprimer cette habitude",
     "deleteConfirm": "Supprimer cette habitude et tout son historique ?",
     "empty": "Aucune habitude pour l'instant.\nCommence par en ajouter une.",
     "counter": {
@@ -276,7 +275,6 @@
     "nextMilestone_other": "Prochain jalon : {{label}} dans {{count}} jours"
   },
   "relapse": {
-    "title": "Recommencer",
     "confirmTitle": "Un pas de côté",
     "confirmBody": "Ces jours sont à toi. Ils restent.",
     "confirmButton": "Oui, recommencer",
@@ -293,7 +291,6 @@
     "title": "Mes traitements",
     "add": "Ajouter un traitement",
     "edit": "Modifier le traitement",
-    "delete": "Supprimer ce traitement",
     "deleteConfirm": "Supprimer ce traitement et tout son historique ?",
     "empty": "Aucun traitement pour l'instant.\nAjoutez-en un et configurez un rappel pour ne rien oublier.",
     "taken": "Pris",
@@ -306,7 +303,6 @@
     "form": {
       "name": "Nom du médicament",
       "namePlaceholder": "ex : Metformine, Sertraline…",
-      "frequency": "Fréquence",
       "reminderTime": "Heure du rappel",
       "enableReminder": "Activer le rappel",
       "permissionDenied": "Permission de notification refusée. Le rappel a été désactivé.",
@@ -325,12 +321,10 @@
     "reminderAlarmSettingsNeeded": "Active 'Alarmes et rappels' dans tes paramètres pour recevoir tes rappels à l'heure."
   },
   "stats": {
-    "title": "Statistiques",
     "currentStreak": "Série actuelle",
     "longestStreak": "Plus longue série",
     "totalRelapses": "Rechutes totales",
     "averageStreak": "Moyenne des séries",
-    "startDate": "Depuis le",
     "noData": "Pas encore de données"
   },
   "history": {

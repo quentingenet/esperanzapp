@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -30,11 +30,23 @@ export function RelapseDialog({
 }: RelapseDialogProps) {
   const { t } = useTranslation();
   const dateLocale = useDateLocale();
+  const [today, setToday] = useState<Date>(() => startOfDay(new Date()));
   const [selectedDate, setSelectedDate] = useState<Date>(() => startOfDay(new Date()));
   const messageKey = getMessageKey(stats.currentStreak);
-  const today = startOfDay(new Date());
+
+  useEffect(() => {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const ms = tomorrow.getTime() - now.getTime() + 500;
+    const timer = setTimeout(() => {
+      const newToday = startOfDay(new Date());
+      setSelectedDate((d) => (startOfDay(d).getTime() === today.getTime() ? newToday : d));
+      setToday(newToday);
+    }, ms);
+    return () => clearTimeout(timer);
+  }, [today]);
   const habitStart = startOfDay(parse(habit.startDate, "yyyy-MM-dd", new Date()));
-const rawMessage = t(messageKey, { name: userName, days: stats.currentStreak });
+  const rawMessage = t(messageKey, { name: userName, days: stats.currentStreak });
   const displayMessage = userName.trim()
     ? rawMessage
     : rawMessage.replace(/^,\s*/, "").replace(/^(.)/, (c) => c.toUpperCase());
@@ -51,9 +63,7 @@ const rawMessage = t(messageKey, { name: userName, days: stats.currentStreak });
       maxWidth="xs"
       slotProps={{ backdrop: { sx: { backdropFilter: "blur(4px)" } } }}
     >
-      <DialogTitle sx={{ fontWeight: 700 }}>
-        {t("relapse.confirmTitle")}
-      </DialogTitle>
+      <DialogTitle sx={{ fontWeight: 700 }}>{t("relapse.confirmTitle")}</DialogTitle>
       <DialogContent sx={{ pb: 0 }}>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
           {t("relapse.confirmBody")}
@@ -65,7 +75,9 @@ const rawMessage = t(messageKey, { name: userName, days: stats.currentStreak });
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={dateLocale}>
           <DateCalendar
             value={selectedDate}
-            onChange={(d) => { if (d) setSelectedDate(startOfDay(d)); }}
+            onChange={(d) => {
+              if (d) setSelectedDate(startOfDay(d));
+            }}
             maxDate={today}
             shouldDisableDate={(day) => {
               const d = startOfDay(day);

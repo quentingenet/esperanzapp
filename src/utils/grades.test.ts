@@ -163,7 +163,10 @@ describe("getProgressToNext", () => {
   });
 
   it("never returns value outside 0-100", () => {
-    const testDays = [0, 1, 2, 5, 13, 29, 59, 89, 179, 364, 729, 999, 1000, 1824, 1825, 3649, 3650, 7299, 7300, 9999];
+    const testDays = [
+      0, 1, 2, 5, 13, 29, 59, 89, 179, 364, 729, 999, 1000, 1824, 1825, 3649, 3650, 7299, 7300,
+      9999,
+    ];
     for (const days of testDays) {
       const p = getProgressToNext(days);
       expect(p).toBeGreaterThanOrEqual(0);

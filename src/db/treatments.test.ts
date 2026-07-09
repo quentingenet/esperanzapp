@@ -1,10 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  createTreatment,
-  getAllTreatments,
-  updateTreatment,
-  deleteTreatment,
-} from "./treatments";
+import { createTreatment, getAllTreatments, updateTreatment, deleteTreatment } from "./treatments";
 
 const mockDb = { run: vi.fn(), query: vi.fn() };
 vi.mock("./client", () => ({
@@ -14,10 +9,28 @@ vi.mock("./client", () => ({
   runInTransaction: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb),
 }));
 
-const ROW = { id: 3, label: "Metformine", frequency: "daily", reminder_time: "08:00", reminder_enabled: 1, reminder_day: null, created_at: "2024-06-01T09:00:00Z" };
-const TREATMENT = { id: "3", label: "Metformine", frequency: "daily" as const, reminderTime: "08:00", reminderEnabled: true, reminderDay: null, createdAt: "2024-06-01T09:00:00Z" };
+const ROW = {
+  id: 3,
+  label: "Metformine",
+  frequency: "daily",
+  reminder_time: "08:00",
+  reminder_enabled: 1,
+  reminder_day: null,
+  created_at: "2024-06-01T09:00:00Z",
+};
+const TREATMENT = {
+  id: "3",
+  label: "Metformine",
+  frequency: "daily" as const,
+  reminderTime: "08:00",
+  reminderEnabled: true,
+  reminderDay: null,
+  createdAt: "2024-06-01T09:00:00Z",
+};
 
-beforeEach(() => { vi.clearAllMocks(); });
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe("createTreatment", () => {
   it("inserts and returns treatment with id", async () => {
@@ -140,7 +153,11 @@ describe("deleteTreatment", () => {
   it("passes correct id to both DELETE statements", async () => {
     mockDb.run.mockResolvedValue({});
     await deleteTreatment("7");
-    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM treatment_logs WHERE treatment_id = ?", ["7"], false);
+    expect(mockDb.run).toHaveBeenCalledWith(
+      "DELETE FROM treatment_logs WHERE treatment_id = ?",
+      ["7"],
+      false,
+    );
     expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM treatments WHERE id = ?", ["7"], false);
   });
 

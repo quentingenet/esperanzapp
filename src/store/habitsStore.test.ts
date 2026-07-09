@@ -50,5 +50,4 @@ describe("habitsStore", () => {
     useHabitsStore.getState().removeHabit("999");
     expect(useHabitsStore.getState().habits).toHaveLength(1);
   });
-
 });

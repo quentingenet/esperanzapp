@@ -14,12 +14,28 @@ import { KofiButton } from "@/components/settings/KofiButton";
 
 const GITHUB_URL = "https://github.com/quentingenet/esperanzapp";
 
-const POINTS = ["noAccount", "noServer", "localEncryption", "encryptedExport", "noTracking", "openSource"] as const;
+const POINTS = [
+  "noAccount",
+  "noServer",
+  "localEncryption",
+  "encryptedExport",
+  "noTracking",
+  "openSource",
+] as const;
 
 export function PrivacyModal({ open, onAccept, readOnly = false }: PrivacyModalProps) {
   const { t } = useTranslation();
   return (
-    <Dialog open={open} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { height: "80dvh", maxHeight: "80dvh", display: "flex", flexDirection: "column" } } }}>
+    <Dialog
+      open={open}
+      fullWidth
+      maxWidth="sm"
+      slotProps={{
+        paper: {
+          sx: { height: "80dvh", maxHeight: "80dvh", display: "flex", flexDirection: "column" },
+        },
+      }}
+    >
       <DialogTitle sx={{ fontWeight: 700, fontSize: "1.3rem", pb: 0, flexShrink: 0 }}>
         {t("privacy.title")}
       </DialogTitle>
@@ -36,7 +52,15 @@ export function PrivacyModal({ open, onAccept, readOnly = false }: PrivacyModalP
         </List>
         <KofiButton sx={{ my: 3, width: "100%" }} />
         <Typography variant="caption" color="text.disabled" sx={{ display: "block" }}>
-          <Link href={GITHUB_URL} target="_blank" rel="noopener noreferrer" underline="none" color="inherit">{t("settings.sourceCode")}</Link>
+          <Link
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            underline="none"
+            color="inherit"
+          >
+            {t("settings.sourceCode")}
+          </Link>
         </Typography>
         <Typography variant="caption" color="text.disabled" sx={{ mt: 1, display: "block" }}>
           {t("privacy.license")}

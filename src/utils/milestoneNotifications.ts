@@ -12,9 +12,12 @@ import type { HabitLog } from "@/types";
 export function getMilestoneNotificationId(habitId: string, gradeIndex: number): number {
   const numericId = parseInt(habitId, 10);
   const slot =
-    Number.isInteger(numericId) && numericId > 0 && numericId <= 49_999 && String(numericId) === habitId
+    Number.isInteger(numericId) &&
+    numericId > 0 &&
+    numericId <= 43_478 &&
+    String(numericId) === habitId
       ? numericId
-      : stableHash31(habitId) % 49_999;
+      : stableHash31(habitId) % 43_478;
   return NOTIF_DOMAIN_OFFSET.milestones + slot * GRADES.length + gradeIndex;
 }
 
@@ -32,7 +35,9 @@ export async function scheduleMilestoneNotifications(
   streakStartDate: string,
 ): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
-  const { display } = await LocalNotifications.checkPermissions().catch(() => ({ display: "denied" as const }));
+  const { display } = await LocalNotifications.checkPermissions().catch(() => ({
+    display: "denied" as const,
+  }));
   // Notifications are best-effort: if permission isn't granted, we return silently.
   // Home.tsx shows a persistent banner when notifPermGranted===false so the user
   // can grant permission later; rescheduleAllMilestoneNotifications() is then called.
@@ -55,26 +60,24 @@ export async function scheduleMilestoneNotifications(
   const BASE_MINUTES = 10 * 60;
   const STAGGER_MINUTES = 10;
 
-  const notifications = GRADES
-    .map((grade, i) => {
-      const target = addDays(start, grade.days);
-      const totalMin = BASE_MINUTES + i * STAGGER_MINUTES;
-      target.setHours(Math.floor(totalMin / 60), totalMin % 60, 0, 0);
-      if (target < startOfToday) return null;
+  const notifications = GRADES.map((grade, i) => {
+    const target = addDays(start, grade.days);
+    const totalMin = BASE_MINUTES + i * STAGGER_MINUTES;
+    target.setHours(Math.floor(totalMin / 60), totalMin % 60, 0, 0);
+    if (target < startOfToday) return null;
 
-      const label = i18n.t(grade.labelKey);
-      const message = i18n.t(grade.messageKey);
-      const daysLabel = i18n.t("common.day", { count: grade.days });
+    const label = i18n.t(grade.labelKey);
+    const message = i18n.t(grade.messageKey);
+    const daysLabel = i18n.t("common.day", { count: grade.days });
 
-      return {
-        id: getMilestoneNotificationId(habitId, i),
-        title: `${grade.emoji} ${String(grade.days)} ${daysLabel} - ${label}`,
-        body: `${message} - ${habitLabel}`,
-        group: "milestones",
-        schedule: { at: target, allowWhileIdle: true },
-      };
-    })
-    .filter((n): n is NonNullable<typeof n> => n !== null);
+    return {
+      id: getMilestoneNotificationId(habitId, i),
+      title: `${grade.emoji} ${String(grade.days)} ${daysLabel} - ${label}`,
+      body: `${message} - ${habitLabel}`,
+      group: "milestones",
+      schedule: { at: target, allowWhileIdle: true },
+    };
+  }).filter((n): n is NonNullable<typeof n> => n !== null);
 
   if (notifications.length === 0) return;
   await LocalNotifications.schedule({ notifications }).catch(() => {});
@@ -121,10 +124,15 @@ export async function rescheduleAllMilestoneNotifications(): Promise<void> {
     // rather than aborting the whole reschedule. Orphans will be caught on the next boot.
     const pending = await LocalNotifications.getPending().catch(() => ({ notifications: [] }));
     const orphans = pending.notifications.filter(
-      (n) => n.id >= NOTIF_DOMAIN_OFFSET.milestones && n.id < MILESTONES_DOMAIN_END && !expectedIds.has(n.id),
+      (n) =>
+        n.id >= NOTIF_DOMAIN_OFFSET.milestones &&
+        n.id < MILESTONES_DOMAIN_END &&
+        !expectedIds.has(n.id),
     );
     if (orphans.length > 0) {
-      await LocalNotifications.cancel({ notifications: orphans.map((n) => ({ id: n.id })) }).catch(() => {});
+      await LocalNotifications.cancel({ notifications: orphans.map((n) => ({ id: n.id })) }).catch(
+        () => {},
+      );
     }
   } catch (e) {
     logError("rescheduleAllMilestoneNotifications", e);

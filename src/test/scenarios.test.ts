@@ -51,9 +51,9 @@ const startLog = (habitId: string, date: string): HabitLog => ({
 
 // Collects all notification IDs cancelled across all LocalNotifications.cancel calls
 function allCancelledIds(): number[] {
-  return vi.mocked(LocalNotifications.cancel).mock.calls.flatMap(
-    (call) => call[0].notifications.map((n) => n.id),
-  );
+  return vi
+    .mocked(LocalNotifications.cancel)
+    .mock.calls.flatMap((call) => call[0].notifications.map((n) => n.id));
 }
 
 describe("Scenario: habit deletion → boot → orphan purge", () => {
@@ -161,7 +161,11 @@ describe("Scenario: relapse → milestone chain rescheduled", () => {
     expect(LocalNotifications.cancel).toHaveBeenCalledOnce();
     expect(LocalNotifications.schedule).toHaveBeenCalledOnce();
 
-    const scheduled = (vi.mocked(LocalNotifications.schedule).mock.calls[0]![0] as { notifications: { id: number; schedule: { at: Date } }[] }).notifications;
+    const scheduled = (
+      vi.mocked(LocalNotifications.schedule).mock.calls[0]![0] as {
+        notifications: { id: number; schedule: { at: Date } }[];
+      }
+    ).notifications;
     // All rescheduled notifications must be in the future.
     const now = new Date("2025-06-01T06:00:00.000Z");
     for (const n of scheduled) {
@@ -192,7 +196,9 @@ describe("Scenario: AppStartRescheduler isolation", () => {
 
   it("milestone reschedule runs even when treatment reschedule throws", async () => {
     // Simulate AppStartRescheduler: two isolated try/catch blocks.
-    const treatmentReschedule = async () => { throw new Error("plugin error"); };
+    const treatmentReschedule = async () => {
+      throw new Error("plugin error");
+    };
 
     let milestoneRan = false;
     const milestoneReschedule = async () => {
@@ -202,7 +208,9 @@ describe("Scenario: AppStartRescheduler isolation", () => {
 
     try {
       await treatmentReschedule();
-    } catch { /* treatments error ignored — AppStartRescheduler pattern */ }
+    } catch {
+      /* treatments error ignored — AppStartRescheduler pattern */
+    }
     await milestoneReschedule();
 
     expect(milestoneRan).toBe(true);
@@ -234,7 +242,11 @@ describe("Scenario: permission grant → milestones rescheduled", () => {
     await rescheduleAllMilestoneNotifications();
 
     expect(LocalNotifications.schedule).toHaveBeenCalled();
-    const scheduled = (vi.mocked(LocalNotifications.schedule).mock.calls[0]![0] as { notifications: { id: number }[] }).notifications;
+    const scheduled = (
+      vi.mocked(LocalNotifications.schedule).mock.calls[0]![0] as {
+        notifications: { id: number }[];
+      }
+    ).notifications;
     expect(scheduled.length).toBeGreaterThan(0);
     for (const n of scheduled) {
       expect(n.id).toBeGreaterThanOrEqual(NOTIF_DOMAIN_OFFSET.milestones);
@@ -244,7 +256,11 @@ describe("Scenario: permission grant → milestones rescheduled", () => {
   it("milestone IDs scheduled after permission are in the milestones domain, not treatments", async () => {
     await rescheduleAllMilestoneNotifications();
 
-    const scheduled = (vi.mocked(LocalNotifications.schedule).mock.calls[0]![0] as { notifications: { id: number }[] }).notifications;
+    const scheduled = (
+      vi.mocked(LocalNotifications.schedule).mock.calls[0]![0] as {
+        notifications: { id: number }[];
+      }
+    ).notifications;
     for (const n of scheduled) {
       expect(n.id).toBeGreaterThanOrEqual(NOTIF_DOMAIN_OFFSET.milestones);
       expect(n.id).toBeLessThan(NOTIF_DOMAIN_OFFSET.milestones + 1_000_000);

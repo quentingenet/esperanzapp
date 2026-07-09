@@ -9,11 +9,21 @@ import {
 import { useHabitsStore } from "@/store/habitsStore";
 import { todayLocalDate } from "@/utils";
 import { logError } from "@/utils/logger";
-import { cancelMilestoneNotifications, scheduleMilestoneNotifications } from "@/utils/milestoneNotifications";
+import {
+  cancelMilestoneNotifications,
+  scheduleMilestoneNotifications,
+} from "@/utils/milestoneNotifications";
 import type { Habit } from "@/types";
 
 export function useHabits() {
-  const { habits, loading, error, setHabits, addHabit: storeAdd, removeHabit } = useHabitsStore(
+  const {
+    habits,
+    loading,
+    error,
+    setHabits,
+    addHabit: storeAdd,
+    removeHabit,
+  } = useHabitsStore(
     useShallow((s) => ({
       habits: s.habits,
       loading: s.loading,
@@ -67,7 +77,9 @@ export function useHabits() {
   const reorderHabits = useCallback(
     (orderedIds: string[]): void => {
       const byId = new Map(habits.map((h) => [h.id, h]));
-      const sorted = orderedIds.map((id) => byId.get(id)).filter((h): h is Habit => h !== undefined);
+      const sorted = orderedIds
+        .map((id) => byId.get(id))
+        .filter((h): h is Habit => h !== undefined);
       const orderedSet = new Set(orderedIds);
       const remaining = habits.filter((h) => !orderedSet.has(h.id));
       setHabits([...sorted, ...remaining]);
@@ -75,12 +87,18 @@ export function useHabits() {
     [habits, setHabits],
   );
 
-  const saveHabitsOrder = useCallback(
-    async (): Promise<void> => {
-      await updateHabitsSortOrder(habits.map((h) => h.id));
-    },
-    [habits],
-  );
+  const saveHabitsOrder = useCallback(async (): Promise<void> => {
+    await updateHabitsSortOrder(habits.map((h) => h.id));
+  }, [habits]);
 
-  return { habits, loading, error, loadHabits, addHabitWithInitialLog, deleteHabit, reorderHabits, saveHabitsOrder };
+  return {
+    habits,
+    loading,
+    error,
+    loadHabits,
+    addHabitWithInitialLog,
+    deleteHabit,
+    reorderHabits,
+    saveHabitsOrder,
+  };
 }

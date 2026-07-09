@@ -12,42 +12,73 @@ import { GradeBadge } from "@/components/shared/GradeBadge";
 import { useDateLocale } from "@/hooks";
 import type { HabitCardProps } from "@/types";
 import { getProgressToNext } from "@/utils/grades";
+import { COLORS } from "@/theme/tokens";
 
 const DELETE_PATH = "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z";
-const GRIP_PATH = "M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z";
+const GRIP_PATH =
+  "M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z";
 
-function formatStreakDisplay(days: number, t: (key: string, opts?: Record<string, unknown>) => string) {
+function formatStreakDisplay(
+  days: number,
+  t: (key: string, opts?: Record<string, unknown>) => string,
+) {
   if (days < 365) return { main: null, sub: null };
   const years = Math.floor(days / 365);
   const rem = days % 365;
   const yearStr = `${String(years)} ${t("habits.streak.year", { count: years })}`;
-  const main = rem > 0
-    ? `${yearStr} ${t("habits.streak.separator")} ${String(rem)} ${t("common.day", { count: rem })}`
-    : yearStr;
+  const main =
+    rem > 0
+      ? `${yearStr} ${t("habits.streak.separator")} ${String(rem)} ${t("common.day", { count: rem })}`
+      : yearStr;
   return { main, sub: t("habits.streak.total", { count: days }) };
 }
 
-export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, handleProps }: HabitCardProps) {
+export function HabitCard({
+  habit,
+  stats,
+  grade,
+  nextGrade,
+  onClick,
+  onDelete,
+  handleProps,
+}: HabitCardProps) {
   const { t } = useTranslation();
   const dateLocale = useDateLocale();
   const progress = getProgressToNext(stats.currentStreak);
-  const formattedStart = stats.startDate ? format(parseISO(stats.startDate), "P", { locale: dateLocale }) : "";
+  const formattedStart = stats.startDate
+    ? format(parseISO(stats.startDate), "P", { locale: dateLocale })
+    : "";
   const formattedLastRelapse = stats.lastRelapseDate
     ? format(parseISO(stats.lastRelapseDate), "P", { locale: dateLocale })
     : null;
-  const streakDisplay = formatStreakDisplay(stats.currentStreak, t as (key: string, opts?: Record<string, unknown>) => string);
+  const streakDisplay = formatStreakDisplay(
+    stats.currentStreak,
+    t as (key: string, opts?: Record<string, unknown>) => string,
+  );
 
   return (
-    <Card elevation={0} sx={{ border: "0.5px solid #c5ddf0", borderRadius: "16px" }}>
+    <Card elevation={0} sx={{ border: `0.5px solid ${COLORS.cardBorder}`, borderRadius: "16px" }}>
       <CardActionArea onClick={onClick} aria-label={habit.label} sx={{ minHeight: 44 }}>
         <CardContent sx={{ p: 2 }}>
           <Box sx={{ display: "flex", alignItems: "flex-start", gap: handleProps ? 0.5 : 0 }}>
             {handleProps && (
               <span
                 {...handleProps}
-                onClick={(e) => { e.stopPropagation(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
                 aria-label={t("common.reorder")}
-                style={{ display: "inline-flex", alignItems: "center", padding: 4, paddingTop: 6, cursor: "grab", touchAction: "none", color: "inherit", opacity: 0.4, flexShrink: 0 }}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: 4,
+                  paddingTop: 6,
+                  cursor: "grab",
+                  touchAction: "none",
+                  color: "inherit",
+                  opacity: 0.4,
+                  flexShrink: 0,
+                }}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
                   <path d={GRIP_PATH} fill="currentColor" />
@@ -66,10 +97,17 @@ export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, h
                     </Typography>
                   </Box>
                   <Typography variant="caption" color="text.secondary">
-                    {t("habits.counter.since", { label: habit.label.toLowerCase(), date: formattedStart })}
+                    {t("habits.counter.since", {
+                      label: habit.label.toLowerCase(),
+                      date: formattedStart,
+                    })}
                   </Typography>
                   {formattedLastRelapse && (
-                    <Typography variant="caption" color="text.disabled" sx={{ display: "block", mt: 0.25 }}>
+                    <Typography
+                      variant="caption"
+                      color="text.disabled"
+                      sx={{ display: "block", mt: 0.25 }}
+                    >
                       {t("habits.counter.lastRelapse", { date: formattedLastRelapse })}
                     </Typography>
                   )}
@@ -77,7 +115,10 @@ export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, h
                     variant="determinate"
                     value={progress}
                     sx={{
-                      mt: 1.5, mb: 1, height: 6, borderRadius: 3,
+                      mt: 1.5,
+                      mb: 1,
+                      height: 6,
+                      borderRadius: 3,
                       bgcolor: "action.hover",
                       "& .MuiLinearProgress-bar": { bgcolor: grade.color },
                     }}
@@ -85,8 +126,15 @@ export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, h
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
                     <GradeBadge grade={grade} size="sm" />
                     {nextGrade && (
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: "10px" }}>
-                        {t("grades.nextMilestone", { label: t(nextGrade.grade.labelKey), count: nextGrade.daysLeft })}
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ fontSize: "10px" }}
+                      >
+                        {t("grades.nextMilestone", {
+                          label: t(nextGrade.grade.labelKey),
+                          count: nextGrade.daysLeft,
+                        })}
                       </Typography>
                     )}
                   </Box>
@@ -94,7 +142,14 @@ export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, h
                 <Box sx={{ textAlign: "center", flexShrink: 0, minWidth: 72 }}>
                   {streakDisplay.main ? (
                     <>
-                      <Typography sx={{ fontSize: "1.1rem", fontWeight: 700, lineHeight: 1.3, color: grade.color }}>
+                      <Typography
+                        sx={{
+                          fontSize: "1.1rem",
+                          fontWeight: 700,
+                          lineHeight: 1.3,
+                          color: grade.color,
+                        }}
+                      >
                         {streakDisplay.main}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
@@ -103,7 +158,14 @@ export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, h
                     </>
                   ) : (
                     <>
-                      <Typography sx={{ fontSize: "3.5rem", fontWeight: 500, lineHeight: 1, color: grade.color }}>
+                      <Typography
+                        sx={{
+                          fontSize: "3.5rem",
+                          fontWeight: 500,
+                          lineHeight: 1,
+                          color: grade.color,
+                        }}
+                      >
                         {stats.currentStreak}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
@@ -117,22 +179,43 @@ export function HabitCard({ habit, stats, grade, nextGrade, onClick, onDelete, h
           </Box>
         </CardContent>
       </CardActionArea>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", px: 1, pb: 0.5, position: "relative" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          px: 1,
+          pb: 0.5,
+          position: "relative",
+        }}
+      >
         <Typography
           component="span"
           variant="caption"
           color="text.disabled"
-          sx={{ position: "absolute", left: "50%", transform: "translateX(-50%)", fontSize: "10px", letterSpacing: 0.3, pointerEvents: "none" }}
+          sx={{
+            position: "absolute",
+            left: "50%",
+            transform: "translateX(-50%)",
+            fontSize: "10px",
+            letterSpacing: 0.3,
+            pointerEvents: "none",
+          }}
         >
           {t("habits.seeMore")}
         </Typography>
         <IconButton
           size="small"
-          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
           aria-label={t("common.delete")}
           sx={{ color: "text.disabled", "&:hover": { color: "error.main" } }}
         >
-          <SvgIcon fontSize="small" aria-hidden="true"><path d={DELETE_PATH} /></SvgIcon>
+          <SvgIcon fontSize="small" aria-hidden="true">
+            <path d={DELETE_PATH} />
+          </SvgIcon>
         </IconButton>
       </Box>
     </Card>

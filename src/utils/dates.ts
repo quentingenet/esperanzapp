@@ -7,5 +7,3 @@ export function diffInDays(from: string, to: string): number {
 export function todayLocalDate(): string {
   return format(new Date(), "yyyy-MM-dd");
 }
-
-

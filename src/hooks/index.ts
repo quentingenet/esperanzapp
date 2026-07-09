@@ -5,6 +5,5 @@ export * from "./useTreatments";
 export * from "./useTreatmentLogs";
 export * from "./useOnboarding";
 export * from "./useNotifications";
-export * from "./useExport";
 export * from "./useCalendar";
 export * from "./useAppUpdate";

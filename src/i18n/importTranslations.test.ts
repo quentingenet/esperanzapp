@@ -16,12 +16,15 @@ const importErrorKeys = [
 ] as const;
 
 describe("import error translations", () => {
-  it.each(Object.entries(locales))("%s contains every specific import error", (_locale, messages) => {
-    for (const key of importErrorKeys) {
-      expect(messages.export[key]).toEqual(expect.any(String));
-      expect(messages.export[key].trim()).not.toBe("");
-    }
-  });
+  it.each(Object.entries(locales))(
+    "%s contains every specific import error",
+    (_locale, messages) => {
+      for (const key of importErrorKeys) {
+        expect(messages.export[key]).toEqual(expect.any(String));
+        expect(messages.export[key].trim()).not.toBe("");
+      }
+    },
+  );
 });
 
 describe("privacy translations", () => {

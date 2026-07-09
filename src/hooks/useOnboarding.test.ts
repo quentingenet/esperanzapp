@@ -79,7 +79,9 @@ describe("useOnboarding", () => {
     localStorage.removeItem("i18n_lang");
     const { result } = renderHook(() => useOnboarding());
     await waitFor(() => expect(result.current.currentStep).toBe("language"));
-    act(() => { result.current.advanceLanguage(); });
+    act(() => {
+      result.current.advanceLanguage();
+    });
     expect(result.current.currentStep).toBe("privacy");
   });
 

@@ -15,7 +15,11 @@ export function KofiButton({ sx }: { sx?: SxProps<Theme> }) {
       href={KOFI_URL}
       target="_blank"
       rel="noopener noreferrer"
-      startIcon={<SvgIcon fontSize="small"><path d={COFFEE_PATH} /></SvgIcon>}
+      startIcon={
+        <SvgIcon fontSize="small">
+          <path d={COFFEE_PATH} />
+        </SvgIcon>
+      }
       sx={[
         {
           borderRadius: 3,
@@ -25,7 +29,11 @@ export function KofiButton({ sx }: { sx?: SxProps<Theme> }) {
           fontWeight: 500,
           textTransform: "none",
           justifyContent: "center",
-          "&:hover": { border: "1.5px solid", borderColor: "secondary.main", bgcolor: "rgba(90,170,126,0.07)" },
+          "&:hover": {
+            border: "1.5px solid",
+            borderColor: "secondary.main",
+            bgcolor: "rgba(90,170,126,0.07)",
+          },
         },
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}

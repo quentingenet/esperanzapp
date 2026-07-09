@@ -85,7 +85,6 @@
   },
   "habits": {
     "add": "Add a habit",
-    "delete": "Delete this habit",
     "deleteConfirm": "Delete this habit and all its history?",
     "empty": "No habits yet.\nStart by adding one.",
     "counter": {
@@ -276,7 +275,6 @@
     "nextMilestone_other": "Next milestone: {{label}} in {{count}} days"
   },
   "relapse": {
-    "title": "Start again",
     "confirmTitle": "A step aside",
     "confirmBody": "These days are yours. They stay.",
     "confirmButton": "Yes, start again",
@@ -293,7 +291,6 @@
     "title": "My treatments",
     "add": "Add a treatment",
     "edit": "Edit treatment",
-    "delete": "Delete this treatment",
     "deleteConfirm": "Delete this treatment and all its history?",
     "empty": "No treatments yet.\nAdd one and set a reminder so you never miss a dose.",
     "taken": "Taken",
@@ -306,7 +303,6 @@
     "form": {
       "name": "Medication name",
       "namePlaceholder": "e.g. Metformin, Sertraline…",
-      "frequency": "Frequency",
       "reminderTime": "Reminder time",
       "enableReminder": "Enable reminder",
       "permissionDenied": "Notification permission denied. The reminder has been disabled.",
@@ -325,12 +321,10 @@
     "reminderAlarmSettingsNeeded": "Enable 'Alarms & Reminders' in your settings to receive reminders on time."
   },
   "stats": {
-    "title": "Statistics",
     "currentStreak": "Current streak",
     "longestStreak": "Longest streak",
     "totalRelapses": "Total relapses",
     "averageStreak": "Average streak",
-    "startDate": "Since",
     "noData": "No data yet"
   },
   "history": {

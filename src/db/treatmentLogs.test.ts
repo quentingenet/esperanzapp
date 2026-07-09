@@ -7,12 +7,17 @@ import {
 } from "./treatmentLogs";
 
 const mockDb = { run: vi.fn(), query: vi.fn() };
-vi.mock("./client", () => ({ withDb: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb), withDbVoid: (fn: (db: typeof mockDb) => Promise<void>) => fn(mockDb) }));
+vi.mock("./client", () => ({
+  withDb: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb),
+  withDbVoid: (fn: (db: typeof mockDb) => Promise<void>) => fn(mockDb),
+}));
 
 const ROW = { id: 7, treatment_id: 3, scheduled_at: "2024-06-01", status: "taken" };
 const LOG = { id: "7", treatmentId: "3", scheduledAt: "2024-06-01", status: "taken" as const };
 
-beforeEach(() => { vi.clearAllMocks(); });
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe("getTreatmentLogsByTreatmentId", () => {
   it("returns logs for treatment", async () => {

@@ -4,13 +4,25 @@ import { isFrequency } from "@/utils";
 import { runInTransaction, withDb, withDbVoid } from "./client";
 import { updateSortOrder } from "./sortOrder";
 
-function validateTreatmentReminderInvariant(frequency: Frequency, reminderDay: number | null): void {
+function validateTreatmentReminderInvariant(
+  frequency: Frequency,
+  reminderDay: number | null,
+): void {
   if (frequency === "daily" && reminderDay !== null)
-    throw new Error(`Treatment invariant violated: daily must have reminderDay null, got ${String(reminderDay)}`);
+    throw new Error(
+      `Treatment invariant violated: daily must have reminderDay null, got ${String(reminderDay)}`,
+    );
   if (frequency === "weekly" && (reminderDay === null || reminderDay < 0 || reminderDay > 6))
-    throw new Error(`Treatment invariant violated: weekly must have reminderDay 0 to 6, got ${String(reminderDay)}`);
-  if (frequency === "monthly" && (reminderDay === null || (reminderDay !== 0 && (reminderDay < 1 || reminderDay > 28))))
-    throw new Error(`Treatment invariant violated: monthly must have reminderDay 0 or 1 to 28, got ${String(reminderDay)}`);
+    throw new Error(
+      `Treatment invariant violated: weekly must have reminderDay 0 to 6, got ${String(reminderDay)}`,
+    );
+  if (
+    frequency === "monthly" &&
+    (reminderDay === null || (reminderDay !== 0 && (reminderDay < 1 || reminderDay > 28)))
+  )
+    throw new Error(
+      `Treatment invariant violated: monthly must have reminderDay 0 or 1 to 28, got ${String(reminderDay)}`,
+    );
 }
 
 type TreatmentRow = {
@@ -36,12 +48,22 @@ function rowToTreatment(row: TreatmentRow): Treatment {
   };
 }
 
-export function createTreatment(data: Omit<Treatment, "id">, dbConn?: SQLiteDBConnection | null): Promise<Treatment> {
+export function createTreatment(
+  data: Omit<Treatment, "id">,
+  dbConn?: SQLiteDBConnection | null,
+): Promise<Treatment> {
   const fn = async (db: SQLiteDBConnection): Promise<Treatment> => {
     validateTreatmentReminderInvariant(data.frequency, data.reminderDay);
     await db.run(
       "INSERT INTO treatments (label, frequency, reminder_time, reminder_enabled, reminder_day, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-      [data.label, data.frequency, data.reminderTime, data.reminderEnabled ? 1 : 0, data.reminderDay ?? null, data.createdAt],
+      [
+        data.label,
+        data.frequency,
+        data.reminderTime,
+        data.reminderEnabled ? 1 : 0,
+        data.reminderDay ?? null,
+        data.createdAt,
+      ],
       false,
     );
     const idRow = await db.query("SELECT last_insert_rowid() AS id");
@@ -58,7 +80,9 @@ export function createTreatment(data: Omit<Treatment, "id">, dbConn?: SQLiteDBCo
 
 export function getAllTreatments(): Promise<Treatment[]> {
   return withDb(async (db) => {
-    const result = await db.query("SELECT * FROM treatments ORDER BY sort_index ASC, created_at ASC");
+    const result = await db.query(
+      "SELECT * FROM treatments ORDER BY sort_index ASC, created_at ASC",
+    );
     return ((result.values ?? []) as TreatmentRow[]).map(rowToTreatment);
   }, []);
 }
@@ -78,15 +102,32 @@ export function updateTreatment(
       validateTreatmentReminderInvariant(data.frequency, reminderDay);
     } else if (data.reminderDay !== undefined && data.reminderDay !== null) {
       if (!Number.isInteger(data.reminderDay) || data.reminderDay < 0 || data.reminderDay > 28)
-        throw new Error(`updateTreatment: reminderDay must be null or 0 to 28, got ${String(data.reminderDay)}`);
+        throw new Error(
+          `updateTreatment: reminderDay must be null or 0 to 28, got ${String(data.reminderDay)}`,
+        );
     }
     const fields: string[] = [];
     const values: (string | number | null)[] = [];
-    if (data.label !== undefined) { fields.push("label = ?"); values.push(data.label); }
-    if (data.frequency !== undefined) { fields.push("frequency = ?"); values.push(data.frequency); }
-    if (data.reminderTime !== undefined) { fields.push("reminder_time = ?"); values.push(data.reminderTime); }
-    if (data.reminderEnabled !== undefined) { fields.push("reminder_enabled = ?"); values.push(data.reminderEnabled ? 1 : 0); }
-    if (data.reminderDay !== undefined) { fields.push("reminder_day = ?"); values.push(data.reminderDay ?? null); }
+    if (data.label !== undefined) {
+      fields.push("label = ?");
+      values.push(data.label);
+    }
+    if (data.frequency !== undefined) {
+      fields.push("frequency = ?");
+      values.push(data.frequency);
+    }
+    if (data.reminderTime !== undefined) {
+      fields.push("reminder_time = ?");
+      values.push(data.reminderTime);
+    }
+    if (data.reminderEnabled !== undefined) {
+      fields.push("reminder_enabled = ?");
+      values.push(data.reminderEnabled ? 1 : 0);
+    }
+    if (data.reminderDay !== undefined) {
+      fields.push("reminder_day = ?");
+      values.push(data.reminderDay ?? null);
+    }
     if (!fields.length) return;
     await db.run(`UPDATE treatments SET ${fields.join(", ")} WHERE id = ?`, [...values, id], false);
   };

@@ -34,7 +34,9 @@ describe("shareFile cache cleanup", () => {
 
   it("deletes the cached export when sharing is cancelled", async () => {
     vi.mocked(Share.share).mockRejectedValueOnce(new Error("cancelled"));
-    await expect(shareFile("export.json", "{}", "application/json")).resolves.toBe("share-cancelled");
+    await expect(shareFile("export.json", "{}", "application/json")).resolves.toBe(
+      "share-cancelled",
+    );
     expect(Filesystem.deleteFile).toHaveBeenCalledWith({
       path: "export.json",
       directory: Directory.Cache,
@@ -44,7 +46,9 @@ describe("shareFile cache cleanup", () => {
   it("keeps the cancellation result when cache cleanup fails", async () => {
     vi.mocked(Share.share).mockRejectedValueOnce(new Error("cancelled"));
     vi.mocked(Filesystem.deleteFile).mockRejectedValueOnce(new Error("cleanup failed"));
-    await expect(shareFile("export.json", "{}", "application/json")).resolves.toBe("share-cancelled");
+    await expect(shareFile("export.json", "{}", "application/json")).resolves.toBe(
+      "share-cancelled",
+    );
   });
 
   it("does not surface a delayed cleanup failure after a successful share", async () => {

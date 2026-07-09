@@ -35,4 +35,3 @@ export function getAllHabitLogs(): Promise<HabitLog[]> {
     return ((result.values ?? []) as HabitLogRow[]).map(rowToHabitLog);
   }, []);
 }
-

@@ -14,9 +14,7 @@ export default defineConfig({
   plugins: [
     react(),
     viteStaticCopy({
-      targets: [
-        { src: "node_modules/sql.js/dist/sql-wasm.wasm", dest: "assets" },
-      ],
+      targets: [{ src: "node_modules/sql.js/dist/sql-wasm.wasm", dest: "assets" }],
     }),
   ],
   optimizeDeps: {

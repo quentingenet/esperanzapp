@@ -85,7 +85,6 @@
   },
   "habits": {
     "add": "Aggiungi un'abitudine",
-    "delete": "Elimina questa abitudine",
     "deleteConfirm": "Eliminare questa abitudine e tutta la sua cronologia?",
     "empty": "Nessuna abitudine ancora.\nInizia aggiungendone una.",
     "counter": {
@@ -276,7 +275,6 @@
     "nextMilestone_other": "Prossimo traguardo: {{label}} tra {{count}} giorni"
   },
   "relapse": {
-    "title": "Ricominciare",
     "confirmTitle": "Un passo di lato",
     "confirmBody": "Quei giorni sono tuoi. Rimangono.",
     "confirmButton": "Sì, ricominciare",
@@ -293,7 +291,6 @@
     "title": "I miei trattamenti",
     "add": "Aggiungi un trattamento",
     "edit": "Modifica trattamento",
-    "delete": "Elimina questo trattamento",
     "deleteConfirm": "Eliminare questo trattamento e tutta la sua cronologia?",
     "empty": "Nessun trattamento ancora.\nAggiungine uno e imposta un promemoria per non dimenticarlo.",
     "taken": "Assunto",
@@ -306,7 +303,6 @@
     "form": {
       "name": "Nome del farmaco",
       "namePlaceholder": "es. Metformina, Sertralina…",
-      "frequency": "Frequenza",
       "reminderTime": "Orario del promemoria",
       "enableReminder": "Attiva promemoria",
       "permissionDenied": "Autorizzazione notifiche negata. Il promemoria è stato disattivato.",
@@ -325,12 +321,10 @@
     "reminderAlarmSettingsNeeded": "Attiva 'Allarmi e promemoria' nelle tue impostazioni per ricevere i promemoria in orario."
   },
   "stats": {
-    "title": "Statistiche",
     "currentStreak": "Serie attuale",
     "longestStreak": "Serie più lunga",
     "totalRelapses": "Ricadute totali",
     "averageStreak": "Media delle serie",
-    "startDate": "Dal",
     "noData": "Ancora nessun dato"
   },
   "history": {

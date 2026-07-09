@@ -35,11 +35,21 @@ export function OnboardingSlider({ onComplete, onSkip }: OnboardingSliderProps) 
   const Slide = SLIDES[step];
 
   const handleNext = () => (isLast ? onComplete() : setStep((s) => s + 1));
-  const handlePrev = () => { if (step > 0) setStep((s) => s - 1); };
+  const handlePrev = () => {
+    if (step > 0) setStep((s) => s - 1);
+  };
 
   return (
     <Box sx={{ height: "100dvh", display: "flex", flexDirection: "column" }}>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", pt: "calc(env(safe-area-inset-top) + 8px)", px: 2, pb: 0 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          pt: "calc(env(safe-area-inset-top) + 8px)",
+          px: 2,
+          pb: 0,
+        }}
+      >
         <Button onClick={onSkip} aria-label={t("tutorial.skip")} sx={{ minHeight: 44 }}>
           {t("tutorial.skip")}
         </Button>
@@ -49,7 +59,17 @@ export function OnboardingSlider({ onComplete, onSkip }: OnboardingSliderProps) 
         {step > 0 && (
           <Box
             onClick={handlePrev}
-            sx={{ position: "absolute", left: 4, top: "50%", transform: "translateY(-50%)", zIndex: 1, cursor: "pointer", px: 1, py: 2, ...PULSE_LEFT }}
+            sx={{
+              position: "absolute",
+              left: 4,
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 1,
+              cursor: "pointer",
+              px: 1,
+              py: 2,
+              ...PULSE_LEFT,
+            }}
             aria-hidden="true"
           >
             <Typography sx={{ fontSize: "2rem", color: "text.secondary" }}>‹</Typography>
@@ -58,7 +78,9 @@ export function OnboardingSlider({ onComplete, onSkip }: OnboardingSliderProps) 
 
         <Box
           sx={{ flex: 1, px: 3, overflowY: "auto" }}
-          onTouchStart={(e) => { startX.current = e.touches[0]?.clientX ?? 0; }}
+          onTouchStart={(e) => {
+            startX.current = e.touches[0]?.clientX ?? 0;
+          }}
           onTouchEnd={(e) => {
             const delta = (e.changedTouches[0]?.clientX ?? startX.current) - startX.current;
             if (delta < -50 && step < SLIDE_COUNT - 1) setStep((s) => s + 1);
@@ -71,7 +93,17 @@ export function OnboardingSlider({ onComplete, onSkip }: OnboardingSliderProps) 
         {!isLast && (
           <Box
             onClick={handleNext}
-            sx={{ position: "absolute", right: 4, top: "50%", transform: "translateY(-50%)", zIndex: 1, cursor: "pointer", px: 1, py: 2, ...PULSE }}
+            sx={{
+              position: "absolute",
+              right: 4,
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 1,
+              cursor: "pointer",
+              px: 1,
+              py: 2,
+              ...PULSE,
+            }}
             aria-hidden="true"
           >
             <Typography sx={{ fontSize: "2rem", color: "text.secondary" }}>›</Typography>
@@ -96,7 +128,13 @@ export function OnboardingSlider({ onComplete, onSkip }: OnboardingSliderProps) 
             size="large"
             onClick={onComplete}
             aria-label={t("tutorial.start")}
-            sx={{ minHeight: 56, borderRadius: 3, fontSize: "1.15rem", fontWeight: 700, boxShadow: 4 }}
+            sx={{
+              minHeight: 56,
+              borderRadius: 3,
+              fontSize: "1.15rem",
+              fontWeight: 700,
+              boxShadow: 4,
+            }}
           >
             {t("tutorial.start")} 🚀
           </Button>

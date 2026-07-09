@@ -20,7 +20,7 @@ export const useToastStore = create<ToastStore>((set) => ({
 
 export const toast = {
   success: (message: string) => useToastStore.getState().show(message, "success"),
-  error:   (message: string) => useToastStore.getState().show(message, "error"),
+  error: (message: string) => useToastStore.getState().show(message, "error"),
   warning: (message: string) => useToastStore.getState().show(message, "warning"),
-  info:    (message: string) => useToastStore.getState().show(message, "info"),
+  info: (message: string) => useToastStore.getState().show(message, "info"),
 };

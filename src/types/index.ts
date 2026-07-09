@@ -100,9 +100,19 @@ export interface UserNameInputProps {
 }
 
 export type HabitTypeId =
-  | "alcohol" | "tobacco" | "sugar" | "cannabis"
-  | "social_media" | "gaming" | "fast_food" | "adult_content"
-  | "shopping" | "caffeine" | "screens" | "gambling" | "custom";
+  | "alcohol"
+  | "tobacco"
+  | "sugar"
+  | "cannabis"
+  | "social_media"
+  | "gaming"
+  | "fast_food"
+  | "adult_content"
+  | "shopping"
+  | "caffeine"
+  | "screens"
+  | "gambling"
+  | "custom";
 
 export interface HabitTypeConfig {
   id: HabitTypeId;
@@ -146,7 +156,6 @@ export interface RelapseDialogProps {
 }
 
 export interface TreatmentLogButtonProps {
-  treatmentId: string;
   todayLog: TreatmentLog | null;
   onLog: (status: TreatmentStatus) => void;
 }

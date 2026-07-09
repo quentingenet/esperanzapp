@@ -50,7 +50,9 @@ export async function createRealSqliteConnection(): Promise<RealSqliteConn> {
 
   return {
     open: async () => {},
-    close: async () => { sqlDb.close(); },
+    close: async () => {
+      sqlDb.close();
+    },
 
     execute: async (sql: string) => {
       const trimmed = sql.trim();
@@ -79,9 +81,15 @@ export async function createRealSqliteConnection(): Promise<RealSqliteConn> {
       return { values };
     },
 
-    beginTransaction: async () => { sqlDb.exec("BEGIN TRANSACTION"); },
-    commitTransaction: async () => { sqlDb.exec("COMMIT"); },
-    rollbackTransaction: async () => { sqlDb.exec("ROLLBACK"); },
+    beginTransaction: async () => {
+      sqlDb.exec("BEGIN TRANSACTION");
+    },
+    commitTransaction: async () => {
+      sqlDb.exec("COMMIT");
+    },
+    rollbackTransaction: async () => {
+      sqlDb.exec("ROLLBACK");
+    },
   };
 }
 

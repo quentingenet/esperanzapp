@@ -28,11 +28,23 @@ export function HabitHistoryTab({ logs }: HabitHistoryTabProps) {
         <Box key={log.id}>
           <Box sx={{ display: "flex", gap: 2, py: 1.5 }}>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", pt: 0.5 }}>
-              <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: EVENT_COLORS[log.eventType], flexShrink: 0 }} />
-              {idx < logs.length - 1 && <Box sx={{ width: 2, bgcolor: "divider", flex: 1, mt: 0.5, minHeight: 14 }} />}
+              <Box
+                sx={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  bgcolor: EVENT_COLORS[log.eventType],
+                  flexShrink: 0,
+                }}
+              />
+              {idx < logs.length - 1 && (
+                <Box sx={{ width: 2, bgcolor: "divider", flex: 1, mt: 0.5, minHeight: 14 }} />
+              )}
             </Box>
             <Box>
-              <Typography variant="caption" color="text.secondary">{format(parseISO(log.eventDate.slice(0, 10)), "P", { locale: dateLocale })}</Typography>
+              <Typography variant="caption" color="text.secondary">
+                {format(parseISO(log.eventDate.slice(0, 10)), "P", { locale: dateLocale })}
+              </Typography>
               <Typography variant="body2" color={log.eventType === "relapse" ? "error" : "primary"}>
                 {t(log.displayKey ?? `history.${log.eventType}`)}
               </Typography>

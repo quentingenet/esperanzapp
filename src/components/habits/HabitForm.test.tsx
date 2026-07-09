@@ -111,7 +111,10 @@ describe("HabitForm", () => {
     render(<HabitForm onSubmit={vi.fn()} existingHabits={[]} />);
     await openForm(user);
     await user.click(screen.getByRole("button", { name: "habitTypes.custom.label" }));
-    await user.type(screen.getByRole("textbox", { name: "habitTypes.groups.custom" }), "Ma dépendance");
+    await user.type(
+      screen.getByRole("textbox", { name: "habitTypes.groups.custom" }),
+      "Ma dépendance",
+    );
     expect(screen.getByRole("button", { name: "common.save" })).not.toBeDisabled();
   });
 
@@ -121,7 +124,10 @@ describe("HabitForm", () => {
     render(<HabitForm onSubmit={onSubmit} existingHabits={[]} />);
     await openForm(user);
     await user.click(screen.getByRole("button", { name: "habitTypes.custom.label" }));
-    await user.type(screen.getByRole("textbox", { name: "habitTypes.groups.custom" }), "  Ma dépendance  ");
+    await user.type(
+      screen.getByRole("textbox", { name: "habitTypes.groups.custom" }),
+      "  Ma dépendance  ",
+    );
     await user.click(screen.getByRole("button", { name: "common.save" }));
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
     expect((onSubmit.mock.calls[0]![0] as Record<string, unknown>)["label"]).toBe("Ma dépendance");

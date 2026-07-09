@@ -190,7 +190,9 @@ describe("TreatmentForm", () => {
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
     let resolveCheck!: (v: { display: "granted" }) => void;
     vi.mocked(LocalNotifications.checkPermissions).mockReturnValue(
-      new Promise((res) => { resolveCheck = res; }),
+      new Promise((res) => {
+        resolveCheck = res;
+      }),
     );
     const onSubmit = vi.fn();
     const user = userEvent.setup();

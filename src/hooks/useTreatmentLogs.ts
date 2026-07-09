@@ -3,12 +3,9 @@ import { getTreatmentLogsByDate, upsertTreatmentLogForDate } from "@/db";
 import type { TreatmentLog, TreatmentStatus } from "@/types";
 
 export function useTreatmentLogs() {
-  const logStatus = useCallback(
-    async (data: Omit<TreatmentLog, "id">): Promise<TreatmentLog> => {
-      return upsertTreatmentLogForDate(data.treatmentId, data.scheduledAt, data.status);
-    },
-    [],
-  );
+  const logStatus = useCallback(async (data: Omit<TreatmentLog, "id">): Promise<TreatmentLog> => {
+    return upsertTreatmentLogForDate(data.treatmentId, data.scheduledAt, data.status);
+  }, []);
 
   const logStatusForDate = useCallback(
     async (treatmentId: string, date: string, status: TreatmentStatus): Promise<TreatmentLog> => {

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getOnboardingValue, setOnboardingValue } from "@/db";
 import { useOnboardingStore } from "@/store/onboardingStore";
+import { logError } from "@/utils/logger";
 
 export type OnboardingStep = "privacy" | "language" | "tutorial" | "name" | "done";
 
@@ -46,7 +47,9 @@ export function useOnboarding() {
       }
     }
 
-    void init();
+    void init().catch((e: unknown) => {
+      logError("useOnboarding.init", e);
+    });
     return () => {
       guard.cancelled = true;
     };

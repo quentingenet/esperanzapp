@@ -85,7 +85,6 @@
   },
   "habits": {
     "add": "Gewoonte toevoegen",
-    "delete": "Deze gewoonte verwijderen",
     "deleteConfirm": "Deze gewoonte en alle geschiedenis verwijderen?",
     "empty": "Nog geen gewoonten.\nBegin er een toe te voegen.",
     "counter": {
@@ -276,7 +275,6 @@
     "nextMilestone_other": "Volgende mijlpaal: {{label}} over {{count}} dagen"
   },
   "relapse": {
-    "title": "Opnieuw beginnen",
     "confirmTitle": "Een stap opzij",
     "confirmBody": "Die dagen zijn van jou. Ze blijven.",
     "confirmButton": "Ja, opnieuw beginnen",
@@ -293,7 +291,6 @@
     "title": "Mijn behandelingen",
     "add": "Behandeling toevoegen",
     "edit": "Behandeling bewerken",
-    "delete": "Deze behandeling verwijderen",
     "deleteConfirm": "Deze behandeling en alle geschiedenis verwijderen?",
     "empty": "Nog geen behandelingen.\nVoeg er een toe en stel een herinnering in.",
     "taken": "Ingenomen",
@@ -306,7 +303,6 @@
     "form": {
       "name": "Naam van het medicijn",
       "namePlaceholder": "bijv. Metformine, Sertraline…",
-      "frequency": "Frequentie",
       "reminderTime": "Herinneringstijd",
       "enableReminder": "Herinnering inschakelen",
       "permissionDenied": "Meldingsmachtiging geweigerd. De herinnering is uitgeschakeld.",
@@ -325,12 +321,10 @@
     "reminderAlarmSettingsNeeded": "Schakel 'Alarmen en herinneringen' in je instellingen in voor herinneringen op tijd."
   },
   "stats": {
-    "title": "Statistieken",
     "currentStreak": "Huidige reeks",
     "longestStreak": "Langste reeks",
     "totalRelapses": "Totale terugvallen",
     "averageStreak": "Gemiddelde reeks",
-    "startDate": "Sinds",
     "noData": "Nog geen gegevens"
   },
   "history": {

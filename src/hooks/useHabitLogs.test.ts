@@ -62,7 +62,15 @@ describe("useHabitLogs", () => {
       await act(async () => {
         stats = (await result.current.getStatsBatch(["1"]))["1"];
       });
-      expect(stats).toEqual({ currentStreak: 0, longestStreak: 0, totalRelapses: 0, averageStreak: 0, startDate: "", lastRelapseDate: null, currentStreakStart: null });
+      expect(stats).toEqual({
+        currentStreak: 0,
+        longestStreak: 0,
+        totalRelapses: 0,
+        averageStreak: 0,
+        startDate: "",
+        lastRelapseDate: null,
+        currentStreakStart: null,
+      });
     });
 
     it("single start: currentStreak = days since start", async () => {
@@ -72,7 +80,12 @@ describe("useHabitLogs", () => {
       await act(async () => {
         stats = (await result.current.getStatsBatch(["1"]))["1"];
       });
-      expect(stats).toMatchObject({ currentStreak: 14, longestStreak: 14, totalRelapses: 0, startDate: "2024-01-01" });
+      expect(stats).toMatchObject({
+        currentStreak: 14,
+        longestStreak: 14,
+        totalRelapses: 0,
+        startDate: "2024-01-01",
+      });
     });
 
     it("start + relapse: totalRelapses=1, currentStreak=0", async () => {
@@ -85,7 +98,12 @@ describe("useHabitLogs", () => {
       await act(async () => {
         stats = (await result.current.getStatsBatch(["1"]))["1"];
       });
-      expect(stats).toMatchObject({ currentStreak: 0, longestStreak: 4, totalRelapses: 1, averageStreak: 4 });
+      expect(stats).toMatchObject({
+        currentStreak: 0,
+        longestStreak: 4,
+        totalRelapses: 1,
+        averageStreak: 4,
+      });
     });
 
     it("multiple cycles: correct currentStreak and averageStreak", async () => {
@@ -203,7 +221,9 @@ describe("useHabitLogs", () => {
       await act(async () => {
         stats = (await result.current.getStatsBatch(["1"]))["1"];
       });
-      expect((stats as unknown as { currentStreak: number }).currentStreak).toBeGreaterThanOrEqual(0);
+      expect((stats as unknown as { currentStreak: number }).currentStreak).toBeGreaterThanOrEqual(
+        0,
+      );
       vi.useRealTimers();
     });
 

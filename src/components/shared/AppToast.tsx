@@ -10,7 +10,11 @@ export function AppToast() {
       autoHideDuration={3000}
       onClose={hide}
       anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      sx={{ bottom: "calc(80px + max(env(safe-area-inset-bottom), 28px) + 8px)", width: "80%", maxWidth: 480 }}
+      sx={{
+        bottom: "calc(80px + max(env(safe-area-inset-bottom), 28px) + 8px)",
+        width: "80%",
+        maxWidth: 480,
+      }}
     >
       <Alert onClose={hide} severity={severity} variant="filled" sx={{ width: "100%" }}>
         {message}

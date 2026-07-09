@@ -6,11 +6,7 @@ function addDays(dateStr: string, n: number): string {
   return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
 }
 
-function fillActiveDays(
-  map: Record<string, DayStatus>,
-  fromDate: string,
-  toDate: string,
-): void {
+function fillActiveDays(map: Record<string, DayStatus>, fromDate: string, toDate: string): void {
   let cursor = addDays(fromDate, 1);
   while (cursor < toDate) {
     map[cursor] = "active";
@@ -42,9 +38,7 @@ export function buildDayStatusMap(
   return map;
 }
 
-export function buildTreatmentStatusMap(
-  logs: TreatmentLog[],
-): Record<string, TreatmentStatus> {
+export function buildTreatmentStatusMap(logs: TreatmentLog[]): Record<string, TreatmentStatus> {
   const map: Record<string, TreatmentStatus> = {};
   for (const log of logs) {
     map[log.scheduledAt.slice(0, 10)] = log.status;

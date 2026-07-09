@@ -2,18 +2,22 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getOnboardingValue, setOnboardingValue } from "./onboarding";
 
 const mockDb = { run: vi.fn(), query: vi.fn() };
-vi.mock("./client", () => ({ withDb: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb), withDbVoid: (fn: (db: typeof mockDb) => Promise<void>) => fn(mockDb) }));
+vi.mock("./client", () => ({
+  withDb: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb),
+  withDbVoid: (fn: (db: typeof mockDb) => Promise<void>) => fn(mockDb),
+}));
 
-beforeEach(() => { vi.clearAllMocks(); });
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe("getOnboardingValue", () => {
   it("returns value when key exists", async () => {
     mockDb.query.mockResolvedValue({ values: [{ value: "true" }] });
     expect(await getOnboardingValue("privacy_accepted")).toBe("true");
-    expect(mockDb.query).toHaveBeenCalledWith(
-      "SELECT value FROM onboarding WHERE key = ?",
-      ["privacy_accepted"],
-    );
+    expect(mockDb.query).toHaveBeenCalledWith("SELECT value FROM onboarding WHERE key = ?", [
+      "privacy_accepted",
+    ]);
   });
 
   it("returns null when key not found", async () => {
@@ -42,6 +46,10 @@ describe("setOnboardingValue", () => {
   it("upserts tutorial_completed", async () => {
     mockDb.run.mockResolvedValue({});
     await setOnboardingValue("tutorial_completed", "true");
-    expect(mockDb.run).toHaveBeenCalledWith(expect.any(String), ["tutorial_completed", "true"], expect.anything());
+    expect(mockDb.run).toHaveBeenCalledWith(
+      expect.any(String),
+      ["tutorial_completed", "true"],
+      expect.anything(),
+    );
   });
 });

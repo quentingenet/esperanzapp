@@ -25,7 +25,7 @@
 
 No account. No server. No tracking. Everything stays on your device.
 
-> *Esperanza* : hope, in Spanish.
+> _Esperanza_ : hope, in Spanish.
 
 ---
 
@@ -67,15 +67,15 @@ Export your history as JSON or CSV at any time, and save it wherever you want. Y
 
 ## Stack
 
-| Layer | Technology |
-|---|---|
-| UI | React 19 + TypeScript + MUI v9 |
-| Build | Vite 8 |
-| Mobile | Capacitor v8 (Android) |
-| State | Zustand v5 |
+| Layer    | Technology                               |
+| -------- | ---------------------------------------- |
+| UI       | React 19 + TypeScript + MUI v9           |
+| Build    | Vite 8                                   |
+| Mobile   | Capacitor v8 (Android)                   |
+| State    | Zustand v5                               |
 | Database | SQLite via `@capacitor-community/sqlite` |
-| i18n | i18next (7 locales) |
-| Tests | Vitest + Testing Library |
+| i18n     | i18next (7 locales)                      |
+| Tests    | Vitest + Testing Library                 |
 
 ---
 
@@ -158,13 +158,13 @@ Output: `android/app/build/outputs/`
 
 EsperanzApp requests the **minimum permissions necessary** to function. No internet access, no contacts, no camera, no location.
 
-| Permission | Prompted? | Requested by | Why |
-|---|---|---|---|
-| `POST_NOTIFICATIONS` | **Yes** (Android 13+) | You, when adding your first treatment | To send daily reminders to take your medication. You can decline: the app works fully, you just won't receive notifications. |
-| `SCHEDULE_EXACT_ALARM` | **Yes** (Android 14+, manual) | You, via in-app prompt | Delivers treatment and medication reminders at the exact time the user has configured. Exact scheduling is the core feature of EsperanzApp: a reminder that fires 10 or 20 minutes late is not acceptable for someone following a treatment schedule. Without this permission, the OS places notifications in a low-priority batch window and may delay them by several minutes. This permission is declared in accordance with Google Play's requirements for applications whose primary use case is scheduling exact reminders chosen by the user. Granted automatically on Android 12 and 13. On Android 14 and later, the user enables it via the dedicated "Alarms and Reminders" system screen for this app specifically; the app detects the missing permission and opens that screen automatically. Treatment reminders are named freely by the user; the application does not require or suggest any specific medication name, dosage, or clinical detail. A reminder can simply be called "Morning routine" or any other label the user chooses. |
-| `RECEIVE_BOOT_COMPLETED` | No (automatic) | `@capacitor/local-notifications` | Re-schedules your treatment reminders after a phone restart, so they don't disappear when you reboot. |
-| `WAKE_LOCK` | No (automatic) | `@capacitor/local-notifications` | Allows the system to briefly wake the CPU to deliver a notification on time. Not declared in the app's own `AndroidManifest.xml` — injected by the library's manifest during Gradle's merge phase. |
-| `VIBRATE` | No (automatic) | App | Allows notifications to vibrate. No prompt, no personal data. |
+| Permission               | Prompted?                     | Requested by                          | Why                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------------ | ----------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST_NOTIFICATIONS`     | **Yes** (Android 13+)         | You, when adding your first treatment | To send daily reminders to take your medication. You can decline: the app works fully, you just won't receive notifications.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `SCHEDULE_EXACT_ALARM`   | **Yes** (Android 14+, manual) | You, via in-app prompt                | Delivers treatment and medication reminders at the exact time the user has configured. Exact scheduling is the core feature of EsperanzApp: a reminder that fires 10 or 20 minutes late is not acceptable for someone following a treatment schedule. Without this permission, the OS places notifications in a low-priority batch window and may delay them by several minutes. This permission is declared in accordance with Google Play's requirements for applications whose primary use case is scheduling exact reminders chosen by the user. Granted automatically on Android 12 and 13. On Android 14 and later, the user enables it via the dedicated "Alarms and Reminders" system screen for this app specifically; the app detects the missing permission and opens that screen automatically. Treatment reminders are named freely by the user; the application does not require or suggest any specific medication name, dosage, or clinical detail. A reminder can simply be called "Morning routine" or any other label the user chooses. |
+| `RECEIVE_BOOT_COMPLETED` | No (automatic)                | `@capacitor/local-notifications`      | Re-schedules your treatment reminders after a phone restart, so they don't disappear when you reboot.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `WAKE_LOCK`              | No (automatic)                | `@capacitor/local-notifications`      | Allows the system to briefly wake the CPU to deliver a notification on time. Not declared in the app's own `AndroidManifest.xml` — injected by the library's manifest during Gradle's merge phase.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `VIBRATE`                | No (automatic)                | App                                   | Allows notifications to vibrate. No prompt, no personal data.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 **No** `INTERNET`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`, `ACCESS_FINE_LOCATION`, `READ_CONTACTS`, or any other sensitive permission is requested.
 
@@ -221,6 +221,7 @@ Please keep pull requests focused and small. One feature or fix per PR.
 EsperanzApp is released under the **GNU General Public License v3.0**.
 
 This means you are free to:
+
 - Use it
 - Study and modify it
 - Share it

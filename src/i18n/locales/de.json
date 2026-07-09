@@ -85,7 +85,6 @@
   },
   "habits": {
     "add": "Gewohnheit hinzufügen",
-    "delete": "Diese Gewohnheit löschen",
     "deleteConfirm": "Diese Gewohnheit und den gesamten Verlauf löschen?",
     "empty": "Noch keine Gewohnheiten.\nFüge jetzt eine hinzu.",
     "counter": {
@@ -276,7 +275,6 @@
     "nextMilestone_other": "Nächstes Ziel: {{label}} in {{count}} Tagen"
   },
   "relapse": {
-    "title": "Neu beginnen",
     "confirmTitle": "Ein Schritt zur Seite",
     "confirmBody": "Diese Tage gehören dir. Sie bleiben.",
     "confirmButton": "Ja, neu beginnen",
@@ -293,7 +291,6 @@
     "title": "Meine Behandlungen",
     "add": "Behandlung hinzufügen",
     "edit": "Behandlung bearbeiten",
-    "delete": "Diese Behandlung löschen",
     "deleteConfirm": "Diese Behandlung und den gesamten Verlauf löschen?",
     "empty": "Noch keine Behandlungen.\nFüge eine hinzu und stelle eine Erinnerung ein.",
     "taken": "Eingenommen",
@@ -306,7 +303,6 @@
     "form": {
       "name": "Name des Medikaments",
       "namePlaceholder": "z. B. Metformin, Sertralin…",
-      "frequency": "Häufigkeit",
       "reminderTime": "Erinnerungszeit",
       "enableReminder": "Erinnerung aktivieren",
       "permissionDenied": "Benachrichtigungsberechtigung verweigert. Die Erinnerung wurde deaktiviert.",
@@ -325,12 +321,10 @@
     "reminderAlarmSettingsNeeded": "Aktiviere 'Alarme und Erinnerungen' in deinen Einstellungen, um Erinnerungen pünktlich zu erhalten."
   },
   "stats": {
-    "title": "Statistiken",
     "currentStreak": "Aktuelle Serie",
     "longestStreak": "Längste Serie",
     "totalRelapses": "Rückfälle gesamt",
     "averageStreak": "Durchschnittliche Serie",
-    "startDate": "Seit dem",
     "noData": "Noch keine Daten"
   },
   "history": {

@@ -1,7 +1,11 @@
 import { isAfter, isBefore, parseISO, startOfDay, subDays, subMonths, subWeeks } from "date-fns";
 import type { Frequency } from "@/types";
 
-export function getPastOccurrences(frequency: Frequency, reminderDay: number | null, createdAt: string): Date[] {
+export function getPastOccurrences(
+  frequency: Frequency,
+  reminderDay: number | null,
+  createdAt: string,
+): Date[] {
   const today = startOfDay(new Date());
   const created = startOfDay(parseISO(createdAt.slice(0, 10)));
   const result: Date[] = [];
@@ -26,8 +30,16 @@ export function getPastOccurrences(frequency: Frequency, reminderDay: number | n
       if (day === 0) {
         occurrence = new Date(monthBase.getFullYear(), monthBase.getMonth() + 1, 0);
       } else {
-        const daysInMonth = new Date(monthBase.getFullYear(), monthBase.getMonth() + 1, 0).getDate();
-        occurrence = new Date(monthBase.getFullYear(), monthBase.getMonth(), Math.min(day, daysInMonth));
+        const daysInMonth = new Date(
+          monthBase.getFullYear(),
+          monthBase.getMonth() + 1,
+          0,
+        ).getDate();
+        occurrence = new Date(
+          monthBase.getFullYear(),
+          monthBase.getMonth(),
+          Math.min(day, daysInMonth),
+        );
       }
       if (isBefore(startOfDay(occurrence), created)) break;
       if (!isAfter(startOfDay(occurrence), today)) result.push(occurrence);

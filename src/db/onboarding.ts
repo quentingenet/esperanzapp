@@ -7,11 +7,14 @@ type OnboardingRow = {
 };
 
 export function getOnboardingValue(key: OnboardingKey): Promise<string | null> {
-  return withDb(async (db) => {
-    const result = await db.query("SELECT value FROM onboarding WHERE key = ?", [key]);
-    const rows = (result.values ?? []) as OnboardingRow[];
-    return rows[0]?.value ?? null;
-  }, localStorage.getItem(`onboarding_${key}`));
+  return withDb(
+    async (db) => {
+      const result = await db.query("SELECT value FROM onboarding WHERE key = ?", [key]);
+      const rows = (result.values ?? []) as OnboardingRow[];
+      return rows[0]?.value ?? null;
+    },
+    localStorage.getItem(`onboarding_${key}`),
+  );
 }
 
 export function setOnboardingValue(key: OnboardingKey, value: string): Promise<void> {
@@ -23,6 +26,8 @@ export function setOnboardingValue(key: OnboardingKey, value: string): Promise<v
         false,
       );
     },
-    () => { safeLocalStorageSet(`onboarding_${key}`, value); },
+    () => {
+      safeLocalStorageSet(`onboarding_${key}`, value);
+    },
   );
 }

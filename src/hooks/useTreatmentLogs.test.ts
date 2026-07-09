@@ -4,7 +4,6 @@ import { useTreatmentLogs } from "./useTreatmentLogs";
 import { upsertTreatmentLogForDate, getTreatmentLogsByDate } from "@/db";
 import type { TreatmentLog } from "@/types";
 
-
 vi.mock("@/db", () => ({
   upsertTreatmentLogForDate: vi.fn(),
   getTreatmentLogsByDate: vi.fn(),
@@ -26,7 +25,11 @@ describe("useTreatmentLogs", () => {
     const { result } = renderHook(() => useTreatmentLogs());
     let created: TreatmentLog | undefined;
     await act(async () => {
-      created = await result.current.logStatus({ treatmentId: "1", scheduledAt: "2024-01-15", status: "taken" });
+      created = await result.current.logStatus({
+        treatmentId: "1",
+        scheduledAt: "2024-01-15",
+        status: "taken",
+      });
     });
     expect(upsertTreatmentLogForDate).toHaveBeenCalledWith("1", "2024-01-15", "taken");
     expect(created).toEqual(log);
@@ -38,7 +41,11 @@ describe("useTreatmentLogs", () => {
     const { result } = renderHook(() => useTreatmentLogs());
     let created: TreatmentLog | undefined;
     await act(async () => {
-      created = await result.current.logStatus({ treatmentId: "1", scheduledAt: "2024-01-15", status: "missed" });
+      created = await result.current.logStatus({
+        treatmentId: "1",
+        scheduledAt: "2024-01-15",
+        status: "missed",
+      });
     });
     expect(upsertTreatmentLogForDate).toHaveBeenCalledWith("1", "2024-01-15", "missed");
     expect(created?.status).toBe("missed");

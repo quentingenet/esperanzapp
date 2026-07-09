@@ -25,7 +25,9 @@ export function UserNameInput({ onSave, onSkip }: UserNameInputProps) {
         onChange={(e) => setName(e.target.value)}
         placeholder={t("onboarding.yourName.placeholder")}
         slotProps={{ htmlInput: { "aria-label": t("onboarding.yourName.title"), maxLength: 50 } }}
-        onKeyDown={(e) => { if (e.key === "Enter") handleSave(); }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") handleSave();
+        }}
         autoFocus
       />
       <Button

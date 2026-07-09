@@ -1,11 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  createHabitWithInitialLog,
-  recordHabitRelapse,
-  getAllHabits,
-  deleteHabit,
-} from "./habits";
-import { createHabit } from "./testHelpers";
+import { createHabitWithInitialLog, recordHabitRelapse, getAllHabits, deleteHabit } from "./habits";
+import { createHabit } from "@/test/testHelpers";
 
 const mockDb = { run: vi.fn(), query: vi.fn() };
 vi.mock("./client", () => ({
@@ -15,10 +10,28 @@ vi.mock("./client", () => ({
   runInTransaction: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb),
 }));
 
-const ROW = { id: 1, label: "Alcool", icon: "🍺", color: "#3a8fd1", bg_color: "#e8f4ff", start_date: "2024-01-01", created_at: "2024-01-01T10:00:00Z" };
-const HABIT = { id: "1", label: "Alcool", icon: "🍺", color: "#3a8fd1", bgColor: "#e8f4ff", startDate: "2024-01-01", createdAt: "2024-01-01T10:00:00Z" };
+const ROW = {
+  id: 1,
+  label: "Alcool",
+  icon: "🍺",
+  color: "#3a8fd1",
+  bg_color: "#e8f4ff",
+  start_date: "2024-01-01",
+  created_at: "2024-01-01T10:00:00Z",
+};
+const HABIT = {
+  id: "1",
+  label: "Alcool",
+  icon: "🍺",
+  color: "#3a8fd1",
+  bgColor: "#e8f4ff",
+  startDate: "2024-01-01",
+  createdAt: "2024-01-01T10:00:00Z",
+};
 
-beforeEach(() => { vi.clearAllMocks(); });
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe("createHabit", () => {
   it("inserts and returns habit with id", async () => {
@@ -125,8 +138,16 @@ describe("deleteHabit", () => {
   it("passes correct id to both DELETE statements", async () => {
     mockDb.run.mockResolvedValue({});
     await deleteHabit("42");
-    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM habit_logs WHERE habit_id = ?", ["42"], expect.anything());
-    expect(mockDb.run).toHaveBeenCalledWith("DELETE FROM habits WHERE id = ?", ["42"], expect.anything());
+    expect(mockDb.run).toHaveBeenCalledWith(
+      "DELETE FROM habit_logs WHERE habit_id = ?",
+      ["42"],
+      expect.anything(),
+    );
+    expect(mockDb.run).toHaveBeenCalledWith(
+      "DELETE FROM habits WHERE id = ?",
+      ["42"],
+      expect.anything(),
+    );
   });
 
   it("propagates a parent deletion failure so log deletion can roll back", async () => {
