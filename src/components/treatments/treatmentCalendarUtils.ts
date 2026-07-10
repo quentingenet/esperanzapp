@@ -9,6 +9,7 @@ export function getPastOccurrences(
   const today = startOfDay(new Date());
   const created = startOfDay(parseISO(createdAt.slice(0, 10)));
   const result: Date[] = [];
+  if (isNaN(created.getTime())) return result;
 
   if (frequency === "weekly" && reminderDay !== null) {
     let current = today;

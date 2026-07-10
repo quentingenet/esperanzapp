@@ -21,37 +21,29 @@ describe("useTreatmentLogs", () => {
     vi.mocked(upsertTreatmentLogForDate).mockResolvedValue(log);
   });
 
-  it("logStatus upserts to DB and returns the created log", async () => {
+  it("logStatusForDate upserts to DB and returns the created log", async () => {
     const { result } = renderHook(() => useTreatmentLogs());
     let created: TreatmentLog | undefined;
     await act(async () => {
-      created = await result.current.logStatus({
-        treatmentId: "1",
-        scheduledAt: "2024-01-15",
-        status: "taken",
-      });
+      created = await result.current.logStatusForDate("1", "2024-01-15", "taken");
     });
     expect(upsertTreatmentLogForDate).toHaveBeenCalledWith("1", "2024-01-15", "taken");
     expect(created).toEqual(log);
   });
 
-  it("logStatus status 'missed' is stored correctly", async () => {
+  it("logStatusForDate status 'missed' is stored correctly", async () => {
     const missedLog: TreatmentLog = { ...log, id: "2", status: "missed" };
     vi.mocked(upsertTreatmentLogForDate).mockResolvedValueOnce(missedLog);
     const { result } = renderHook(() => useTreatmentLogs());
     let created: TreatmentLog | undefined;
     await act(async () => {
-      created = await result.current.logStatus({
-        treatmentId: "1",
-        scheduledAt: "2024-01-15",
-        status: "missed",
-      });
+      created = await result.current.logStatusForDate("1", "2024-01-15", "missed");
     });
     expect(upsertTreatmentLogForDate).toHaveBeenCalledWith("1", "2024-01-15", "missed");
     expect(created?.status).toBe("missed");
   });
 
-  it("logStatusForDate upserts to DB and returns the log", async () => {
+  it("logStatusForDate with explicit args upserts to DB and returns the log", async () => {
     const { result } = renderHook(() => useTreatmentLogs());
     let returned: TreatmentLog | undefined;
     await act(async () => {

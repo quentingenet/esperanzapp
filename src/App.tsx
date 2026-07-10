@@ -1,13 +1,7 @@
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import CssBaseline from "@mui/material/CssBaseline";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import Typography from "@mui/material/Typography";
 import { ThemeProvider } from "@mui/material/styles";
 import { App as CapApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
@@ -16,6 +10,7 @@ import { LocalNotifications } from "@capacitor/local-notifications";
 import { useTranslation } from "react-i18next";
 import { AppToast } from "@/components/shared/AppToast";
 import { BottomNav } from "@/components/shared/BottomNav";
+import { UpdateAvailableDialog } from "@/components/shared/UpdateAvailableDialog";
 import {
   LanguageSelector,
   PrivacyModal,
@@ -120,8 +115,7 @@ function AppStartRescheduler() {
 }
 
 function AppUpdateChecker() {
-  const { t } = useTranslation();
-  const { checkForUpdate, openUpdate } = useAppUpdate();
+  const { checkForUpdate } = useAppUpdate();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -138,34 +132,7 @@ function AppUpdateChecker() {
     };
   }, [checkForUpdate]);
 
-  return (
-    <Dialog open={open} maxWidth="xs" fullWidth>
-      <DialogTitle sx={{ fontWeight: 700 }}>{t("update.available")}</DialogTitle>
-      <DialogContent>
-        <Typography variant="body2" color="text.secondary">
-          {t("update.availableBody")}
-        </Typography>
-      </DialogContent>
-      <DialogActions sx={{ px: 2, pb: 2, gap: 1 }}>
-        <Button
-          onClick={() => {
-            setOpen(false);
-          }}
-        >
-          {t("update.later")}
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setOpen(false);
-            void openUpdate();
-          }}
-        >
-          {t("update.updateNow")}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
+  return <UpdateAvailableDialog open={open} onClose={() => setOpen(false)} />;
 }
 
 function DevWebBanner() {

@@ -7,8 +7,6 @@ import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import SvgIcon from "@mui/material/SvgIcon";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
 import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
@@ -18,8 +16,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { format, parse } from "date-fns";
 import { todayLocalDate } from "@/utils";
 import { useTranslation } from "react-i18next";
-import { TreatmentCard, TreatmentCalendar, TreatmentForm } from "@/components/treatments";
-import { weekDayLabel, WEEK_DAYS, MONTH_DAYS } from "@/components/treatments/treatmentUtils";
+import { TreatmentCard, TreatmentCalendar, TreatmentForm, ReminderDaySelect } from "@/components/treatments";
 import { ConfirmDialog, EmptyState, PageHeader, SortableList } from "@/components/shared";
 import { useTreatments, useTreatmentLogs, useNotifications, useDateLocale } from "@/hooks";
 import { toast } from "@/store/toastStore";
@@ -42,7 +39,7 @@ export function Treatments() {
     reorderTreatments,
     saveTreatmentsOrder,
   } = useTreatments();
-  const { logStatus, logStatusForDate, getLogsByDate } = useTreatmentLogs();
+  const { logStatusForDate, getLogsByDate } = useTreatmentLogs();
   const { scheduleReminder, cancelReminder, requestPermission, openExactAlarmSettings } =
     useNotifications();
   const mountedRef = useRef(true);
@@ -106,7 +103,7 @@ export function Treatments() {
   const handleLog = async (treatment: Treatment, status: TreatmentStatus) => {
     const today = todayLocalDate();
     try {
-      const created = await logStatus({ treatmentId: treatment.id, scheduledAt: today, status });
+      const created = await logStatusForDate(treatment.id, today, status);
       if (!mountedRef.current) return;
       setLogsMap((prev) => ({ ...prev, [treatment.id]: created }));
       if (treatment.reminderEnabled) {
@@ -402,39 +399,11 @@ export function Treatments() {
               />
             )}
             {showEditDaySelect && (
-              <Select
-                fullWidth
-                value={editReminderDay ?? ""}
-                onChange={(e) => {
-                  setEditReminderDay(e.target.value);
-                }}
-                sx={{ mb: 2 }}
-                displayEmpty
-                MenuProps={{
-                  slotProps: {
-                    paper: { sx: { maxHeight: "50vh", pb: "env(safe-area-inset-bottom)" } },
-                  },
-                }}
-              >
-                <MenuItem value="" disabled>
-                  {t("treatments.form.reminderDay")}
-                </MenuItem>
-                {editTarget.frequency === "weekly"
-                  ? WEEK_DAYS.map((d) => (
-                      <MenuItem key={d} value={d}>
-                        {weekDayLabel(d, dateLocale)}
-                      </MenuItem>
-                    ))
-                  : MONTH_DAYS.map((d) => (
-                      <MenuItem key={d.key} value={d.value}>
-                        {d.key === "firstDay"
-                          ? t("treatments.form.firstDay")
-                          : d.key === "lastDay"
-                            ? t("treatments.form.lastDay")
-                            : t("treatments.form.dayOfMonth", { day: d.value })}
-                      </MenuItem>
-                    ))}
-              </Select>
+              <ReminderDaySelect
+                frequency={editTarget.frequency}
+                value={editReminderDay}
+                onChange={setEditReminderDay}
+              />
             )}
             <Button
               fullWidth

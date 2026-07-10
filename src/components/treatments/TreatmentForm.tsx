@@ -19,7 +19,7 @@ import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { useDateLocale, useNotifications } from "@/hooks";
 import { toast } from "@/store/toastStore";
-import { weekDayLabel, WEEK_DAYS, MONTH_DAYS } from "./treatmentUtils";
+import { ReminderDaySelect } from "./ReminderDaySelect";
 import type { Frequency, TreatmentFormProps } from "@/types";
 import { FAB_SX, FAB_PULSE_SX } from "@/utils/fabAnimation";
 
@@ -75,7 +75,7 @@ export function TreatmentForm({ onSubmit, isEmpty = false }: TreatmentFormProps)
         frequency,
         reminderEnabled: effectiveReminderEnabled,
         reminderDay: frequency === "daily" ? null : reminderDay,
-        reminderTime: effectiveReminderEnabled && time ? format(time, "HH:mm") : "08:00",
+        reminderTime: time ? format(time, "HH:mm") : "08:00",
       });
       setLabel("");
       setFrequency("daily");
@@ -169,39 +169,11 @@ export function TreatmentForm({ onSubmit, isEmpty = false }: TreatmentFormProps)
               />
             )}
             {showDaySelect && (
-              <Select
-                fullWidth
-                value={reminderDay ?? ""}
-                onChange={(e) => {
-                  setReminderDay(e.target.value);
-                }}
-                sx={{ mb: 2 }}
-                displayEmpty
-                MenuProps={{
-                  slotProps: {
-                    paper: { sx: { maxHeight: "50vh", pb: "env(safe-area-inset-bottom)" } },
-                  },
-                }}
-              >
-                <MenuItem value="" disabled>
-                  {t("treatments.form.reminderDay")}
-                </MenuItem>
-                {frequency === "weekly"
-                  ? WEEK_DAYS.map((d) => (
-                      <MenuItem key={d} value={d}>
-                        {weekDayLabel(d, dateLocale)}
-                      </MenuItem>
-                    ))
-                  : MONTH_DAYS.map((d) => (
-                      <MenuItem key={d.key} value={d.value}>
-                        {d.key === "firstDay"
-                          ? t("treatments.form.firstDay")
-                          : d.key === "lastDay"
-                            ? t("treatments.form.lastDay")
-                            : t("treatments.form.dayOfMonth", { day: d.value })}
-                      </MenuItem>
-                    ))}
-              </Select>
+              <ReminderDaySelect
+                frequency={frequency}
+                value={reminderDay}
+                onChange={setReminderDay}
+              />
             )}
             <Button
               fullWidth

@@ -139,7 +139,7 @@ describe("TreatmentForm", () => {
     expect(payload["reminderDay"]).toBeNull();
   });
 
-  it("disabling reminder: reminderEnabled=false, reminderDay=null, reminderTime='08:00'", async () => {
+  it("disabling reminder: reminderEnabled=false, reminderDay=null, reminderTime preserves chosen time", async () => {
     const onSubmit = vi.fn();
     const user = userEvent.setup();
     render(<TreatmentForm onSubmit={onSubmit} />);
@@ -151,7 +151,7 @@ describe("TreatmentForm", () => {
     const payload = onSubmit.mock.calls[0]![0] as Record<string, unknown>;
     expect(payload["reminderEnabled"]).toBe(false);
     expect(payload["reminderDay"]).toBeNull();
-    expect(payload["reminderTime"]).toBe("08:00");
+    expect(payload["reminderTime"]).toMatch(/^\d{2}:\d{2}$/);
   });
 
   it("weekly + reminder disabled: reminderDay preserved in payload", async () => {

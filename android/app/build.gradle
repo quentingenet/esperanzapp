@@ -26,6 +26,7 @@ def getGitVersionCode = { ->
         def major = parts[0].toInteger()
         def minor = parts[1].toInteger()
         def patch = parts[2].toInteger()
+        if (minor >= 100) throw new GradleException("Minor version ${minor} >= 100 would cause versionCode collision. Bump major.")
         if (patch >= 100) throw new GradleException("Patch version ${patch} >= 100 would cause versionCode collision. Bump minor.")
         return major * 10000 + minor * 100 + patch
     } catch (GradleException e) {

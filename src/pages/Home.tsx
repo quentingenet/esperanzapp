@@ -71,10 +71,19 @@ export function Home() {
   const handleRelapse = (habit: Habit, date: string) => {
     void recordRelapse(habit.id, date)
       .then(() => {
-        void cancelMilestoneNotifications(habit.id)
-          .then(() => scheduleMilestoneNotifications(habit.id, date))
+        void getStatsBatch([habit.id])
+          .then((freshStats) => {
+            const streakStart = freshStats[habit.id]?.currentStreakStart ?? null;
+            void cancelMilestoneNotifications(habit.id)
+              .then(() => {
+                if (streakStart) void scheduleMilestoneNotifications(habit.id, streakStart);
+              })
+              .catch((e: unknown) => {
+                logError("Home.handleRelapse.notifications", e);
+              });
+          })
           .catch((e: unknown) => {
-            logError("Home.handleRelapse.notifications", e);
+            logError("Home.handleRelapse.getStats", e);
           });
         void loadHabits();
         setDetailHabit(null);

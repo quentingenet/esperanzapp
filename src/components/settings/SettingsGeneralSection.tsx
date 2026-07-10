@@ -24,6 +24,7 @@ import { toast } from "@/store/toastStore";
 import { SUPPORTED_LOCALES } from "@/i18n";
 import { getLogEntries, logError, safeLocalStorageSet } from "@/utils/logger";
 import { KofiButton } from "./KofiButton";
+import { UpdateAvailableDialog } from "@/components/shared";
 
 declare const __APP_VERSION__: string;
 const APP_VERSION = __APP_VERSION__;
@@ -50,7 +51,7 @@ export function SettingsGeneralSection({
 }: SettingsGeneralSectionProps) {
   const { t, i18n } = useTranslation();
   const { saveName } = useOnboarding();
-  const { status: updateStatus, checkForUpdate, openUpdate } = useAppUpdate();
+  const { status: updateStatus, checkForUpdate } = useAppUpdate();
   const { requestPermission, getPermissionStatus, getExactAlarmStatus, openExactAlarmSettings } =
     useNotifications();
   const userName = useOnboardingStore((s) => s.userName);
@@ -387,39 +388,12 @@ export function SettingsGeneralSection({
         </Box>
       </Box>
 
-      <Dialog
+      <UpdateAvailableDialog
         open={updateDialogOpen}
         onClose={() => {
           setUpdateDialogOpen(false);
         }}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle sx={{ fontWeight: 700 }}>{t("update.available")}</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary">
-            {t("update.availableBody")}
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 2, pb: 2, gap: 1 }}>
-          <Button
-            onClick={() => {
-              setUpdateDialogOpen(false);
-            }}
-          >
-            {t("update.later")}
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() => {
-              setUpdateDialogOpen(false);
-              void openUpdate();
-            }}
-          >
-            {t("update.updateNow")}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      />
 
       <Dialog
         open={diagOpen}
