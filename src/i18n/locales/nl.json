@@ -398,7 +398,9 @@
     "diagTitle": "Diagnose",
     "diagSubtitle": "tijd · context · foutnaam (geen persoonlijke gegevens)",
     "diagCopy": "Kopiëren",
-    "kofi": "Project steunen"
+    "kofi": "Project steunen",
+    "sqlcipher": "SQLCipher © Zetetic LLC - BSD",
+    "sqlcipherNote": "voor gegevensversleuteling"
   },
   "milestones": {
     "title": "Mijlpalen",

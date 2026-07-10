@@ -252,6 +252,7 @@ export function Home() {
         />
       </Box>
       <HabitForm
+        isEmpty={habits.length === 0}
         existingHabits={habits}
         onSubmit={(data) => {
           void addHabitWithInitialLog({ ...data, createdAt: new Date().toISOString() })

@@ -398,7 +398,9 @@
     "diagTitle": "Diagnostics",
     "diagSubtitle": "heure · contexte · nom de l'erreur (aucune donnée personnelle)",
     "diagCopy": "Copier",
-    "kofi": "Soutenir le développement"
+    "kofi": "Soutenir le développement",
+    "sqlcipher": "SQLCipher © Zetetic LLC - BSD",
+    "sqlcipherNote": "pour le chiffrement des données"
   },
   "milestones": {
     "title": "Jalons",

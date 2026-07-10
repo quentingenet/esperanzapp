@@ -21,11 +21,12 @@ import { useDateLocale, useNotifications } from "@/hooks";
 import { toast } from "@/store/toastStore";
 import { weekDayLabel, WEEK_DAYS, MONTH_DAYS } from "./treatmentUtils";
 import type { Frequency, TreatmentFormProps } from "@/types";
+import { FAB_SX, FAB_PULSE_SX } from "@/utils/fabAnimation";
 
 const ADD_PATH = "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z";
 const FREQUENCIES: Frequency[] = ["daily", "weekly", "monthly"];
 
-export function TreatmentForm({ onSubmit }: TreatmentFormProps) {
+export function TreatmentForm({ onSubmit, isEmpty = false }: TreatmentFormProps) {
   const { t } = useTranslation();
   const { requestPermission } = useNotifications();
   const dateLocale = useDateLocale();
@@ -103,6 +104,7 @@ export function TreatmentForm({ onSubmit }: TreatmentFormProps) {
           right: 16,
           width: 56,
           height: 56,
+          ...(isEmpty ? FAB_PULSE_SX : FAB_SX),
         }}
       >
         <SvgIcon aria-hidden="true">

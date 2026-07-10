@@ -141,6 +141,7 @@ export interface HabitDropdownProps {
 export interface HabitFormProps {
   onSubmit: (data: Omit<Habit, "id" | "createdAt">) => void;
   existingHabits: Habit[];
+  isEmpty?: boolean;
 }
 
 export interface RelapseDialogProps {
@@ -170,6 +171,7 @@ export interface TreatmentCardProps {
 
 export interface TreatmentFormProps {
   onSubmit: (data: Omit<Treatment, "id" | "createdAt">) => void;
+  isEmpty?: boolean;
 }
 
 export interface TreatmentCalendarProps {

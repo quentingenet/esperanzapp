@@ -324,6 +324,7 @@ export function Treatments() {
           )}
         />
         <TreatmentForm
+          isEmpty={treatments.length === 0}
           onSubmit={(data) => {
             void addTreatment({ ...data, createdAt: new Date().toISOString() })
               .then(async (created) => {

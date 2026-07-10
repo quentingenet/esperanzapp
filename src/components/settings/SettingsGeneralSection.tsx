@@ -373,12 +373,16 @@ export function SettingsGeneralSection({
             >
               {t("settings.sourceCode")}
             </Link>
+            {" "}{t("app.by")} Quentin Genet
           </Typography>
           <Typography variant="caption" color="text.secondary">
             {t("settings.license")}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {t("app.by")} Quentin Genet
+            {t("settings.sqlcipher")}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {t("settings.sqlcipherNote")}
           </Typography>
         </Box>
       </Box>

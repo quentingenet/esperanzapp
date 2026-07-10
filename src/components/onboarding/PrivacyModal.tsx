@@ -61,12 +61,16 @@ export function PrivacyModal({ open, onAccept, readOnly = false }: PrivacyModalP
           >
             {t("settings.sourceCode")}
           </Link>
+          {" "}{t("app.by")} Quentin Genet
         </Typography>
         <Typography variant="caption" color="text.disabled" sx={{ mt: 1, display: "block" }}>
           {t("privacy.license")}
         </Typography>
         <Typography variant="caption" color="text.disabled" sx={{ mt: 1, display: "block" }}>
-          {t("app.by")} Quentin Genet
+          {t("settings.sqlcipher")}
+        </Typography>
+        <Typography variant="caption" color="text.disabled" sx={{ display: "block" }}>
+          {t("settings.sqlcipherNote")}
         </Typography>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 3 }}>

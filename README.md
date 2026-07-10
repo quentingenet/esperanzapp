@@ -196,6 +196,13 @@ The full privacy policy is available in [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 
 ---
 
+## Third-party licenses
+
+EsperanzApp embeds **SQLCipher Community Edition** (Zetetic LLC) for encrypted database storage.
+The full copyright notice and BSD license text are in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
+
+---
+
 ## Disclaimer
 
 EsperanzApp is a personal habit and routine tracking tool. It is not a medical device and does not provide medical advice, diagnosis, or treatment recommendations. It does not replace a qualified healthcare professional. Any decision relating to a medical treatment, medication schedule, or health condition should be made in consultation with a licensed healthcare provider.

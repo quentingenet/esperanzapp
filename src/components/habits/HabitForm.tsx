@@ -15,10 +15,11 @@ import { HabitDropdown } from "./HabitDropdown";
 import { useDateLocale } from "@/hooks";
 import type { HabitFormProps, HabitTypeId } from "@/types";
 import { getHabitTypeConfig } from "@/utils/habitTypes";
+import { FAB_SX, FAB_PULSE_SX } from "@/utils/fabAnimation";
 
 const ADD_PATH = "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z";
 
-export function HabitForm({ onSubmit, existingHabits }: HabitFormProps) {
+export function HabitForm({ onSubmit, existingHabits, isEmpty = false }: HabitFormProps) {
   const { t } = useTranslation();
   const dateLocale = useDateLocale();
   const [open, setOpen] = useState(false);
@@ -85,6 +86,7 @@ export function HabitForm({ onSubmit, existingHabits }: HabitFormProps) {
           right: 16,
           width: 56,
           height: 56,
+          ...(isEmpty ? FAB_PULSE_SX : FAB_SX),
         }}
       >
         <SvgIcon aria-hidden="true">
