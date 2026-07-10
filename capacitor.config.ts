@@ -6,11 +6,12 @@ const config: CapacitorConfig = {
   webDir: "dist",
   plugins: {
     SplashScreen: {
-      launchShowDuration: 3000,
+      launchShowDuration: 8000,
       launchAutoHide: true,
       backgroundColor: "#ffffff",
       androidSplashResourceName: "splash",
       showSpinner: false,
+      fadeOutDuration: 200,
     },
     CapacitorSQLite: {
       androidIsEncryption: true,

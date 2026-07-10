@@ -7,6 +7,7 @@ import { App as CapApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import type { PluginListenerHandle } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
+import { SplashScreen } from "@capacitor/splash-screen";
 import { useTranslation } from "react-i18next";
 import { AppToast } from "@/components/shared/AppToast";
 import { BottomNav } from "@/components/shared/BottomNav";
@@ -170,7 +171,9 @@ function AppContent() {
     let disposed = false;
     void LocalNotifications.addListener("localNotificationActionPerformed", (action) => {
       const notifId = action.notification.id;
-      if (notifId >= NOTIF_DOMAIN_OFFSET.treatments && notifId < NOTIF_DOMAIN_OFFSET.milestones) {
+      if (notifId >= NOTIF_DOMAIN_OFFSET.milestones) {
+        setActiveTab("home");
+      } else if (notifId >= NOTIF_DOMAIN_OFFSET.treatments) {
         setActiveTab("treatments");
       }
     })
@@ -293,12 +296,35 @@ function AppContent() {
       <DevWebBanner />
       <AppStartRescheduler />
       <AppUpdateChecker />
-      {pages[activeTab]}
+      <Suspense
+        fallback={
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "calc(100dvh - 80px)",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        }
+      >
+        {pages[activeTab]}
+      </Suspense>
       <Box sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }}>
         <BottomNav activeTab={activeTab} onChange={setActiveTab} />
       </Box>
     </Box>
   );
+}
+
+function SplashHider() {
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    void SplashScreen.hide();
+  }, []);
+  return null;
 }
 
 export default function App() {
@@ -319,6 +345,7 @@ export default function App() {
           </Box>
         }
       >
+        <SplashHider />
         <AppContent />
         <AppToast />
       </Suspense>

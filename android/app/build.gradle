@@ -72,10 +72,10 @@ android {
     }
 
     applicationVariants.all { variant ->
-        variant.outputs.all { output ->
-            def version = defaultConfig.versionName
-            def buildType = variant.buildType.name
-            outputFileName = "EsperanzApp-v${version}-${buildType}.apk"
+        if (variant.buildType.name == "release") {
+            variant.outputs.all {
+                outputFileName = "EsperanzApp-v${defaultConfig.versionName}-release.apk"
+            }
         }
     }
 }
