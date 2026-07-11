@@ -10,6 +10,7 @@ const mockDb = { run: vi.fn(), query: vi.fn() };
 vi.mock("./client", () => ({
   withDb: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb),
   withDbVoid: (fn: (db: typeof mockDb) => Promise<void>) => fn(mockDb),
+  runInTransaction: (fn: (db: typeof mockDb) => Promise<unknown>) => fn(mockDb),
 }));
 
 const ROW = { id: 7, treatment_id: 3, scheduled_at: "2024-06-01", status: "taken" };

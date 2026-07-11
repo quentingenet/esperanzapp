@@ -9,7 +9,7 @@ import type { Treatment } from "@/types";
 
 export const NOTIF_DOMAIN_OFFSET = {
   treatments: 1_000_000,
-  milestones: 2_000_000, // reserved for future milestone notifications
+  milestones: 2_000_000,
 } as const;
 
 export type NotifDomain = keyof typeof NOTIF_DOMAIN_OFFSET;

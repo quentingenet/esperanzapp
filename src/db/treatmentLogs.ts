@@ -1,6 +1,6 @@
 import type { TreatmentLog, TreatmentStatus } from "@/types";
 import { isTreatmentStatus } from "@/utils";
-import { withDb } from "./client";
+import { runInTransaction, withDb } from "./client";
 
 type TreatmentLogRow = {
   id: number;
@@ -51,23 +51,21 @@ export function upsertTreatmentLogForDate(
   scheduledAt: string,
   status: TreatmentStatus,
 ): Promise<TreatmentLog> {
-  return withDb(
-    async (db) => {
-      await db.run(
-        `INSERT INTO treatment_logs (treatment_id, scheduled_at, status)
+  return runInTransaction(async (db) => {
+    if (!db) return { id: String(Date.now()), treatmentId, scheduledAt, status };
+    await db.run(
+      `INSERT INTO treatment_logs (treatment_id, scheduled_at, status)
        VALUES (?, ?, ?)
        ON CONFLICT(treatment_id, scheduled_at) DO UPDATE SET status = excluded.status`,
-        [treatmentId, scheduledAt, status],
-        false,
-      );
-      const result = await db.query(
-        "SELECT * FROM treatment_logs WHERE treatment_id = ? AND scheduled_at = ?",
-        [treatmentId, scheduledAt],
-      );
-      const rows = (result.values ?? []) as TreatmentLogRow[];
-      if (!rows[0]) throw new Error("Failed to upsert treatment log");
-      return rowToTreatmentLog(rows[0]);
-    },
-    { id: String(Date.now()), treatmentId, scheduledAt, status },
-  );
+      [treatmentId, scheduledAt, status],
+      false,
+    );
+    const result = await db.query(
+      "SELECT * FROM treatment_logs WHERE treatment_id = ? AND scheduled_at = ?",
+      [treatmentId, scheduledAt],
+    );
+    const rows = (result.values ?? []) as TreatmentLogRow[];
+    if (!rows[0]) throw new Error("Failed to upsert treatment log");
+    return rowToTreatmentLog(rows[0]);
+  });
 }

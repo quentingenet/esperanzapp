@@ -532,6 +532,8 @@ export function DataExportSection() {
         open={warnOpen}
         onClose={() => {
           setWarnOpen(false);
+          setImportFile(null);
+          setImportPassword("");
         }}
       >
         <DialogTitle>{t("export.importWarningTitle")}</DialogTitle>
@@ -542,6 +544,8 @@ export function DataExportSection() {
           <Button
             onClick={() => {
               setWarnOpen(false);
+              setImportFile(null);
+              setImportPassword("");
             }}
           >
             {t("common.cancel")}

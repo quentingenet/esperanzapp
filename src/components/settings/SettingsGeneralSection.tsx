@@ -28,7 +28,7 @@ import { UpdateAvailableDialog } from "@/components/shared";
 
 declare const __APP_VERSION__: string;
 const APP_VERSION = __APP_VERSION__;
-const GITHUB_URL = "https://github.com/QuentinGenet/esperanzapp";
+const GITHUB_URL = "https://github.com/quentingenet/esperanzapp";
 
 const LOCALE_FLAGS: Record<string, string> = {
   fr: "🇫🇷",
