@@ -23,6 +23,7 @@ import {
 } from "../utils/exportSerialization";
 import { shareFile, saveToFolder } from "./shareService";
 import type { ShareOutcome, SaveOutcome } from "./shareService";
+import { POSITIVE_GRADES } from "@/utils/positiveGrades";
 
 export class InvalidImportFileError extends Error {
   constructor(cause?: unknown) {
@@ -262,6 +263,24 @@ async function importPayload(payload: ReturnType<typeof parseExportPayload>): Pr
           [phl.id, phl.positiveHabitId, phl.scheduledAt, phl.status],
           false,
         );
+      }
+      // Backfill "already notified" milestone bookkeeping from the imported taken counts.
+      // This bookkeeping is derived/technical state, not part of the export payload itself,
+      // but reconstructing it here prevents a threshold already reached before export from
+      // firing again after a post-import taken → missed → taken toggle.
+      const takenCounts = new Map<string, number>();
+      for (const phl of payload.positiveHabitLogs) {
+        if (phl.status !== "taken") continue;
+        takenCounts.set(phl.positiveHabitId, (takenCounts.get(phl.positiveHabitId) ?? 0) + 1);
+      }
+      for (const [positiveHabitId, count] of takenCounts) {
+        for (const grade of POSITIVE_GRADES.filter((g) => g.threshold <= count)) {
+          await db.run(
+            "INSERT OR IGNORE INTO positive_habit_milestone_notifications (positive_habit_id, threshold) VALUES (?, ?)",
+            [positiveHabitId, grade.threshold],
+            false,
+          );
+        }
       }
     });
   } catch (cause) {

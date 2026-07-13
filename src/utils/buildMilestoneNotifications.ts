@@ -35,16 +35,24 @@ export async function checkAndNotifyPositiveMilestone(
   const label = i18n.t(grade.labelKey);
   const message = i18n.t(grade.messageKey);
 
-  await LocalNotifications.schedule({
-    notifications: [
-      {
-        id: getNotificationId("buildMilestones", `${positiveHabit.id}~${String(gradeIndex)}`),
-        title: `${grade.emoji} ${label}`,
-        body: message,
-        group: "buildMilestones",
-        schedule: { at: new Date(Date.now() + 500), allowWhileIdle: true },
-      },
-    ],
-  }).catch(() => {});
+  try {
+    await LocalNotifications.schedule({
+      notifications: [
+        {
+          id: getNotificationId("buildMilestones", `${positiveHabit.id}~${String(gradeIndex)}`),
+          title: `${grade.emoji} ${label}`,
+          body: message,
+          group: "buildMilestones",
+          schedule: { at: new Date(Date.now() + 500), allowWhileIdle: true },
+        },
+      ],
+    });
+  } catch {
+    // Do not mark as notified: unlike scheduleMilestoneNotifications (re-run in full on every
+    // app start via rescheduleAllMilestoneNotifications), this one-shot reactive notification
+    // has no retry path. If it fails to schedule, the next threshold-crossing toggle should
+    // still get a chance to fire it.
+    return;
+  }
   await markMilestoneNotified(positiveHabit.id, grade.threshold);
 }

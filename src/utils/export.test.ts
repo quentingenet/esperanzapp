@@ -1014,6 +1014,48 @@ describe("importFromJSON", () => {
     );
   });
 
+  it("backfills already-reached milestone thresholds from imported taken counts", async () => {
+    // mockPositiveHabitLog has status "taken" -> imported taken count is 1, which matches the
+    // first POSITIVE_GRADES threshold. This prevents a post-import taken -> missed -> taken
+    // toggle from re-firing a milestone notification that was already reached before export.
+    const payload = buildExportPayload(
+      [],
+      [],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+      [mockPositiveHabit],
+      [mockPositiveHabitLog],
+    );
+    const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
+    await importFromJSON(file);
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT OR IGNORE INTO positive_habit_milestone_notifications"),
+      [mockPositiveHabit.id, 1],
+      false,
+    );
+  });
+
+  it("does not backfill a milestone threshold the imported taken count never reached", async () => {
+    // Only 1 "taken" log imported; the next POSITIVE_GRADES threshold (3) must not be backfilled.
+    const payload = buildExportPayload(
+      [],
+      [],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+      [mockPositiveHabit],
+      [mockPositiveHabitLog],
+    );
+    const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
+    await importFromJSON(file);
+    expect(mockTransactionDb.run).not.toHaveBeenCalledWith(
+      expect.stringContaining("INSERT OR IGNORE INTO positive_habit_milestone_notifications"),
+      [mockPositiveHabit.id, 3],
+      false,
+    );
+  });
+
   it("throws on orphan positiveHabitLog referencing unknown positiveHabitId", async () => {
     const orphanLog: PositiveHabitLog = { ...mockPositiveHabitLog, positiveHabitId: "999" };
     const payload = buildExportPayload(

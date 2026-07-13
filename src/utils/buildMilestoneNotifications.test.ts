@@ -84,4 +84,14 @@ describe("checkAndNotifyPositiveMilestone", () => {
     expect(LocalNotifications.schedule).not.toHaveBeenCalled();
     expect(markMilestoneNotified).not.toHaveBeenCalled();
   });
+
+  it("does not mark the threshold as notified when LocalNotifications.schedule fails", async () => {
+    // A failed schedule() call (plugin error, exact-alarm restriction, timeout) must not be
+    // treated as "notified" - this is a one-shot reactive notification with no retry-at-boot
+    // path (unlike scheduleMilestoneNotifications), so marking it here would silently and
+    // permanently lose that milestone notification for the user.
+    vi.mocked(LocalNotifications.schedule).mockRejectedValue(new Error("plugin error"));
+    await checkAndNotifyPositiveMilestone(positiveHabit, 1);
+    expect(markMilestoneNotified).not.toHaveBeenCalled();
+  });
 });
