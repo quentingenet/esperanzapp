@@ -1056,6 +1056,75 @@ describe("importFromJSON", () => {
     );
   });
 
+  it("backfills every threshold reached at once when the imported taken count spans several", async () => {
+    // 3 "taken" logs for the same habit -> both threshold 1 and threshold 3 must be backfilled
+    // in the same import, not just the highest one reached.
+    const logs: PositiveHabitLog[] = [
+      { id: "1", positiveHabitId: mockPositiveHabit.id, scheduledAt: "2024-01-01", status: "taken" },
+      { id: "2", positiveHabitId: mockPositiveHabit.id, scheduledAt: "2024-01-02", status: "taken" },
+      { id: "3", positiveHabitId: mockPositiveHabit.id, scheduledAt: "2024-01-03", status: "taken" },
+    ];
+    const payload = buildExportPayload(
+      [],
+      [],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+      [mockPositiveHabit],
+      logs,
+    );
+    const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
+    await importFromJSON(file);
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT OR IGNORE INTO positive_habit_milestone_notifications"),
+      [mockPositiveHabit.id, 1],
+      false,
+    );
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT OR IGNORE INTO positive_habit_milestone_notifications"),
+      [mockPositiveHabit.id, 3],
+      false,
+    );
+  });
+
+  it("backfills thresholds independently per habit when several positive habits are imported together", async () => {
+    // habit A has 1 taken log (threshold 1 only), habit B has 3 (thresholds 1 and 3) -> the
+    // per-habit Map<positiveHabitId, takenCount> must not mix the two counts together.
+    const habitB: PositiveHabit = { ...mockPositiveHabit, id: "2" };
+    const logs: PositiveHabitLog[] = [
+      { id: "1", positiveHabitId: mockPositiveHabit.id, scheduledAt: "2024-01-01", status: "taken" },
+      { id: "2", positiveHabitId: habitB.id, scheduledAt: "2024-01-01", status: "taken" },
+      { id: "3", positiveHabitId: habitB.id, scheduledAt: "2024-01-02", status: "taken" },
+      { id: "4", positiveHabitId: habitB.id, scheduledAt: "2024-01-03", status: "taken" },
+    ];
+    const payload = buildExportPayload(
+      [],
+      [],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+      [mockPositiveHabit, habitB],
+      logs,
+    );
+    const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
+    await importFromJSON(file);
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT OR IGNORE INTO positive_habit_milestone_notifications"),
+      [mockPositiveHabit.id, 1],
+      false,
+    );
+    expect(mockTransactionDb.run).not.toHaveBeenCalledWith(
+      expect.stringContaining("INSERT OR IGNORE INTO positive_habit_milestone_notifications"),
+      [mockPositiveHabit.id, 3],
+      false,
+    );
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT OR IGNORE INTO positive_habit_milestone_notifications"),
+      [habitB.id, 3],
+      false,
+    );
+  });
+
   it("throws on orphan positiveHabitLog referencing unknown positiveHabitId", async () => {
     const orphanLog: PositiveHabitLog = { ...mockPositiveHabitLog, positiveHabitId: "999" };
     const payload = buildExportPayload(
@@ -1174,6 +1243,28 @@ describe("importFromCSV", () => {
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO habit_logs"),
       expect.arrayContaining([mockHabitLog.habitId]),
+      false,
+    );
+  });
+
+  it("backfills already-reached milestone thresholds from CSV imports too", async () => {
+    // Same backfill logic as importFromJSON's equivalent test, but through the CSV path -
+    // both importFromJSON and importFromCSV converge on the same importPayload().
+    const payload = buildExportPayload(
+      [],
+      [],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+      [mockPositiveHabit],
+      [mockPositiveHabitLog],
+    );
+    const csv = payloadToCSV(payload);
+    const file = new File([csv], "export.csv", { type: "text/csv" });
+    await importFromCSV(file);
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT OR IGNORE INTO positive_habit_milestone_notifications"),
+      [mockPositiveHabit.id, 1],
       false,
     );
   });
