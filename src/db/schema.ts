@@ -76,10 +76,6 @@ CREATE TABLE IF NOT EXISTS positive_habit_logs (
   scheduled_at      TEXT NOT NULL,
   status            TEXT NOT NULL CHECK(status IN ('taken', 'missed', 'pending'))
 );
-
-CREATE UNIQUE INDEX IF NOT EXISTS idx_positive_habit_logs_unique
-  ON positive_habit_logs(positive_habit_id, scheduled_at);
-CREATE INDEX IF NOT EXISTS idx_positive_habit_logs_scheduled_at ON positive_habit_logs(scheduled_at);
 `;
 
 async function isApplied(db: SQLiteDBConnection, name: string): Promise<boolean> {
@@ -163,6 +159,28 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
       );
     }
     await markApplied(db, "idx_treatment_logs_scheduled_at");
+  }
+
+  // Same SQLCipher-quirk guard as the treatment_logs indexes above: these tables are new
+  // in this release, but runSchema() re-executes on every app start, so by the second
+  // launch the index already exists and must go through the same isApplied/indexExists
+  // gate rather than living in the unconditional SCHEMA string.
+  if (!(await isApplied(db, "idx_positive_habit_logs_unique"))) {
+    if (!(await indexExists(db, "idx_positive_habit_logs_unique"))) {
+      await db.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_positive_habit_logs_unique ON positive_habit_logs(positive_habit_id, scheduled_at)",
+      );
+    }
+    await markApplied(db, "idx_positive_habit_logs_unique");
+  }
+
+  if (!(await isApplied(db, "idx_positive_habit_logs_scheduled_at"))) {
+    if (!(await indexExists(db, "idx_positive_habit_logs_scheduled_at"))) {
+      await db.execute(
+        "CREATE INDEX IF NOT EXISTS idx_positive_habit_logs_scheduled_at ON positive_habit_logs(scheduled_at)",
+      );
+    }
+    await markApplied(db, "idx_positive_habit_logs_scheduled_at");
   }
 
   if (!(await isApplied(db, "sort_index_habits"))) {
