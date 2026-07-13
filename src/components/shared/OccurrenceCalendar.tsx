@@ -15,33 +15,27 @@ import { PickerDay } from "@mui/x-date-pickers/PickerDay";
 import type { PickerDayProps } from "@mui/x-date-pickers/PickerDay";
 import { format, isAfter, isBefore, startOfDay, subYears } from "date-fns";
 import { useTranslation } from "react-i18next";
-import { useCalendar, useDateLocale } from "@/hooks";
+import { useDateLocale } from "@/hooks";
 import { toast } from "@/store/toastStore";
 import { logError } from "@/utils/logger";
-import { COLORS } from "@/theme/tokens";
-import type { TreatmentCalendarProps, TreatmentStatus } from "@/types";
-import { getPastOccurrences } from "./treatmentCalendarUtils";
+import { getPastOccurrences } from "@/utils/recurrenceUtils";
+import { STATUS_CONFIG, STATUS_ORDER } from "@/theme/statusConfig";
+import type { OccurrenceCalendarProps, TreatmentStatus } from "@/types";
 
-const STATUS_CONFIG: Record<
-  TreatmentStatus,
-  { color: string; icon: string; bg: string; labelKey: string }
-> = {
-  taken: { color: "#5aaa7e", icon: "✅", bg: "#e8f5ee", labelKey: "treatments.taken" },
-  missed: { color: COLORS.eventRelapse, icon: "❌", bg: "#fdf0f0", labelKey: "treatments.missed" },
-  pending: { color: "#89afc4", icon: "○", bg: "#edf2f7", labelKey: "treatments.pending" },
-};
-const STATUS_ORDER: TreatmentStatus[] = ["taken", "missed", "pending"];
-
-export function TreatmentCalendar({
-  treatmentId,
+export function OccurrenceCalendar({
+  entityId,
   frequency,
   reminderDay,
   createdAt,
+  getStatusMap,
   onLogDate,
-}: TreatmentCalendarProps) {
+  namespace = "treatments",
+}: OccurrenceCalendarProps) {
   const { t } = useTranslation();
-  const { getTreatmentStatusMap } = useCalendar();
   const dateLocale = useDateLocale();
+  // "Pris"/"Non pris" reads wrong for a positive habit ("Fait"/"Non fait" instead) —
+  // namespace picks the right i18n prefix instead of hardcoding "treatments.*".
+  const statusLabel = useCallback((s: TreatmentStatus) => t(`${namespace}.${s}`), [t, namespace]);
   const [statusMap, setStatusMap] = useState<Record<string, TreatmentStatus>>({});
   const [dialogDate, setDialogDate] = useState<Date | null>(null);
   const [showAllOccurrences, setShowAllOccurrences] = useState(false);
@@ -56,29 +50,29 @@ export function TreatmentCalendar({
   const refreshSeq = useRef(0);
   const refreshMap = useCallback(() => {
     const seq = ++refreshSeq.current;
-    void getTreatmentStatusMap(treatmentId)
+    void getStatusMap(entityId)
       .then((map) => {
         if (mountedRef.current && seq === refreshSeq.current) setStatusMap(map);
       })
       .catch((e: unknown) => {
-        logError("TreatmentCalendar.refreshMap", e);
+        logError("OccurrenceCalendar.refreshMap", e);
         toast.error(t("common.error"));
       });
-  }, [treatmentId, getTreatmentStatusMap, t]);
+  }, [entityId, getStatusMap, t]);
 
   useEffect(() => {
     const guard = { cancelled: false };
-    void getTreatmentStatusMap(treatmentId)
+    void getStatusMap(entityId)
       .then((map) => {
         if (!guard.cancelled) setStatusMap(map);
       })
       .catch((e: unknown) => {
-        logError("TreatmentCalendar.loadMap", e);
+        logError("OccurrenceCalendar.loadMap", e);
       });
     return () => {
       guard.cancelled = true;
     };
-  }, [treatmentId, getTreatmentStatusMap]);
+  }, [entityId, getStatusMap]);
 
   const handleDaySelect = (date: Date | null) => {
     if (!date || !onLogDate) return;
@@ -116,8 +110,7 @@ export function TreatmentCalendar({
       const status = statusMap[dateStr];
       const cfg = status !== undefined ? STATUS_CONFIG[status] : undefined;
       const dayLabel = format(props.day, "PP", { locale: dateLocale });
-      const ariaLabel =
-        status !== undefined ? `${dayLabel}, ${t(`treatments.${status}`)}` : dayLabel;
+      const ariaLabel = status !== undefined ? `${dayLabel}, ${statusLabel(status)}` : dayLabel;
       return (
         <Box sx={{ position: "relative", borderRadius: "50%", bgcolor: cfg?.bg ?? "transparent" }}>
           <PickerDay {...props} aria-label={ariaLabel} />
@@ -132,7 +125,7 @@ export function TreatmentCalendar({
         </Box>
       );
     },
-    [statusMap, t, dateLocale],
+    [statusMap, statusLabel, dateLocale],
   );
 
   const statusDialog = (
@@ -171,7 +164,7 @@ export function TreatmentCalendar({
                 <span aria-hidden="true" style={{ fontSize: "1.1rem" }}>
                   {cfg.icon}
                 </span>
-                {t(`treatments.${status}`)}
+                {statusLabel(status)}
               </Button>
             );
           })}
@@ -199,8 +192,7 @@ export function TreatmentCalendar({
             const status = statusMap[dateStr];
             const cfg = status !== undefined ? STATUS_CONFIG[status] : undefined;
             const formattedDate = format(date, "P", { locale: dateLocale });
-            const statusLabel =
-              status !== undefined ? t(`treatments.${status}`) : t("treatments.pending");
+            const label = status !== undefined ? statusLabel(status) : statusLabel("pending");
             return (
               <ButtonBase
                 key={dateStr}
@@ -209,7 +201,7 @@ export function TreatmentCalendar({
                   handleDaySelect(date);
                 }}
                 disabled={!onLogDate}
-                aria-label={`${formattedDate}, ${statusLabel}`}
+                aria-label={`${formattedDate}, ${label}`}
                 sx={{
                   display: "flex",
                   alignItems: "center",
@@ -279,7 +271,7 @@ export function TreatmentCalendar({
               <Box key={status} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                 <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: cfg.color }} />
                 <Typography variant="caption" color="text.secondary">
-                  <span aria-hidden="true">{cfg.icon}</span> {t(cfg.labelKey)}
+                  <span aria-hidden="true">{cfg.icon}</span> {statusLabel(status)}
                 </Typography>
               </Box>
             );
@@ -308,7 +300,7 @@ export function TreatmentCalendar({
             <Box key={status} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
               <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: cfg.color }} />
               <Typography variant="caption" color="text.secondary">
-                {cfg.icon} {t(cfg.labelKey)}
+                {cfg.icon} {statusLabel(status)}
               </Typography>
             </Box>
           );

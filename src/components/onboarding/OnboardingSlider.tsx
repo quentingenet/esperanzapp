@@ -4,10 +4,10 @@ import Button from "@mui/material/Button";
 import MobileStepper from "@mui/material/MobileStepper";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { SlideHabit, SlideProgress, SlideRelapse, SlideStats } from "./slides";
+import { SlideBuildHabits, SlideHabit, SlideProgress, SlideRelapse, SlideStats } from "./slides";
 import type { OnboardingSliderProps } from "@/types";
 
-const SLIDE_COUNT = 4;
+const SLIDE_COUNT = 5;
 
 const PULSE = {
   "@keyframes swipe-hint": {
@@ -25,7 +25,7 @@ const PULSE_LEFT = {
   animation: "swipe-hint-left 1.3s ease-in-out infinite",
 } as const;
 
-const SLIDES = [SlideHabit, SlideProgress, SlideRelapse, SlideStats];
+const SLIDES = [SlideBuildHabits, SlideHabit, SlideProgress, SlideRelapse, SlideStats];
 
 export function OnboardingSlider({ onComplete, onSkip }: OnboardingSliderProps) {
   const { t } = useTranslation();

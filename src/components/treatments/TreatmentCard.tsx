@@ -6,7 +6,7 @@ import IconButton from "@mui/material/IconButton";
 import SvgIcon from "@mui/material/SvgIcon";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { weekDayLabel } from "./treatmentUtils";
+import { weekDayLabel } from "@/utils/reminderUtils";
 import { useDateLocale } from "@/hooks";
 import { TreatmentLogButton } from "./TreatmentLogButton";
 import type { TreatmentCardProps } from "@/types";

@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Capacitor } from "@capacitor/core";
-import type { Habit, HabitLog, Treatment, TreatmentLog } from "@/types";
+import type {
+  Habit,
+  HabitLog,
+  Treatment,
+  TreatmentLog,
+  PositiveHabit,
+  PositiveHabitLog,
+} from "@/types";
 import {
   buildExportPayload,
   parseExportPayload,
@@ -39,6 +46,8 @@ vi.mock("@/db", () => ({
   getAllHabitLogs: vi.fn().mockResolvedValue([]),
   getAllTreatments: vi.fn().mockResolvedValue([]),
   getAllTreatmentLogs: vi.fn().mockResolvedValue([]),
+  getAllPositiveHabits: vi.fn().mockResolvedValue([]),
+  getAllPositiveHabitLogs: vi.fn().mockResolvedValue([]),
   clearAllData: vi.fn().mockResolvedValue(undefined),
   runInTransaction: vi
     .fn()
@@ -81,6 +90,26 @@ const mockTreatmentLog: TreatmentLog = {
   status: "taken",
 };
 
+const mockPositiveHabit: PositiveHabit = {
+  id: "1",
+  label: "Course à pied",
+  icon: "run",
+  color: "#2e7d32",
+  bgColor: "#e8f5e9",
+  frequency: "daily",
+  reminderTime: "07:00",
+  reminderEnabled: true,
+  reminderDay: null,
+  createdAt: "2024-01-01T00:00:00.000Z",
+};
+
+const mockPositiveHabitLog: PositiveHabitLog = {
+  id: "1",
+  positiveHabitId: "1",
+  scheduledAt: "2024-01-01",
+  status: "taken",
+};
+
 describe("buildExportPayload", () => {
   it("builds payload with correct structure", () => {
     const payload = buildExportPayload(
@@ -104,6 +133,26 @@ describe("buildExportPayload", () => {
     expect(payload.habitLogs).toEqual([]);
     expect(payload.treatments).toEqual([]);
     expect(payload.treatmentLogs).toEqual([]);
+  });
+
+  it("defaults positiveHabits/positiveHabitLogs to [] when omitted (pre-existing call sites)", () => {
+    const payload = buildExportPayload([], [], [], [], "2024-01-01T00:00:00.000Z");
+    expect(payload.positiveHabits).toEqual([]);
+    expect(payload.positiveHabitLogs).toEqual([]);
+  });
+
+  it("includes positiveHabits/positiveHabitLogs when passed explicitly", () => {
+    const payload = buildExportPayload(
+      [],
+      [],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+      [mockPositiveHabit],
+      [mockPositiveHabitLog],
+    );
+    expect(payload.positiveHabits).toEqual([mockPositiveHabit]);
+    expect(payload.positiveHabitLogs).toEqual([mockPositiveHabitLog]);
   });
 });
 
@@ -349,6 +398,48 @@ describe("parseExportPayload", () => {
     });
     expect(() => parseExportPayload(bad)).toThrow("exportedAt must be a valid ISO date-time");
   });
+
+  it("round-trips positiveHabits/positiveHabitLogs", () => {
+    const payload = buildExportPayload(
+      [],
+      [],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+      [mockPositiveHabit],
+      [mockPositiveHabitLog],
+    );
+    const parsed = parseExportPayload(JSON.stringify(payload));
+    expect(parsed.positiveHabits).toEqual([mockPositiveHabit]);
+    expect(parsed.positiveHabitLogs).toEqual([mockPositiveHabitLog]);
+  });
+
+  it("treats missing positiveHabits/positiveHabitLogs keys as [] (pre-'faire plus' export files)", () => {
+    const legacy = JSON.stringify({
+      version: "1",
+      exportedAt: "2024-01-01T00:00:00.000Z",
+      habits: [],
+      habitLogs: [],
+      treatments: [],
+      treatmentLogs: [],
+    });
+    const parsed = parseExportPayload(legacy);
+    expect(parsed.positiveHabits).toEqual([]);
+    expect(parsed.positiveHabitLogs).toEqual([]);
+  });
+
+  it("throws when positiveHabits is present but not an array", () => {
+    const bad = JSON.stringify({
+      version: "1",
+      exportedAt: "2024-01-01T00:00:00.000Z",
+      habits: [],
+      habitLogs: [],
+      treatments: [],
+      treatmentLogs: [],
+      positiveHabits: "not-an-array",
+    });
+    expect(() => parseExportPayload(bad)).toThrow("Unsupported or invalid export format");
+  });
 });
 
 describe("payloadToCSV", () => {
@@ -410,6 +501,23 @@ describe("payloadToCSV", () => {
     const csv = payloadToCSV(payload);
     expect(csv).toContain("HABITS");
   });
+
+  it("includes POSITIVE_HABITS/POSITIVE_HABIT_LOGS section headers and data", () => {
+    const payload = buildExportPayload(
+      [],
+      [],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+      [mockPositiveHabit],
+      [mockPositiveHabitLog],
+    );
+    const csv = payloadToCSV(payload);
+    expect(csv).toContain("POSITIVE_HABITS");
+    expect(csv).toContain("POSITIVE_HABIT_LOGS");
+    expect(csv).toContain("id,label,icon,color,bgColor,frequency,reminderTime,reminderEnabled,reminderDay,createdAt");
+    expect(csv).toContain("Course à pied");
+  });
 });
 
 describe("parseCSVPayload", () => {
@@ -443,6 +551,40 @@ describe("parseCSVPayload", () => {
     expect(csv).toContain(",0,");
     const parsed = parseCSVPayload(csv);
     expect(parsed.treatments[0]?.reminderEnabled).toBe(false);
+  });
+
+  it("round-trips POSITIVE_HABITS/POSITIVE_HABIT_LOGS", () => {
+    const original = buildExportPayload(
+      [],
+      [],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+      [mockPositiveHabit],
+      [mockPositiveHabitLog],
+    );
+    const csv = payloadToCSV(original);
+    const parsed = parseCSVPayload(csv);
+    expect(parsed.positiveHabits[0]?.label).toBe("Course à pied");
+    expect(parsed.positiveHabits[0]?.frequency).toBe("daily");
+    expect(parsed.positiveHabitLogs[0]?.status).toBe("taken");
+  });
+
+  it("treats a CSV without POSITIVE_HABITS/POSITIVE_HABIT_LOGS sections as [] (pre-'faire plus' CSV files)", () => {
+    const legacyPayload = buildExportPayload(
+      [mockHabit],
+      [mockHabitLog],
+      [mockTreatment],
+      [mockTreatmentLog],
+      "2024-01-01T00:00:00.000Z",
+    );
+    // payloadToCSV always emits the two new sections now — simulate an old export by
+    // stripping them, matching a file exported before this feature existed.
+    const legacyCsv = payloadToCSV(legacyPayload).split("\nPOSITIVE_HABITS\n")[0]!;
+    const parsed = parseCSVPayload(legacyCsv);
+    expect(parsed.positiveHabits).toEqual([]);
+    expect(parsed.positiveHabitLogs).toEqual([]);
+    expect(parsed.habits).toHaveLength(1);
   });
 
   it("throws when one or more sections are missing from the CSV", () => {
@@ -846,6 +988,82 @@ describe("importFromJSON", () => {
     );
     const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
     await expect(importFromJSON(file)).rejects.toBeInstanceOf(InconsistentImportDataError);
+  });
+
+  it("inserts positive habits and positive habit logs with their original IDs", async () => {
+    const payload = buildExportPayload(
+      [],
+      [],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+      [mockPositiveHabit],
+      [mockPositiveHabitLog],
+    );
+    const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
+    await importFromJSON(file);
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO positive_habits"),
+      expect.arrayContaining([mockPositiveHabit.id]),
+      false,
+    );
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT OR IGNORE INTO positive_habit_logs"),
+      expect.arrayContaining([mockPositiveHabitLog.positiveHabitId]),
+      false,
+    );
+  });
+
+  it("throws on orphan positiveHabitLog referencing unknown positiveHabitId", async () => {
+    const orphanLog: PositiveHabitLog = { ...mockPositiveHabitLog, positiveHabitId: "999" };
+    const payload = buildExportPayload(
+      [],
+      [],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+      [mockPositiveHabit],
+      [orphanLog],
+    );
+    const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
+    await expect(importFromJSON(file)).rejects.toBeInstanceOf(InconsistentImportDataError);
+  });
+
+  it("throws on duplicate positive habit IDs in import payload", async () => {
+    const payload = buildExportPayload(
+      [],
+      [],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+      [mockPositiveHabit, { ...mockPositiveHabit }],
+      [],
+    );
+    const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
+    await expect(importFromJSON(file)).rejects.toBeInstanceOf(InconsistentImportDataError);
+  });
+
+  it("legacy JSON without positiveHabits/positiveHabitLogs keys imports the rest normally", async () => {
+    const legacy = JSON.stringify({
+      version: "1",
+      exportedAt: "2024-01-01T00:00:00.000Z",
+      habits: [mockHabit],
+      habitLogs: [mockHabitLog],
+      treatments: [],
+      treatmentLogs: [],
+    });
+    const file = new File([legacy], "export.json", { type: "application/json" });
+    await importFromJSON(file);
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO habits"),
+      expect.arrayContaining([mockHabit.id]),
+      false,
+    );
+    expect(mockTransactionDb.run).not.toHaveBeenCalledWith(
+      expect.stringContaining("positive_habits"),
+      expect.anything(),
+      expect.anything(),
+    );
   });
 
   it("throws on invalid JSON file", async () => {

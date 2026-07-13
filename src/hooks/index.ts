@@ -3,6 +3,8 @@ export * from "./useHabits";
 export * from "./useHabitLogs";
 export * from "./useTreatments";
 export * from "./useTreatmentLogs";
+export * from "./usePositiveHabits";
+export * from "./usePositiveHabitLogs";
 export * from "./useOnboarding";
 export * from "./useNotifications";
 export * from "./useCalendar";

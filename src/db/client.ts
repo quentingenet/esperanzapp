@@ -129,8 +129,10 @@ export function clearAllData(dbConn?: SQLiteDBConnection | null): Promise<void> 
   const fn = async (db: SQLiteDBConnection) => {
     await db.execute("DELETE FROM treatment_logs", false);
     await db.execute("DELETE FROM habit_logs", false);
+    await db.execute("DELETE FROM positive_habit_logs", false);
     await db.execute("DELETE FROM treatments", false);
     await db.execute("DELETE FROM habits", false);
+    await db.execute("DELETE FROM positive_habits", false);
   };
   if (dbConn) return fn(dbConn);
   return runInTransaction((db) => (db ? fn(db) : Promise.resolve()));

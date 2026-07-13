@@ -6,19 +6,23 @@ import Button from "@mui/material/Button";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import SvgIcon from "@mui/material/SvgIcon";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { format, parse } from "date-fns";
 import { todayLocalDate } from "@/utils";
 import { useTranslation } from "react-i18next";
-import { TreatmentCard, TreatmentCalendar, TreatmentForm, ReminderDaySelect } from "@/components/treatments";
-import { ConfirmDialog, EmptyState, PageHeader, SortableList } from "@/components/shared";
-import { useTreatments, useTreatmentLogs, useNotifications, useDateLocale } from "@/hooks";
+import { TreatmentCard, TreatmentForm } from "@/components/treatments";
+import {
+  ConfirmDialog,
+  EmptyState,
+  OccurrenceCalendar,
+  PageHeader,
+  ReminderFields,
+  SortableList,
+} from "@/components/shared";
+import { useTreatments, useTreatmentLogs, useNotifications, useCalendar, useDateLocale } from "@/hooks";
 import { toast } from "@/store/toastStore";
 import { logError } from "@/utils/logger";
 import type { Treatment, TreatmentLog, TreatmentStatus } from "@/types";
@@ -40,6 +44,7 @@ export function Treatments() {
     saveTreatmentsOrder,
   } = useTreatments();
   const { logStatusForDate, getLogsByDate } = useTreatmentLogs();
+  const { getTreatmentStatusMap } = useCalendar();
   const { scheduleReminder, cancelReminder, requestPermission, openExactAlarmSettings } =
     useNotifications();
   const mountedRef = useRef(true);
@@ -202,9 +207,6 @@ export function Treatments() {
       });
   };
 
-  const showEditDaySelect =
-    editReminderEnabled && editTarget !== null && editTarget.frequency !== "daily";
-
   const handleExitSort = useCallback(() => {
     if (isSavingOrderRef.current) return;
     isSavingOrderRef.current = true;
@@ -299,11 +301,12 @@ export function Treatments() {
                 handleProps={handleProps}
               />
               {selectedId === tr.id && (
-                <TreatmentCalendar
-                  treatmentId={tr.id}
+                <OccurrenceCalendar
+                  entityId={tr.id}
                   frequency={tr.frequency}
                   reminderDay={tr.reminderDay}
                   createdAt={tr.createdAt}
+                  getStatusMap={getTreatmentStatusMap}
                   onLogDate={async (date, status) => {
                     try {
                       const log = await logStatusForDate(tr.id, date, status);
@@ -378,33 +381,15 @@ export function Treatments() {
               }}
               sx={{ mb: 2 }}
             />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={editReminderEnabled}
-                  onChange={(e) => {
-                    setEditReminderEnabled(e.target.checked);
-                  }}
-                />
-              }
-              label={t("treatments.form.enableReminder")}
-              sx={{ mb: 1 }}
+            <ReminderFields
+              frequency={editTarget?.frequency ?? "daily"}
+              reminderEnabled={editReminderEnabled}
+              onReminderEnabledChange={setEditReminderEnabled}
+              time={editTime}
+              onTimeChange={setEditTime}
+              reminderDay={editReminderDay}
+              onReminderDayChange={setEditReminderDay}
             />
-            {editReminderEnabled && (
-              <TimePicker
-                value={editTime}
-                onChange={setEditTime}
-                label={t("treatments.form.reminderTime")}
-                sx={{ width: "100%", mb: 2 }}
-              />
-            )}
-            {showEditDaySelect && (
-              <ReminderDaySelect
-                frequency={editTarget.frequency}
-                value={editReminderDay}
-                onChange={setEditReminderDay}
-              />
-            )}
             <Button
               fullWidth
               variant="contained"

@@ -3,6 +3,8 @@ import {
   getAllHabitLogs,
   getAllTreatments,
   getAllTreatmentLogs,
+  getAllPositiveHabits,
+  getAllPositiveHabitLogs,
   runInTransaction,
   clearAllData,
 } from "@/db";
@@ -51,21 +53,26 @@ export class ImportStorageError extends Error {
 }
 
 async function buildPayload() {
-  // runInTransaction issues BEGIN TRANSACTION so all four reads share a consistent
+  // runInTransaction issues BEGIN TRANSACTION so all six reads share a consistent
   // snapshot: a concurrent write cannot interleave between them.
   return runInTransaction(async () => {
-    const [habits, habitLogs, treatments, treatmentLogs] = await Promise.all([
-      getAllHabits(),
-      getAllHabitLogs(),
-      getAllTreatments(),
-      getAllTreatmentLogs(),
-    ]);
+    const [habits, habitLogs, treatments, treatmentLogs, positiveHabits, positiveHabitLogs] =
+      await Promise.all([
+        getAllHabits(),
+        getAllHabitLogs(),
+        getAllTreatments(),
+        getAllTreatmentLogs(),
+        getAllPositiveHabits(),
+        getAllPositiveHabitLogs(),
+      ]);
     return buildExportPayload(
       habits,
       habitLogs,
       treatments,
       treatmentLogs,
       new Date().toISOString(),
+      positiveHabits,
+      positiveHabitLogs,
     );
   });
 }
@@ -153,6 +160,28 @@ function validateNoOrphans(payload: ReturnType<typeof parseExportPayload>): void
       );
     treatmentLogKeys.add(key);
   }
+  const positiveHabitIds = new Set(payload.positiveHabits.map((h) => h.id));
+  if (positiveHabitIds.size !== payload.positiveHabits.length)
+    throw new InconsistentImportDataError("import: duplicate positive habit IDs detected");
+  const positiveHabitLogIds = new Set<string>();
+  const positiveHabitLogKeys = new Set<string>();
+  for (const log of payload.positiveHabitLogs) {
+    if (positiveHabitLogIds.has(log.id))
+      throw new InconsistentImportDataError(
+        `import: duplicate positiveHabitLog ID "${log.id}" detected`,
+      );
+    positiveHabitLogIds.add(log.id);
+    if (!positiveHabitIds.has(log.positiveHabitId))
+      throw new InconsistentImportDataError(
+        `import: positiveHabitLog "${log.id}" references unknown positiveHabitId "${log.positiveHabitId}"`,
+      );
+    const key = `${log.positiveHabitId}:${log.scheduledAt}`;
+    if (positiveHabitLogKeys.has(key))
+      throw new InconsistentImportDataError(
+        `import: duplicate positive habit log for positiveHabitId "${log.positiveHabitId}" on "${log.scheduledAt}"`,
+      );
+    positiveHabitLogKeys.add(key);
+  }
 }
 
 async function importPayload(payload: ReturnType<typeof parseExportPayload>): Promise<void> {
@@ -204,6 +233,33 @@ async function importPayload(payload: ReturnType<typeof parseExportPayload>): Pr
         await db.run(
           "INSERT OR IGNORE INTO treatment_logs (id, treatment_id, scheduled_at, status) VALUES (?, ?, ?, ?)",
           [tl.id, tl.treatmentId, tl.scheduledAt, tl.status],
+          false,
+        );
+      }
+      for (const [index, h] of payload.positiveHabits.entries()) {
+        await db.run(
+          "INSERT INTO positive_habits (id, label, icon, color, bg_color, frequency, reminder_time, reminder_enabled, reminder_day, created_at, sort_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          [
+            h.id,
+            h.label,
+            h.icon,
+            h.color,
+            h.bgColor,
+            h.frequency,
+            h.reminderTime,
+            h.reminderEnabled ? 1 : 0,
+            h.reminderDay ?? null,
+            h.createdAt,
+            index,
+          ],
+          false,
+        );
+      }
+      for (const phl of payload.positiveHabitLogs) {
+        // INSERT OR IGNORE: same rationale as treatment_logs above.
+        await db.run(
+          "INSERT OR IGNORE INTO positive_habit_logs (id, positive_habit_id, scheduled_at, status) VALUES (?, ?, ?, ?)",
+          [phl.id, phl.positiveHabitId, phl.scheduledAt, phl.status],
           false,
         );
       }

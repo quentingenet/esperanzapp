@@ -50,6 +50,36 @@ CREATE TABLE IF NOT EXISTS treatment_logs (
   scheduled_at TEXT NOT NULL,
   status       TEXT NOT NULL CHECK(status IN ('taken', 'missed', 'pending'))
 );
+
+CREATE TABLE IF NOT EXISTS positive_habits (
+  id               INTEGER PRIMARY KEY AUTOINCREMENT,
+  label            TEXT NOT NULL,
+  icon             TEXT NOT NULL,
+  color            TEXT NOT NULL,
+  bg_color         TEXT NOT NULL,
+  frequency        TEXT NOT NULL CHECK(frequency IN ('daily', 'weekly', 'monthly')),
+  reminder_time    TEXT NOT NULL DEFAULT '08:00',
+  reminder_enabled INTEGER NOT NULL DEFAULT 1,
+  reminder_day     INTEGER DEFAULT NULL
+    CHECK(
+      (frequency = 'daily'   AND reminder_day IS NULL)
+      OR (frequency = 'weekly'  AND reminder_day BETWEEN 0 AND 6)
+      OR (frequency = 'monthly' AND (reminder_day = 0 OR reminder_day BETWEEN 1 AND 28))
+    ),
+  created_at       TEXT NOT NULL,
+  sort_index       INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS positive_habit_logs (
+  id                INTEGER PRIMARY KEY AUTOINCREMENT,
+  positive_habit_id INTEGER NOT NULL REFERENCES positive_habits(id) ON DELETE CASCADE,
+  scheduled_at      TEXT NOT NULL,
+  status            TEXT NOT NULL CHECK(status IN ('taken', 'missed', 'pending'))
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_positive_habit_logs_unique
+  ON positive_habit_logs(positive_habit_id, scheduled_at);
+CREATE INDEX IF NOT EXISTS idx_positive_habit_logs_scheduled_at ON positive_habit_logs(scheduled_at);
 `;
 
 async function isApplied(db: SQLiteDBConnection, name: string): Promise<boolean> {

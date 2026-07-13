@@ -60,18 +60,18 @@ export async function scheduleMilestoneNotifications(
   const STAGGER_MINUTES = 10;
 
   const notifications = GRADES.map((grade, i) => {
-    const target = addDays(start, grade.days);
+    const target = addDays(start, grade.threshold);
     const totalMin = BASE_MINUTES + i * STAGGER_MINUTES;
     target.setHours(Math.floor(totalMin / 60), totalMin % 60, 0, 0);
     if (target < startOfToday) return null;
 
     const label = i18n.t(grade.labelKey);
     const message = i18n.t(grade.messageKey);
-    const daysLabel = i18n.t("common.day", { count: grade.days });
+    const daysLabel = i18n.t("common.day", { count: grade.threshold });
 
     return {
       id: getMilestoneNotificationId(habitId, i),
-      title: `${grade.emoji} ${String(grade.days)} ${daysLabel} - ${label}`,
+      title: `${grade.emoji} ${String(grade.threshold)} ${daysLabel} - ${label}`,
       body: message,
       group: "milestones",
       schedule: { at: target, allowWhileIdle: true },

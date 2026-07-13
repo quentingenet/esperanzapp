@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { TreatmentLog } from "@/types";
+import type { PositiveHabitLog, TreatmentLog } from "@/types";
 import { buildTreatmentStatusMap } from "./calendarHelpers";
 
 function makeTreatmentLog(
@@ -49,5 +49,12 @@ describe("buildTreatmentStatusMap", () => {
       makeTreatmentLog("2", "1", "2024-01-01T08:00:00", "taken"),
     ];
     expect(buildTreatmentStatusMap(logs)["2024-01-01"]).toBe("taken");
+  });
+
+  it("is reused as-is for PositiveHabitLog (structurally identical shape)", () => {
+    const logs: PositiveHabitLog[] = [
+      { id: "1", positiveHabitId: "1", scheduledAt: "2024-01-01T08:00:00", status: "taken" },
+    ];
+    expect(buildTreatmentStatusMap(logs)).toEqual({ "2024-01-01": "taken" });
   });
 });

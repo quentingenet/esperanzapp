@@ -1,7 +1,7 @@
 import { runInTransaction } from "./client";
 
 export function updateSortOrder(
-  tableName: "habits" | "treatments",
+  tableName: "habits" | "treatments" | "positive_habits",
   orderedIds: string[],
 ): Promise<void> {
   return runInTransaction(async (db) => {

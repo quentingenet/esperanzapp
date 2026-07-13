@@ -23,8 +23,9 @@ import {
   importFromCSV,
 } from "@/services";
 import { peekIsEncrypted } from "@/utils/exportSerialization";
-import { useHabits, useNotifications, useTreatments } from "@/hooks";
+import { useHabits, useNotifications, usePositiveHabits, useTreatments } from "@/hooks";
 import { useTreatmentsStore } from "@/store/treatmentsStore";
+import { usePositiveHabitsStore } from "@/store/positiveHabitsStore";
 import { toast } from "@/store/toastStore";
 import { getImportErrorTranslationKey } from "@/utils/importErrorMessage";
 import { logError } from "@/utils/logger";
@@ -42,6 +43,7 @@ export function DataExportSection() {
   const { t } = useTranslation();
   const { loadHabits } = useHabits();
   const { loadTreatments } = useTreatments();
+  const { loadPositiveHabits } = usePositiveHabits();
   const { rescheduleAll, requestPermission } = useNotifications();
 
   const [exportOpen, setExportOpen] = useState(false);
@@ -172,16 +174,21 @@ export function DataExportSection() {
       // A refresh failure must never mask a successful import with an error toast.
       toast.success(t("export.importSuccess"));
       try {
-        await Promise.all([loadHabits(), loadTreatments()]);
-        // Notification rescheduling is best-effort: never block the success path
+        await Promise.all([loadHabits(), loadTreatments(), loadPositiveHabits()]);
+        // Notification rescheduling is best-effort: never block the success path.
+        // A single permission prompt covers both domains rather than asking twice.
         const freshTreatments = useTreatmentsStore.getState().treatments;
-        const hasTreatmentsWithReminder = freshTreatments.some((tr) => tr.reminderEnabled);
-        if (hasTreatmentsWithReminder) {
+        const freshPositiveHabits = usePositiveHabitsStore.getState().positiveHabits;
+        const hasAnyReminder =
+          freshTreatments.some((tr) => tr.reminderEnabled) ||
+          freshPositiveHabits.some((h) => h.reminderEnabled);
+        if (hasAnyReminder) {
           const granted = await requestPermission();
           if (!granted) {
             toast.info(t("export.importReschedulePermissionDenied"));
           } else {
             await rescheduleAll(freshTreatments);
+            await rescheduleAll(freshPositiveHabits, "positiveHabits");
           }
         }
         await rescheduleAllMilestoneNotifications();

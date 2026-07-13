@@ -4,5 +4,7 @@ export * from "./habits";
 export * from "./habitLogs";
 export * from "./treatments";
 export * from "./treatmentLogs";
+export * from "./positiveHabits";
+export * from "./positiveHabitLogs";
 export * from "./onboarding";
 export * from "./sortOrder";

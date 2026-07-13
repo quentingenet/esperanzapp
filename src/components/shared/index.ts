@@ -4,5 +4,8 @@ export { BottomNav } from "./BottomNav";
 export { ConfirmDialog } from "./ConfirmDialog";
 export { EmptyState } from "./EmptyState";
 export { GradeBadge } from "./GradeBadge";
+export { OccurrenceCalendar } from "./OccurrenceCalendar";
 export { PageHeader } from "./PageHeader";
+export { ReminderDaySelect } from "./ReminderDaySelect";
+export { ReminderFields } from "./ReminderFields";
 export { SortableList } from "./SortableList";

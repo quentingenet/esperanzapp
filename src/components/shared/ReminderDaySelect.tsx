@@ -1,7 +1,7 @@
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import { useTranslation } from "react-i18next";
-import { weekDayLabel, WEEK_DAYS, MONTH_DAYS } from "./treatmentUtils";
+import { weekDayLabel, WEEK_DAYS, MONTH_DAYS } from "@/utils/reminderUtils";
 import { useDateLocale } from "@/hooks";
 import type { Frequency } from "@/types";
 

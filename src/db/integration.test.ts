@@ -16,7 +16,13 @@ import {
   type RealSqliteConn,
 } from "@/test/realSqliteConnection";
 import { createTreatment, updateTreatment, deleteTreatment } from "./treatments";
-import { createHabit, createHabitLog, createTreatmentLog } from "@/test/testHelpers";
+import { createPositiveHabit, deletePositiveHabit } from "./positiveHabits";
+import {
+  createHabit,
+  createHabitLog,
+  createTreatmentLog,
+  createPositiveHabitLog,
+} from "@/test/testHelpers";
 import { clearAllData } from "./client";
 import {
   buildExportPayload,
@@ -51,6 +57,18 @@ const TREATMENT_DATA = {
   label: "Metformin",
   frequency: "daily" as const,
   reminderTime: "08:00",
+  reminderEnabled: true,
+  reminderDay: null,
+  createdAt: "2024-01-01T08:00:00Z",
+};
+
+const POSITIVE_HABIT_DATA = {
+  label: "Course à pied",
+  icon: "🏃",
+  color: "#2e7d32",
+  bgColor: "#e8f5e9",
+  frequency: "daily" as const,
+  reminderTime: "07:00",
   reminderEnabled: true,
   reminderDay: null,
   createdAt: "2024-01-01T08:00:00Z",
@@ -112,6 +130,24 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     expect(await countRows(conn, "treatment_logs")).toBe(1);
   });
 
+  it("createPositiveHabit returns a valid numeric id via last_insert_rowid", async () => {
+    const habit = await createPositiveHabit(POSITIVE_HABIT_DATA, asConn(conn));
+    expect(+habit.id).toBeGreaterThan(0);
+    expect(habit.label).toBe(POSITIVE_HABIT_DATA.label);
+    expect(await countRows(conn, "positive_habits")).toBe(1);
+  });
+
+  it("createPositiveHabitLog returns a valid numeric id via last_insert_rowid", async () => {
+    const habit = await createPositiveHabit(POSITIVE_HABIT_DATA, asConn(conn));
+    const log = await createPositiveHabitLog(
+      { positiveHabitId: habit.id, scheduledAt: "2024-01-01", status: "taken" },
+      asConn(conn),
+    );
+    expect(+log.id).toBeGreaterThan(0);
+    expect(log.positiveHabitId).toBe(habit.id);
+    expect(await countRows(conn, "positive_habit_logs")).toBe(1);
+  });
+
   it("multiple inserts produce sequential distinct ids", async () => {
     const h1 = await createHabit(HABIT_DATA, asConn(conn));
     const h2 = await createHabit({ ...HABIT_DATA, label: "No-alcohol" }, asConn(conn));
@@ -158,6 +194,11 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
       { treatmentId: treatment.id, scheduledAt: "2024-01-01", status: "taken" },
       asConn(conn),
     );
+    const positiveHabit = await createPositiveHabit(POSITIVE_HABIT_DATA, asConn(conn));
+    await createPositiveHabitLog(
+      { positiveHabitId: positiveHabit.id, scheduledAt: "2024-01-01", status: "taken" },
+      asConn(conn),
+    );
 
     await clearAllData(asConn(conn));
 
@@ -165,6 +206,28 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     expect(await countRows(conn, "habit_logs")).toBe(0);
     expect(await countRows(conn, "treatments")).toBe(0);
     expect(await countRows(conn, "treatment_logs")).toBe(0);
+    expect(await countRows(conn, "positive_habits")).toBe(0);
+    expect(await countRows(conn, "positive_habit_logs")).toBe(0);
+  });
+
+  it("deletePositiveHabit removes the positive habit and all its logs atomically", async () => {
+    const habit = await createPositiveHabit(POSITIVE_HABIT_DATA, asConn(conn));
+    await createPositiveHabitLog(
+      { positiveHabitId: habit.id, scheduledAt: "2024-01-01", status: "taken" },
+      asConn(conn),
+    );
+    await createPositiveHabitLog(
+      { positiveHabitId: habit.id, scheduledAt: "2024-01-02", status: "missed" },
+      asConn(conn),
+    );
+
+    expect(await countRows(conn, "positive_habits")).toBe(1);
+    expect(await countRows(conn, "positive_habit_logs")).toBe(2);
+
+    await deletePositiveHabit(habit.id, asConn(conn));
+
+    expect(await countRows(conn, "positive_habits")).toBe(0);
+    expect(await countRows(conn, "positive_habit_logs")).toBe(0);
   });
 
   it("deleteTreatment removes the treatment and all its logs atomically", async () => {
@@ -221,6 +284,29 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     ).rejects.toThrow();
   });
 
+  it("UNIQUE index rejects duplicate positive_habit_log for same (positive_habit_id, scheduled_at)", async () => {
+    const habit = await createPositiveHabit(POSITIVE_HABIT_DATA, asConn(conn));
+    await createPositiveHabitLog(
+      { positiveHabitId: habit.id, scheduledAt: "2024-01-01", status: "taken" },
+      asConn(conn),
+    );
+    await expect(
+      createPositiveHabitLog(
+        { positiveHabitId: habit.id, scheduledAt: "2024-01-01", status: "missed" },
+        asConn(conn),
+      ),
+    ).rejects.toThrow();
+  });
+
+  it("FK constraint rejects positive_habit_log with unknown positive_habit_id", async () => {
+    await expect(
+      createPositiveHabitLog(
+        { positiveHabitId: "99999", scheduledAt: "2024-01-01", status: "taken" },
+        asConn(conn),
+      ),
+    ).rejects.toThrow();
+  });
+
   // reminder_day CHECK constraint — weekly/monthly with reminderEnabled=false
 
   it("createTreatment weekly with reminderEnabled=false keeps valid reminderDay", async () => {
@@ -256,6 +342,17 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     expect(+treatment.id).toBeGreaterThan(0);
     const rows = await allRows(conn, "treatments");
     expect(rows[0]?.reminder_day).toBe(15);
+  });
+
+  it("createPositiveHabit weekly with reminderEnabled=false keeps valid reminderDay", async () => {
+    const habit = await createPositiveHabit(
+      { ...POSITIVE_HABIT_DATA, frequency: "weekly", reminderEnabled: false, reminderDay: 2 },
+      asConn(conn),
+    );
+    expect(+habit.id).toBeGreaterThan(0);
+    const rows = await allRows(conn, "positive_habits");
+    expect(rows[0]?.reminder_day).toBe(2);
+    expect(rows[0]?.reminder_enabled).toBe(0);
   });
 
   it("updateTreatment disabling reminder on weekly treatment preserves reminderDay", async () => {
@@ -317,9 +414,33 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
         [tl.id, tl.treatmentId, tl.scheduledAt, tl.status],
       );
     }
+    for (const [index, h] of payload.positiveHabits.entries()) {
+      await conn.run(
+        "INSERT INTO positive_habits (id, label, icon, color, bg_color, frequency, reminder_time, reminder_enabled, reminder_day, created_at, sort_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+          h.id,
+          h.label,
+          h.icon,
+          h.color,
+          h.bgColor,
+          h.frequency,
+          h.reminderTime,
+          h.reminderEnabled ? 1 : 0,
+          h.reminderDay ?? null,
+          h.createdAt,
+          index,
+        ],
+      );
+    }
+    for (const phl of payload.positiveHabitLogs) {
+      await conn.run(
+        "INSERT INTO positive_habit_logs (id, positive_habit_id, scheduled_at, status) VALUES (?, ?, ?, ?)",
+        [phl.id, phl.positiveHabitId, phl.scheduledAt, phl.status],
+      );
+    }
   }
 
-  it("JSON round-trip preserves habits, habitLogs, treatments, treatmentLogs", async () => {
+  it("JSON round-trip preserves habits, habitLogs, treatments, treatmentLogs, positiveHabits, positiveHabitLogs", async () => {
     // Create fixture data using create* functions (tests last_insert_rowid path).
     const habit = await createHabit(HABIT_DATA, asConn(conn));
     const log1 = await createHabitLog(
@@ -335,6 +456,11 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
       { treatmentId: treatment.id, scheduledAt: "2024-01-01", status: "taken" },
       asConn(conn),
     );
+    const positiveHabit = await createPositiveHabit(POSITIVE_HABIT_DATA, asConn(conn));
+    const phlog = await createPositiveHabitLog(
+      { positiveHabitId: positiveHabit.id, scheduledAt: "2024-01-01", status: "taken" },
+      asConn(conn),
+    );
 
     // Export to JSON.
     const payload = buildExportPayload(
@@ -343,6 +469,8 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
       [treatment],
       [tlog],
       new Date().toISOString(),
+      [positiveHabit],
+      [phlog],
     );
     const json = JSON.stringify(payload, null, 2);
 
@@ -357,6 +485,8 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     expect(await countRows(conn, "habit_logs")).toBe(2);
     expect(await countRows(conn, "treatments")).toBe(1);
     expect(await countRows(conn, "treatment_logs")).toBe(1);
+    expect(await countRows(conn, "positive_habits")).toBe(1);
+    expect(await countRows(conn, "positive_habit_logs")).toBe(1);
 
     // Verify content and FK integrity (original IDs preserved).
     const habitRows = await allRows(conn, "habits");
@@ -374,6 +504,14 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     const tlogRows = await allRows(conn, "treatment_logs");
     expect(tlogRows[0]?.status).toBe("taken");
     expect(tlogRows[0]?.treatment_id).toBe(Number(treatment.id));
+
+    const positiveHabitRows = await allRows(conn, "positive_habits");
+    expect(positiveHabitRows[0]?.label).toBe(POSITIVE_HABIT_DATA.label);
+    expect(positiveHabitRows[0]?.icon).toBe(POSITIVE_HABIT_DATA.icon);
+
+    const phlogRows = await allRows(conn, "positive_habit_logs");
+    expect(phlogRows[0]?.status).toBe("taken");
+    expect(phlogRows[0]?.positive_habit_id).toBe(Number(positiveHabit.id));
   });
 
   // CSV export and import round trip
@@ -389,9 +527,22 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
       { treatmentId: treatment.id, scheduledAt: "2024-01-01", status: "missed" },
       asConn(conn),
     );
+    const positiveHabit = await createPositiveHabit(POSITIVE_HABIT_DATA, asConn(conn));
+    const phlog = await createPositiveHabitLog(
+      { positiveHabitId: positiveHabit.id, scheduledAt: "2024-01-01", status: "pending" },
+      asConn(conn),
+    );
 
     const csv = payloadToCSV(
-      buildExportPayload([habit], [log], [treatment], [tlog], new Date().toISOString()),
+      buildExportPayload(
+        [habit],
+        [log],
+        [treatment],
+        [tlog],
+        new Date().toISOString(),
+        [positiveHabit],
+        [phlog],
+      ),
     );
     await clearAllData(asConn(conn));
     await importDirectly(conn, parseCSVPayload(csv));
@@ -400,11 +551,17 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     expect(await countRows(conn, "habit_logs")).toBe(1);
     expect(await countRows(conn, "treatments")).toBe(1);
     expect(await countRows(conn, "treatment_logs")).toBe(1);
+    expect(await countRows(conn, "positive_habits")).toBe(1);
+    expect(await countRows(conn, "positive_habit_logs")).toBe(1);
 
     const tlogRows = await allRows(conn, "treatment_logs");
     expect(tlogRows[0]?.status).toBe("missed");
     // FK integrity preserved via original IDs.
     expect(tlogRows[0]?.treatment_id).toBe(Number(treatment.id));
+
+    const phlogRows = await allRows(conn, "positive_habit_logs");
+    expect(phlogRows[0]?.status).toBe("pending");
+    expect(phlogRows[0]?.positive_habit_id).toBe(Number(positiveHabit.id));
   });
 
   // Sort order preservation across export/import
@@ -465,6 +622,41 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     expect(treatRows.values.map((r: unknown) => (r as { label: string }).label)).toEqual([
       "Treat-B",
       "Treat-A",
+    ]);
+  });
+
+  it("import preserves custom sort order for positive habits", async () => {
+    const phA = await createPositiveHabit(
+      { ...POSITIVE_HABIT_DATA, label: "PH-A", createdAt: "2024-01-01T01:00:00Z" },
+      asConn(conn),
+    );
+    const phB = await createPositiveHabit(
+      { ...POSITIVE_HABIT_DATA, label: "PH-B", createdAt: "2024-01-01T02:00:00Z" },
+      asConn(conn),
+    );
+
+    await conn.run("UPDATE positive_habits SET sort_index = ? WHERE id = ?", [0, phB.id]);
+    await conn.run("UPDATE positive_habits SET sort_index = ? WHERE id = ?", [1, phA.id]);
+
+    const payload = buildExportPayload(
+      [],
+      [],
+      [],
+      [],
+      new Date().toISOString(),
+      [phB, phA],
+      [],
+    );
+
+    await clearAllData(asConn(conn));
+    await importDirectly(conn, parseExportPayload(JSON.stringify(payload)));
+
+    const rows = await conn.query(
+      "SELECT label FROM positive_habits ORDER BY sort_index ASC, created_at ASC",
+    );
+    expect(rows.values.map((r: unknown) => (r as { label: string }).label)).toEqual([
+      "PH-B",
+      "PH-A",
     ]);
   });
 

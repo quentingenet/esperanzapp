@@ -3,7 +3,11 @@ import Button from "@mui/material/Button";
 import { useTranslation } from "react-i18next";
 import type { TreatmentLogButtonProps } from "@/types";
 
-export function TreatmentLogButton({ todayLog, onLog }: TreatmentLogButtonProps) {
+export function TreatmentLogButton({
+  todayLog,
+  onLog,
+  namespace = "treatments",
+}: TreatmentLogButtonProps) {
   const { t } = useTranslation();
   const status = todayLog?.status;
   return (
@@ -14,10 +18,10 @@ export function TreatmentLogButton({ todayLog, onLog }: TreatmentLogButtonProps)
         onClick={() => {
           onLog("taken");
         }}
-        aria-label={t("treatments.taken")}
+        aria-label={t(`${namespace}.taken`)}
         sx={{ minHeight: 44, flex: 1, borderRadius: 2 }}
       >
-        ✅ {t("treatments.taken")}
+        ✅ {t(`${namespace}.taken`)}
       </Button>
       <Button
         variant={status === "missed" ? "contained" : "outlined"}
@@ -25,10 +29,10 @@ export function TreatmentLogButton({ todayLog, onLog }: TreatmentLogButtonProps)
         onClick={() => {
           onLog("missed");
         }}
-        aria-label={t("treatments.missed")}
+        aria-label={t(`${namespace}.missed`)}
         sx={{ minHeight: 44, flex: 1, borderRadius: 2 }}
       >
-        ❌ {t("treatments.missed")}
+        ❌ {t(`${namespace}.missed`)}
       </Button>
     </Box>
   );

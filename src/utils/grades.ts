@@ -2,7 +2,7 @@ import type { Grade } from "@/types";
 
 export const GRADES: [Grade, ...Grade[]] = [
   {
-    days: 1,
+    threshold: 1,
     labelKey: "grades.firstStep.label",
     emoji: "🌱",
     messageKey: "grades.messages.firstStep",
@@ -10,7 +10,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#e8f5e9",
   },
   {
-    days: 3,
+    threshold: 3,
     labelKey: "grades.alive.label",
     emoji: "🐣",
     messageKey: "grades.messages.alive",
@@ -18,7 +18,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#e8f5e9",
   },
   {
-    days: 7,
+    threshold: 7,
     labelKey: "grades.oneWeek.label",
     emoji: "🌿",
     messageKey: "grades.messages.oneWeek",
@@ -26,7 +26,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#f1f8e9",
   },
   {
-    days: 14,
+    threshold: 14,
     labelKey: "grades.twoWeeks.label",
     emoji: "💪",
     messageKey: "grades.messages.twoWeeks",
@@ -34,7 +34,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#efebe9",
   },
   {
-    days: 21,
+    threshold: 21,
     labelKey: "grades.newHabit.label",
     emoji: "🧠",
     messageKey: "grades.messages.newHabit",
@@ -42,7 +42,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#eceff1",
   },
   {
-    days: 30,
+    threshold: 30,
     labelKey: "grades.oneMonth.label",
     emoji: "🏅",
     messageKey: "grades.messages.oneMonth",
@@ -50,7 +50,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#eceff1",
   },
   {
-    days: 45,
+    threshold: 45,
     labelKey: "grades.inFlow.label",
     emoji: "🌊",
     messageKey: "grades.messages.inFlow",
@@ -58,7 +58,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#e0f2f1",
   },
   {
-    days: 60,
+    threshold: 60,
     labelKey: "grades.twoMonths.label",
     emoji: "🎯",
     messageKey: "grades.messages.twoMonths",
@@ -66,7 +66,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#e3f2fd",
   },
   {
-    days: 75,
+    threshold: 75,
     labelKey: "grades.altitude.label",
     emoji: "🦅",
     messageKey: "grades.messages.altitude",
@@ -74,7 +74,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#e0f2f1",
   },
   {
-    days: 90,
+    threshold: 90,
     labelKey: "grades.threeMonths.label",
     emoji: "🔥",
     messageKey: "grades.messages.threeMonths",
@@ -82,7 +82,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#fbe9e7",
   },
   {
-    days: 100,
+    threshold: 100,
     labelKey: "grades.century.label",
     emoji: "💯",
     messageKey: "grades.messages.century",
@@ -90,7 +90,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#fff8e1",
   },
   {
-    days: 120,
+    threshold: 120,
     labelKey: "grades.fourMonths.label",
     emoji: "🌈",
     messageKey: "grades.messages.fourMonths",
@@ -98,7 +98,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#f3e5f5",
   },
   {
-    days: 150,
+    threshold: 150,
     labelKey: "grades.halfway.label",
     emoji: "🦁",
     messageKey: "grades.messages.halfway",
@@ -106,7 +106,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#fff3e0",
   },
   {
-    days: 180,
+    threshold: 180,
     labelKey: "grades.metamorphosis.label",
     emoji: "🦋",
     messageKey: "grades.messages.metamorphosis",
@@ -114,7 +114,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#f3eef8",
   },
   {
-    days: 250,
+    threshold: 250,
     labelKey: "grades.champion.label",
     emoji: "🏆",
     messageKey: "grades.messages.champion",
@@ -122,7 +122,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#fefae1",
   },
   {
-    days: 300,
+    threshold: 300,
     labelKey: "grades.tenMonths.label",
     emoji: "🌙",
     messageKey: "grades.messages.tenMonths",
@@ -130,7 +130,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#e8eaf6",
   },
   {
-    days: 365,
+    threshold: 365,
     labelKey: "grades.oneYear.label",
     emoji: "⭐",
     messageKey: "grades.messages.oneYear",
@@ -138,7 +138,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#fefaec",
   },
   {
-    days: 500,
+    threshold: 500,
     labelKey: "grades.livingLegend.label",
     emoji: "🎸",
     messageKey: "grades.messages.livingLegend",
@@ -146,7 +146,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#e1f5fe",
   },
   {
-    days: 730,
+    threshold: 730,
     labelKey: "grades.twoYears.label",
     emoji: "🌟",
     messageKey: "grades.messages.twoYears",
@@ -154,7 +154,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#fef8e8",
   },
   {
-    days: 1000,
+    threshold: 1000,
     labelKey: "grades.millennium.label",
     emoji: "🔮",
     messageKey: "grades.messages.millennium",
@@ -162,7 +162,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#f3e5f5",
   },
   {
-    days: 1825,
+    threshold: 1825,
     labelKey: "grades.fiveYears.label",
     emoji: "🎖️",
     messageKey: "grades.messages.fiveYears",
@@ -170,7 +170,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#ffebee",
   },
   {
-    days: 3650,
+    threshold: 3650,
     labelKey: "grades.tenYears.label",
     emoji: "💎",
     messageKey: "grades.messages.tenYears",
@@ -178,7 +178,7 @@ export const GRADES: [Grade, ...Grade[]] = [
     bgColor: "#e3f2fd",
   },
   {
-    days: 7300,
+    threshold: 7300,
     labelKey: "grades.twentyYears.label",
     emoji: "👑",
     messageKey: "grades.messages.twentyYears",
@@ -187,29 +187,41 @@ export const GRADES: [Grade, ...Grade[]] = [
   },
 ];
 
-export function getGrade(days: number): Grade {
-  let current = GRADES[0];
-  for (const grade of GRADES) {
-    if (days >= grade.days) current = grade;
+// `grades` defaults to GRADES (streak days) so every existing call site keeps its exact
+// current behavior; pass POSITIVE_GRADES to compute against cumulative completion counts.
+// The non-empty tuple type lets grades[0] be read safely, without a non-null assertion.
+export function getGrade(
+  value: number,
+  grades: readonly [Grade, ...Grade[]] = GRADES,
+): Grade {
+  let current = grades[0];
+  for (const grade of grades) {
+    if (value >= grade.threshold) current = grade;
   }
   return current;
 }
 
-export function getNextGrade(days: number): { grade: Grade; daysLeft: number } | null {
-  for (const grade of GRADES) {
-    if (days < grade.days) return { grade, daysLeft: grade.days - days };
+export function getNextGrade(
+  value: number,
+  grades: readonly [Grade, ...Grade[]] = GRADES,
+): { grade: Grade; daysLeft: number } | null {
+  for (const grade of grades) {
+    if (value < grade.threshold) return { grade, daysLeft: grade.threshold - value };
   }
   return null;
 }
 
-export function getProgressToNext(days: number): number {
-  const next = getNextGrade(days);
+export function getProgressToNext(
+  value: number,
+  grades: readonly [Grade, ...Grade[]] = GRADES,
+): number {
+  const next = getNextGrade(value, grades);
   if (!next) return 100;
 
-  const current = getGrade(days);
-  const fromDays = days >= current.days ? current.days : 0;
-  const toDays = next.grade.days;
+  const current = getGrade(value, grades);
+  const from = value >= current.threshold ? current.threshold : 0;
+  const to = next.grade.threshold;
 
-  const ratio = (days - fromDays) / (toDays - fromDays);
+  const ratio = (value - from) / (to - from);
   return Math.min(100, Math.max(0, Math.floor(ratio * 100)));
 }

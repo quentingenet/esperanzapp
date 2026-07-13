@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { getTreatmentLogsByTreatmentId } from "@/db";
+import { getTreatmentLogsByTreatmentId, getPositiveHabitLogsByPositiveHabitId } from "@/db";
 import { buildTreatmentStatusMap } from "@/utils";
 import type { TreatmentStatus } from "@/types";
 
@@ -12,5 +12,13 @@ export function useCalendar() {
     [],
   );
 
-  return { getTreatmentStatusMap };
+  const getPositiveHabitStatusMap = useCallback(
+    async (positiveHabitId: string): Promise<Record<string, TreatmentStatus>> => {
+      const logs = await getPositiveHabitLogsByPositiveHabitId(positiveHabitId);
+      return buildTreatmentStatusMap(logs);
+    },
+    [],
+  );
+
+  return { getTreatmentStatusMap, getPositiveHabitStatusMap };
 }

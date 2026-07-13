@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { GRADES, getGrade, getNextGrade, getProgressToNext } from "./grades";
+import { POSITIVE_GRADES } from "./positiveGrades";
 
 describe("GRADES", () => {
   it("contains 23 entries", () => {
@@ -8,18 +9,18 @@ describe("GRADES", () => {
 
   it("is sorted by days ascending", () => {
     for (let i = 1; i < GRADES.length; i++) {
-      expect(GRADES[i]!.days).toBeGreaterThan(GRADES[i - 1]!.days);
+      expect(GRADES[i]!.threshold).toBeGreaterThan(GRADES[i - 1]!.threshold);
     }
   });
 
   it("starts at day 1 and ends at day 7300", () => {
-    expect(GRADES[0].days).toBe(1);
-    expect(GRADES[GRADES.length - 1]!.days).toBe(7300);
+    expect(GRADES[0].threshold).toBe(1);
+    expect(GRADES[GRADES.length - 1]!.threshold).toBe(7300);
   });
 
   it("every entry has all required fields", () => {
     for (const grade of GRADES) {
-      expect(grade.days).toBeGreaterThan(0);
+      expect(grade.threshold).toBeGreaterThan(0);
       expect(grade.labelKey.length).toBeGreaterThan(0);
       expect(grade.emoji.length).toBeGreaterThan(0);
       expect(grade.messageKey.length).toBeGreaterThan(0);
@@ -27,7 +28,7 @@ describe("GRADES", () => {
   });
 
   it("contains the expected milestone thresholds", () => {
-    const days = GRADES.map((g) => g.days);
+    const days = GRADES.map((g) => g.threshold);
     expect(days).toContain(1);
     expect(days).toContain(3);
     expect(days).toContain(7);
@@ -49,7 +50,7 @@ describe("getGrade", () => {
 
   it("returns firstStep at day 1", () => {
     const g = getGrade(1);
-    expect(g.days).toBe(1);
+    expect(g.threshold).toBe(1);
   });
 
   it("returns firstStep at day 2 (below alive threshold)", () => {
@@ -57,47 +58,47 @@ describe("getGrade", () => {
   });
 
   it("returns alive at day 3", () => {
-    expect(getGrade(3).days).toBe(3);
+    expect(getGrade(3).threshold).toBe(3);
   });
 
   it("returns oneWeek at day 7", () => {
-    expect(getGrade(7).days).toBe(7);
+    expect(getGrade(7).threshold).toBe(7);
   });
 
   it("returns twoWeeks at day 14", () => {
-    expect(getGrade(14).days).toBe(14);
+    expect(getGrade(14).threshold).toBe(14);
   });
 
   it("returns oneMonth at day 30", () => {
-    expect(getGrade(30).days).toBe(30);
+    expect(getGrade(30).threshold).toBe(30);
   });
 
   it("returns threeMonths at day 90", () => {
-    expect(getGrade(90).days).toBe(90);
+    expect(getGrade(90).threshold).toBe(90);
   });
 
   it("returns metamorphosis at day 180", () => {
-    expect(getGrade(180).days).toBe(180);
+    expect(getGrade(180).threshold).toBe(180);
   });
 
   it("returns oneYear at day 365", () => {
-    expect(getGrade(365).days).toBe(365);
+    expect(getGrade(365).threshold).toBe(365);
   });
 
   it("returns millennium at day 1000", () => {
-    expect(getGrade(1000).days).toBe(1000);
+    expect(getGrade(1000).threshold).toBe(1000);
   });
 
   it("returns fiveYears at day 1825", () => {
-    expect(getGrade(1825).days).toBe(1825);
+    expect(getGrade(1825).threshold).toBe(1825);
   });
 
   it("returns tenYears at day 3650", () => {
-    expect(getGrade(3650).days).toBe(3650);
+    expect(getGrade(3650).threshold).toBe(3650);
   });
 
   it("returns twentyYears at day 7300 and beyond", () => {
-    expect(getGrade(7300).days).toBe(7300);
+    expect(getGrade(7300).threshold).toBe(7300);
     expect(getGrade(9999)).toBe(GRADES[GRADES.length - 1]);
   });
 });
@@ -106,25 +107,25 @@ describe("getNextGrade", () => {
   it("returns firstStep as next when days = 0", () => {
     const result = getNextGrade(0);
     expect(result).not.toBeNull();
-    expect(result?.grade.days).toBe(1);
+    expect(result?.grade.threshold).toBe(1);
     expect(result?.daysLeft).toBe(1);
   });
 
   it("returns alive as next when at firstStep (day 1)", () => {
     const result = getNextGrade(1);
-    expect(result?.grade.days).toBe(3);
+    expect(result?.grade.threshold).toBe(3);
     expect(result?.daysLeft).toBe(2);
   });
 
   it("returns correct daysLeft mid-streak", () => {
     const result = getNextGrade(4);
-    expect(result?.grade.days).toBe(7);
+    expect(result?.grade.threshold).toBe(7);
     expect(result?.daysLeft).toBe(3);
   });
 
   it("returns fiveYears as next when at millennium (day 1000)", () => {
     const result = getNextGrade(1000);
-    expect(result?.grade.days).toBe(1825);
+    expect(result?.grade.threshold).toBe(1825);
     expect(result?.daysLeft).toBe(825);
   });
 
@@ -149,7 +150,7 @@ describe("getProgressToNext", () => {
 
   it("returns 0 at each grade threshold", () => {
     for (const grade of GRADES.slice(0, -1)) {
-      expect(getProgressToNext(grade.days)).toBe(0);
+      expect(getProgressToNext(grade.threshold)).toBe(0);
     }
   });
 
@@ -172,5 +173,25 @@ describe("getProgressToNext", () => {
       expect(p).toBeGreaterThanOrEqual(0);
       expect(p).toBeLessThanOrEqual(100);
     }
+  });
+});
+
+describe("getGrade/getNextGrade/getProgressToNext with an explicit grades array (POSITIVE_GRADES)", () => {
+  it("getGrade computes against the passed array, not the default GRADES", () => {
+    expect(getGrade(0, POSITIVE_GRADES)).toBe(POSITIVE_GRADES[0]);
+    expect(getGrade(50, POSITIVE_GRADES).threshold).toBe(50);
+    // Same raw value resolves to a different grade under GRADES (days) vs POSITIVE_GRADES (count).
+    expect(getGrade(50, POSITIVE_GRADES).labelKey).not.toBe(getGrade(50).labelKey);
+  });
+
+  it("getNextGrade computes against the passed array", () => {
+    const result = getNextGrade(50, POSITIVE_GRADES);
+    expect(result?.grade.threshold).toBe(100);
+    expect(result?.daysLeft).toBe(50);
+  });
+
+  it("getProgressToNext computes against the passed array", () => {
+    expect(getProgressToNext(1000, POSITIVE_GRADES)).toBe(100);
+    expect(getProgressToNext(0, POSITIVE_GRADES)).toBe(0);
   });
 });

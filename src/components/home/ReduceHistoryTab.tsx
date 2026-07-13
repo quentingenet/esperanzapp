@@ -1,0 +1,102 @@
+import { useEffect, useState } from "react";
+import Box from "@mui/material/Box";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
+import { useTranslation } from "react-i18next";
+import { EmptyState } from "@/components/shared";
+import { useHabits } from "@/hooks";
+import { getAllHabitLogs } from "@/db";
+import { mergeRelapseRestart } from "@/utils/habitLogUtils";
+import { logError } from "@/utils/logger";
+import { COLORS } from "@/theme/tokens";
+import type { HabitLog } from "@/types";
+
+interface HistoryItem extends HabitLog {
+  habitLabel: string;
+  habitColor: string;
+  displayKey?: string;
+}
+
+const EVENT_COLORS = { start: COLORS.eventStart, relapse: COLORS.eventRelapse } as const;
+
+export function ReduceHistoryTab() {
+  const { t } = useTranslation();
+  const { habits, loadHabits, loading: habitsLoading } = useHabits();
+  const [items, setItems] = useState<HistoryItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+
+  useEffect(() => {
+    void loadHabits();
+  }, [loadHabits]);
+
+  useEffect(() => {
+    const guard = { cancelled: false };
+    async function load() {
+      try {
+        const allLogs = await getAllHabitLogs();
+        if (guard.cancelled) return;
+        const habitMap = new Map(habits.map((h) => [h.id, h]));
+        const all: HistoryItem[] = allLogs.flatMap((log) => {
+          const habit = habitMap.get(log.habitId);
+          if (!habit) return [];
+          return [{ ...log, habitLabel: habit.label, habitColor: habit.color }];
+        });
+        all.sort((a, b) => b.eventDate.localeCompare(a.eventDate));
+        setItems(mergeRelapseRestart(all));
+      } catch (e: unknown) {
+        logError("ReduceHistoryTab.load", e);
+      } finally {
+        if (!guard.cancelled) setHistoryLoading(false);
+      }
+    }
+    void load();
+    return () => {
+      guard.cancelled = true;
+    };
+  }, [habits]);
+
+  return (
+    <Box sx={{ pb: "calc(96px + max(env(safe-area-inset-bottom), 28px))" }}>
+      <Box sx={{ px: 2, pt: 2 }}>
+        {items.length === 0 && !habitsLoading && !historyLoading && (
+          <EmptyState emoji="📅" message={t("history.empty")} />
+        )}
+        {items.map((item, idx) => (
+          <Box key={item.id}>
+            <Box sx={{ display: "flex", gap: 2, py: 1.5 }}>
+              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", pt: 0.5 }}>
+                <Box
+                  sx={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: "50%",
+                    bgcolor: EVENT_COLORS[item.eventType],
+                    flexShrink: 0,
+                  }}
+                />
+                {idx < items.length - 1 && (
+                  <Box sx={{ width: 2, bgcolor: "divider", flex: 1, mt: 0.5, minHeight: 16 }} />
+                )}
+              </Box>
+              <Box sx={{ pb: 1 }}>
+                <Typography variant="caption" color="text.secondary">
+                  {item.eventDate.slice(0, 10)}
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: item.habitColor }}>
+                  {item.habitLabel}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color={item.eventType === "relapse" ? "error" : "primary"}
+                >
+                  {t(item.displayKey ?? `history.${item.eventType}`)}
+                </Typography>
+              </Box>
+            </Box>
+            {idx < items.length - 1 && <Divider sx={{ ml: 5 }} />}
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  );
+}

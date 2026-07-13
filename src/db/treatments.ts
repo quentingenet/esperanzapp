@@ -1,29 +1,9 @@
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
-import type { Frequency, Treatment } from "@/types";
+import type { Treatment } from "@/types";
 import { isFrequency } from "@/utils";
 import { runInTransaction, withDb, withDbVoid } from "./client";
 import { updateSortOrder } from "./sortOrder";
-
-function validateTreatmentReminderInvariant(
-  frequency: Frequency,
-  reminderDay: number | null,
-): void {
-  if (frequency === "daily" && reminderDay !== null)
-    throw new Error(
-      `Treatment invariant violated: daily must have reminderDay null, got ${String(reminderDay)}`,
-    );
-  if (frequency === "weekly" && (reminderDay === null || reminderDay < 0 || reminderDay > 6))
-    throw new Error(
-      `Treatment invariant violated: weekly must have reminderDay 0 to 6, got ${String(reminderDay)}`,
-    );
-  if (
-    frequency === "monthly" &&
-    (reminderDay === null || (reminderDay !== 0 && (reminderDay < 1 || reminderDay > 28)))
-  )
-    throw new Error(
-      `Treatment invariant violated: monthly must have reminderDay 0 or 1 to 28, got ${String(reminderDay)}`,
-    );
-}
+import { validateReminderInvariant, validatePartialReminderDay } from "./reminderInvariant";
 
 type TreatmentRow = {
   id: number;
@@ -53,7 +33,7 @@ export function createTreatment(
   dbConn?: SQLiteDBConnection | null,
 ): Promise<Treatment> {
   const fn = async (db: SQLiteDBConnection): Promise<Treatment> => {
-    validateTreatmentReminderInvariant(data.frequency, data.reminderDay);
+    validateReminderInvariant("Treatment", data.frequency, data.reminderDay);
     await db.run(
       "INSERT INTO treatments (label, frequency, reminder_time, reminder_enabled, reminder_day, created_at) VALUES (?, ?, ?, ?, ?, ?)",
       [
@@ -99,12 +79,9 @@ export function updateTreatment(
   const fn = async (db: SQLiteDBConnection): Promise<void> => {
     if (data.frequency !== undefined) {
       const reminderDay = data.reminderDay !== undefined ? data.reminderDay : null;
-      validateTreatmentReminderInvariant(data.frequency, reminderDay);
+      validateReminderInvariant("Treatment", data.frequency, reminderDay);
     } else if (data.reminderDay !== undefined && data.reminderDay !== null) {
-      if (!Number.isInteger(data.reminderDay) || data.reminderDay < 0 || data.reminderDay > 28)
-        throw new Error(
-          `updateTreatment: reminderDay must be null or 0 to 28, got ${String(data.reminderDay)}`,
-        );
+      validatePartialReminderDay("updateTreatment", data.reminderDay);
     }
     const fields: string[] = [];
     const values: (string | number | null)[] = [];

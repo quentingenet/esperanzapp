@@ -26,7 +26,11 @@
     "enabled": "Actief",
     "disabled": "Inactief",
     "yes": "Ja",
-    "no": "Nee"
+    "no": "Nee",
+    "tabs": {
+      "reduce": "Minder doen",
+      "build": "Meer doen"
+    }
   },
   "nav": {
     "home": "Home",
@@ -54,6 +58,10 @@
     "next": "Volgende",
     "start": "Beginnen",
     "steps": {
+      "buildHabits": {
+        "title": "Minder doen, meer doen",
+        "body": "Of je nu een goede gewoonte regelmatiger wilt aannemen, of de frequentie van een gedrag dat je schaadt wilt verminderen, EsperanzApp begeleidt je bij je voortgang.\n\nSport, lezen, meditatie, alcohol, tabak, schermen, sociale media… Geen moraliserend gepraat: gewoon een tool om je inspanningen bij te houden, je voortgang te zien en in je eigen tempo vooruit te gaan."
+      },
       "counter": {
         "title": "Neem de controle over je gewoonten terug",
         "body": "Volg de gewoonten waarvan je je wilt bevrijden en tel elke dag zonder terugval.\n\nJe bevrijden van een gewoonte bouw je dag na dag op.\nElke dag zonder terugval is een kleine overwinning!\nEsperanzApp loopt met je mee."
@@ -170,6 +178,31 @@
       "desc": "Casino, sportweddenschappen, online spellen…"
     }
   },
+  "positiveHabitTypes": {
+    "sport": {
+      "label": "Sport"
+    },
+    "reading": {
+      "label": "Lezen"
+    },
+    "meditation": {
+      "label": "Meditatie"
+    },
+    "tidying": {
+      "label": "Opruimen"
+    },
+    "healthyEating": {
+      "label": "Gezond eten"
+    },
+    "custom": {
+      "label": "Aangepast",
+      "desc": "Definieer je eigen gewoonte"
+    },
+    "groups": {
+      "activities": "Activiteiten",
+      "custom": "Aangepast"
+    }
+  },
   "grades": {
     "firstStep": {
       "label": "Eerste stap"
@@ -265,10 +298,56 @@
       "tenYears": "Tien jaar. Je nam een beslissing en hield die vast.",
       "twentyYears": "Twintig jaar. Sommigen geloven nog steeds niet dat het mogelijk is."
     },
-    "daysLeft_one": "{{count}} dag over",
-    "daysLeft_other": "{{count}} dagen over",
     "nextMilestone_one": "Volgende mijlpaal: {{label}} over {{count}} dag",
     "nextMilestone_other": "Volgende mijlpaal: {{label}} over {{count}} dagen"
+  },
+  "positiveGrades": {
+    "seed": {
+      "label": "Zaadje"
+    },
+    "sprout": {
+      "label": "Kiem"
+    },
+    "roots": {
+      "label": "Wortels"
+    },
+    "momentum": {
+      "label": "Momentum"
+    },
+    "habit": {
+      "label": "Gewoonte"
+    },
+    "bloom": {
+      "label": "Bloei"
+    },
+    "century": {
+      "label": "Honderdtal"
+    },
+    "dedicated": {
+      "label": "Toegewijd"
+    },
+    "oneYear": {
+      "label": "Een jaar"
+    },
+    "unstoppable": {
+      "label": "Onstuitbaar"
+    },
+    "legend": {
+      "label": "Legende"
+    },
+    "messages": {
+      "seed": "Je bent begonnen. Dat is de eerste stap die telt.",
+      "sprout": "Al drie keer. Het schiet wortel.",
+      "roots": "Zeven keer. Er ontstaat een echte gewoonte.",
+      "momentum": "Veertien keer. Je hebt je ritme gevonden.",
+      "habit": "Vijfentwintig keer. Dit is geen inspanning meer, dit ben jij.",
+      "bloom": "Vijftig keer. Het bloeit open.",
+      "century": "Honderd keer. Een symbolische mijlpaal, echte regelmaat.",
+      "dedicated": "Tweehonderd keer. Jouw doorzettingsvermogen spreekt voor zich.",
+      "oneYear": "365 keer. Een heel jaar vooruitgang, dag na dag.",
+      "unstoppable": "Vijfhonderd keer. Niets houdt je nog tegen.",
+      "legend": "Duizend keer. Op dit niveau is het een deel van wie je bent."
+    }
   },
   "relapse": {
     "confirmTitle": "Een stap opzij",
@@ -316,6 +395,21 @@
     "reminderSyncFailed": "Behandeling opgeslagen. De herinnering kon niet worden gesynchroniseerd.",
     "reminderAlarmSettingsNeeded": "Schakel 'Alarmen en herinneringen' in je instellingen in voor herinneringen op tijd."
   },
+  "positiveHabits": {
+    "add": "Gewoonte toevoegen",
+    "edit": "Gewoonte bewerken",
+    "deleteConfirm": "Deze gewoonte en alle geschiedenis verwijderen?",
+    "empty": "Nog geen gewoonten.\nVoeg er een toe en volg je voortgang dag na dag.",
+    "duplicateWarning": "Je volgt deze gewoonte al. Je kunt geen duplicaat toevoegen.",
+    "reorderBtn": "Sorteer mijn\ngewoonten",
+    "reminderSyncFailed": "Gewoonte opgeslagen. De herinnering kon niet worden gesynchroniseerd.",
+    "taken": "Gedaan",
+    "missed": "Niet gedaan",
+    "pending": "In afwachting",
+    "form": {
+      "namePlaceholder": "Eigen naam"
+    }
+  },
   "stats": {
     "currentStreak": "Huidige reeks",
     "longestStreak": "Langste reeks",
@@ -324,8 +418,8 @@
     "noData": "Nog geen gegevens"
   },
   "history": {
-    "title": "Geschiedenis",
     "empty": "Geen gebeurtenissen opgeslagen",
+    "emptyBuild": "Nog geen voortgang opgeslagen.",
     "start": "Gestart",
     "relapse": "Terugval",
     "relapseRestart": "Terugval, nieuw begin"
@@ -403,11 +497,14 @@
     "sqlcipherNote": "voor gegevensversleuteling"
   },
   "milestones": {
-    "title": "Mijlpalen",
     "unlocked": "Ontgrendeld op {{date}}",
+    "unlockedBuild": "Ontgrendeld!",
     "daysNeeded_one": "Nog {{count}} dag",
     "daysNeeded_other": "Nog {{count}} dagen",
-    "noHabits": "Geen gewoonten"
+    "countNeeded_one": "Nog {{count}} keer",
+    "countNeeded_other": "Nog {{count}} keer",
+    "noHabits": "Geen gewoonten",
+    "noPositiveHabits": "Geen gewoonten"
   },
   "habitDetail": {
     "milestones": "Mijlpalen",
@@ -416,7 +513,8 @@
     "relapse": "Terugval registreren"
   },
   "notifications": {
-    "genericReminder": "Vergeet je behandeling niet"
+    "genericReminder": "Vergeet je behandeling niet",
+    "genericReminderPositiveHabit": "Vergeet je gewoonte niet"
   },
   "startup": {
     "dbErrorTitle": "Opstartfout",

@@ -54,7 +54,7 @@ const habit: Habit = {
 };
 
 const grade: Grade = {
-  days: 0,
+  threshold: 0,
   labelKey: "grades.starter",
   emoji: "🌱",
   messageKey: "grades.starter_msg",

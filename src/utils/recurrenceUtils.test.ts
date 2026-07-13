@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { getPastOccurrences } from "./treatmentCalendarUtils";
+import { getPastOccurrences } from "./recurrenceUtils";
 import { format } from "date-fns";
 
 afterEach(() => {

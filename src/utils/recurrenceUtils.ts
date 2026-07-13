@@ -1,6 +1,7 @@
 import { isAfter, isBefore, parseISO, startOfDay, subDays, subMonths, subWeeks } from "date-fns";
 import type { Frequency } from "@/types";
 
+// Pure and entity-agnostic: used by OccurrenceCalendar for both treatments and positive habits.
 export function getPastOccurrences(
   frequency: Frequency,
   reminderDay: number | null,

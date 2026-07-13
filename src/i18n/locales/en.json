@@ -26,7 +26,11 @@
     "enabled": "Enabled",
     "disabled": "Disabled",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "tabs": {
+      "reduce": "Do less",
+      "build": "Do more"
+    }
   },
   "nav": {
     "home": "Home",
@@ -54,6 +58,10 @@
     "next": "Next",
     "start": "Get started",
     "steps": {
+      "buildHabits": {
+        "title": "Do less, do more",
+        "body": "Whether you want to build a beneficial habit more consistently, or reduce the frequency of something that's hurting you, EsperanzApp supports your progress.\n\nSport, reading, meditation, alcohol, tobacco, screens, social media… No moralizing — just a tool to track your efforts, see your progress, and move forward at your own pace."
+      },
       "counter": {
         "title": "Take back control of your habits",
         "body": "Track the habits you want to break free from and count each day without relapse.\n\nBreaking free from a habit is built one day at a time.\nEvery day without relapse is a small victory!\nEsperanzApp walks with you."
@@ -170,6 +178,31 @@
       "desc": "Casino, sports betting, online games…"
     }
   },
+  "positiveHabitTypes": {
+    "sport": {
+      "label": "Sport"
+    },
+    "reading": {
+      "label": "Reading"
+    },
+    "meditation": {
+      "label": "Meditation"
+    },
+    "tidying": {
+      "label": "Tidying"
+    },
+    "healthyEating": {
+      "label": "Healthy eating"
+    },
+    "custom": {
+      "label": "Custom",
+      "desc": "Define your own habit"
+    },
+    "groups": {
+      "activities": "Activities",
+      "custom": "Custom"
+    }
+  },
   "grades": {
     "firstStep": {
       "label": "First Step"
@@ -265,10 +298,56 @@
       "tenYears": "Ten years. You made a decision, and you kept it.",
       "twentyYears": "Twenty years. Some still don't believe it's possible."
     },
-    "daysLeft_one": "{{count}} day left",
-    "daysLeft_other": "{{count}} days left",
     "nextMilestone_one": "Next milestone: {{label}} in {{count}} day",
     "nextMilestone_other": "Next milestone: {{label}} in {{count}} days"
+  },
+  "positiveGrades": {
+    "seed": {
+      "label": "Seed"
+    },
+    "sprout": {
+      "label": "Sprout"
+    },
+    "roots": {
+      "label": "Roots"
+    },
+    "momentum": {
+      "label": "Momentum"
+    },
+    "habit": {
+      "label": "Habit"
+    },
+    "bloom": {
+      "label": "Bloom"
+    },
+    "century": {
+      "label": "Century"
+    },
+    "dedicated": {
+      "label": "Dedicated"
+    },
+    "oneYear": {
+      "label": "One Year"
+    },
+    "unstoppable": {
+      "label": "Unstoppable"
+    },
+    "legend": {
+      "label": "Legend"
+    },
+    "messages": {
+      "seed": "You started. That's the first step that counts.",
+      "sprout": "Three times already. It's taking root.",
+      "roots": "Seven times. A real habit is forming.",
+      "momentum": "Fourteen times. You've found your rhythm.",
+      "habit": "Twenty-five times. This isn't effort anymore — it's who you are.",
+      "bloom": "Fifty times. It's blossoming.",
+      "century": "One hundred times. A symbolic milestone, real consistency.",
+      "dedicated": "Two hundred times. Your consistency speaks for itself.",
+      "oneYear": "365 times. A full year of progress, day after day.",
+      "unstoppable": "Five hundred times. Nothing stops you now.",
+      "legend": "A thousand times. At this point, it's part of who you are."
+    }
   },
   "relapse": {
     "confirmTitle": "A step aside",
@@ -316,6 +395,21 @@
     "reminderSyncFailed": "Treatment saved. The reminder could not be synced.",
     "reminderAlarmSettingsNeeded": "Enable 'Alarms & Reminders' in your settings to receive reminders on time."
   },
+  "positiveHabits": {
+    "add": "Add a habit",
+    "edit": "Edit habit",
+    "deleteConfirm": "Delete this habit and all its history?",
+    "empty": "No habits yet.\nAdd one and track your progress day after day.",
+    "duplicateWarning": "You are already tracking this habit. You cannot add a duplicate.",
+    "reorderBtn": "Sort my\nhabits",
+    "reminderSyncFailed": "Habit saved. The reminder could not be synced.",
+    "taken": "Done",
+    "missed": "Not done",
+    "pending": "Pending",
+    "form": {
+      "namePlaceholder": "Custom name"
+    }
+  },
   "stats": {
     "currentStreak": "Current streak",
     "longestStreak": "Longest streak",
@@ -324,8 +418,8 @@
     "noData": "No data yet"
   },
   "history": {
-    "title": "History",
     "empty": "No events recorded",
+    "emptyBuild": "No progress recorded yet.",
     "start": "Started",
     "relapse": "Relapse",
     "relapseRestart": "Relapse, new start"
@@ -403,11 +497,14 @@
     "sqlcipherNote": "for data encryption"
   },
   "milestones": {
-    "title": "Milestones",
     "unlocked": "Unlocked on {{date}}",
+    "unlockedBuild": "Unlocked!",
     "daysNeeded_one": "{{count}} day to go",
     "daysNeeded_other": "{{count}} days to go",
-    "noHabits": "No habits to track"
+    "countNeeded_one": "{{count}} more time to go",
+    "countNeeded_other": "{{count}} more times to go",
+    "noHabits": "No habits to track",
+    "noPositiveHabits": "No habits to track"
   },
   "habitDetail": {
     "milestones": "Milestones",
@@ -416,7 +513,8 @@
     "relapse": "Mark a relapse"
   },
   "notifications": {
-    "genericReminder": "Don't forget your treatment"
+    "genericReminder": "Don't forget your treatment",
+    "genericReminderPositiveHabit": "Don't forget your habit"
   },
   "startup": {
     "dbErrorTitle": "Startup error",

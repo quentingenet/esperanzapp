@@ -28,13 +28,15 @@ const Treatments = lazy(() =>
 const History = lazy(() => import("@/pages/History").then((m) => ({ default: m.History })));
 const Settings = lazy(() => import("@/pages/Settings").then((m) => ({ default: m.Settings })));
 import { useOnboarding, useNotifications, useAppUpdate } from "@/hooks";
-import { getAllTreatments } from "@/db";
+import { getAllTreatments, getAllPositiveHabits } from "@/db";
 import { toast } from "@/store/toastStore";
+import { useHomeTabStore } from "@/store/homeTabStore";
 import {
   NOTIF_DOMAIN_OFFSET,
   getNotificationId,
   getLastDayNotificationIds,
 } from "@/hooks/useNotifications";
+import type { NotifDomain, ReminderSchedulable } from "@/hooks/useNotifications";
 import { theme } from "@/theme";
 import { logError, safeLocalStorageSet } from "@/utils/logger";
 import { rescheduleAllMilestoneNotifications } from "@/utils/milestoneNotifications";
@@ -60,6 +62,14 @@ function AppStartRescheduler() {
       } catch {
         // Treatment notification failures must not prevent the app from starting.
       }
+      try {
+        // Isolated from the treatments block above: a positive-habit reschedule failure
+        // must not skip treatment reminders and vice versa.
+        const positiveHabits = await getAllPositiveHabits();
+        await rescheduleAll(positiveHabits, "positiveHabits");
+      } catch {
+        // Positive-habit notification failures must not prevent the app from starting.
+      }
       // Runs independently: rescheduleAllMilestoneNotifications has its own internal try/catch
       // and must not be skipped if the treatment reschedule above throws.
       await rescheduleAllMilestoneNotifications();
@@ -75,20 +85,32 @@ function AppStartRescheduler() {
     if (!Capacitor.isNativePlatform()) return;
     let handle: PluginListenerHandle | undefined;
     let disposed = false;
+
+    // Shared across domains: each occupies a fixed 1M-wide ID range (see NOTIF_DOMAIN_OFFSET),
+    // so the same lookup-and-renew logic applies regardless of which domain the notif ID falls in.
+    const renewIfMonthlyLastDay = async (
+      notifId: number,
+      domain: NotifDomain,
+      getAll: () => Promise<ReminderSchedulable[]>,
+    ): Promise<void> => {
+      const domainStart = NOTIF_DOMAIN_OFFSET[domain];
+      if (notifId < domainStart || notifId >= domainStart + 1_000_000) return;
+      const entities = await getAll();
+      const entity = entities.find(
+        (e) =>
+          getNotificationId(domain, e.id) === notifId ||
+          getLastDayNotificationIds(e.id, domain).includes(notifId),
+      );
+      if (entity?.frequency === "monthly" && entity.reminderDay === 0) {
+        await scheduleReminder(entity, domain);
+      }
+    };
+
     void LocalNotifications.addListener("localNotificationReceived", (notif) => {
-      if (notif.id < NOTIF_DOMAIN_OFFSET.treatments || notif.id >= NOTIF_DOMAIN_OFFSET.milestones)
-        return;
       void (async () => {
         try {
-          const treatments = await getAllTreatments();
-          const treatment = treatments.find(
-            (t) =>
-              getNotificationId("treatments", t.id) === notif.id ||
-              getLastDayNotificationIds(t.id).includes(notif.id),
-          );
-          if (treatment?.frequency === "monthly" && treatment.reminderDay === 0) {
-            await scheduleReminder(treatment);
-          }
+          await renewIfMonthlyLastDay(notif.id, "treatments", getAllTreatments);
+          await renewIfMonthlyLastDay(notif.id, "positiveHabits", getAllPositiveHabits);
         } catch {
           // Notification failures must not crash.
         }
@@ -171,7 +193,14 @@ function AppContent() {
     let disposed = false;
     void LocalNotifications.addListener("localNotificationActionPerformed", (action) => {
       const notifId = action.notification.id;
-      if (notifId >= NOTIF_DOMAIN_OFFSET.milestones) {
+      if (notifId >= NOTIF_DOMAIN_OFFSET.buildMilestones) {
+        useHomeTabStore.getState().setPendingTab("build");
+        setActiveTab("home");
+      } else if (notifId >= NOTIF_DOMAIN_OFFSET.positiveHabits) {
+        useHomeTabStore.getState().setPendingTab("build");
+        setActiveTab("home");
+      } else if (notifId >= NOTIF_DOMAIN_OFFSET.milestones) {
+        useHomeTabStore.getState().setPendingTab("reduce");
         setActiveTab("home");
       } else if (notifId >= NOTIF_DOMAIN_OFFSET.treatments) {
         setActiveTab("treatments");

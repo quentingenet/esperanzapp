@@ -6,6 +6,8 @@ import type {
   HabitLog,
   Treatment,
   TreatmentLog,
+  PositiveHabit,
+  PositiveHabitLog,
 } from "@/types";
 
 const EVENT_TYPES: readonly EventType[] = ["start", "relapse"];
@@ -158,6 +160,81 @@ function validateTreatmentLog(v: unknown): TreatmentLog {
   return { id, treatmentId, scheduledAt, status };
 }
 
+// Combines Habit's visual-identity validation (icon/color/bgColor) with Treatment's
+// frequency/reminder validation — PositiveHabit is a hybrid of the two entities.
+function validatePositiveHabit(v: unknown): PositiveHabit {
+  if (typeof v !== "object" || v === null) throw new Error("positiveHabits: not an object");
+  const h = v as Record<string, unknown>;
+  const id = h["id"];
+  const label = h["label"];
+  const icon = h["icon"];
+  const color = h["color"];
+  const bgColor = h["bgColor"];
+  const frequency = h["frequency"];
+  const reminderTime = h["reminderTime"];
+  const reminderEnabled = h["reminderEnabled"];
+  const reminderDay = h["reminderDay"];
+  const createdAt = h["createdAt"];
+  if (!isPosIntStr(id)) throw new Error("positiveHabits: id must be a positive integer string");
+  if (!isStr(label)) throw new Error("positiveHabits: label must be a non-empty string");
+  if (!isStr(icon)) throw new Error("positiveHabits: icon must be a non-empty string");
+  if (!isHexColor(color)) throw new Error("positiveHabits: color must be a hex color");
+  if (!isHexColor(bgColor)) throw new Error("positiveHabits: bgColor must be a hex color");
+  if (!isStr(frequency) || !isFrequency(frequency))
+    throw new Error(`positiveHabits: invalid frequency "${String(frequency)}"`);
+  if (!isTime(reminderTime)) throw new Error("positiveHabits: invalid reminderTime");
+  if (typeof reminderEnabled !== "boolean")
+    throw new Error("positiveHabits: reminderEnabled must be boolean");
+  if (!isISODateTime(createdAt))
+    throw new Error("positiveHabits: createdAt must be a valid date-time");
+  let day: number | null;
+  if (reminderDay === null) {
+    day = null;
+  } else if (typeof reminderDay === "number" && Number.isInteger(reminderDay)) {
+    day = reminderDay;
+  } else {
+    throw new Error("positiveHabits: reminderDay must be an integer or null");
+  }
+  if (frequency === "daily") {
+    if (day !== null)
+      throw new Error("positiveHabits: daily frequency must have null reminderDay");
+  } else if (frequency === "weekly") {
+    if (day === null || day < 0 || day > 6)
+      throw new Error("positiveHabits: weekly frequency must have reminderDay 0-6");
+  } else {
+    if (day === null || (day !== 0 && (day < 1 || day > 28)))
+      throw new Error("positiveHabits: monthly frequency must have reminderDay 0 or 1-28");
+  }
+  return {
+    id,
+    label,
+    icon,
+    color,
+    bgColor,
+    frequency,
+    reminderTime,
+    reminderEnabled,
+    reminderDay: day,
+    createdAt,
+  };
+}
+
+function validatePositiveHabitLog(v: unknown): PositiveHabitLog {
+  if (typeof v !== "object" || v === null) throw new Error("positiveHabitLogs: not an object");
+  const l = v as Record<string, unknown>;
+  const id = l["id"];
+  const positiveHabitId = l["positiveHabitId"];
+  const scheduledAt = l["scheduledAt"];
+  const status = l["status"];
+  if (!isPosIntStr(id)) throw new Error("positiveHabitLogs: id must be a positive integer string");
+  if (!isPosIntStr(positiveHabitId))
+    throw new Error("positiveHabitLogs: positiveHabitId must be a positive integer string");
+  if (!isStr(status) || !isTreatmentStatus(status))
+    throw new Error(`positiveHabitLogs: invalid status "${String(status)}"`);
+  if (!isDate(scheduledAt)) throw new Error("positiveHabitLogs: scheduledAt must be YYYY-MM-DD");
+  return { id, positiveHabitId, scheduledAt, status };
+}
+
 export type ExportPayload = {
   version: typeof EXPORT_VERSION;
   exportedAt: string | null;
@@ -165,16 +242,32 @@ export type ExportPayload = {
   habitLogs: HabitLog[];
   treatments: Treatment[];
   treatmentLogs: TreatmentLog[];
+  positiveHabits: PositiveHabit[];
+  positiveHabitLogs: PositiveHabitLog[];
 };
 
+// positiveHabits/positiveHabitLogs default to [] so every existing call site (tests included)
+// that predates the "faire plus" feature keeps working unchanged and produces an equivalent
+// payload — this field is purely additive to the export format.
 export function buildExportPayload(
   habits: Habit[],
   habitLogs: HabitLog[],
   treatments: Treatment[],
   treatmentLogs: TreatmentLog[],
   exportedAt: string | null,
+  positiveHabits: PositiveHabit[] = [],
+  positiveHabitLogs: PositiveHabitLog[] = [],
 ): ExportPayload {
-  return { version: EXPORT_VERSION, exportedAt, habits, habitLogs, treatments, treatmentLogs };
+  return {
+    version: EXPORT_VERSION,
+    exportedAt,
+    habits,
+    habitLogs,
+    treatments,
+    treatmentLogs,
+    positiveHabits,
+    positiveHabitLogs,
+  };
 }
 
 export function parseExportPayload(raw: string): ExportPayload {
@@ -199,6 +292,16 @@ export function parseExportPayload(raw: string): ExportPayload {
   if (typeof rawExportedAt === "string" && rawExportedAt !== "" && !isISODateTime(rawExportedAt)) {
     throw new Error("exportedAt must be a valid ISO date-time");
   }
+  // positiveHabits/positiveHabitLogs are absent in exports made before the "faire plus"
+  // feature — treated as empty arrays so old export files keep importing correctly.
+  const rawPositiveHabits = p["positiveHabits"];
+  if (rawPositiveHabits !== undefined && !Array.isArray(rawPositiveHabits)) {
+    throw new Error("Unsupported or invalid export format");
+  }
+  const rawPositiveHabitLogs = p["positiveHabitLogs"];
+  if (rawPositiveHabitLogs !== undefined && !Array.isArray(rawPositiveHabitLogs)) {
+    throw new Error("Unsupported or invalid export format");
+  }
   return {
     version: EXPORT_VERSION,
     exportedAt: typeof rawExportedAt === "string" && rawExportedAt !== "" ? rawExportedAt : null,
@@ -206,6 +309,12 @@ export function parseExportPayload(raw: string): ExportPayload {
     habitLogs: (p["habitLogs"] as unknown[]).map((v) => validateHabitLog(v)),
     treatments: (p["treatments"] as unknown[]).map((v) => validateTreatment(v)),
     treatmentLogs: (p["treatmentLogs"] as unknown[]).map((v) => validateTreatmentLog(v)),
+    positiveHabits: Array.isArray(rawPositiveHabits)
+      ? rawPositiveHabits.map((v) => validatePositiveHabit(v))
+      : [],
+    positiveHabitLogs: Array.isArray(rawPositiveHabitLogs)
+      ? rawPositiveHabitLogs.map((v) => validatePositiveHabitLog(v))
+      : [],
   };
 }
 
@@ -266,6 +375,46 @@ export function payloadToCSV(payload: ExportPayload): string {
     ...payload.treatmentLogs.map((l) => row([l.id, l.treatmentId, l.scheduledAt, l.status])),
   );
 
+  sections.push(
+    "",
+    "POSITIVE_HABITS",
+    row([
+      "id",
+      "label",
+      "icon",
+      "color",
+      "bgColor",
+      "frequency",
+      "reminderTime",
+      "reminderEnabled",
+      "reminderDay",
+      "createdAt",
+    ]),
+    ...payload.positiveHabits.map((h) =>
+      row([
+        h.id,
+        h.label,
+        h.icon,
+        h.color,
+        h.bgColor,
+        h.frequency,
+        h.reminderTime,
+        h.reminderEnabled ? "1" : "0",
+        h.reminderDay !== null ? String(h.reminderDay) : "",
+        h.createdAt,
+      ]),
+    ),
+  );
+
+  sections.push(
+    "",
+    "POSITIVE_HABIT_LOGS",
+    row(["id", "positiveHabitId", "scheduledAt", "status"]),
+    ...payload.positiveHabitLogs.map((l) =>
+      row([l.id, l.positiveHabitId, l.scheduledAt, l.status]),
+    ),
+  );
+
   return sections.join("\n");
 }
 
@@ -281,6 +430,19 @@ const TREATMENT_COLS = [
   "createdAt",
 ] as const;
 const TREATMENT_LOG_COLS = ["id", "treatmentId", "scheduledAt", "status"] as const;
+const POSITIVE_HABIT_COLS = [
+  "id",
+  "label",
+  "icon",
+  "color",
+  "bgColor",
+  "frequency",
+  "reminderTime",
+  "reminderEnabled",
+  "reminderDay",
+  "createdAt",
+] as const;
+const POSITIVE_HABIT_LOG_COLS = ["id", "positiveHabitId", "scheduledAt", "status"] as const;
 
 // Character-by-character CSV tokenizer that correctly handles quoted fields containing
 // embedded newlines, double-quote escapes (""), and carriage-return/newline line endings.
@@ -387,6 +549,10 @@ export function parseCSVPayload(raw: string): ExportPayload {
   const logRows = parseSection("HABIT_LOGS", HABIT_LOG_COLS);
   const treatmentRows = parseSection("TREATMENTS", TREATMENT_COLS);
   const treatmentLogRows = parseSection("TREATMENT_LOGS", TREATMENT_LOG_COLS);
+  // Absent in CSVs exported before the "faire plus" feature — parseSection returns []
+  // when the section header itself is missing, so old CSV files keep importing correctly.
+  const positiveHabitRows = parseSection("POSITIVE_HABITS", POSITIVE_HABIT_COLS);
+  const positiveHabitLogRows = parseSection("POSITIVE_HABIT_LOGS", POSITIVE_HABIT_LOG_COLS);
 
   const habits: Habit[] = habitRows.map(
     ([id, label, icon, color, bgColor, startDate, createdAt]) => {
@@ -464,6 +630,81 @@ export function parseCSVPayload(raw: string): ExportPayload {
     },
   );
 
+  const positiveHabits: PositiveHabit[] = positiveHabitRows.map(
+    ([
+      id,
+      label,
+      icon,
+      color,
+      bgColor,
+      frequency,
+      reminderTime,
+      reminderEnabledStr,
+      reminderDayStr,
+      createdAt,
+    ]) => {
+      if (!isPosIntStr(id))
+        throw new Error("positiveHabits: id must be a positive integer string");
+      if (!isStr(label)) throw new Error("positiveHabits: label must be a non-empty string");
+      if (!isStr(icon)) throw new Error("positiveHabits: icon must be a non-empty string");
+      if (!isHexColor(color)) throw new Error("positiveHabits: color must be a hex color");
+      if (!isHexColor(bgColor)) throw new Error("positiveHabits: bgColor must be a hex color");
+      if (!isStr(frequency)) throw new Error("positiveHabits: frequency must be a string");
+      if (!isFrequency(frequency))
+        throw new Error(`positiveHabits: invalid frequency "${frequency}"`);
+      if (!isTime(reminderTime)) throw new Error("positiveHabits: invalid reminderTime");
+      if (!isISODateTime(createdAt))
+        throw new Error("positiveHabits: createdAt must be a valid date-time");
+      const reminderDay = reminderDayStr !== "" ? Number(reminderDayStr) : null;
+      if (
+        reminderDay !== null &&
+        (!Number.isInteger(reminderDay) || reminderDay < 0 || reminderDay > 28)
+      )
+        throw new Error("positiveHabits: invalid reminderDay");
+      if (frequency === "daily") {
+        if (reminderDay !== null)
+          throw new Error("positiveHabits: daily frequency must have null reminderDay");
+      } else if (frequency === "weekly") {
+        if (reminderDay === null || reminderDay < 0 || reminderDay > 6)
+          throw new Error("positiveHabits: weekly frequency must have reminderDay 0-6");
+      } else {
+        if (reminderDay === null || (reminderDay !== 0 && (reminderDay < 1 || reminderDay > 28)))
+          throw new Error("positiveHabits: monthly frequency must have reminderDay 0 or 1-28");
+      }
+      if (reminderEnabledStr !== "0" && reminderEnabledStr !== "1")
+        throw new Error(
+          `positiveHabits: reminderEnabled must be "0" or "1", got "${reminderEnabledStr ?? ""}"`,
+        );
+      return {
+        id,
+        label,
+        icon,
+        color,
+        bgColor,
+        frequency,
+        reminderTime,
+        reminderEnabled: reminderEnabledStr === "1",
+        reminderDay,
+        createdAt,
+      };
+    },
+  );
+
+  const positiveHabitLogs: PositiveHabitLog[] = positiveHabitLogRows.map(
+    ([id, positiveHabitId, scheduledAt, status]) => {
+      if (!isPosIntStr(id))
+        throw new Error("positiveHabitLogs: id must be a positive integer string");
+      if (!isPosIntStr(positiveHabitId))
+        throw new Error("positiveHabitLogs: positiveHabitId must be a positive integer string");
+      if (!isStr(status)) throw new Error("positiveHabitLogs: status must be a string");
+      if (!isTreatmentStatus(status))
+        throw new Error(`positiveHabitLogs: invalid status "${status}"`);
+      if (!isDate(scheduledAt))
+        throw new Error("positiveHabitLogs: scheduledAt must be YYYY-MM-DD");
+      return { id, positiveHabitId, scheduledAt, status };
+    },
+  );
+
   return {
     version: EXPORT_VERSION,
     exportedAt: null,
@@ -471,6 +712,8 @@ export function parseCSVPayload(raw: string): ExportPayload {
     habitLogs,
     treatments,
     treatmentLogs,
+    positiveHabits,
+    positiveHabitLogs,
   };
 }
 

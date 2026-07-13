@@ -40,16 +40,16 @@ export function HabitMilestoneTab({ stats, userName }: HabitMilestoneTabProps) {
           );
         })()}
       {GRADES.map((grade) => {
-        const unlocked = stats.currentStreak >= grade.days;
-        const daysLeft = grade.days - stats.currentStreak;
+        const unlocked = stats.currentStreak >= grade.threshold;
+        const daysLeft = grade.threshold - stats.currentStreak;
         const unlockDateStr = format(
-          addDays(parseISO(today), grade.days - stats.currentStreak),
+          addDays(parseISO(today), grade.threshold - stats.currentStreak),
           "P",
           { locale: dateLocale },
         );
         return (
           <Box
-            key={grade.days}
+            key={grade.threshold}
             sx={{
               display: "flex",
               alignItems: "center",
@@ -72,7 +72,7 @@ export function HabitMilestoneTab({ stats, userName }: HabitMilestoneTabProps) {
                 {t(grade.labelKey)}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {grade.days} {t("common.day", { count: grade.days })} -{" "}
+                {grade.threshold} {t("common.day", { count: grade.threshold })} -{" "}
                 {unlocked
                   ? t("milestones.unlocked", { date: unlockDateStr })
                   : t("milestones.daysNeeded", { count: daysLeft })}

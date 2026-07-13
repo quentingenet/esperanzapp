@@ -13,9 +13,11 @@ const mocks = vi.hoisted(() => ({
   detectEncrypted: vi.fn(),
   loadHabits: vi.fn(),
   loadTreatments: vi.fn(),
+  loadPositiveHabits: vi.fn(),
   rescheduleAll: vi.fn(),
   requestPermission: vi.fn(),
   getTreatmentsState: vi.fn(),
+  getPositiveHabitsState: vi.fn(),
   rescheduleAllMilestoneNotifications: vi.fn(),
   toast: { error: vi.fn(), success: vi.fn(), info: vi.fn(), warning: vi.fn() },
 }));
@@ -36,6 +38,7 @@ vi.mock("@/utils/exportSerialization", () => ({
 vi.mock("@/hooks", () => ({
   useHabits: () => ({ loadHabits: mocks.loadHabits }),
   useTreatments: () => ({ loadTreatments: mocks.loadTreatments }),
+  usePositiveHabits: () => ({ loadPositiveHabits: mocks.loadPositiveHabits }),
   useNotifications: () => ({
     rescheduleAll: mocks.rescheduleAll,
     requestPermission: mocks.requestPermission,
@@ -46,6 +49,14 @@ vi.mock("@/store/treatmentsStore", () => ({
   useTreatmentsStore: Object.assign(
     (selector: (s: { treatments: unknown[] }) => unknown) => selector({ treatments: [] }),
     { getState: mocks.getTreatmentsState },
+  ),
+}));
+
+vi.mock("@/store/positiveHabitsStore", () => ({
+  usePositiveHabitsStore: Object.assign(
+    (selector: (s: { positiveHabits: unknown[] }) => unknown) =>
+      selector({ positiveHabits: [] }),
+    { getState: mocks.getPositiveHabitsState },
   ),
 }));
 
@@ -146,10 +157,12 @@ describe("DataExportSection — plain JSON import flow", () => {
     mocks.importCSV.mockResolvedValue(undefined);
     mocks.loadHabits.mockResolvedValue(undefined);
     mocks.loadTreatments.mockResolvedValue(undefined);
+    mocks.loadPositiveHabits.mockResolvedValue(undefined);
     mocks.requestPermission.mockResolvedValue(true);
     mocks.rescheduleAll.mockResolvedValue(undefined);
     mocks.rescheduleAllMilestoneNotifications.mockResolvedValue(undefined);
     mocks.getTreatmentsState.mockReturnValue({ treatments: [] });
+    mocks.getPositiveHabitsState.mockReturnValue({ positiveHabits: [] });
   });
 
   afterEach(() => {
@@ -172,7 +185,7 @@ describe("DataExportSection — plain JSON import flow", () => {
     await waitFor(() => expect(mocks.toast.success).toHaveBeenCalledWith("export.importSuccess"));
   });
 
-  it("loadHabits and loadTreatments are called after import", async () => {
+  it("loadHabits, loadTreatments and loadPositiveHabits are all called after import", async () => {
     const user = userEvent.setup();
     render(<DataExportSection />);
     await openImportWarnDialog(user, MINIMAL_JSON_FILE);
@@ -180,6 +193,7 @@ describe("DataExportSection — plain JSON import flow", () => {
     await waitFor(() => {
       expect(mocks.loadHabits).toHaveBeenCalledTimes(1);
       expect(mocks.loadTreatments).toHaveBeenCalledTimes(1);
+      expect(mocks.loadPositiveHabits).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -201,19 +215,52 @@ describe("DataExportSection — plain JSON import flow", () => {
     render(<DataExportSection />);
     await openImportWarnDialog(user, MINIMAL_JSON_FILE);
     await user.click(screen.getByRole("button", { name: "export.importConfirm" }));
-    await waitFor(() => expect(mocks.rescheduleAll).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mocks.rescheduleAll).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ id: "1" })]),
+    ));
     expect(mocks.requestPermission).toHaveBeenCalledTimes(1);
   });
 
-  it("rescheduleAll is NOT called when no imported treatments have reminders", async () => {
+  it("rescheduleAll is called for positiveHabits when imported positive habits have reminders", async () => {
+    mocks.getPositiveHabitsState.mockReturnValue({
+      positiveHabits: [
+        {
+          id: "1",
+          label: "Course à pied",
+          icon: "M...",
+          color: "#2e7d32",
+          bgColor: "#e8f5e9",
+          frequency: "daily",
+          reminderTime: "07:00",
+          reminderEnabled: true,
+          reminderDay: null,
+          createdAt: "2024-01-01T00:00:00.000Z",
+        },
+      ],
+    });
+    const user = userEvent.setup();
+    render(<DataExportSection />);
+    await openImportWarnDialog(user, MINIMAL_JSON_FILE);
+    await user.click(screen.getByRole("button", { name: "export.importConfirm" }));
+    await waitFor(() =>
+      expect(mocks.rescheduleAll).toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({ id: "1", label: "Course à pied" })]),
+        "positiveHabits",
+      ),
+    );
+    expect(mocks.requestPermission).toHaveBeenCalledTimes(1);
+  });
+
+  it("rescheduleAll is NOT called when neither imported treatments nor positive habits have reminders", async () => {
     mocks.getTreatmentsState.mockReturnValue({ treatments: [] });
+    mocks.getPositiveHabitsState.mockReturnValue({ positiveHabits: [] });
     const user = userEvent.setup();
     render(<DataExportSection />);
     await openImportWarnDialog(user, MINIMAL_JSON_FILE);
     await user.click(screen.getByRole("button", { name: "export.importConfirm" }));
     await waitFor(() => expect(mocks.importJSON).toHaveBeenCalledTimes(1));
     // Allow async work to settle
-    await waitFor(() => expect(mocks.loadHabits).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mocks.loadPositiveHabits).toHaveBeenCalledTimes(1));
     expect(mocks.rescheduleAll).not.toHaveBeenCalled();
   });
 
@@ -264,10 +311,12 @@ describe("DataExportSection — CSV import", () => {
     mocks.importCSV.mockResolvedValue(undefined);
     mocks.loadHabits.mockResolvedValue(undefined);
     mocks.loadTreatments.mockResolvedValue(undefined);
+    mocks.loadPositiveHabits.mockResolvedValue(undefined);
     mocks.requestPermission.mockResolvedValue(true);
     mocks.rescheduleAll.mockResolvedValue(undefined);
     mocks.rescheduleAllMilestoneNotifications.mockResolvedValue(undefined);
     mocks.getTreatmentsState.mockReturnValue({ treatments: [] });
+    mocks.getPositiveHabitsState.mockReturnValue({ positiveHabits: [] });
   });
 
   afterEach(() => {
@@ -292,10 +341,12 @@ describe("DataExportSection — encrypted import flow", () => {
     mocks.importJSON.mockResolvedValue(undefined);
     mocks.loadHabits.mockResolvedValue(undefined);
     mocks.loadTreatments.mockResolvedValue(undefined);
+    mocks.loadPositiveHabits.mockResolvedValue(undefined);
     mocks.requestPermission.mockResolvedValue(true);
     mocks.rescheduleAll.mockResolvedValue(undefined);
     mocks.rescheduleAllMilestoneNotifications.mockResolvedValue(undefined);
     mocks.getTreatmentsState.mockReturnValue({ treatments: [] });
+    mocks.getPositiveHabitsState.mockReturnValue({ positiveHabits: [] });
   });
 
   afterEach(() => {

@@ -26,7 +26,11 @@
     "enabled": "Activado",
     "disabled": "Desactivado",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "tabs": {
+      "reduce": "Hacer menos",
+      "build": "Hacer más"
+    }
   },
   "nav": {
     "home": "Inicio",
@@ -54,6 +58,10 @@
     "next": "Siguiente",
     "start": "Empezar",
     "steps": {
+      "buildHabits": {
+        "title": "Hacer menos, hacer más",
+        "body": "Ya sea que quieras adoptar un hábito beneficioso con más regularidad, o reducir la frecuencia de un comportamiento que te perjudica, EsperanzApp te acompaña en tu progreso.\n\nDeporte, lectura, meditación, alcohol, tabaco, pantallas, redes sociales… Sin discursos moralizantes: solo una herramienta para seguir tus esfuerzos, visualizar tu progreso y avanzar a tu propio ritmo."
+      },
       "counter": {
         "title": "Recupera el control de tus hábitos",
         "body": "Haz un seguimiento de los hábitos de los que quieres liberarte y cuenta cada día sin recaída.\n\nLiberarse de un hábito se construye día a día.\n¡Cada día sin recaída es una pequeña victoria!\nEsperanzApp camina contigo."
@@ -170,6 +178,31 @@
       "desc": "Casino, apuestas deportivas, juegos en línea…"
     }
   },
+  "positiveHabitTypes": {
+    "sport": {
+      "label": "Deporte"
+    },
+    "reading": {
+      "label": "Lectura"
+    },
+    "meditation": {
+      "label": "Meditación"
+    },
+    "tidying": {
+      "label": "Orden"
+    },
+    "healthyEating": {
+      "label": "Comer sano"
+    },
+    "custom": {
+      "label": "Personalizado",
+      "desc": "Define tu propio hábito"
+    },
+    "groups": {
+      "activities": "Actividades",
+      "custom": "Personalizado"
+    }
+  },
   "grades": {
     "firstStep": {
       "label": "Primer paso"
@@ -265,10 +298,56 @@
       "tenYears": "Diez años. Tomaste una decisión y la mantuviste.",
       "twentyYears": "Veinte años. Algunos todavía no creen que es posible."
     },
-    "daysLeft_one": "{{count}} día restante",
-    "daysLeft_other": "{{count}} días restantes",
     "nextMilestone_one": "Próximo hito: {{label}} en {{count}} día",
     "nextMilestone_other": "Próximo hito: {{label}} en {{count}} días"
+  },
+  "positiveGrades": {
+    "seed": {
+      "label": "Semilla"
+    },
+    "sprout": {
+      "label": "Brote"
+    },
+    "roots": {
+      "label": "Raíces"
+    },
+    "momentum": {
+      "label": "Impulso"
+    },
+    "habit": {
+      "label": "Hábito"
+    },
+    "bloom": {
+      "label": "Floración"
+    },
+    "century": {
+      "label": "Centenario"
+    },
+    "dedicated": {
+      "label": "Constante"
+    },
+    "oneYear": {
+      "label": "Un año"
+    },
+    "unstoppable": {
+      "label": "Imparable"
+    },
+    "legend": {
+      "label": "Leyenda"
+    },
+    "messages": {
+      "seed": "Has empezado. Ese es el primer paso que cuenta.",
+      "sprout": "Tres veces ya. Está echando raíces.",
+      "roots": "Siete veces. Se está formando un verdadero hábito.",
+      "momentum": "Catorce veces. Has encontrado tu ritmo.",
+      "habit": "Veinticinco veces. Ya no es un esfuerzo, es quien eres.",
+      "bloom": "Cincuenta veces. Está floreciendo.",
+      "century": "Cien veces. Un hito simbólico, una regularidad real.",
+      "dedicated": "Doscientas veces. Tu constancia habla por sí sola.",
+      "oneYear": "365 veces. Un año entero de progreso, día tras día.",
+      "unstoppable": "Quinientas veces. Nada te detiene ya.",
+      "legend": "Mil veces. A este nivel, es parte de quien eres."
+    }
   },
   "relapse": {
     "confirmTitle": "Un paso al lado",
@@ -316,6 +395,21 @@
     "reminderSyncFailed": "Tratamiento guardado. No se pudo sincronizar el recordatorio.",
     "reminderAlarmSettingsNeeded": "Activa 'Alarmas y recordatorios' en tus ajustes para recibir recordatorios a tiempo."
   },
+  "positiveHabits": {
+    "add": "Añadir un hábito",
+    "edit": "Editar hábito",
+    "deleteConfirm": "¿Eliminar este hábito y todo su historial?",
+    "empty": "Ningún hábito por ahora.\nAgrega uno y sigue tu progreso día tras día.",
+    "duplicateWarning": "Ya estás siguiendo este hábito. No puedes añadir uno duplicado.",
+    "reorderBtn": "Ordenar mis\nhábitos",
+    "reminderSyncFailed": "Hábito guardado. No se pudo sincronizar el recordatorio.",
+    "taken": "Hecho",
+    "missed": "No hecho",
+    "pending": "Pendiente",
+    "form": {
+      "namePlaceholder": "Nombre personalizado"
+    }
+  },
   "stats": {
     "currentStreak": "Racha actual",
     "longestStreak": "Racha más larga",
@@ -324,8 +418,8 @@
     "noData": "Aún no hay datos"
   },
   "history": {
-    "title": "Historial",
     "empty": "Ningún evento registrado",
+    "emptyBuild": "Aún no hay progreso registrado.",
     "start": "Inicio",
     "relapse": "Recaída",
     "relapseRestart": "Recaída, nuevo comienzo"
@@ -403,11 +497,14 @@
     "sqlcipherNote": "para el cifrado de datos"
   },
   "milestones": {
-    "title": "Hitos",
     "unlocked": "Desbloqueado el {{date}}",
+    "unlockedBuild": "¡Desbloqueado!",
     "daysNeeded_one": "Falta {{count}} día",
     "daysNeeded_other": "Faltan {{count}} días",
-    "noHabits": "Sin hábitos que seguir"
+    "countNeeded_one": "Falta {{count}} vez",
+    "countNeeded_other": "Faltan {{count}} veces",
+    "noHabits": "Sin hábitos que seguir",
+    "noPositiveHabits": "Sin hábitos que seguir"
   },
   "habitDetail": {
     "milestones": "Hitos",
@@ -416,7 +513,8 @@
     "relapse": "Registrar una recaída"
   },
   "notifications": {
-    "genericReminder": "No olvides tu tratamiento"
+    "genericReminder": "No olvides tu tratamiento",
+    "genericReminderPositiveHabit": "No olvides tu hábito"
   },
   "startup": {
     "dbErrorTitle": "Error de inicio",

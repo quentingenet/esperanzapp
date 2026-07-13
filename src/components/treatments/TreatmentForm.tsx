@@ -3,14 +3,11 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Drawer from "@mui/material/Drawer";
 import Fab from "@mui/material/Fab";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import SvgIcon from "@mui/material/SvgIcon";
-import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { format } from "date-fns";
@@ -19,7 +16,7 @@ import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { useDateLocale, useNotifications } from "@/hooks";
 import { toast } from "@/store/toastStore";
-import { ReminderDaySelect } from "./ReminderDaySelect";
+import { ReminderFields } from "@/components/shared";
 import type { Frequency, TreatmentFormProps } from "@/types";
 import { FAB_SX, FAB_PULSE_SX } from "@/utils/fabAnimation";
 
@@ -88,8 +85,6 @@ export function TreatmentForm({ onSubmit, isEmpty = false }: TreatmentFormProps)
     }
   };
 
-  const showDaySelect = reminderEnabled && frequency !== "daily";
-
   return (
     <>
       <Fab
@@ -148,33 +143,15 @@ export function TreatmentForm({ onSubmit, isEmpty = false }: TreatmentFormProps)
                 </MenuItem>
               ))}
             </Select>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={reminderEnabled}
-                  onChange={(e) => {
-                    setReminderEnabled(e.target.checked);
-                  }}
-                />
-              }
-              label={t("treatments.form.enableReminder")}
-              sx={{ mb: 1 }}
+            <ReminderFields
+              frequency={frequency}
+              reminderEnabled={reminderEnabled}
+              onReminderEnabledChange={setReminderEnabled}
+              time={time}
+              onTimeChange={setTime}
+              reminderDay={reminderDay}
+              onReminderDayChange={setReminderDay}
             />
-            {reminderEnabled && (
-              <TimePicker
-                value={time}
-                onChange={setTime}
-                label={t("treatments.form.reminderTime")}
-                sx={{ width: "100%", mb: 2 }}
-              />
-            )}
-            {showDaySelect && (
-              <ReminderDaySelect
-                frequency={frequency}
-                value={reminderDay}
-                onChange={setReminderDay}
-              />
-            )}
             <Button
               fullWidth
               variant="contained"

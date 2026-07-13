@@ -26,7 +26,11 @@
     "enabled": "Aktiviert",
     "disabled": "Deaktiviert",
     "yes": "Ja",
-    "no": "Nein"
+    "no": "Nein",
+    "tabs": {
+      "reduce": "Weniger tun",
+      "build": "Mehr tun"
+    }
   },
   "nav": {
     "home": "Start",
@@ -54,6 +58,10 @@
     "next": "Weiter",
     "start": "Loslegen",
     "steps": {
+      "buildHabits": {
+        "title": "Weniger tun, mehr tun",
+        "body": "Ob du eine förderliche Gewohnheit regelmäßiger pflegen oder die Häufigkeit eines Verhaltens reduzieren möchtest, das dir schadet – EsperanzApp begleitet dich bei deinem Fortschritt.\n\nSport, Lesen, Meditation, Alkohol, Tabak, Bildschirme, soziale Medien… Keine moralisierenden Belehrungen: nur ein Werkzeug, um deine Bemühungen zu verfolgen, deinen Fortschritt sichtbar zu machen und in deinem eigenen Tempo voranzukommen."
+      },
       "counter": {
         "title": "Übernimm die Kontrolle über deine Gewohnheiten",
         "body": "Begleite die Gewohnheiten, von denen du dich befreien möchtest, und zähle jeden rückfallfreien Tag.\n\nSich von einer Gewohnheit zu befreien, baut sich Tag für Tag auf.\nJeder Tag ohne Rückfall ist ein kleiner Sieg!\nEsperanzApp begleitet dich."
@@ -170,6 +178,31 @@
       "desc": "Casino, Sportwetten, Online-Spiele…"
     }
   },
+  "positiveHabitTypes": {
+    "sport": {
+      "label": "Sport"
+    },
+    "reading": {
+      "label": "Lesen"
+    },
+    "meditation": {
+      "label": "Meditation"
+    },
+    "tidying": {
+      "label": "Aufräumen"
+    },
+    "healthyEating": {
+      "label": "Gesund essen"
+    },
+    "custom": {
+      "label": "Benutzerdefiniert",
+      "desc": "Definiere deine eigene Gewohnheit"
+    },
+    "groups": {
+      "activities": "Aktivitäten",
+      "custom": "Benutzerdefiniert"
+    }
+  },
   "grades": {
     "firstStep": {
       "label": "Erster Schritt"
@@ -265,10 +298,56 @@
       "tenYears": "Zehn Jahre. Du hast eine Entscheidung getroffen und gehalten.",
       "twentyYears": "Zwanzig Jahre. Manche glauben immer noch nicht, dass es möglich ist."
     },
-    "daysLeft_one": "{{count}} Tag verbleibend",
-    "daysLeft_other": "{{count}} Tage verbleibend",
     "nextMilestone_one": "Nächstes Ziel: {{label}} in {{count}} Tag",
     "nextMilestone_other": "Nächstes Ziel: {{label}} in {{count}} Tagen"
+  },
+  "positiveGrades": {
+    "seed": {
+      "label": "Samen"
+    },
+    "sprout": {
+      "label": "Keimling"
+    },
+    "roots": {
+      "label": "Wurzeln"
+    },
+    "momentum": {
+      "label": "Schwung"
+    },
+    "habit": {
+      "label": "Gewohnheit"
+    },
+    "bloom": {
+      "label": "Blüte"
+    },
+    "century": {
+      "label": "Jahrhundert"
+    },
+    "dedicated": {
+      "label": "Beständig"
+    },
+    "oneYear": {
+      "label": "Ein Jahr"
+    },
+    "unstoppable": {
+      "label": "Unaufhaltsam"
+    },
+    "legend": {
+      "label": "Legende"
+    },
+    "messages": {
+      "seed": "Du hast angefangen. Das ist der erste Schritt, der zählt.",
+      "sprout": "Schon drei Mal. Es schlägt Wurzeln.",
+      "roots": "Sieben Mal. Eine echte Gewohnheit entsteht.",
+      "momentum": "Vierzehn Mal. Du hast deinen Rhythmus gefunden.",
+      "habit": "Fünfundzwanzig Mal. Das ist keine Anstrengung mehr – das bist du.",
+      "bloom": "Fünfzig Mal. Es blüht auf.",
+      "century": "Hundert Mal. Ein symbolischer Meilenstein, echte Beständigkeit.",
+      "dedicated": "Zweihundert Mal. Deine Beständigkeit spricht für sich.",
+      "oneYear": "365 Mal. Ein ganzes Jahr Fortschritt, Tag für Tag.",
+      "unstoppable": "Fünfhundert Mal. Nichts hält dich mehr auf.",
+      "legend": "Tausend Mal. Auf diesem Niveau ist es ein Teil von dir."
+    }
   },
   "relapse": {
     "confirmTitle": "Ein Schritt zur Seite",
@@ -316,6 +395,21 @@
     "reminderSyncFailed": "Behandlung gespeichert. Die Erinnerung konnte nicht synchronisiert werden.",
     "reminderAlarmSettingsNeeded": "Aktiviere 'Alarme und Erinnerungen' in deinen Einstellungen, um Erinnerungen pünktlich zu erhalten."
   },
+  "positiveHabits": {
+    "add": "Gewohnheit hinzufügen",
+    "edit": "Gewohnheit bearbeiten",
+    "deleteConfirm": "Diese Gewohnheit und den gesamten Verlauf löschen?",
+    "empty": "Noch keine Gewohnheiten.\nFüge jetzt eine hinzu und verfolge deinen Fortschritt Tag für Tag.",
+    "duplicateWarning": "Du verfolgst diese Gewohnheit bereits. Du kannst keine doppelte hinzufügen.",
+    "reorderBtn": "Sortieren\nmeiner Gewohnheiten",
+    "reminderSyncFailed": "Gewohnheit gespeichert. Die Erinnerung konnte nicht synchronisiert werden.",
+    "taken": "Erledigt",
+    "missed": "Nicht erledigt",
+    "pending": "Ausstehend",
+    "form": {
+      "namePlaceholder": "Eigener Name"
+    }
+  },
   "stats": {
     "currentStreak": "Aktuelle Serie",
     "longestStreak": "Längste Serie",
@@ -324,8 +418,8 @@
     "noData": "Noch keine Daten"
   },
   "history": {
-    "title": "Verlauf",
     "empty": "Keine Ereignisse aufgezeichnet",
+    "emptyBuild": "Noch kein Fortschritt aufgezeichnet.",
     "start": "Gestartet",
     "relapse": "Rückfall",
     "relapseRestart": "Rückfall, Neustart"
@@ -403,11 +497,14 @@
     "sqlcipherNote": "für Datenverschlüsselung"
   },
   "milestones": {
-    "title": "Meilensteine",
     "unlocked": "Freigeschaltet am {{date}}",
+    "unlockedBuild": "Freigeschaltet!",
     "daysNeeded_one": "Noch {{count}} Tag",
     "daysNeeded_other": "Noch {{count}} Tage",
-    "noHabits": "Keine Gewohnheiten"
+    "countNeeded_one": "Noch {{count}} Mal",
+    "countNeeded_other": "Noch {{count}} Mal",
+    "noHabits": "Keine Gewohnheiten",
+    "noPositiveHabits": "Keine Gewohnheiten"
   },
   "habitDetail": {
     "milestones": "Meilensteine",
@@ -416,7 +513,8 @@
     "relapse": "Rückfall erfassen"
   },
   "notifications": {
-    "genericReminder": "Vergiss nicht deine Behandlung"
+    "genericReminder": "Vergiss nicht deine Behandlung",
+    "genericReminderPositiveHabit": "Vergiss nicht deine Gewohnheit"
   },
   "startup": {
     "dbErrorTitle": "Startfehler",

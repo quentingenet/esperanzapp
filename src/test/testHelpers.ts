@@ -1,5 +1,5 @@
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
-import type { Habit, HabitLog, TreatmentLog } from "@/types";
+import type { Habit, HabitLog, TreatmentLog, PositiveHabitLog } from "@/types";
 import { withDb } from "@/db/client";
 
 export function createHabit(
@@ -51,6 +51,24 @@ export function createTreatmentLog(
     const idRow = await db.query("SELECT last_insert_rowid() AS id");
     const lastId = (idRow.values?.[0] as { id?: number } | undefined)?.id;
     if (!lastId) throw new Error("Failed to insert treatment log");
+    return { ...data, id: String(lastId) };
+  };
+  if (dbConn) return fn(dbConn);
+  return withDb(fn, { ...data, id: String(Date.now()) });
+}
+
+export function createPositiveHabitLog(
+  data: Omit<PositiveHabitLog, "id">,
+  dbConn?: SQLiteDBConnection | null,
+): Promise<PositiveHabitLog> {
+  const fn = async (db: SQLiteDBConnection): Promise<PositiveHabitLog> => {
+    await db.run(
+      "INSERT INTO positive_habit_logs (positive_habit_id, scheduled_at, status) VALUES (?, ?, ?)",
+      [data.positiveHabitId, data.scheduledAt, data.status],
+    );
+    const idRow = await db.query("SELECT last_insert_rowid() AS id");
+    const lastId = (idRow.values?.[0] as { id?: number } | undefined)?.id;
+    if (!lastId) throw new Error("Failed to insert positive habit log");
     return { ...data, id: String(lastId) };
   };
   if (dbConn) return fn(dbConn);

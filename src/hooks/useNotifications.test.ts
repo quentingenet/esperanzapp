@@ -73,6 +73,27 @@ describe("getNotificationId", () => {
     }
     expect(lastDayIds).not.toContain(baseId);
   });
+
+  it("positiveHabits IDs are in [3_000_000, 4_000_000) and don't collide with treatments", () => {
+    expect(getNotificationId("positiveHabits", "abc")).toBeGreaterThanOrEqual(
+      NOTIF_DOMAIN_OFFSET.positiveHabits,
+    );
+    expect(getNotificationId("positiveHabits", "abc")).toBeLessThan(4_000_000);
+    expect(getNotificationId("positiveHabits", "1")).not.toBe(getNotificationId("treatments", "1"));
+  });
+
+  it("getLastDayNotificationIds defaults to the treatments domain when domain is omitted", () => {
+    expect(getLastDayNotificationIds("42")).toEqual(getLastDayNotificationIds("42", "treatments"));
+  });
+
+  it("getLastDayNotificationIds stays within the given domain for positiveHabits", () => {
+    const ids = getLastDayNotificationIds("42", "positiveHabits");
+    const LO = NOTIF_DOMAIN_OFFSET.positiveHabits;
+    for (const id of ids) {
+      expect(id).toBeGreaterThanOrEqual(LO + 500_000);
+      expect(id).toBeLessThan(LO + 1_000_000);
+    }
+  });
 });
 
 describe("useNotifications", () => {
@@ -578,5 +599,69 @@ describe("useNotifications", () => {
       await result.current.openExactAlarmSettings();
     });
     expect(ExactAlarm.requestExactAlarmPermission).not.toHaveBeenCalled();
+  });
+});
+
+describe("useNotifications with positiveHabits domain", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2024-01-15T06:00:00.000Z"));
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("android");
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("web");
+    vi.mocked(LocalNotifications.schedule).mockClear();
+    vi.mocked(LocalNotifications.cancel).mockClear();
+    vi.mocked(LocalNotifications.getPending).mockClear();
+  });
+
+  const positiveHabit = { ...treatment, id: "5" };
+
+  it("scheduleReminder schedules under the positiveHabits domain when domain is passed explicitly", async () => {
+    const { result } = renderHook(() => useNotifications());
+    await act(async () => {
+      await result.current.scheduleReminder(positiveHabit, "positiveHabits");
+    });
+    const expectedId = getNotificationId("positiveHabits", "5");
+    expect(LocalNotifications.schedule).toHaveBeenCalledWith(
+      expect.objectContaining({
+        notifications: expect.arrayContaining([expect.objectContaining({ id: expectedId })]),
+      }),
+    );
+  });
+
+  it("cancelReminder cancels the positiveHabits-domain IDs, not the treatments ones", async () => {
+    const { result } = renderHook(() => useNotifications());
+    await act(async () => {
+      await result.current.cancelReminder("5", "positiveHabits");
+    });
+    const baseId = getNotificationId("positiveHabits", "5");
+    const lastDayIds = getLastDayNotificationIds("5", "positiveHabits");
+    expect(LocalNotifications.cancel).toHaveBeenCalledWith({
+      notifications: [{ id: baseId }, ...lastDayIds.map((id) => ({ id }))],
+    });
+  });
+
+  it("rescheduleAll only purges orphans within the positiveHabits domain range", async () => {
+    type PendingResult = Awaited<ReturnType<typeof LocalNotifications.getPending>>;
+    const notifId = getNotificationId("positiveHabits", positiveHabit.id);
+    const treatmentDomainId = getNotificationId("treatments", "1"); // must NOT be touched
+    const orphanId = NOTIF_DOMAIN_OFFSET.positiveHabits + 999;
+    vi.mocked(LocalNotifications.getPending)
+      .mockResolvedValueOnce({ notifications: [{ id: notifId }] } as PendingResult)
+      .mockResolvedValueOnce({
+        notifications: [{ id: notifId }, { id: orphanId }, { id: treatmentDomainId }],
+      } as PendingResult);
+    const { result } = renderHook(() => useNotifications());
+    await act(async () => {
+      await result.current.rescheduleAll([positiveHabit], "positiveHabits");
+    });
+    expect(LocalNotifications.cancel).toHaveBeenLastCalledWith(
+      expect.objectContaining({ notifications: [{ id: orphanId }] }),
+    );
   });
 });
