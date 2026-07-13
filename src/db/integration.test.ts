@@ -199,6 +199,10 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
       { positiveHabitId: positiveHabit.id, scheduledAt: "2024-01-01", status: "taken" },
       asConn(conn),
     );
+    await conn.run(
+      "INSERT INTO positive_habit_milestone_notifications (positive_habit_id, threshold) VALUES (?, ?)",
+      [Number(positiveHabit.id), 1],
+    );
 
     await clearAllData(asConn(conn));
 
@@ -208,9 +212,10 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     expect(await countRows(conn, "treatment_logs")).toBe(0);
     expect(await countRows(conn, "positive_habits")).toBe(0);
     expect(await countRows(conn, "positive_habit_logs")).toBe(0);
+    expect(await countRows(conn, "positive_habit_milestone_notifications")).toBe(0);
   });
 
-  it("deletePositiveHabit removes the positive habit and all its logs atomically", async () => {
+  it("deletePositiveHabit removes the positive habit and all its logs and milestone notifications atomically", async () => {
     const habit = await createPositiveHabit(POSITIVE_HABIT_DATA, asConn(conn));
     await createPositiveHabitLog(
       { positiveHabitId: habit.id, scheduledAt: "2024-01-01", status: "taken" },
@@ -220,14 +225,20 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
       { positiveHabitId: habit.id, scheduledAt: "2024-01-02", status: "missed" },
       asConn(conn),
     );
+    await conn.run(
+      "INSERT INTO positive_habit_milestone_notifications (positive_habit_id, threshold) VALUES (?, ?)",
+      [Number(habit.id), 1],
+    );
 
     expect(await countRows(conn, "positive_habits")).toBe(1);
     expect(await countRows(conn, "positive_habit_logs")).toBe(2);
+    expect(await countRows(conn, "positive_habit_milestone_notifications")).toBe(1);
 
     await deletePositiveHabit(habit.id, asConn(conn));
 
     expect(await countRows(conn, "positive_habits")).toBe(0);
     expect(await countRows(conn, "positive_habit_logs")).toBe(0);
+    expect(await countRows(conn, "positive_habit_milestone_notifications")).toBe(0);
   });
 
   it("deleteTreatment removes the treatment and all its logs atomically", async () => {
@@ -305,6 +316,27 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
         asConn(conn),
       ),
     ).rejects.toThrow();
+  });
+
+  it("FK constraint rejects a milestone notification row with unknown positive_habit_id", async () => {
+    await expect(
+      conn.run(
+        "INSERT INTO positive_habit_milestone_notifications (positive_habit_id, threshold) VALUES (?, ?)",
+        [99999, 1],
+      ),
+    ).rejects.toThrow();
+  });
+
+  it("PRIMARY KEY on (positive_habit_id, threshold) silently ignores a duplicate insert", async () => {
+    const habit = await createPositiveHabit(POSITIVE_HABIT_DATA, asConn(conn));
+    const insert = () =>
+      conn.run(
+        "INSERT OR IGNORE INTO positive_habit_milestone_notifications (positive_habit_id, threshold) VALUES (?, ?)",
+        [Number(habit.id), 1],
+      );
+    await insert();
+    await expect(insert()).resolves.toBeDefined();
+    expect(await countRows(conn, "positive_habit_milestone_notifications")).toBe(1);
   });
 
   // reminder_day CHECK constraint — weekly/monthly with reminderEnabled=false

@@ -143,6 +143,11 @@ export function deletePositiveHabit(
 ): Promise<void> {
   const fn = async (db: SQLiteDBConnection): Promise<void> => {
     await db.run("DELETE FROM positive_habit_logs WHERE positive_habit_id = ?", [id], false);
+    await db.run(
+      "DELETE FROM positive_habit_milestone_notifications WHERE positive_habit_id = ?",
+      [id],
+      false,
+    );
     await db.run("DELETE FROM positive_habits WHERE id = ?", [id], false);
   };
   if (dbConn) return fn(dbConn);

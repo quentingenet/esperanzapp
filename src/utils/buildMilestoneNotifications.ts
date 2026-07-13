@@ -2,6 +2,7 @@ import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import i18n from "@/i18n";
 import { getNotificationId } from "@/hooks/useNotifications";
+import { hasNotifiedMilestone, markMilestoneNotified } from "@/db";
 import { POSITIVE_GRADES } from "./positiveGrades";
 import type { PositiveHabit } from "@/types";
 
@@ -22,6 +23,10 @@ export async function checkAndNotifyPositiveMilestone(
   if (!gradeEntry) return;
   const { grade, index: gradeIndex } = gradeEntry;
 
+  // Toggling a day's status off and back on (taken → missed → taken) can make the cumulative
+  // count cross the same threshold more than once; only notify the first time it's reached.
+  if (await hasNotifiedMilestone(positiveHabit.id, grade.threshold)) return;
+
   const { display } = await LocalNotifications.checkPermissions().catch(() => ({
     display: "denied" as const,
   }));
@@ -41,4 +46,5 @@ export async function checkAndNotifyPositiveMilestone(
       },
     ],
   }).catch(() => {});
+  await markMilestoneNotified(positiveHabit.id, grade.threshold);
 }

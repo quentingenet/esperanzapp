@@ -9,15 +9,21 @@ import { logError } from "@/utils/logger";
 import { stableHash31 } from "./stableHash31";
 import type { HabitLog } from "@/types";
 
+// Slot cap must satisfy slot * GRADES.length + (GRADES.length - 1) < 1_000_000 so the
+// highest possible id never reaches the next domain (NOTIF_DOMAIN_OFFSET.positiveHabits).
+// With GRADES.length === 23, 43_478 would overflow by 16 (2_000_000 + 43_478*23 + 22 =
+// 3_000_016); 43_477 is the largest safe value (max id = 2_999_993).
+const MAX_MILESTONE_SLOT = 43_477;
+
 export function getMilestoneNotificationId(habitId: string, gradeIndex: number): number {
   const numericId = parseInt(habitId, 10);
   const slot =
     Number.isInteger(numericId) &&
     numericId > 0 &&
-    numericId <= 43_478 &&
+    numericId <= MAX_MILESTONE_SLOT &&
     String(numericId) === habitId
       ? numericId
-      : stableHash31(habitId) % 43_478;
+      : stableHash31(habitId) % MAX_MILESTONE_SLOT;
   return NOTIF_DOMAIN_OFFSET.milestones + slot * GRADES.length + gradeIndex;
 }
 

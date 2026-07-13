@@ -76,6 +76,12 @@ CREATE TABLE IF NOT EXISTS positive_habit_logs (
   scheduled_at      TEXT NOT NULL,
   status            TEXT NOT NULL CHECK(status IN ('taken', 'missed', 'pending'))
 );
+
+CREATE TABLE IF NOT EXISTS positive_habit_milestone_notifications (
+  positive_habit_id INTEGER NOT NULL REFERENCES positive_habits(id) ON DELETE CASCADE,
+  threshold         INTEGER NOT NULL,
+  PRIMARY KEY (positive_habit_id, threshold)
+);
 `;
 
 async function isApplied(db: SQLiteDBConnection, name: string): Promise<boolean> {

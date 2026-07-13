@@ -3,7 +3,13 @@ import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { checkAndNotifyPositiveMilestone } from "./buildMilestoneNotifications";
 import { NOTIF_DOMAIN_OFFSET } from "@/hooks/useNotifications";
+import { hasNotifiedMilestone, markMilestoneNotified } from "@/db";
 import type { PositiveHabit } from "@/types";
+
+vi.mock("@/db", () => ({
+  hasNotifiedMilestone: vi.fn(),
+  markMilestoneNotified: vi.fn(),
+}));
 
 const positiveHabit: PositiveHabit = {
   id: "5",
@@ -23,12 +29,16 @@ describe("checkAndNotifyPositiveMilestone", () => {
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
     vi.mocked(LocalNotifications.checkPermissions).mockResolvedValue({ display: "granted" });
     vi.mocked(LocalNotifications.schedule).mockResolvedValue({} as never);
+    vi.mocked(hasNotifiedMilestone).mockResolvedValue(false);
+    vi.mocked(markMilestoneNotified).mockResolvedValue(undefined);
   });
 
   afterEach(() => {
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
     vi.mocked(LocalNotifications.schedule).mockClear();
     vi.mocked(LocalNotifications.checkPermissions).mockClear();
+    vi.mocked(hasNotifiedMilestone).mockClear();
+    vi.mocked(markMilestoneNotified).mockClear();
   });
 
   it("does nothing on non-native platform", async () => {
@@ -61,5 +71,17 @@ describe("checkAndNotifyPositiveMilestone", () => {
     const id = call.notifications[0]?.id ?? 0;
     expect(id).toBeGreaterThanOrEqual(NOTIF_DOMAIN_OFFSET.buildMilestones);
     expect(id).toBeLessThan(NOTIF_DOMAIN_OFFSET.buildMilestones + 1_000_000);
+  });
+
+  it("marks the threshold as notified after firing", async () => {
+    await checkAndNotifyPositiveMilestone(positiveHabit, 1);
+    expect(markMilestoneNotified).toHaveBeenCalledWith(positiveHabit.id, 1);
+  });
+
+  it("does not re-fire when the threshold was already notified (taken → missed → taken toggle)", async () => {
+    vi.mocked(hasNotifiedMilestone).mockResolvedValue(true);
+    await checkAndNotifyPositiveMilestone(positiveHabit, 1);
+    expect(LocalNotifications.schedule).not.toHaveBeenCalled();
+    expect(markMilestoneNotified).not.toHaveBeenCalled();
   });
 });

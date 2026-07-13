@@ -29,6 +29,22 @@ describe("runSchema", () => {
     expect(sqls[0]).toContain("CREATE TABLE IF NOT EXISTS habits");
     expect(sqls[0]).toContain("CREATE TABLE IF NOT EXISTS treatments");
     expect(sqls[0]).toContain("CREATE TABLE IF NOT EXISTS treatment_logs");
+    expect(sqls[0]).toContain("CREATE TABLE IF NOT EXISTS positive_habits");
+    expect(sqls[0]).toContain("CREATE TABLE IF NOT EXISTS positive_habit_logs");
+    expect(sqls[0]).toContain("CREATE TABLE IF NOT EXISTS positive_habit_milestone_notifications");
+  });
+
+  it("does not create positive_habit_logs indexes in the unconditional SCHEMA string (SQLCipher guard)", async () => {
+    const db = makeDb(false);
+    await runSchema(db);
+    const sqls = executedSql(db);
+    // The raw SCHEMA string (sqls[0]) must only ever CREATE TABLE, never CREATE INDEX -
+    // index creation must go through the isApplied/indexExists guarded migration path below,
+    // since some SQLCipher versions throw on CREATE INDEX IF NOT EXISTS when it already exists.
+    expect(sqls[0]).not.toContain("CREATE INDEX");
+    expect(sqls[0]).not.toContain("CREATE UNIQUE INDEX");
+    expect(sqls.some((s) => s.includes("idx_positive_habit_logs_unique"))).toBe(true);
+    expect(sqls.some((s) => s.includes("idx_positive_habit_logs_scheduled_at"))).toBe(true);
   });
 
   it("applies dedup migration when not previously applied", async () => {

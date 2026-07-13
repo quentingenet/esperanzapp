@@ -19,6 +19,14 @@ import { useNotifications, NOTIF_DOMAIN_OFFSET, getNotificationId } from "@/hook
 import { checkAndNotifyPositiveMilestone } from "@/utils/buildMilestoneNotifications";
 import type { PositiveHabit, Treatment } from "@/types";
 
+vi.mock("@/db", () => ({
+  // Always "not yet notified" so this file's realistic check-in sequence can exercise every
+  // threshold crossing, mirroring checkAndNotifyPositiveMilestone's own dedicated unit tests
+  // for the idempotency behavior itself.
+  hasNotifiedMilestone: vi.fn().mockResolvedValue(false),
+  markMilestoneNotified: vi.fn().mockResolvedValue(undefined),
+}));
+
 const treatment: Treatment = {
   id: "1",
   label: "Metformin",

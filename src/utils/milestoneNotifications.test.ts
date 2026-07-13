@@ -175,12 +175,19 @@ describe("getMilestoneNotificationId", () => {
     expect(id).not.toBe(getMilestoneNotificationId("2", 0));
   });
 
-  it("numeric and hash-colliding habits share the same IDs (known collision risk, ~1/43478)", () => {
-    // "habit-46982" hashes to stableHash31("habit-46982") % 43_478 === 1 (same slot as numeric "1")
+  it("numeric and hash-colliding habits share the same IDs (known collision risk, ~1/43477)", () => {
+    // "habit-15214" hashes to stableHash31("habit-15214") % 43_477 === 1 (same slot as numeric "1")
     // This is a real but low-probability collision: two habits can clobber each other's notifications.
     for (let i = 0; i < GRADES.length; i++) {
-      expect(getMilestoneNotificationId("1", i)).toBe(getMilestoneNotificationId("habit-46982", i));
+      expect(getMilestoneNotificationId("1", i)).toBe(getMilestoneNotificationId("habit-15214", i));
     }
+  });
+
+  it("max possible ID stays below the positiveHabits domain (regression for off-by-one cap)", () => {
+    // Highest slot (43_477) combined with the highest gradeIndex must not overflow into
+    // NOTIF_DOMAIN_OFFSET.positiveHabits (3_000_000).
+    const maxId = getMilestoneNotificationId("43477", GRADES.length - 1);
+    expect(maxId).toBeLessThan(3_000_000);
   });
 });
 

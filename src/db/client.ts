@@ -130,6 +130,7 @@ export function clearAllData(dbConn?: SQLiteDBConnection | null): Promise<void> 
     await db.execute("DELETE FROM treatment_logs", false);
     await db.execute("DELETE FROM habit_logs", false);
     await db.execute("DELETE FROM positive_habit_logs", false);
+    await db.execute("DELETE FROM positive_habit_milestone_notifications", false);
     await db.execute("DELETE FROM treatments", false);
     await db.execute("DELETE FROM habits", false);
     await db.execute("DELETE FROM positive_habits", false);

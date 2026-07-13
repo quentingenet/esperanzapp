@@ -1,6 +1,6 @@
 import type { PositiveHabitLog, TreatmentStatus } from "@/types";
 import { isTreatmentStatus } from "@/utils";
-import { runInTransaction, withDb } from "./client";
+import { runInTransaction, withDb, withDbVoid } from "./client";
 
 type PositiveHabitLogRow = {
   id: number;
@@ -80,4 +80,30 @@ export function getPositiveHabitTakenCount(positiveHabitId: string): Promise<num
     );
     return (result.values?.[0] as { count?: number } | undefined)?.count ?? 0;
   }, 0);
+}
+
+// Toggling a day's status off and back on (taken → missed → taken) makes the cumulative
+// taken count cross the same POSITIVE_GRADES threshold more than once. This table records
+// which thresholds have already fired a notification for a given habit so it only fires once.
+export function hasNotifiedMilestone(
+  positiveHabitId: string,
+  threshold: number,
+): Promise<boolean> {
+  return withDb(async (db) => {
+    const result = await db.query(
+      "SELECT 1 FROM positive_habit_milestone_notifications WHERE positive_habit_id = ? AND threshold = ?",
+      [positiveHabitId, threshold],
+    );
+    return (result.values ?? []).length > 0;
+  }, false);
+}
+
+export function markMilestoneNotified(positiveHabitId: string, threshold: number): Promise<void> {
+  return withDbVoid(async (db) => {
+    await db.run(
+      "INSERT OR IGNORE INTO positive_habit_milestone_notifications (positive_habit_id, threshold) VALUES (?, ?)",
+      [positiveHabitId, threshold],
+      false,
+    );
+  });
 }

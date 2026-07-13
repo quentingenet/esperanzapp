@@ -5,6 +5,8 @@ import {
   getAllPositiveHabitLogs,
   upsertPositiveHabitLogForDate,
   getPositiveHabitTakenCount,
+  hasNotifiedMilestone,
+  markMilestoneNotified,
 } from "./positiveHabitLogs";
 
 const mockDb = { run: vi.fn(), query: vi.fn() };
@@ -88,5 +90,30 @@ describe("getPositiveHabitTakenCount", () => {
   it("returns 0 when no rows match", async () => {
     mockDb.query.mockResolvedValue({ values: [{ count: 0 }] });
     expect(await getPositiveHabitTakenCount("3")).toBe(0);
+  });
+});
+
+describe("hasNotifiedMilestone", () => {
+  it("returns true when a matching row exists", async () => {
+    mockDb.query.mockResolvedValue({ values: [{ 1: 1 }] });
+    expect(await hasNotifiedMilestone("3", 7)).toBe(true);
+    expect(mockDb.query).toHaveBeenCalledWith(expect.stringContaining("threshold = ?"), ["3", 7]);
+  });
+
+  it("returns false when no matching row exists", async () => {
+    mockDb.query.mockResolvedValue({ values: [] });
+    expect(await hasNotifiedMilestone("3", 7)).toBe(false);
+  });
+});
+
+describe("markMilestoneNotified", () => {
+  it("inserts the threshold with INSERT OR IGNORE", async () => {
+    mockDb.run.mockResolvedValue({});
+    await markMilestoneNotified("3", 7);
+    expect(mockDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT OR IGNORE"),
+      ["3", 7],
+      expect.anything(),
+    );
   });
 });
