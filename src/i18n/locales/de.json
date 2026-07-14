@@ -520,7 +520,9 @@
     "dbErrorTitle": "Startfehler",
     "dbErrorBody": "Die Datenbank konnte nicht geöffnet werden. Dies kann nach einem Update passieren. Du kannst die App zurücksetzen: lokale Daten werden gelöscht, können aber aus einer Exportdatei wiederhergestellt werden.",
     "dbErrorReset": "App zurücksetzen",
-    "dbErrorResetFailed": "Zurücksetzen fehlgeschlagen. Deinstalliere die App und installiere sie neu, um den Zugriff wiederherzustellen."
+    "dbErrorResetFailed": "Zurücksetzen fehlgeschlagen. Deinstalliere die App und installiere sie neu, um den Zugriff wiederherzustellen.",
+    "dbErrorRetry": "Erneut versuchen",
+    "dbErrorResetConfirm": "Dadurch werden alle lokalen App-Daten dauerhaft gelöscht. Fortfahren?"
   },
   "update": {
     "available": "Update verfügbar",

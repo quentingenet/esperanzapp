@@ -21,6 +21,9 @@ vi.mock("@/db", () => ({
   getAllHabitLogs: vi.fn(),
 }));
 
+const mocks = vi.hoisted(() => ({ logError: vi.fn() }));
+vi.mock("@/utils/logger", () => ({ logError: mocks.logError }));
+
 const habit: Habit = {
   id: "1",
   label: "Alcool",
@@ -52,6 +55,15 @@ describe("scheduleMilestoneNotifications", () => {
     vi.useRealTimers();
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
     vi.clearAllMocks();
+  });
+
+  it("logs the error when LocalNotifications.schedule fails instead of failing silently", async () => {
+    // Regression: this used to be .catch(() => {}), so a real scheduling failure (e.g. hitting
+    // Android's exact-alarm system limit) was invisible everywhere, including to
+    // rescheduleAllMilestoneNotifications's own try/catch one level up.
+    vi.mocked(LocalNotifications.schedule).mockRejectedValue(new Error("plugin error"));
+    await expect(scheduleMilestoneNotifications("1", "2025-01-15")).resolves.toBeUndefined();
+    expect(mocks.logError).toHaveBeenCalledWith("scheduleMilestoneNotifications", expect.any(Error));
   });
 
   it("does nothing on non-native platform", async () => {

@@ -520,7 +520,9 @@
     "dbErrorTitle": "Opstartfout",
     "dbErrorBody": "De database kon niet worden geopend. Dit kan gebeuren na een update. Je kunt de app opnieuw instellen: lokale gegevens worden gewist, maar je kunt ze herstellen vanuit een exportbestand.",
     "dbErrorReset": "App opnieuw instellen",
-    "dbErrorResetFailed": "Opnieuw instellen mislukt. Verwijder de app en installeer hem opnieuw om toegang te herstellen."
+    "dbErrorResetFailed": "Opnieuw instellen mislukt. Verwijder de app en installeer hem opnieuw om toegang te herstellen.",
+    "dbErrorRetry": "Opnieuw proberen",
+    "dbErrorResetConfirm": "Hierdoor worden alle lokale app-gegevens permanent verwijderd. Doorgaan?"
   },
   "update": {
     "available": "Update beschikbaar",

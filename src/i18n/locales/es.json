@@ -520,7 +520,9 @@
     "dbErrorTitle": "Error de inicio",
     "dbErrorBody": "La base de datos no pudo abrirse. Esto puede ocurrir tras una actualización. Puedes restablecer la aplicación: los datos locales se eliminarán, pero podrás restaurarlos desde un archivo de exportación.",
     "dbErrorReset": "Restablecer la aplicación",
-    "dbErrorResetFailed": "El restablecimiento falló. Desinstala y reinstala la aplicación para recuperar el acceso."
+    "dbErrorResetFailed": "El restablecimiento falló. Desinstala y reinstala la aplicación para recuperar el acceso.",
+    "dbErrorRetry": "Reintentar",
+    "dbErrorResetConfirm": "Esto eliminará permanentemente todos los datos locales de la aplicación. ¿Continuar?"
   },
   "update": {
     "available": "Actualización disponible",

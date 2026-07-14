@@ -1,21 +1,39 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { deleteStaleDatabase } from "@/db/client";
+import { deleteStaleDatabase, initDatabase } from "@/db/client";
+
+type Busy = "idle" | "retrying" | "resetting";
 
 export function DbErrorScreen() {
   const { t } = useTranslation();
-  const [resetting, setResetting] = useState(false);
+  const [busy, setBusy] = useState<Busy>("idle");
   const [resetFailed, setResetFailed] = useState(false);
 
+  // A first failure can be transient (native plugin hiccup, timing issue at boot) rather than a
+  // genuinely corrupt/undecryptable file. initDatabase() resets its own initPromise on failure
+  // (see client.ts), so a plain retry is safe and much less destructive than a full reset.
+  const handleRetry = async () => {
+    setBusy("retrying");
+    try {
+      await initDatabase();
+      window.location.reload();
+    } catch {
+      setBusy("idle");
+    }
+  };
+
   const handleReset = async () => {
-    setResetting(true);
+    // Irreversible: wipes the local encrypted DB file. Require an explicit confirmation instead
+    // of letting a single stray tap on the only button on screen delete everything.
+    if (!window.confirm(t("startup.dbErrorResetConfirm"))) return;
+    setBusy("resetting");
     try {
       await deleteStaleDatabase();
       window.location.reload();
     } catch {
       // delete() failed: reloading would cause an infinite reset loop.
       // Ask the user to reinstall instead.
-      setResetting(false);
+      setBusy("idle");
       setResetFailed(true);
     }
   };
@@ -36,23 +54,42 @@ export function DbErrorScreen() {
         {resetFailed ? t("startup.dbErrorResetFailed") : t("startup.dbErrorBody")}
       </p>
       {!resetFailed && (
-        <button
-          onClick={() => {
-            void handleReset();
-          }}
-          disabled={resetting}
-          style={{
-            padding: "14px 28px",
-            backgroundColor: resetting ? "#aaa" : "#c62828",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "16px",
-            cursor: resetting ? "not-allowed" : "pointer",
-          }}
-        >
-          {resetting ? "..." : t("startup.dbErrorReset")}
-        </button>
+        <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
+          <button
+            onClick={() => {
+              void handleRetry();
+            }}
+            disabled={busy !== "idle"}
+            style={{
+              padding: "14px 28px",
+              backgroundColor: busy !== "idle" ? "#aaa" : "#1565c0",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "16px",
+              cursor: busy !== "idle" ? "not-allowed" : "pointer",
+            }}
+          >
+            {busy === "retrying" ? "..." : t("startup.dbErrorRetry")}
+          </button>
+          <button
+            onClick={() => {
+              void handleReset();
+            }}
+            disabled={busy !== "idle"}
+            style={{
+              padding: "14px 28px",
+              backgroundColor: busy !== "idle" ? "#aaa" : "#c62828",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "16px",
+              cursor: busy !== "idle" ? "not-allowed" : "pointer",
+            }}
+          >
+            {busy === "resetting" ? "..." : t("startup.dbErrorReset")}
+          </button>
+        </div>
       )}
     </div>
   );

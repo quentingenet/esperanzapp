@@ -56,16 +56,17 @@ export class ImportStorageError extends Error {
 async function buildPayload() {
   // runInTransaction issues BEGIN TRANSACTION so all six reads share a consistent
   // snapshot: a concurrent write cannot interleave between them.
+  // Reads are sequential, not Promise.all: all six ultimately call db.query() on the same
+  // single SQLiteDBConnection, and firing them concurrently against one native bridge
+  // connection is unverified territory - sequential awaits cost nothing measurable for a
+  // local export and remove any doubt about interleaved native calls.
   return runInTransaction(async () => {
-    const [habits, habitLogs, treatments, treatmentLogs, positiveHabits, positiveHabitLogs] =
-      await Promise.all([
-        getAllHabits(),
-        getAllHabitLogs(),
-        getAllTreatments(),
-        getAllTreatmentLogs(),
-        getAllPositiveHabits(),
-        getAllPositiveHabitLogs(),
-      ]);
+    const habits = await getAllHabits();
+    const habitLogs = await getAllHabitLogs();
+    const treatments = await getAllTreatments();
+    const treatmentLogs = await getAllTreatmentLogs();
+    const positiveHabits = await getAllPositiveHabits();
+    const positiveHabitLogs = await getAllPositiveHabitLogs();
     return buildExportPayload(
       habits,
       habitLogs,

@@ -520,7 +520,9 @@
     "dbErrorTitle": "Startup error",
     "dbErrorBody": "The database could not be opened. This can happen after an update. You can reset the app: local data will be erased, but you can restore it from an export file.",
     "dbErrorReset": "Reset the app",
-    "dbErrorResetFailed": "Reset failed. Uninstall and reinstall the app to recover access."
+    "dbErrorResetFailed": "Reset failed. Uninstall and reinstall the app to recover access.",
+    "dbErrorRetry": "Try again",
+    "dbErrorResetConfirm": "This will permanently delete all local app data. Continue?"
   },
   "update": {
     "available": "Update available",

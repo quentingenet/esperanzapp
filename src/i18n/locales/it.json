@@ -520,7 +520,9 @@
     "dbErrorTitle": "Errore di avvio",
     "dbErrorBody": "Il database non ha potuto essere aperto. Questo può accadere dopo un aggiornamento. Puoi reimpostare l'app: i dati locali verranno eliminati, ma potranno essere ripristinati da un file di esportazione.",
     "dbErrorReset": "Reimposta l'app",
-    "dbErrorResetFailed": "Reimpostazione fallita. Disinstalla e reinstalla l'app per recuperare l'accesso."
+    "dbErrorResetFailed": "Reimpostazione fallita. Disinstalla e reinstalla l'app per recuperare l'accesso.",
+    "dbErrorRetry": "Riprova",
+    "dbErrorResetConfirm": "Questa azione eliminerà definitivamente tutti i dati locali dell'app. Continuare?"
   },
   "update": {
     "available": "Aggiornamento disponibile",

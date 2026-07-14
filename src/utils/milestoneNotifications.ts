@@ -15,6 +15,10 @@ import type { HabitLog } from "@/types";
 // 3_000_016); 43_477 is the largest safe value (max id = 2_999_993).
 const MAX_MILESTONE_SLOT = 43_477;
 
+// The stableHash31 fallback below is currently unreachable: Habit.id is always a positive-
+// integer string, whether created locally (AUTOINCREMENT) or imported (isPosIntStr in
+// exportSerialization.ts rejects anything else). It exists as defense-in-depth only - see the
+// equivalent note on getNotificationId in useNotifications.ts.
 export function getMilestoneNotificationId(habitId: string, gradeIndex: number): number {
   const numericId = parseInt(habitId, 10);
   const slot =
@@ -85,7 +89,14 @@ export async function scheduleMilestoneNotifications(
   }).filter((n): n is NonNullable<typeof n> => n !== null);
 
   if (notifications.length === 0) return;
-  await LocalNotifications.schedule({ notifications }).catch(() => {});
+  // Best-effort: never block the caller on a scheduling failure (e.g. Android's exact-alarm
+  // system limit). Unlike scheduleReminder, this isn't a single interactive action with a UI
+  // banner to update, so we can't surface it to the user here - but it must not be silent:
+  // rescheduleAllMilestoneNotifications' own try/catch never sees this, since the failure
+  // is swallowed at this level, so without logging it here it would be invisible everywhere.
+  await LocalNotifications.schedule({ notifications }).catch((e: unknown) => {
+    logError("scheduleMilestoneNotifications", e);
+  });
 }
 
 function getStreakStart(logs: HabitLog[]): string | null {

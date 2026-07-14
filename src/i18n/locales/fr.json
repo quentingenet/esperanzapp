@@ -520,7 +520,9 @@
     "dbErrorTitle": "Erreur de démarrage",
     "dbErrorBody": "La base de données ne peut pas être ouverte. Cela peut arriver après une mise à jour. Tu peux réinitialiser l'application : les données locales seront supprimées, mais tu pourras les restaurer depuis un fichier d'export.",
     "dbErrorReset": "Réinitialiser l'application",
-    "dbErrorResetFailed": "La réinitialisation a échoué. Désinstallez et réinstallez l'application pour récupérer l'accès."
+    "dbErrorResetFailed": "La réinitialisation a échoué. Désinstallez et réinstallez l'application pour récupérer l'accès.",
+    "dbErrorRetry": "Réessayer",
+    "dbErrorResetConfirm": "Cette action supprimera définitivement toutes les données locales de l'application. Continuer ?"
   },
   "update": {
     "available": "Mise à jour disponible",

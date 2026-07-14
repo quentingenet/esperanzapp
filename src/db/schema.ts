@@ -210,7 +210,7 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
       .query("SELECT 1 FROM sqlite_master WHERE type='table' AND name='treatments_backup'")
       .catch(() => ({ values: [] as unknown[] }));
     if ((backupExists.values ?? []).length > 0) {
-      await db
+      const restored = await db
         .execute(
           `
         INSERT OR IGNORE INTO treatments
@@ -219,8 +219,18 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
         FROM treatments_backup
       `,
         )
-        .catch(() => {});
-      await db.execute("DROP TABLE IF EXISTS treatments_backup").catch(() => {});
+        .then(() => true)
+        .catch((e: unknown) => {
+          logError("schema.migration.treatments_reminder_day_check.restore", e);
+          return false;
+        });
+      // Only discard the snapshot once its data has actually been restored - on failure, keep
+      // it around rather than silently destroying the last recoverable copy of the user's data.
+      if (restored) {
+        await db.execute("DROP TABLE IF EXISTS treatments_backup").catch((e: unknown) => {
+          logError("schema.migration.treatments_reminder_day_check.dropBackup", e);
+        });
+      }
     }
 
     // Clean up any leftover table from a previous interrupted run before starting.

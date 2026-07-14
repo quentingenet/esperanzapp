@@ -190,6 +190,56 @@ describe("treatments_reminder_day_check migration", () => {
       expect.any(Error),
     );
   });
+
+  it("restores from treatments_backup and drops it when the restore succeeds", async () => {
+    // Recovery path: a previous run left a treatments_backup snapshot (e.g. rollbackTransaction
+    // itself failed after DROP treatments on a prior boot).
+    mocks.logError.mockClear();
+    const db = makeDb(false);
+    vi.mocked(db.query).mockImplementation(async (sql: string) => {
+      if (sql.includes("treatments_backup")) return { values: [{ "1": 1 }] };
+      return { values: [] };
+    });
+    await runSchema(db);
+    const sqls = executedSql(db);
+    const restoreIdx = sqls.findIndex((s) => s.includes("INSERT OR IGNORE INTO treatments"));
+    const dropIdx = sqls.findIndex((s) => s.includes("DROP TABLE IF EXISTS treatments_backup"));
+    expect(restoreIdx).toBeGreaterThanOrEqual(0);
+    expect(dropIdx).toBeGreaterThan(restoreIdx);
+    expect(mocks.logError).not.toHaveBeenCalledWith(
+      expect.stringContaining("restore"),
+      expect.anything(),
+    );
+  });
+
+  it("keeps treatments_backup and logs an error when the restore INSERT fails, instead of silently discarding it", async () => {
+    mocks.logError.mockClear();
+    const db = makeDb(false);
+    vi.mocked(db.query).mockImplementation(async (sql: string) => {
+      if (sql.includes("treatments_backup")) return { values: [{ "1": 1 }] };
+      return { values: [] };
+    });
+    vi.mocked(db.execute).mockImplementation(async (sql: string) => {
+      if (sql.includes("INSERT OR IGNORE INTO treatments")) throw new Error("disk full");
+      return {};
+    });
+    await runSchema(db);
+    const sqls = executedSql(db);
+    // A failed restore must not also delete the last recoverable copy of the user's data - the
+    // only acceptable "DROP TABLE IF EXISTS treatments_backup" call is the later, unrelated one
+    // that runs after the migration creates and then discards its own fresh snapshot on success.
+    const freshBackupIdx = sqls.findIndex((s) =>
+      s.includes("CREATE TABLE treatments_backup AS SELECT"),
+    );
+    const dropBeforeFreshBackup = sqls
+      .slice(0, freshBackupIdx)
+      .some((s) => s.includes("DROP TABLE IF EXISTS treatments_backup"));
+    expect(dropBeforeFreshBackup).toBe(false);
+    expect(mocks.logError).toHaveBeenCalledWith(
+      "schema.migration.treatments_reminder_day_check.restore",
+      expect.any(Error),
+    );
+  });
 });
 
 describe("reminder_day sanitization logic", () => {

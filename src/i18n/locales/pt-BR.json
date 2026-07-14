@@ -520,7 +520,9 @@
     "dbErrorTitle": "Erro de inicialização",
     "dbErrorBody": "O banco de dados não pôde ser aberto. Isso pode acontecer após uma atualização. Você pode redefinir o aplicativo: os dados locais serão apagados, mas podem ser restaurados a partir de um arquivo de exportação.",
     "dbErrorReset": "Redefinir o aplicativo",
-    "dbErrorResetFailed": "Redefinição falhou. Desinstale e reinstale o aplicativo para recuperar o acesso."
+    "dbErrorResetFailed": "Redefinição falhou. Desinstale e reinstale o aplicativo para recuperar o acesso.",
+    "dbErrorRetry": "Tentar novamente",
+    "dbErrorResetConfirm": "Isso apagará permanentemente todos os dados locais do aplicativo. Continuar?"
   },
   "update": {
     "available": "Atualização disponível",
