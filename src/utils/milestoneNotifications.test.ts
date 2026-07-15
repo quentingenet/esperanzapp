@@ -123,6 +123,13 @@ describe("scheduleMilestoneNotifications", () => {
     expect(notifs.every((n) => n.id >= NOTIF_DOMAIN_OFFSET.milestones)).toBe(true);
   });
 
+  it("all notifications carry a 'habit' deep-link extra pointing at the habit ID", async () => {
+    await scheduleMilestoneNotifications("1", "2025-01-15");
+    const notifs = scheduledNotifs<{ extra: { kind: string; entityId: string } }>();
+    expect(notifs.length).toBeGreaterThan(0);
+    expect(notifs.every((n) => n.extra.kind === "habit" && n.extra.entityId === "1")).toBe(true);
+  });
+
   it("notification title uses simple hyphen - as separator (not en-dash or em-dash)", async () => {
     await scheduleMilestoneNotifications("1", "2025-01-15");
     const notifs = scheduledNotifs<{ title: string }>();

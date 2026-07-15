@@ -7,6 +7,7 @@ import { NOTIF_DOMAIN_OFFSET } from "@/hooks/useNotifications";
 import { GRADES } from "./grades";
 import { logError } from "@/utils/logger";
 import { stableHash31 } from "./stableHash31";
+import { toNotificationExtra } from "./notificationDeepLink";
 import type { HabitLog } from "@/types";
 
 // Slot cap must satisfy slot * GRADES.length + (GRADES.length - 1) < 1_000_000 so the
@@ -84,6 +85,7 @@ export async function scheduleMilestoneNotifications(
       title: `${grade.emoji} ${String(grade.threshold)} ${daysLabel} - ${label}`,
       body: message,
       group: "milestones",
+      extra: toNotificationExtra({ kind: "habit", entityId: habitId }),
       schedule: { at: target, allowWhileIdle: true },
     };
   }).filter((n): n is NonNullable<typeof n> => n !== null);

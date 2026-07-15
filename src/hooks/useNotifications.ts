@@ -5,6 +5,7 @@ import { LocalNotifications, Weekday } from "@capacitor/local-notifications";
 import { ExactAlarm } from "@/plugins/ExactAlarm";
 import i18n from "@/i18n";
 import { stableHash31 } from "@/utils/stableHash31";
+import { toNotificationExtra } from "@/utils/notificationDeepLink";
 import type { Frequency } from "@/types";
 
 export const NOTIF_DOMAIN_OFFSET = {
@@ -112,6 +113,12 @@ export function useNotifications() {
           ? "notifications.genericReminderPositiveHabit"
           : "notifications.genericReminder",
       );
+      // Lets the tap listener (resolveNotificationTarget.ts) open this exact entity instead of
+      // just the right tab. "treatments" is the only other domain scheduleReminder serves.
+      const extra = toNotificationExtra({
+        kind: domain === "positiveHabits" ? "positiveHabit" : "treatment",
+        entityId: entity.id,
+      });
 
       // Pre-cancel both the base ID and all 12 potential last-day IDs so frequency changes
       // (e.g. last-day -> daily) don't leave stale notifications in pending.
@@ -131,6 +138,7 @@ export function useNotifications() {
                 id: baseId,
                 title: "EsperanzApp",
                 body,
+                extra,
                 schedule: { on: { hour: h, minute: m }, allowWhileIdle: true },
               },
             ],
@@ -145,6 +153,7 @@ export function useNotifications() {
                 id: baseId,
                 title: "EsperanzApp",
                 body,
+                extra,
                 schedule: { on: { weekday, hour: h, minute: m }, allowWhileIdle: true },
               },
             ],
@@ -181,6 +190,7 @@ export function useNotifications() {
               id: notifId,
               title: "EsperanzApp",
               body,
+              extra,
               schedule: { at: target, allowWhileIdle: true },
             };
           });
@@ -195,6 +205,7 @@ export function useNotifications() {
                 id: baseId,
                 title: "EsperanzApp",
                 body,
+                extra,
                 schedule: { on: { day, hour: h, minute: m }, allowWhileIdle: true },
               },
             ],

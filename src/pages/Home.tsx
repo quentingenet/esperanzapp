@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
@@ -8,11 +8,21 @@ import { useHomeTabStore } from "@/store/homeTabStore";
 
 export function Home() {
   const { t } = useTranslation();
-  // Lazy initializer: consumed once per mount, so a notification tap that requested the
-  // "build" sub-tab opens directly on it without a flash of the default "reduce" tab first.
-  const [tab, setTab] = useState(() =>
-    useHomeTabStore.getState().consumePendingTab() === "build" ? 1 : 0,
-  );
+  const [tab, setTab] = useState(0);
+  // Reactive rather than a one-shot lazy initializer: Home may already be mounted (e.g. the
+  // user is already on the Home tab) when a notification tap requests a sub-tab, in which case
+  // there is no remount to consume the pending tab at. Subscribing here picks it up whenever it
+  // arrives, not just at mount.
+  const pendingTab = useHomeTabStore((s) => s.pendingTab);
+  useEffect(() => {
+    if (pendingTab === null) return;
+    // Deferred to a microtask: react-hooks/set-state-in-effect forbids calling a React setState
+    // synchronously in the body of an effect (same convention as ReduceHabitsTab's async resolution).
+    void Promise.resolve().then(() => {
+      const consumed = useHomeTabStore.getState().consumePendingTab();
+      if (consumed) setTab(consumed === "build" ? 1 : 0);
+    });
+  }, [pendingTab]);
 
   return (
     <Box sx={{ minHeight: "100dvh", bgcolor: "background.default" }}>

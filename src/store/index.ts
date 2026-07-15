@@ -4,3 +4,4 @@ export * from "./positiveHabitsStore";
 export * from "./onboardingStore";
 export * from "./toastStore";
 export * from "./homeTabStore";
+export * from "./pendingDeepLinkStore";

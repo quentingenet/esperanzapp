@@ -31,22 +31,30 @@ describe("Home", () => {
     expect(screen.queryByTestId("build-tab")).not.toBeInTheDocument();
   });
 
-  it("opens directly on the 'build' tab when homeTabStore has a pending 'build' request", () => {
+  it("opens directly on the 'build' tab when homeTabStore has a pending 'build' request", async () => {
     useHomeTabStore.getState().setPendingTab("build");
     render(<Home />);
-    expect(screen.getByTestId("build-tab")).toBeInTheDocument();
+    expect(await screen.findByTestId("build-tab")).toBeInTheDocument();
     expect(screen.queryByTestId("reduce-tab")).not.toBeInTheDocument();
   });
 
-  it("consumes the pending tab on mount — it does not stick across a later remount", () => {
+  it("consumes the pending tab on mount — it does not stick across a later remount", async () => {
     useHomeTabStore.getState().setPendingTab("build");
     const { unmount } = render(<Home />);
-    expect(screen.getByTestId("build-tab")).toBeInTheDocument();
+    expect(await screen.findByTestId("build-tab")).toBeInTheDocument();
     unmount();
 
     // Second mount with nothing newly pending must fall back to the default tab.
     render(<Home />);
     expect(screen.getByTestId("reduce-tab")).toBeInTheDocument();
+  });
+
+  it("switches to 'build' when a pending tab request arrives while already mounted on 'reduce'", async () => {
+    render(<Home />);
+    expect(screen.getByTestId("reduce-tab")).toBeInTheDocument();
+    useHomeTabStore.getState().setPendingTab("build");
+    expect(await screen.findByTestId("build-tab")).toBeInTheDocument();
+    expect(screen.queryByTestId("reduce-tab")).not.toBeInTheDocument();
   });
 
   it("switches from 'reduce' to 'build' when the user taps the build tab", async () => {

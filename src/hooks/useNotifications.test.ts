@@ -148,6 +148,7 @@ describe("useNotifications", () => {
           expect.objectContaining({
             id: TREATMENT_3_NOTIF_ID,
             title: "EsperanzApp",
+            extra: { kind: "treatment", entityId: "3" },
             schedule: expect.objectContaining({
               on: expect.objectContaining({ hour: 8, minute: 0 }),
               allowWhileIdle: true,
@@ -219,6 +220,7 @@ describe("useNotifications", () => {
       expect(notif.schedule?.allowWhileIdle).toBe(true);
       expect(notif.schedule?.at!.getDate()).toBe(getDaysInMonth(notif.schedule!.at!));
       expect(notif.schedule?.at!.getHours()).toBe(8);
+      expect(notif.extra).toEqual({ kind: "treatment", entityId: "3" });
     }
   });
 
@@ -629,7 +631,12 @@ describe("useNotifications with positiveHabits domain", () => {
     const expectedId = getNotificationId("positiveHabits", "5");
     expect(LocalNotifications.schedule).toHaveBeenCalledWith(
       expect.objectContaining({
-        notifications: expect.arrayContaining([expect.objectContaining({ id: expectedId })]),
+        notifications: expect.arrayContaining([
+          expect.objectContaining({
+            id: expectedId,
+            extra: { kind: "positiveHabit", entityId: "5" },
+          }),
+        ]),
       }),
     );
   });

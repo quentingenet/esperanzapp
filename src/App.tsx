@@ -31,6 +31,7 @@ import { useOnboarding, useNotifications, useAppUpdate } from "@/hooks";
 import { getAllTreatments, getAllPositiveHabits } from "@/db";
 import { toast } from "@/store/toastStore";
 import { useHomeTabStore } from "@/store/homeTabStore";
+import { usePendingDeepLinkStore } from "@/store/pendingDeepLinkStore";
 import {
   NOTIF_DOMAIN_OFFSET,
   getNotificationId,
@@ -40,6 +41,7 @@ import type { NotifDomain, ReminderSchedulable } from "@/hooks/useNotifications"
 import { theme } from "@/theme";
 import { logError, safeLocalStorageSet } from "@/utils/logger";
 import { rescheduleAllMilestoneNotifications } from "@/utils/milestoneNotifications";
+import { resolveNotificationTarget } from "@/utils/resolveNotificationTarget";
 import type { SupportedLocale } from "@/i18n";
 import type { NavTab } from "@/types";
 
@@ -192,19 +194,11 @@ function AppContent() {
     let handle: PluginListenerHandle | undefined;
     let disposed = false;
     void LocalNotifications.addListener("localNotificationActionPerformed", (action) => {
-      const notifId = action.notification.id;
-      if (notifId >= NOTIF_DOMAIN_OFFSET.buildMilestones) {
-        useHomeTabStore.getState().setPendingTab("build");
-        setActiveTab("home");
-      } else if (notifId >= NOTIF_DOMAIN_OFFSET.positiveHabits) {
-        useHomeTabStore.getState().setPendingTab("build");
-        setActiveTab("home");
-      } else if (notifId >= NOTIF_DOMAIN_OFFSET.milestones) {
-        useHomeTabStore.getState().setPendingTab("reduce");
-        setActiveTab("home");
-      } else if (notifId >= NOTIF_DOMAIN_OFFSET.treatments) {
-        setActiveTab("treatments");
-      }
+      const target = resolveNotificationTarget(action.notification);
+      if (!target) return;
+      if (target.subTab) useHomeTabStore.getState().setPendingTab(target.subTab);
+      if (target.deepLink) usePendingDeepLinkStore.getState().setPending(target.deepLink);
+      setActiveTab(target.activeTab);
     })
       .then((h) => {
         if (disposed) {

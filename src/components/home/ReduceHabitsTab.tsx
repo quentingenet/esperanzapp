@@ -9,6 +9,7 @@ import { ConfirmDialog, EmptyState, SortableList } from "@/components/shared";
 import { useHabits, useHabitLogs, useNotifications } from "@/hooks";
 import { useOnboardingStore } from "@/store";
 import { toast } from "@/store/toastStore";
+import { usePendingDeepLinkStore } from "@/store/pendingDeepLinkStore";
 import { getGrade, getNextGrade } from "@/utils/grades";
 import {
   cancelMilestoneNotifications,
@@ -61,12 +62,35 @@ export function ReduceHabitsTab() {
     const seq = ++statsLoadSeqRef.current;
     void getStatsBatch(habits.map((h) => h.id))
       .then((map) => {
-        if (seq === statsLoadSeqRef.current) setStatsMap(map);
+        if (seq !== statsLoadSeqRef.current) return;
+        setStatsMap(map);
       })
       .catch((e: unknown) => {
         logError("ReduceHabitsTab.getStatsBatch", e);
       });
   }, [habits, getStatsBatch]);
+
+  // Opens the detail modal for a habit targeted by a notification tap. Reactive (subscribed to
+  // the queue) rather than a one-shot lazy initializer, since ReduceHabitsTab may already be
+  // mounted when the notification is tapped — there is no remount to consume it at. Gated on
+  // `!habitsLoading && statsMap !== null` rather than firing as soon as the component mounts:
+  // on a cold start, `habits` is still `[]` before loadHabits() resolves, and consuming (and
+  // clearing) the pending entry against that empty array would drop the deep link before the
+  // real data ever arrives.
+  const pendingDeepLinkQueue = usePendingDeepLinkStore((s) => s.queue);
+  useEffect(() => {
+    if (habitsLoading || statsMap === null) return;
+    if (!pendingDeepLinkQueue.some((l) => l.kind === "habit")) return;
+    // Deferred to a microtask: react-hooks/set-state-in-effect forbids calling a React setState
+    // synchronously in the body of an effect.
+    void Promise.resolve().then(() => {
+      const entityId = usePendingDeepLinkStore.getState().consumePending("habit");
+      if (!entityId) return;
+      const habit = habits.find((h) => h.id === entityId);
+      const stats = statsMap[entityId];
+      if (habit && stats) setDetailHabit({ habit, stats });
+    });
+  }, [habitsLoading, statsMap, habits, pendingDeepLinkQueue]);
 
   const handleRelapse = (habit: Habit, date: string) => {
     void recordRelapse(habit.id, date)

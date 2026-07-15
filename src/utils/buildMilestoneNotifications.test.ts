@@ -73,6 +73,12 @@ describe("checkAndNotifyPositiveMilestone", () => {
     expect(id).toBeLessThan(NOTIF_DOMAIN_OFFSET.buildMilestones + 1_000_000);
   });
 
+  it("carries a 'positiveHabit' deep-link extra pointing at the positive habit ID", async () => {
+    await checkAndNotifyPositiveMilestone(positiveHabit, 1);
+    const call = vi.mocked(LocalNotifications.schedule).mock.calls[0]![0];
+    expect(call.notifications[0]?.extra).toEqual({ kind: "positiveHabit", entityId: "5" });
+  });
+
   it("marks the threshold as notified after firing", async () => {
     await checkAndNotifyPositiveMilestone(positiveHabit, 1);
     expect(markMilestoneNotified).toHaveBeenCalledWith(positiveHabit.id, 1);

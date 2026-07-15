@@ -30,6 +30,7 @@ import {
   useDateLocale,
 } from "@/hooks";
 import { toast } from "@/store/toastStore";
+import { usePendingDeepLinkStore } from "@/store/pendingDeepLinkStore";
 import { logError } from "@/utils/logger";
 import type { Treatment, TreatmentLog, TreatmentStatus } from "@/types";
 
@@ -64,7 +65,21 @@ export function Treatments() {
 
   const [logsMap, setLogsMap] = useState<Record<string, TreatmentLog | null>>({});
   const [today, setToday] = useState(todayLocalDate);
+  // Reactive rather than a one-shot lazy initializer: Treatments may already be mounted (e.g.
+  // the user is already on this screen) when a notification tap requests a treatment, in which
+  // case there is no remount to consume the pending deep link at. Subscribing to the queue
+  // picks it up whenever it arrives, opening that treatment's expanded card.
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const pendingDeepLinkQueue = usePendingDeepLinkStore((s) => s.queue);
+  useEffect(() => {
+    if (!pendingDeepLinkQueue.some((l) => l.kind === "treatment")) return;
+    // Deferred to a microtask: react-hooks/set-state-in-effect forbids calling a React setState
+    // synchronously in the body of an effect.
+    void Promise.resolve().then(() => {
+      const entityId = usePendingDeepLinkStore.getState().consumePending("treatment");
+      if (entityId) setSelectedId(entityId);
+    });
+  }, [pendingDeepLinkQueue]);
   const [deleteTarget, setDeleteTarget] = useState<Treatment | null>(null);
   const [sortMode, setSortMode] = useState(false);
   const [editTarget, setEditTarget] = useState<Treatment | null>(null);
