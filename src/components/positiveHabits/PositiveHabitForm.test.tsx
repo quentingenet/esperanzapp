@@ -101,9 +101,7 @@ describe("PositiveHabitForm", () => {
 
   it("shows duplicate warning and disables submit when the icon already exists", async () => {
     const user = userEvent.setup();
-    render(
-      <PositiveHabitForm onSubmit={vi.fn()} existingPositiveHabits={[sportHabit]} />,
-    );
+    render(<PositiveHabitForm onSubmit={vi.fn()} existingPositiveHabits={[sportHabit]} />);
     await openForm(user);
     await user.click(screen.getByRole("button", { name: "positiveHabitTypes.sport.label" }));
     expect(screen.getByText("positiveHabits.duplicateWarning")).toBeInTheDocument();

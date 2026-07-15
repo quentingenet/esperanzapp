@@ -211,7 +211,8 @@ export function BuildHabitsTab() {
             else if (status === "exact-alarm-denied") {
               toast.info(t("treatments.reminderAlarmSettingsNeeded"));
               void openExactAlarmSettings();
-            } else if (status === "schedule-failed") toast.info(t("positiveHabits.reminderSyncFailed"));
+            } else if (status === "schedule-failed")
+              toast.info(t("positiveHabits.reminderSyncFailed"));
           } else {
             await cancelReminder(editTarget.id, "positiveHabits");
           }

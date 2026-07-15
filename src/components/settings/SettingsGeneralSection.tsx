@@ -373,8 +373,8 @@ export function SettingsGeneralSection({
               sx={{ fontSize: "inherit", color: "inherit" }}
             >
               {t("settings.sourceCode")}
-            </Link>
-            {" "}{t("app.by")} Quentin Genet
+            </Link>{" "}
+            {t("app.by")} Quentin Genet
           </Typography>
           <Typography variant="caption" color="text.secondary">
             {t("settings.license")}

@@ -213,12 +213,7 @@ export interface OccurrenceCalendarProps {
 }
 
 export type PositiveHabitTypeId =
-  | "sport"
-  | "reading"
-  | "meditation"
-  | "tidying"
-  | "healthyEating"
-  | "custom";
+  "sport" | "reading" | "meditation" | "tidying" | "healthyEating" | "custom";
 
 export interface PositiveHabitTypeConfig {
   id: PositiveHabitTypeId;

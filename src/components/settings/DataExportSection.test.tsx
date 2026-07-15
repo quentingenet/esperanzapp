@@ -54,8 +54,7 @@ vi.mock("@/store/treatmentsStore", () => ({
 
 vi.mock("@/store/positiveHabitsStore", () => ({
   usePositiveHabitsStore: Object.assign(
-    (selector: (s: { positiveHabits: unknown[] }) => unknown) =>
-      selector({ positiveHabits: [] }),
+    (selector: (s: { positiveHabits: unknown[] }) => unknown) => selector({ positiveHabits: [] }),
     { getState: mocks.getPositiveHabitsState },
   ),
 }));
@@ -215,9 +214,11 @@ describe("DataExportSection — plain JSON import flow", () => {
     render(<DataExportSection />);
     await openImportWarnDialog(user, MINIMAL_JSON_FILE);
     await user.click(screen.getByRole("button", { name: "export.importConfirm" }));
-    await waitFor(() => expect(mocks.rescheduleAll).toHaveBeenCalledWith(
-      expect.arrayContaining([expect.objectContaining({ id: "1" })]),
-    ));
+    await waitFor(() =>
+      expect(mocks.rescheduleAll).toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({ id: "1" })]),
+      ),
+    );
     expect(mocks.requestPermission).toHaveBeenCalledTimes(1);
   });
 

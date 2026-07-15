@@ -19,15 +19,20 @@ echo "==> Release $HEAD_TAG (versionCode=$(node -e "
 "))"
 
 echo ""
-echo "[1/3] Build JS..."
+echo "[1/4] Lint + tests (no CI yet - this is the only gate before a release build)..."
+npm run lint
+npx vitest run
+
+echo ""
+echo "[2/4] Build JS..."
 npm run build:release
 
 echo ""
-echo "[2/3] Capacitor sync..."
+echo "[3/4] Capacitor sync..."
 npx cap sync android
 
 echo ""
-echo "[3/3] Gradle bundleRelease..."
+echo "[4/4] Gradle bundleRelease..."
 cd android
 ./gradlew clean bundleRelease
 

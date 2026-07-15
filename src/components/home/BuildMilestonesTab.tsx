@@ -30,9 +30,7 @@ export function BuildMilestonesTab() {
 
   useEffect(() => {
     const guard = { cancelled: false };
-    void Promise.all(
-      positiveHabits.map(async (h) => [h.id, await getTakenCount(h.id)] as const),
-    )
+    void Promise.all(positiveHabits.map(async (h) => [h.id, await getTakenCount(h.id)] as const))
       .then((entries) => {
         if (!guard.cancelled) setCountsMap(Object.fromEntries(entries));
       })

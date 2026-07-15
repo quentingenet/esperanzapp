@@ -85,10 +85,7 @@ export function getPositiveHabitTakenCount(positiveHabitId: string): Promise<num
 // Toggling a day's status off and back on (taken → missed → taken) makes the cumulative
 // taken count cross the same POSITIVE_GRADES threshold more than once. This table records
 // which thresholds have already fired a notification for a given habit so it only fires once.
-export function hasNotifiedMilestone(
-  positiveHabitId: string,
-  threshold: number,
-): Promise<boolean> {
+export function hasNotifiedMilestone(positiveHabitId: string, threshold: number): Promise<boolean> {
   return withDb(async (db) => {
     const result = await db.query(
       "SELECT 1 FROM positive_habit_milestone_notifications WHERE positive_habit_id = ? AND threshold = ?",

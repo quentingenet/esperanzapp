@@ -37,7 +37,9 @@ export function BuildHistoryTab() {
         const all: HistoryItem[] = allLogs.flatMap((log) => {
           const habit = habitMap.get(log.positiveHabitId);
           if (!habit) return [];
-          return [{ ...log, habitLabel: habit.label, habitIcon: habit.icon, habitColor: habit.color }];
+          return [
+            { ...log, habitLabel: habit.label, habitIcon: habit.icon, habitColor: habit.color },
+          ];
         });
         all.sort((a, b) => b.scheduledAt.localeCompare(a.scheduledAt));
         setItems(all);

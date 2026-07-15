@@ -60,8 +60,8 @@ export function PrivacyModal({ open, onAccept, readOnly = false }: PrivacyModalP
             color="inherit"
           >
             {t("settings.sourceCode")}
-          </Link>
-          {" "}{t("app.by")} Quentin Genet
+          </Link>{" "}
+          {t("app.by")} Quentin Genet
         </Typography>
         <Typography variant="caption" color="text.disabled" sx={{ mt: 1, display: "block" }}>
           {t("privacy.license")}

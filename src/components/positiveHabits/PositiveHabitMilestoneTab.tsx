@@ -13,7 +13,10 @@ interface PositiveHabitMilestoneTabProps {
 // Mirrors HabitMilestoneTab.tsx's shape, but count-based instead of date-based: a positive
 // habit's next milestone can't be pinned to a calendar date (it depends on future check-ins),
 // so this shows "N left" instead of "unlocked on <date>".
-export function PositiveHabitMilestoneTab({ takenCount, userName }: PositiveHabitMilestoneTabProps) {
+export function PositiveHabitMilestoneTab({
+  takenCount,
+  userName,
+}: PositiveHabitMilestoneTabProps) {
   const { t } = useTranslation();
 
   return (

@@ -63,7 +63,10 @@ describe("scheduleMilestoneNotifications", () => {
     // rescheduleAllMilestoneNotifications's own try/catch one level up.
     vi.mocked(LocalNotifications.schedule).mockRejectedValue(new Error("plugin error"));
     await expect(scheduleMilestoneNotifications("1", "2025-01-15")).resolves.toBeUndefined();
-    expect(mocks.logError).toHaveBeenCalledWith("scheduleMilestoneNotifications", expect.any(Error));
+    expect(mocks.logError).toHaveBeenCalledWith(
+      "scheduleMilestoneNotifications",
+      expect.any(Error),
+    );
   });
 
   it("does nothing on non-native platform", async () => {

@@ -196,8 +196,7 @@ function validatePositiveHabit(v: unknown): PositiveHabit {
     throw new Error("positiveHabits: reminderDay must be an integer or null");
   }
   if (frequency === "daily") {
-    if (day !== null)
-      throw new Error("positiveHabits: daily frequency must have null reminderDay");
+    if (day !== null) throw new Error("positiveHabits: daily frequency must have null reminderDay");
   } else if (frequency === "weekly") {
     if (day === null || day < 0 || day > 6)
       throw new Error("positiveHabits: weekly frequency must have reminderDay 0-6");
@@ -643,8 +642,7 @@ export function parseCSVPayload(raw: string): ExportPayload {
       reminderDayStr,
       createdAt,
     ]) => {
-      if (!isPosIntStr(id))
-        throw new Error("positiveHabits: id must be a positive integer string");
+      if (!isPosIntStr(id)) throw new Error("positiveHabits: id must be a positive integer string");
       if (!isStr(label)) throw new Error("positiveHabits: label must be a non-empty string");
       if (!isStr(icon)) throw new Error("positiveHabits: icon must be a non-empty string");
       if (!isHexColor(color)) throw new Error("positiveHabits: color must be a hex color");

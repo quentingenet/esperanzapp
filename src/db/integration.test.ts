@@ -670,15 +670,7 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     await conn.run("UPDATE positive_habits SET sort_index = ? WHERE id = ?", [0, phB.id]);
     await conn.run("UPDATE positive_habits SET sort_index = ? WHERE id = ?", [1, phA.id]);
 
-    const payload = buildExportPayload(
-      [],
-      [],
-      [],
-      [],
-      new Date().toISOString(),
-      [phB, phA],
-      [],
-    );
+    const payload = buildExportPayload([], [], [], [], new Date().toISOString(), [phB, phA], []);
 
     await clearAllData(asConn(conn));
     await importDirectly(conn, parseExportPayload(JSON.stringify(payload)));

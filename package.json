@@ -17,6 +17,7 @@
     "lint": "eslint .",
     "audit:prod": "npm audit --omit=dev",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "cap:sync": "vite build && npx cap sync"
   },
   "dependencies": {

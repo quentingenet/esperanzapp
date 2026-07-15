@@ -104,9 +104,9 @@ describe("updatePositiveHabit", () => {
   });
 
   it("throws when frequency daily is set with non-null reminderDay", async () => {
-    await expect(
-      updatePositiveHabit("3", { frequency: "daily", reminderDay: 1 }),
-    ).rejects.toThrow("PositiveHabit invariant violated: daily must have reminderDay null");
+    await expect(updatePositiveHabit("3", { frequency: "daily", reminderDay: 1 })).rejects.toThrow(
+      "PositiveHabit invariant violated: daily must have reminderDay null",
+    );
   });
 
   it("accepts valid frequency monthly with reminderDay 0 (last day)", async () => {

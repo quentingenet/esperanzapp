@@ -101,8 +101,12 @@ describe("DbErrorScreen", () => {
       await waitFor(() => {
         expect(screen.getByText("startup.dbErrorResetFailed")).toBeInTheDocument();
       });
-      expect(screen.queryByRole("button", { name: "startup.dbErrorReset" })).not.toBeInTheDocument();
-      expect(screen.queryByRole("button", { name: "startup.dbErrorRetry" })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "startup.dbErrorReset" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "startup.dbErrorRetry" }),
+      ).not.toBeInTheDocument();
       expect(reloadMock).not.toHaveBeenCalled();
     });
   });

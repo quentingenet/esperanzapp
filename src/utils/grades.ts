@@ -190,10 +190,7 @@ export const GRADES: [Grade, ...Grade[]] = [
 // `grades` defaults to GRADES (streak days) so every existing call site keeps its exact
 // current behavior; pass POSITIVE_GRADES to compute against cumulative completion counts.
 // The non-empty tuple type lets grades[0] be read safely, without a non-null assertion.
-export function getGrade(
-  value: number,
-  grades: readonly [Grade, ...Grade[]] = GRADES,
-): Grade {
+export function getGrade(value: number, grades: readonly [Grade, ...Grade[]] = GRADES): Grade {
   let current = grades[0];
   for (const grade of grades) {
     if (value >= grade.threshold) current = grade;

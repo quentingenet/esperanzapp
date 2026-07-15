@@ -137,10 +137,7 @@ export function updatePositiveHabit(
   return withDbVoid(fn);
 }
 
-export function deletePositiveHabit(
-  id: string,
-  dbConn?: SQLiteDBConnection | null,
-): Promise<void> {
+export function deletePositiveHabit(id: string, dbConn?: SQLiteDBConnection | null): Promise<void> {
   const fn = async (db: SQLiteDBConnection): Promise<void> => {
     await db.run("DELETE FROM positive_habit_logs WHERE positive_habit_id = ?", [id], false);
     await db.run(

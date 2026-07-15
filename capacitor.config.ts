@@ -6,7 +6,11 @@ const config: CapacitorConfig = {
   webDir: "dist",
   plugins: {
     SplashScreen: {
-      launchShowDuration: 8000,
+      // This is only the worst-case fallback ceiling: App.tsx's SplashHider already calls
+      // SplashScreen.hide() manually as soon as the app mounts (i.e. right after
+      // initDatabase() resolves in main.tsx), so the splash is dismissed well before this
+      // in the normal path. Kept short in case that manual hide is ever delayed/never fires.
+      launchShowDuration: 3000,
       launchAutoHide: true,
       backgroundColor: "#ffffff",
       androidSplashResourceName: "splash",

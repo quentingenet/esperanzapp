@@ -6,7 +6,11 @@ import SvgIcon from "@mui/material/SvgIcon";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import type { PositiveHabitDropdownProps, PositiveHabitTypeConfig, PositiveHabitTypeId } from "@/types";
+import type {
+  PositiveHabitDropdownProps,
+  PositiveHabitTypeConfig,
+  PositiveHabitTypeId,
+} from "@/types";
 import { POSITIVE_HABIT_TYPES } from "@/utils/positiveHabitTypes";
 
 const CHECKMARK = "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z";

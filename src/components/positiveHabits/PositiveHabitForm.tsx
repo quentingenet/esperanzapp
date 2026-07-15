@@ -70,7 +70,8 @@ export function PositiveHabitForm({
 
   const handleSubmit = async () => {
     if (isSaving || !config || selectedId === null || isDuplicate) return;
-    const label = selectedId === "custom" ? customLabel.trim() : t(`positiveHabitTypes.${selectedId}.label`);
+    const label =
+      selectedId === "custom" ? customLabel.trim() : t(`positiveHabitTypes.${selectedId}.label`);
     if (!label) return;
     setIsSaving(true);
     try {

@@ -515,7 +515,9 @@ describe("payloadToCSV", () => {
     const csv = payloadToCSV(payload);
     expect(csv).toContain("POSITIVE_HABITS");
     expect(csv).toContain("POSITIVE_HABIT_LOGS");
-    expect(csv).toContain("id,label,icon,color,bgColor,frequency,reminderTime,reminderEnabled,reminderDay,createdAt");
+    expect(csv).toContain(
+      "id,label,icon,color,bgColor,frequency,reminderTime,reminderEnabled,reminderDay,createdAt",
+    );
     expect(csv).toContain("Course à pied");
   });
 });
@@ -1060,9 +1062,24 @@ describe("importFromJSON", () => {
     // 3 "taken" logs for the same habit -> both threshold 1 and threshold 3 must be backfilled
     // in the same import, not just the highest one reached.
     const logs: PositiveHabitLog[] = [
-      { id: "1", positiveHabitId: mockPositiveHabit.id, scheduledAt: "2024-01-01", status: "taken" },
-      { id: "2", positiveHabitId: mockPositiveHabit.id, scheduledAt: "2024-01-02", status: "taken" },
-      { id: "3", positiveHabitId: mockPositiveHabit.id, scheduledAt: "2024-01-03", status: "taken" },
+      {
+        id: "1",
+        positiveHabitId: mockPositiveHabit.id,
+        scheduledAt: "2024-01-01",
+        status: "taken",
+      },
+      {
+        id: "2",
+        positiveHabitId: mockPositiveHabit.id,
+        scheduledAt: "2024-01-02",
+        status: "taken",
+      },
+      {
+        id: "3",
+        positiveHabitId: mockPositiveHabit.id,
+        scheduledAt: "2024-01-03",
+        status: "taken",
+      },
     ];
     const payload = buildExportPayload(
       [],
@@ -1092,7 +1109,12 @@ describe("importFromJSON", () => {
     // per-habit Map<positiveHabitId, takenCount> must not mix the two counts together.
     const habitB: PositiveHabit = { ...mockPositiveHabit, id: "2" };
     const logs: PositiveHabitLog[] = [
-      { id: "1", positiveHabitId: mockPositiveHabit.id, scheduledAt: "2024-01-01", status: "taken" },
+      {
+        id: "1",
+        positiveHabitId: mockPositiveHabit.id,
+        scheduledAt: "2024-01-01",
+        status: "taken",
+      },
       { id: "2", positiveHabitId: habitB.id, scheduledAt: "2024-01-01", status: "taken" },
       { id: "3", positiveHabitId: habitB.id, scheduledAt: "2024-01-02", status: "taken" },
       { id: "4", positiveHabitId: habitB.id, scheduledAt: "2024-01-03", status: "taken" },
