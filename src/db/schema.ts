@@ -203,6 +203,26 @@ export async function runSchema(db: SQLiteDBConnection): Promise<void> {
     await markApplied(db, "sort_index_treatments");
   }
 
+  // Distinguishes habits/positive habits created from a preset catalog entry (label is a
+  // fixed translation, not renamable) from ones the user typed themselves (renamable).
+  // Defaults to 1 (custom) so pre-existing rows — for which we cannot know their origin —
+  // stay renamable rather than being retroactively locked.
+  if (!(await isApplied(db, "is_custom_habits"))) {
+    if (!(await columnExists(db, "habits", "is_custom"))) {
+      await db.execute("ALTER TABLE habits ADD COLUMN is_custom INTEGER NOT NULL DEFAULT 1");
+    }
+    await markApplied(db, "is_custom_habits");
+  }
+
+  if (!(await isApplied(db, "is_custom_positive_habits"))) {
+    if (!(await columnExists(db, "positive_habits", "is_custom"))) {
+      await db.execute(
+        "ALTER TABLE positive_habits ADD COLUMN is_custom INTEGER NOT NULL DEFAULT 1",
+      );
+    }
+    await markApplied(db, "is_custom_positive_habits");
+  }
+
   if (!(await isApplied(db, "treatments_reminder_day_check"))) {
     // Recovery: if a previous run failed after DROP treatments but rollbackTransaction also failed,
     // treatments was recreated empty by SCHEMA on this startup. Restore from the snapshot.

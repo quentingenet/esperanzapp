@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { createHabitWithInitialLog, recordHabitRelapse, getAllHabits, deleteHabit } from "./habits";
+import {
+  createHabitWithInitialLog,
+  recordHabitRelapse,
+  getAllHabits,
+  updateHabit,
+  deleteHabit,
+} from "./habits";
 import { createHabit } from "@/test/testHelpers";
 
 const mockDb = { run: vi.fn(), query: vi.fn() };
@@ -18,6 +24,7 @@ const ROW = {
   bg_color: "#e8f4ff",
   start_date: "2024-01-01",
   created_at: "2024-01-01T10:00:00Z",
+  is_custom: 1,
 };
 const HABIT = {
   id: "1",
@@ -27,6 +34,7 @@ const HABIT = {
   bgColor: "#e8f4ff",
   startDate: "2024-01-01",
   createdAt: "2024-01-01T10:00:00Z",
+  isCustom: true,
 };
 
 beforeEach(() => {
@@ -120,6 +128,27 @@ describe("getAllHabits", () => {
   it("returns empty array when none", async () => {
     mockDb.query.mockResolvedValue({ values: [] });
     expect(await getAllHabits()).toEqual([]);
+  });
+});
+
+describe("updateHabit", () => {
+  it("throws when renaming a non-custom (preset) habit", async () => {
+    mockDb.query.mockResolvedValueOnce({ values: [{ is_custom: 0 }] });
+    await expect(updateHabit("1", { label: "Nouveau nom" })).rejects.toThrow(
+      "updateHabit: cannot rename a non-custom habit",
+    );
+    expect(mockDb.run).not.toHaveBeenCalled();
+  });
+
+  it("allows renaming a custom habit", async () => {
+    mockDb.query.mockResolvedValueOnce({ values: [{ is_custom: 1 }] });
+    mockDb.run.mockResolvedValue({});
+    await updateHabit("1", { label: "Nouveau nom" });
+    expect(mockDb.run).toHaveBeenCalledWith(
+      "UPDATE habits SET label = ? WHERE id = ?",
+      ["Nouveau nom", "1"],
+      false,
+    );
   });
 });
 

@@ -98,6 +98,35 @@ describe("runSchema", () => {
   });
 });
 
+describe("is_custom migration", () => {
+  it("adds is_custom to habits and positive_habits when not applied", async () => {
+    const db = makeDb(false);
+    await runSchema(db);
+    const sqls = executedSql(db);
+    expect(sqls).toContain("ALTER TABLE habits ADD COLUMN is_custom INTEGER NOT NULL DEFAULT 1");
+    expect(sqls).toContain(
+      "ALTER TABLE positive_habits ADD COLUMN is_custom INTEGER NOT NULL DEFAULT 1",
+    );
+  });
+
+  it("skips is_custom migrations when already applied", async () => {
+    const db = makeDb(true);
+    await runSchema(db);
+    const sqls = executedSql(db);
+    expect(sqls.some((s) => s.includes("ADD COLUMN is_custom"))).toBe(false);
+  });
+
+  it("defaults to 1 (custom) so pre-existing rows stay renamable", async () => {
+    const db = makeDb(false);
+    await runSchema(db);
+    const sqls = executedSql(db);
+    const habitsMigration = sqls.find(
+      (s) => s.includes("ALTER TABLE habits") && s.includes("is_custom"),
+    );
+    expect(habitsMigration).toContain("DEFAULT 1");
+  });
+});
+
 describe("treatments_reminder_day_check migration", () => {
   it("wraps table rebuild in a transaction", async () => {
     const db = makeDb(false);

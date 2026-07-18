@@ -4,6 +4,7 @@ import {
   createHabitWithInitialLog as dbCreateHabitWithInitialLog,
   deleteHabit as dbDeleteHabit,
   getAllHabits,
+  updateHabit as dbUpdateHabit,
   updateHabitsSortOrder,
 } from "@/db";
 import { useHabitsStore } from "@/store/habitsStore";
@@ -22,6 +23,7 @@ export function useHabits() {
     error,
     setHabits,
     addHabit: storeAdd,
+    updateHabit: storeUpdate,
     removeHabit,
   } = useHabitsStore(
     useShallow((s) => ({
@@ -30,6 +32,7 @@ export function useHabits() {
       error: s.error,
       setHabits: s.setHabits,
       addHabit: s.addHabit,
+      updateHabit: s.updateHabit,
       removeHabit: s.removeHabit,
     })),
   );
@@ -65,6 +68,14 @@ export function useHabits() {
     [storeAdd],
   );
 
+  const editHabit = useCallback(
+    async (id: string, data: { label: string }): Promise<void> => {
+      await dbUpdateHabit(id, data);
+      storeUpdate(id, data);
+    },
+    [storeUpdate],
+  );
+
   const deleteHabit = useCallback(
     async (id: string): Promise<void> => {
       await dbDeleteHabit(id);
@@ -97,6 +108,7 @@ export function useHabits() {
     error,
     loadHabits,
     addHabitWithInitialLog,
+    editHabit,
     deleteHabit,
     reorderHabits,
     saveHabitsOrder,

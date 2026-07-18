@@ -8,6 +8,7 @@
     "cancel": "Cancelar",
     "delete": "Excluir",
     "edit": "Editar",
+    "nameLocked": "O nome não pode ser alterado (hábito padrão)",
     "confirm": "Confirmar",
     "back": "Voltar",
     "close": "Fechar",
@@ -89,6 +90,7 @@
   },
   "habits": {
     "add": "Adicionar um hábito",
+    "edit": "Editar hábito",
     "deleteConfirm": "Excluir este hábito e todo o seu histórico?",
     "empty": "Nenhum hábito ainda.\nComece adicionando um.",
     "counter": {
@@ -432,7 +434,7 @@
     "saveBtn": "Salvar no telefone",
     "importSuccess": "Importação concluída",
     "importWarningTitle": "Atenção",
-    "importWarningBody": "Esta ação excluirá TODOS os dados existentes e os substituirá pelo conteúdo do arquivo importado. Esta operação é irreversível.",
+    "importWarningBody": "Esta ação excluirá TODOS os dados existentes e os substituirá pelo conteúdo do arquivo importado. Esta operação é irreversível. Os nomes que você renomeou localmente também serão substituídos pelos do arquivo.",
     "importFileHint": "Selecione um arquivo .json ou .csv.\nO formato será detectado automaticamente.",
     "chooseFileBtn": "Escolher um arquivo",
     "importConfirm": "Substituir",

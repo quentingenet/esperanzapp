@@ -8,6 +8,7 @@
     "cancel": "Abbrechen",
     "delete": "Löschen",
     "edit": "Bearbeiten",
+    "nameLocked": "Name kann nicht geändert werden (Standardgewohnheit)",
     "confirm": "Bestätigen",
     "back": "Zurück",
     "close": "Schließen",
@@ -89,6 +90,7 @@
   },
   "habits": {
     "add": "Gewohnheit hinzufügen",
+    "edit": "Gewohnheit bearbeiten",
     "deleteConfirm": "Diese Gewohnheit und den gesamten Verlauf löschen?",
     "empty": "Noch keine Gewohnheiten.\nFüge jetzt eine hinzu.",
     "counter": {
@@ -432,7 +434,7 @@
     "saveBtn": "Auf dem Telefon speichern",
     "importSuccess": "Import erfolgreich",
     "importWarningTitle": "Achtung",
-    "importWarningBody": "Diese Aktion löscht ALLE vorhandenen Daten unwiderruflich und ersetzt sie durch den Inhalt der importierten Datei.",
+    "importWarningBody": "Diese Aktion löscht ALLE vorhandenen Daten unwiderruflich und ersetzt sie durch den Inhalt der importierten Datei. Auch lokal umbenannte Namen werden durch die in der Datei enthaltenen ersetzt.",
     "importFileHint": "Wähle eine .json- oder .csv-Datei.\nDas Format wird automatisch erkannt.",
     "chooseFileBtn": "Datei auswählen",
     "importConfirm": "Ersetzen",

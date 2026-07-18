@@ -8,6 +8,7 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
+    "nameLocked": "Name cannot be changed (default habit)",
     "confirm": "Confirm",
     "back": "Back",
     "close": "Close",
@@ -89,6 +90,7 @@
   },
   "habits": {
     "add": "Add a habit",
+    "edit": "Edit habit",
     "deleteConfirm": "Delete this habit and all its history?",
     "empty": "No habits yet.\nStart by adding one.",
     "counter": {
@@ -432,7 +434,7 @@
     "saveBtn": "Save to phone",
     "importSuccess": "Import successful",
     "importWarningTitle": "Warning",
-    "importWarningBody": "This will permanently delete ALL your existing data and replace it with the contents of the imported file. This cannot be undone.",
+    "importWarningBody": "This will permanently delete ALL your existing data and replace it with the contents of the imported file. This cannot be undone. Any names you renamed locally will also be replaced by the ones in the file.",
     "importFileHint": "Select a .json or .csv file.\nThe format will be detected automatically.",
     "chooseFileBtn": "Choose a file",
     "importConfirm": "Replace",

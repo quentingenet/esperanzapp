@@ -17,6 +17,7 @@ const i18nMap: Record<string, string> = {
   "grades.nextMilestone_one": "Prochain jalon : {{label}} dans {{count}} jour",
   "grades.nextMilestone_other": "Prochain jalon : {{label}} dans {{count}} jours",
   "common.delete": "Supprimer",
+  "common.edit": "Modifier",
   "common.reorder": "Réordonner",
 };
 
@@ -84,6 +85,7 @@ describe("HabitCard streak display", () => {
         nextGrade={null}
         onClick={vi.fn()}
         onDelete={vi.fn()}
+        onEdit={vi.fn()}
       />,
     );
     expect(screen.getByText("42")).toBeInTheDocument();
@@ -98,6 +100,7 @@ describe("HabitCard streak display", () => {
         nextGrade={null}
         onClick={vi.fn()}
         onDelete={vi.fn()}
+        onEdit={vi.fn()}
       />,
     );
     expect(screen.getByText(/1 an et 35 jours/)).toBeInTheDocument();
@@ -113,6 +116,7 @@ describe("HabitCard streak display", () => {
         nextGrade={null}
         onClick={vi.fn()}
         onDelete={vi.fn()}
+        onEdit={vi.fn()}
       />,
     );
     expect(screen.getByText("2 ans")).toBeInTheDocument();
@@ -128,6 +132,7 @@ describe("HabitCard streak display", () => {
         nextGrade={null}
         onClick={vi.fn()}
         onDelete={vi.fn()}
+        onEdit={vi.fn()}
       />,
     );
     expect(screen.getByText(/habits.counter.lastRelapse/)).toBeInTheDocument();
@@ -142,6 +147,7 @@ describe("HabitCard streak display", () => {
         nextGrade={null}
         onClick={vi.fn()}
         onDelete={vi.fn()}
+        onEdit={vi.fn()}
       />,
     );
     expect(screen.queryByText(/lastRelapse/)).not.toBeInTheDocument();
@@ -156,6 +162,7 @@ describe("HabitCard streak display", () => {
         nextGrade={null}
         onClick={vi.fn()}
         onDelete={vi.fn()}
+        onEdit={vi.fn()}
       />,
     );
     expect(screen.getByText(/2 ans/)).toBeInTheDocument();
@@ -171,6 +178,7 @@ describe("HabitCard streak display", () => {
         nextGrade={nextGrade}
         onClick={vi.fn()}
         onDelete={vi.fn()}
+        onEdit={vi.fn()}
       />,
     );
     expect(screen.getByText(/dans 1 jour$/)).toBeInTheDocument();
@@ -187,8 +195,56 @@ describe("HabitCard streak display", () => {
         nextGrade={nextGrade}
         onClick={vi.fn()}
         onDelete={vi.fn()}
+        onEdit={vi.fn()}
       />,
     );
     expect(screen.getByText(/dans 12 jours/)).toBeInTheDocument();
+  });
+});
+
+describe("HabitCard edit button", () => {
+  it("shows the edit button when isCustom is true", () => {
+    render(
+      <HabitCard
+        habit={{ ...habit, isCustom: true }}
+        stats={makeStats(5)}
+        grade={grade}
+        nextGrade={null}
+        onClick={vi.fn()}
+        onDelete={vi.fn()}
+        onEdit={vi.fn()}
+      />,
+    );
+    expect(screen.getByLabelText("Modifier")).toBeInTheDocument();
+  });
+
+  it("shows the edit button when isCustom is undefined (permissive default)", () => {
+    render(
+      <HabitCard
+        habit={habit}
+        stats={makeStats(5)}
+        grade={grade}
+        nextGrade={null}
+        onClick={vi.fn()}
+        onDelete={vi.fn()}
+        onEdit={vi.fn()}
+      />,
+    );
+    expect(screen.getByLabelText("Modifier")).toBeInTheDocument();
+  });
+
+  it("hides the edit button when isCustom is false", () => {
+    render(
+      <HabitCard
+        habit={{ ...habit, isCustom: false }}
+        stats={makeStats(5)}
+        grade={grade}
+        nextGrade={null}
+        onClick={vi.fn()}
+        onDelete={vi.fn()}
+        onEdit={vi.fn()}
+      />,
+    );
+    expect(screen.queryByLabelText("Modifier")).not.toBeInTheDocument();
   });
 });

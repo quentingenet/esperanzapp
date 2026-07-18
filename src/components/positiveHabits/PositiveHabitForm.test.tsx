@@ -97,6 +97,22 @@ describe("PositiveHabitForm", () => {
     expect(payload["reminderDay"]).toBeNull();
     expect(payload["reminderEnabled"]).toBe(true);
     expect(String(payload["reminderTime"])).toMatch(/^\d{2}:\d{2}$/);
+    expect(payload["isCustom"]).toBe(false);
+  });
+
+  it("calls onSubmit with isCustom: true for a custom type", async () => {
+    const onSubmit = vi.fn();
+    const user = userEvent.setup();
+    render(<PositiveHabitForm onSubmit={onSubmit} existingPositiveHabits={[]} />);
+    await openForm(user);
+    await user.click(screen.getByRole("button", { name: "positiveHabitTypes.custom.label" }));
+    await user.type(
+      screen.getByRole("textbox", { name: "positiveHabitTypes.groups.custom" }),
+      "Yoga du soir",
+    );
+    await user.click(screen.getByRole("button", { name: "common.save" }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    expect((onSubmit.mock.calls[0]![0] as Record<string, unknown>)["isCustom"]).toBe(true);
   });
 
   it("shows duplicate warning and disables submit when the icon already exists", async () => {

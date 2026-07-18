@@ -16,7 +16,7 @@ import {
   type RealSqliteConn,
 } from "@/test/realSqliteConnection";
 import { createTreatment, updateTreatment, deleteTreatment } from "./treatments";
-import { createPositiveHabit, deletePositiveHabit } from "./positiveHabits";
+import { createPositiveHabit, updatePositiveHabit, deletePositiveHabit } from "./positiveHabits";
 import {
   createHabit,
   createHabitLog,
@@ -403,6 +403,39 @@ describe("Integration - real SQLite (sql.js, no lastId in run())", () => {
     const rows = await allRows(conn, "treatments");
     expect(rows[0]?.reminder_enabled).toBe(0);
     expect(rows[0]?.reminder_day).toBe(3);
+  });
+
+  it("a freshly created positive habit defaults to is_custom=1 and can be renamed", async () => {
+    const habit = await createPositiveHabit(POSITIVE_HABIT_DATA, asConn(conn));
+    const before = await allRows(conn, "positive_habits");
+    expect(before[0]?.is_custom).toBe(1);
+    await updatePositiveHabit(habit.id, { label: "Course du matin" }, asConn(conn));
+    const rows = await allRows(conn, "positive_habits");
+    expect(rows[0]?.label).toBe("Course du matin");
+  });
+
+  it("updatePositiveHabit rejects renaming a non-custom (preset) positive habit", async () => {
+    const habit = await createPositiveHabit(
+      { ...POSITIVE_HABIT_DATA, isCustom: false },
+      asConn(conn),
+    );
+    const before = await allRows(conn, "positive_habits");
+    expect(before[0]?.is_custom).toBe(0);
+    await expect(
+      updatePositiveHabit(habit.id, { label: "Nouveau nom" }, asConn(conn)),
+    ).rejects.toThrow("updatePositiveHabit: cannot rename a non-custom habit");
+    const rows = await allRows(conn, "positive_habits");
+    expect(rows[0]?.label).toBe(POSITIVE_HABIT_DATA.label);
+  });
+
+  it("updatePositiveHabit still allows editing the reminder on a non-custom habit", async () => {
+    const habit = await createPositiveHabit(
+      { ...POSITIVE_HABIT_DATA, isCustom: false },
+      asConn(conn),
+    );
+    await updatePositiveHabit(habit.id, { reminderEnabled: false }, asConn(conn));
+    const rows = await allRows(conn, "positive_habits");
+    expect(rows[0]?.reminder_enabled).toBe(0);
   });
 
   // JSON export and import round trip

@@ -45,6 +45,20 @@ describe("habitsStore", () => {
     expect(habits[0]!.id).toBe("2");
   });
 
+  it("updateHabit patches the matching habit by id", () => {
+    useHabitsStore.getState().setHabits([h1, h2]);
+    useHabitsStore.getState().updateHabit("1", { label: "Renamed" });
+    const habits = useHabitsStore.getState().habits;
+    expect(habits[0]!.label).toBe("Renamed");
+    expect(habits[1]!.label).toBe("Tabac");
+  });
+
+  it("updateHabit with unknown id leaves state unchanged", () => {
+    useHabitsStore.getState().setHabits([h1]);
+    useHabitsStore.getState().updateHabit("999", { label: "Renamed" });
+    expect(useHabitsStore.getState().habits).toEqual([h1]);
+  });
+
   it("removeHabit with unknown id leaves state unchanged", () => {
     useHabitsStore.getState().setHabits([h1]);
     useHabitsStore.getState().removeHabit("999");

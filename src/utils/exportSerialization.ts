@@ -70,6 +70,14 @@ function isISODateTime(v: unknown): v is string {
   return !isNaN(new Date(v).getTime());
 }
 
+// isCustom is absent in exports made before the rename feature — those habits are treated
+// as custom (renamable) so pre-existing exports don't retroactively lock anything.
+function readIsCustom(v: unknown, context: string): boolean {
+  if (v === undefined) return true;
+  if (typeof v !== "boolean") throw new Error(`${context}: isCustom must be boolean`);
+  return v;
+}
+
 function validateHabit(v: unknown): Habit {
   if (typeof v !== "object" || v === null) throw new Error("habits: not an object");
   const h = v as Record<string, unknown>;
@@ -87,7 +95,8 @@ function validateHabit(v: unknown): Habit {
   if (!isHexColor(bgColor)) throw new Error("habits: bgColor must be a hex color");
   if (!isDate(startDate)) throw new Error("habits: startDate must be YYYY-MM-DD");
   if (!isISODateTime(createdAt)) throw new Error("habits: createdAt must be a valid date-time");
-  return { id, label, icon, color, bgColor, startDate, createdAt };
+  const isCustom = readIsCustom(h["isCustom"], "habits");
+  return { id, label, icon, color, bgColor, startDate, createdAt, isCustom };
 }
 
 function validateHabitLog(v: unknown): HabitLog {
@@ -204,6 +213,7 @@ function validatePositiveHabit(v: unknown): PositiveHabit {
     if (day === null || (day !== 0 && (day < 1 || day > 28)))
       throw new Error("positiveHabits: monthly frequency must have reminderDay 0 or 1-28");
   }
+  const isCustom = readIsCustom(h["isCustom"], "positiveHabits");
   return {
     id,
     label,
@@ -215,6 +225,7 @@ function validatePositiveHabit(v: unknown): PositiveHabit {
     reminderEnabled,
     reminderDay: day,
     createdAt,
+    isCustom,
   };
 }
 
@@ -329,9 +340,18 @@ export function payloadToCSV(payload: ExportPayload): string {
 
   sections.push(
     "HABITS",
-    row(["id", "label", "icon", "color", "bgColor", "startDate", "createdAt"]),
+    row(["id", "label", "icon", "color", "bgColor", "startDate", "createdAt", "isCustom"]),
     ...payload.habits.map((h) =>
-      row([h.id, h.label, h.icon, h.color, h.bgColor, h.startDate, h.createdAt]),
+      row([
+        h.id,
+        h.label,
+        h.icon,
+        h.color,
+        h.bgColor,
+        h.startDate,
+        h.createdAt,
+        h.isCustom === false ? "0" : "1",
+      ]),
     ),
   );
 
@@ -388,6 +408,7 @@ export function payloadToCSV(payload: ExportPayload): string {
       "reminderEnabled",
       "reminderDay",
       "createdAt",
+      "isCustom",
     ]),
     ...payload.positiveHabits.map((h) =>
       row([
@@ -401,6 +422,7 @@ export function payloadToCSV(payload: ExportPayload): string {
         h.reminderEnabled ? "1" : "0",
         h.reminderDay !== null ? String(h.reminderDay) : "",
         h.createdAt,
+        h.isCustom === false ? "0" : "1",
       ]),
     ),
   );
@@ -417,7 +439,16 @@ export function payloadToCSV(payload: ExportPayload): string {
   return sections.join("\n");
 }
 
-const HABIT_COLS = ["id", "label", "icon", "color", "bgColor", "startDate", "createdAt"] as const;
+const HABIT_COLS_LEGACY = [
+  "id",
+  "label",
+  "icon",
+  "color",
+  "bgColor",
+  "startDate",
+  "createdAt",
+] as const;
+const HABIT_COLS = [...HABIT_COLS_LEGACY, "isCustom"] as const;
 const HABIT_LOG_COLS = ["id", "habitId", "eventType", "eventDate"] as const;
 const TREATMENT_COLS = [
   "id",
@@ -429,7 +460,7 @@ const TREATMENT_COLS = [
   "createdAt",
 ] as const;
 const TREATMENT_LOG_COLS = ["id", "treatmentId", "scheduledAt", "status"] as const;
-const POSITIVE_HABIT_COLS = [
+const POSITIVE_HABIT_COLS_LEGACY = [
   "id",
   "label",
   "icon",
@@ -441,6 +472,7 @@ const POSITIVE_HABIT_COLS = [
   "reminderDay",
   "createdAt",
 ] as const;
+const POSITIVE_HABIT_COLS = [...POSITIVE_HABIT_COLS_LEGACY, "isCustom"] as const;
 const POSITIVE_HABIT_LOG_COLS = ["id", "positiveHabitId", "scheduledAt", "status"] as const;
 
 // Character-by-character CSV tokenizer that correctly handles quoted fields containing
@@ -524,37 +556,59 @@ export function parseCSVPayload(raw: string): ExportPayload {
     throw new Error(`CSV missing required section(s): ${missingSections.join(", ")}`);
   }
 
-  function parseSection(header: string, expectedCols: readonly string[]): string[][] {
+  // legacyCols supports CSV files exported before the isCustom column existed: a match
+  // against legacyCols is accepted and each row is padded with "1" (custom/true) so the
+  // downstream row destructuring always sees the current column shape.
+  function parseSection(
+    header: string,
+    expectedCols: readonly string[],
+    legacyCols?: readonly string[],
+  ): string[][] {
     const start = rows.findIndex((r) => r.length === 1 && r[0] === header);
     if (start === -1) return [];
     const colRow = rows[start + 1];
     if (!colRow) throw new Error(`CSV section ${header}: missing column header row`);
-    if (colRow.join(",") !== expectedCols.join(","))
+    const isLegacy = legacyCols !== undefined && colRow.join(",") === legacyCols.join(",");
+    if (colRow.join(",") !== expectedCols.join(",") && !isLegacy) {
+      const expectedDesc = legacyCols
+        ? `"${expectedCols.join(",")}" or "${legacyCols.join(",")}"`
+        : `"${expectedCols.join(",")}"`;
       throw new Error(
-        `CSV section ${header}: expected columns "${expectedCols.join(",")}", got "${colRow.join(",")}"`,
+        `CSV section ${header}: expected columns ${expectedDesc}, got "${colRow.join(",")}"`,
       );
+    }
     const data: string[][] = [];
     for (let i = start + 2; i < rows.length; i++) {
       const r = rows[i];
       if (!r || r.length <= 1) break; // empty row or next section header
       if (r.length !== colRow.length)
         throw new Error(`CSV malformed row in ${header}: column count mismatch`);
-      data.push(r);
+      data.push(isLegacy ? [...r, "1"] : r);
     }
     return data;
   }
 
-  const habitRows = parseSection("HABITS", HABIT_COLS);
+  const habitRows = parseSection("HABITS", HABIT_COLS, HABIT_COLS_LEGACY);
   const logRows = parseSection("HABIT_LOGS", HABIT_LOG_COLS);
   const treatmentRows = parseSection("TREATMENTS", TREATMENT_COLS);
   const treatmentLogRows = parseSection("TREATMENT_LOGS", TREATMENT_LOG_COLS);
   // Absent in CSVs exported before the "faire plus" feature — parseSection returns []
   // when the section header itself is missing, so old CSV files keep importing correctly.
-  const positiveHabitRows = parseSection("POSITIVE_HABITS", POSITIVE_HABIT_COLS);
+  const positiveHabitRows = parseSection(
+    "POSITIVE_HABITS",
+    POSITIVE_HABIT_COLS,
+    POSITIVE_HABIT_COLS_LEGACY,
+  );
   const positiveHabitLogRows = parseSection("POSITIVE_HABIT_LOGS", POSITIVE_HABIT_LOG_COLS);
 
+  function readIsCustomCSV(v: string, context: string): boolean {
+    if (v !== "0" && v !== "1")
+      throw new Error(`${context}: isCustom must be "0" or "1", got "${v}"`);
+    return v === "1";
+  }
+
   const habits: Habit[] = habitRows.map(
-    ([id, label, icon, color, bgColor, startDate, createdAt]) => {
+    ([id, label, icon, color, bgColor, startDate, createdAt, isCustomStr]) => {
       if (!isPosIntStr(id)) throw new Error("habits: id must be a positive integer string");
       if (!isStr(label)) throw new Error("habits: label must be a non-empty string");
       if (!isStr(icon)) throw new Error("habits: icon must be a non-empty string");
@@ -562,7 +616,8 @@ export function parseCSVPayload(raw: string): ExportPayload {
       if (!isHexColor(bgColor)) throw new Error("habits: bgColor must be a hex color");
       if (!isDate(startDate)) throw new Error("habits: startDate must be YYYY-MM-DD");
       if (!isISODateTime(createdAt)) throw new Error("habits: createdAt must be a valid date-time");
-      return { id, label, icon, color, bgColor, startDate, createdAt };
+      const isCustom = readIsCustomCSV(isCustomStr ?? "", "habits");
+      return { id, label, icon, color, bgColor, startDate, createdAt, isCustom };
     },
   );
 
@@ -641,6 +696,7 @@ export function parseCSVPayload(raw: string): ExportPayload {
       reminderEnabledStr,
       reminderDayStr,
       createdAt,
+      isCustomStr,
     ]) => {
       if (!isPosIntStr(id)) throw new Error("positiveHabits: id must be a positive integer string");
       if (!isStr(label)) throw new Error("positiveHabits: label must be a non-empty string");
@@ -673,6 +729,7 @@ export function parseCSVPayload(raw: string): ExportPayload {
         throw new Error(
           `positiveHabits: reminderEnabled must be "0" or "1", got "${reminderEnabledStr ?? ""}"`,
         );
+      const isCustom = readIsCustomCSV(isCustomStr ?? "", "positiveHabits");
       return {
         id,
         label,
@@ -684,6 +741,7 @@ export function parseCSVPayload(raw: string): ExportPayload {
         reminderEnabled: reminderEnabledStr === "1",
         reminderDay,
         createdAt,
+        isCustom,
       };
     },
   );

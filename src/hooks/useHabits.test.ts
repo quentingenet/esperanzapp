@@ -2,12 +2,19 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useHabits } from "./useHabits";
 import { useHabitsStore } from "@/store/habitsStore";
-import { getAllHabits, createHabitWithInitialLog, deleteHabit, updateHabitsSortOrder } from "@/db";
+import {
+  getAllHabits,
+  createHabitWithInitialLog,
+  updateHabit,
+  deleteHabit,
+  updateHabitsSortOrder,
+} from "@/db";
 import type { Habit } from "@/types";
 
 vi.mock("@/db", () => ({
   getAllHabits: vi.fn(),
   createHabitWithInitialLog: vi.fn(),
+  updateHabit: vi.fn(),
   deleteHabit: vi.fn(),
   updateHabitsSortOrder: vi.fn(),
 }));
@@ -40,6 +47,7 @@ describe("useHabits", () => {
     useHabitsStore.setState({ habits: [], loading: false, error: null });
     vi.mocked(getAllHabits).mockResolvedValue([]);
     vi.mocked(createHabitWithInitialLog).mockResolvedValue(habit);
+    vi.mocked(updateHabit).mockResolvedValue(undefined);
     vi.mocked(deleteHabit).mockResolvedValue(undefined);
     vi.mocked(updateHabitsSortOrder).mockResolvedValue(undefined);
   });
@@ -80,6 +88,28 @@ describe("useHabits", () => {
     expect(createHabitWithInitialLog).toHaveBeenCalledWith(habitData, habitData.startDate);
     expect(created).toEqual(habit);
     expect(result.current.habits).toEqual([habit]);
+  });
+
+  it("editHabit updates the DB and the store", async () => {
+    useHabitsStore.setState({ habits: [habit] });
+    const { result } = renderHook(() => useHabits());
+    await act(async () => {
+      await result.current.editHabit("1", { label: "Nouveau nom" });
+    });
+    expect(updateHabit).toHaveBeenCalledWith("1", { label: "Nouveau nom" });
+    expect(result.current.habits[0]!.label).toBe("Nouveau nom");
+  });
+
+  it("editHabit propagates DB failure without updating the store", async () => {
+    useHabitsStore.setState({ habits: [habit] });
+    vi.mocked(updateHabit).mockRejectedValueOnce(new Error("cannot rename a non-custom habit"));
+    const { result } = renderHook(() => useHabits());
+    await act(async () => {
+      await expect(result.current.editHabit("1", { label: "Nouveau nom" })).rejects.toThrow(
+        "cannot rename a non-custom habit",
+      );
+    });
+    expect(result.current.habits[0]!.label).toBe("Alcool");
   });
 
   it("deleteHabit removes from DB and store", async () => {

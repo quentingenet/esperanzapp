@@ -25,6 +25,7 @@ const ROW = {
   reminder_enabled: 1,
   reminder_day: 1,
   created_at: "2024-06-01T09:00:00Z",
+  is_custom: 1,
 };
 const POSITIVE_HABIT = {
   id: "3",
@@ -37,6 +38,7 @@ const POSITIVE_HABIT = {
   reminderEnabled: true,
   reminderDay: 1,
   createdAt: "2024-06-01T09:00:00Z",
+  isCustom: true,
 };
 
 beforeEach(() => {
@@ -112,6 +114,32 @@ describe("updatePositiveHabit", () => {
   it("accepts valid frequency monthly with reminderDay 0 (last day)", async () => {
     mockDb.run.mockResolvedValue({});
     await updatePositiveHabit("3", { frequency: "monthly", reminderDay: 0 });
+    expect(mockDb.run).toHaveBeenCalled();
+  });
+
+  it("throws when renaming a non-custom (preset) positive habit", async () => {
+    mockDb.query.mockResolvedValueOnce({ values: [{ is_custom: 0 }] });
+    await expect(updatePositiveHabit("3", { label: "Nouveau nom" })).rejects.toThrow(
+      "updatePositiveHabit: cannot rename a non-custom habit",
+    );
+    expect(mockDb.run).not.toHaveBeenCalled();
+  });
+
+  it("allows renaming a custom positive habit", async () => {
+    mockDb.query.mockResolvedValueOnce({ values: [{ is_custom: 1 }] });
+    mockDb.run.mockResolvedValue({});
+    await updatePositiveHabit("3", { label: "Nouveau nom" });
+    expect(mockDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("UPDATE positive_habits SET"),
+      ["Nouveau nom", "3"],
+      expect.anything(),
+    );
+  });
+
+  it("does not check is_custom when label is not being changed", async () => {
+    mockDb.run.mockResolvedValue({});
+    await updatePositiveHabit("3", { icon: "M2" });
+    expect(mockDb.query).not.toHaveBeenCalled();
     expect(mockDb.run).toHaveBeenCalled();
   });
 });

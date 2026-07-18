@@ -8,6 +8,7 @@
     "cancel": "Annuleren",
     "delete": "Verwijderen",
     "edit": "Bewerken",
+    "nameLocked": "Naam kan niet worden gewijzigd (standaardgewoonte)",
     "confirm": "Bevestigen",
     "back": "Terug",
     "close": "Sluiten",
@@ -89,6 +90,7 @@
   },
   "habits": {
     "add": "Gewoonte toevoegen",
+    "edit": "Gewoonte bewerken",
     "deleteConfirm": "Deze gewoonte en alle geschiedenis verwijderen?",
     "empty": "Nog geen gewoonten.\nBegin er een toe te voegen.",
     "counter": {
@@ -432,7 +434,7 @@
     "saveBtn": "Opslaan op telefoon",
     "importSuccess": "Import geslaagd",
     "importWarningTitle": "Waarschuwing",
-    "importWarningBody": "Deze actie verwijdert ALLE bestaande gegevens en vervangt ze door de inhoud van het geïmporteerde bestand. Dit kan niet ongedaan worden gemaakt.",
+    "importWarningBody": "Deze actie verwijdert ALLE bestaande gegevens en vervangt ze door de inhoud van het geïmporteerde bestand. Dit kan niet ongedaan worden gemaakt. Namen die je lokaal hebt hernoemd, worden ook vervangen door die uit het bestand.",
     "importFileHint": "Selecteer een .json- of .csv-bestand.\nHet formaat wordt automatisch herkend.",
     "chooseFileBtn": "Bestand kiezen",
     "importConfirm": "Vervangen",

@@ -8,6 +8,7 @@
     "cancel": "Annulla",
     "delete": "Elimina",
     "edit": "Modifica",
+    "nameLocked": "Il nome non può essere modificato (abitudine predefinita)",
     "confirm": "Conferma",
     "back": "Indietro",
     "close": "Chiudi",
@@ -89,6 +90,7 @@
   },
   "habits": {
     "add": "Aggiungi un'abitudine",
+    "edit": "Modifica abitudine",
     "deleteConfirm": "Eliminare questa abitudine e tutta la sua cronologia?",
     "empty": "Nessuna abitudine ancora.\nInizia aggiungendone una.",
     "counter": {
@@ -432,7 +434,7 @@
     "saveBtn": "Salva sul telefono",
     "importSuccess": "Importazione riuscita",
     "importWarningTitle": "Attenzione",
-    "importWarningBody": "Questa azione eliminerà TUTTI i dati esistenti e li sostituirà con il contenuto del file importato. L'operazione è irreversibile.",
+    "importWarningBody": "Questa azione eliminerà TUTTI i dati esistenti e li sostituirà con il contenuto del file importato. L'operazione è irreversibile. Anche i nomi che hai rinominato localmente verranno sostituiti da quelli del file.",
     "importFileHint": "Seleziona un file .json o .csv.\nIl formato verrà rilevato automaticamente.",
     "chooseFileBtn": "Scegli un file",
     "importConfirm": "Sostituisci",

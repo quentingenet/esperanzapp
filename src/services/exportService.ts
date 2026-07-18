@@ -198,8 +198,18 @@ async function importPayload(payload: ReturnType<typeof parseExportPayload>): Pr
       // Insert with original IDs so foreign-key relationships are preserved.
       for (const [index, h] of payload.habits.entries()) {
         await db.run(
-          "INSERT INTO habits (id, label, icon, color, bg_color, start_date, created_at, sort_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-          [h.id, h.label, h.icon, h.color, h.bgColor, h.startDate, h.createdAt, index],
+          "INSERT INTO habits (id, label, icon, color, bg_color, start_date, created_at, sort_index, is_custom) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          [
+            h.id,
+            h.label,
+            h.icon,
+            h.color,
+            h.bgColor,
+            h.startDate,
+            h.createdAt,
+            index,
+            h.isCustom === false ? 0 : 1,
+          ],
           false,
         );
       }
@@ -240,7 +250,7 @@ async function importPayload(payload: ReturnType<typeof parseExportPayload>): Pr
       }
       for (const [index, h] of payload.positiveHabits.entries()) {
         await db.run(
-          "INSERT INTO positive_habits (id, label, icon, color, bg_color, frequency, reminder_time, reminder_enabled, reminder_day, created_at, sort_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          "INSERT INTO positive_habits (id, label, icon, color, bg_color, frequency, reminder_time, reminder_enabled, reminder_day, created_at, sort_index, is_custom) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
           [
             h.id,
             h.label,
@@ -253,6 +263,7 @@ async function importPayload(payload: ReturnType<typeof parseExportPayload>): Pr
             h.reminderDay ?? null,
             h.createdAt,
             index,
+            h.isCustom === false ? 0 : 1,
           ],
           false,
         );

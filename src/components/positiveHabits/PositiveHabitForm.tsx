@@ -104,6 +104,7 @@ export function PositiveHabitForm({
         reminderEnabled: effectiveReminderEnabled,
         reminderDay: frequency === "daily" ? null : reminderDay,
         reminderTime: time ? format(time, "HH:mm") : "08:00",
+        isCustom: selectedId === "custom",
       });
       resetForm();
     } finally {

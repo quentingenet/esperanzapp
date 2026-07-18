@@ -12,7 +12,9 @@ describe("pendingDeepLinkStore", () => {
 
   it("setPending stores the requested deep link", () => {
     usePendingDeepLinkStore.getState().setPending({ kind: "treatment", entityId: "7" });
-    expect(usePendingDeepLinkStore.getState().queue).toEqual([{ kind: "treatment", entityId: "7" }]);
+    expect(usePendingDeepLinkStore.getState().queue).toEqual([
+      { kind: "treatment", entityId: "7" },
+    ]);
   });
 
   it("consumePending returns the entityId and clears it when the kind matches", () => {
@@ -30,7 +32,9 @@ describe("pendingDeepLinkStore", () => {
   it("consumePending returns null and does not clear when the kind does not match", () => {
     usePendingDeepLinkStore.getState().setPending({ kind: "treatment", entityId: "7" });
     expect(usePendingDeepLinkStore.getState().consumePending("habit")).toBeNull();
-    expect(usePendingDeepLinkStore.getState().queue).toEqual([{ kind: "treatment", entityId: "7" }]);
+    expect(usePendingDeepLinkStore.getState().queue).toEqual([
+      { kind: "treatment", entityId: "7" },
+    ]);
   });
 
   it("consumePending returns null when nothing is pending", () => {

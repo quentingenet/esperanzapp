@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import SvgIcon from "@mui/material/SvgIcon";
+import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
 import { HabitCard, HabitDetailModal, HabitForm } from "@/components/habits";
@@ -29,6 +32,7 @@ export function ReduceHabitsTab() {
     error: habitsError,
     loadHabits,
     addHabitWithInitialLog,
+    editHabit,
     deleteHabit,
     reorderHabits,
     saveHabitsOrder,
@@ -41,6 +45,9 @@ export function ReduceHabitsTab() {
   const [notifPermGranted, setNotifPermGranted] = useState<boolean | null>(null);
   const [detailHabit, setDetailHabit] = useState<{ habit: Habit; stats: HabitStats } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Habit | null>(null);
+  const [editTarget, setEditTarget] = useState<Habit | null>(null);
+  const [editLabel, setEditLabel] = useState("");
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [showNotifPrompt, setShowNotifPrompt] = useState(false);
   const [sortMode, setSortMode] = useState(false);
   const isSavingOrderRef = useRef(false);
@@ -130,6 +137,28 @@ export function ReduceHabitsTab() {
         toast.error(t("common.error"));
       });
     setDeleteTarget(null);
+  };
+
+  const openEdit = (habit: Habit) => {
+    setEditTarget(habit);
+    setEditLabel(habit.label);
+  };
+
+  const handleEditSave = () => {
+    if (!editTarget || !editLabel.trim() || isSavingEdit) return;
+    setIsSavingEdit(true);
+    void editHabit(editTarget.id, { label: editLabel.trim() })
+      .then(() => {
+        toast.success(t("common.saved"));
+        setEditTarget(null);
+      })
+      .catch((e: unknown) => {
+        logError("ReduceHabitsTab.handleEditSave", e);
+        toast.error(t("common.error"));
+      })
+      .finally(() => {
+        setIsSavingEdit(false);
+      });
   };
 
   const handleActivateNotifications = useCallback(() => {
@@ -278,6 +307,9 @@ export function ReduceHabitsTab() {
                 onDelete={() => {
                   setDeleteTarget(h);
                 }}
+                onEdit={() => {
+                  openEdit(h);
+                }}
                 handleProps={handleProps}
               />
             );
@@ -347,6 +379,40 @@ export function ReduceHabitsTab() {
           setShowNotifPrompt(false);
         }}
       />
+
+      <Drawer
+        anchor="bottom"
+        open={editTarget !== null}
+        onClose={() => {
+          setEditTarget(null);
+        }}
+        slotProps={{ paper: { sx: { borderRadius: "16px 16px 0 0", maxHeight: "80dvh" } } }}
+      >
+        <Box sx={{ px: 2, pt: 2, pb: "calc(24px + env(safe-area-inset-bottom))" }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+            {t("habits.edit")}
+          </Typography>
+          <TextField
+            fullWidth
+            label={t("treatments.form.name")}
+            value={editLabel}
+            onChange={(e) => {
+              setEditLabel(e.target.value);
+            }}
+            sx={{ mb: 2 }}
+          />
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={handleEditSave}
+            disabled={isSavingEdit || !editLabel.trim()}
+            aria-label={t("common.save")}
+            sx={{ minHeight: 48, borderRadius: 2 }}
+          >
+            {t("common.save")}
+          </Button>
+        </Box>
+      </Drawer>
     </Box>
   );
 }

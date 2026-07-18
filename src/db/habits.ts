@@ -1,6 +1,6 @@
 import type { SQLiteDBConnection } from "@capacitor-community/sqlite";
 import type { Habit } from "@/types";
-import { runInTransaction, withDb } from "./client";
+import { runInTransaction, withDb, withDbVoid } from "./client";
 import { updateSortOrder } from "./sortOrder";
 
 type HabitRow = {
@@ -11,6 +11,7 @@ type HabitRow = {
   bg_color: string;
   start_date: string;
   created_at: string;
+  is_custom: number;
 };
 
 function rowToHabit(row: HabitRow): Habit {
@@ -22,6 +23,7 @@ function rowToHabit(row: HabitRow): Habit {
     bgColor: row.bg_color,
     startDate: row.start_date,
     createdAt: row.created_at,
+    isCustom: row.is_custom !== 0,
   };
 }
 
@@ -31,8 +33,16 @@ async function insertHabit(
   transaction = true,
 ): Promise<Habit> {
   await db.run(
-    "INSERT INTO habits (label, icon, color, bg_color, start_date, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-    [data.label, data.icon, data.color, data.bgColor, data.startDate, data.createdAt],
+    "INSERT INTO habits (label, icon, color, bg_color, start_date, created_at, is_custom) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    [
+      data.label,
+      data.icon,
+      data.color,
+      data.bgColor,
+      data.startDate,
+      data.createdAt,
+      data.isCustom === false ? 0 : 1,
+    ],
     transaction,
   );
   const idRow = await db.query("SELECT last_insert_rowid() AS id");
@@ -82,6 +92,17 @@ export function getAllHabits(): Promise<Habit[]> {
 
 export function updateHabitsSortOrder(orderedIds: string[]): Promise<void> {
   return updateSortOrder("habits", orderedIds);
+}
+
+export function updateHabit(id: string, data: { label: string }): Promise<void> {
+  return withDbVoid(async (db) => {
+    // Belt-and-suspenders: the UI only ever shows the rename control for custom habits,
+    // but this guard keeps a preset habit's label immutable even if called from elsewhere.
+    const row = await db.query("SELECT is_custom FROM habits WHERE id = ?", [id]);
+    const isCustom = (row.values?.[0] as { is_custom?: number } | undefined)?.is_custom !== 0;
+    if (!isCustom) throw new Error("updateHabit: cannot rename a non-custom habit");
+    await db.run("UPDATE habits SET label = ? WHERE id = ?", [data.label, id], false);
+  });
 }
 
 export function deleteHabit(id: string): Promise<void> {

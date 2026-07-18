@@ -16,6 +16,7 @@ type PositiveHabitRow = {
   reminder_enabled: number;
   reminder_day: number | null;
   created_at: string;
+  is_custom: number;
 };
 
 function rowToPositiveHabit(row: PositiveHabitRow): PositiveHabit {
@@ -31,6 +32,7 @@ function rowToPositiveHabit(row: PositiveHabitRow): PositiveHabit {
     reminderEnabled: row.reminder_enabled !== 0,
     reminderDay: row.reminder_day ?? null,
     createdAt: row.created_at,
+    isCustom: row.is_custom !== 0,
   };
 }
 
@@ -41,7 +43,7 @@ export function createPositiveHabit(
   const fn = async (db: SQLiteDBConnection): Promise<PositiveHabit> => {
     validateReminderInvariant("PositiveHabit", data.frequency, data.reminderDay);
     await db.run(
-      "INSERT INTO positive_habits (label, icon, color, bg_color, frequency, reminder_time, reminder_enabled, reminder_day, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO positive_habits (label, icon, color, bg_color, frequency, reminder_time, reminder_enabled, reminder_day, created_at, is_custom) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         data.label,
         data.icon,
@@ -52,6 +54,7 @@ export function createPositiveHabit(
         data.reminderEnabled ? 1 : 0,
         data.reminderDay ?? null,
         data.createdAt,
+        data.isCustom === false ? 0 : 1,
       ],
       false,
     );
@@ -91,6 +94,13 @@ export function updatePositiveHabit(
       validateReminderInvariant("PositiveHabit", data.frequency, reminderDay);
     } else if (data.reminderDay !== undefined && data.reminderDay !== null) {
       validatePartialReminderDay("updatePositiveHabit", data.reminderDay);
+    }
+    if (data.label !== undefined) {
+      // Belt-and-suspenders: the UI only ever shows the rename field for custom habits,
+      // but this guard keeps a preset habit's label immutable even if called from elsewhere.
+      const row = await db.query("SELECT is_custom FROM positive_habits WHERE id = ?", [id]);
+      const isCustom = (row.values?.[0] as { is_custom?: number } | undefined)?.is_custom !== 0;
+      if (!isCustom) throw new Error("updatePositiveHabit: cannot rename a non-custom habit");
     }
     const fields: string[] = [];
     const values: (string | number | null)[] = [];

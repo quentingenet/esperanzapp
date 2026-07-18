@@ -76,6 +76,22 @@ describe("HabitForm", () => {
     expect(payload["label"]).toBe("habitTypes.alcohol.label");
     expect(typeof payload["icon"]).toBe("string");
     expect(String(payload["startDate"])).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(payload["isCustom"]).toBe(false);
+  });
+
+  it("calls onSubmit with isCustom: true for a custom habit type", async () => {
+    const onSubmit = vi.fn();
+    const user = userEvent.setup();
+    render(<HabitForm onSubmit={onSubmit} existingHabits={[]} />);
+    await openForm(user);
+    await user.click(screen.getByRole("button", { name: "habitTypes.custom.label" }));
+    await user.type(
+      screen.getByRole("textbox", { name: "habitTypes.groups.custom" }),
+      "Ma dépendance",
+    );
+    await user.click(screen.getByRole("button", { name: "common.save" }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    expect((onSubmit.mock.calls[0]![0] as Record<string, unknown>)["isCustom"]).toBe(true);
   });
 
   it("form resets and drawer closes after successful submit", async () => {

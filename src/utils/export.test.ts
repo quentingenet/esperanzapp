@@ -101,6 +101,7 @@ const mockPositiveHabit: PositiveHabit = {
   reminderEnabled: true,
   reminderDay: null,
   createdAt: "2024-01-01T00:00:00.000Z",
+  isCustom: true,
 };
 
 const mockPositiveHabitLog: PositiveHabitLog = {
@@ -440,6 +441,51 @@ describe("parseExportPayload", () => {
     });
     expect(() => parseExportPayload(bad)).toThrow("Unsupported or invalid export format");
   });
+
+  it("defaults isCustom to true when absent (pre-rename-feature export files)", () => {
+    const { isCustom: _habitIsCustom, ...habitWithoutIsCustom } = mockHabit;
+    const { isCustom: _phIsCustom, ...positiveHabitWithoutIsCustom } = mockPositiveHabit;
+    const legacy = JSON.stringify({
+      version: "1",
+      exportedAt: "2024-01-01T00:00:00.000Z",
+      habits: [habitWithoutIsCustom],
+      habitLogs: [],
+      treatments: [],
+      treatmentLogs: [],
+      positiveHabits: [positiveHabitWithoutIsCustom],
+      positiveHabitLogs: [],
+    });
+    const parsed = parseExportPayload(legacy);
+    expect(parsed.habits[0]?.isCustom).toBe(true);
+    expect(parsed.positiveHabits[0]?.isCustom).toBe(true);
+  });
+
+  it("round-trips isCustom: false", () => {
+    const payload = buildExportPayload(
+      [{ ...mockHabit, isCustom: false }],
+      [],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+      [{ ...mockPositiveHabit, isCustom: false }],
+      [],
+    );
+    const parsed = parseExportPayload(JSON.stringify(payload));
+    expect(parsed.habits[0]?.isCustom).toBe(false);
+    expect(parsed.positiveHabits[0]?.isCustom).toBe(false);
+  });
+
+  it("throws when habits isCustom is not a boolean", () => {
+    const bad = JSON.stringify({
+      version: "1",
+      exportedAt: "2024-01-01T00:00:00.000Z",
+      habits: [{ ...mockHabit, isCustom: "yes" }],
+      habitLogs: [],
+      treatments: [],
+      treatmentLogs: [],
+    });
+    expect(() => parseExportPayload(bad)).toThrow("habits: isCustom must be boolean");
+  });
 });
 
 describe("payloadToCSV", () => {
@@ -570,6 +616,39 @@ describe("parseCSVPayload", () => {
     expect(parsed.positiveHabits[0]?.label).toBe("Course à pied");
     expect(parsed.positiveHabits[0]?.frequency).toBe("daily");
     expect(parsed.positiveHabitLogs[0]?.status).toBe("taken");
+  });
+
+  it("round-trips isCustom: false for HABITS and POSITIVE_HABITS", () => {
+    const payload = buildExportPayload(
+      [{ ...mockHabit, isCustom: false }],
+      [],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+      [{ ...mockPositiveHabit, isCustom: false }],
+      [],
+    );
+    const csv = payloadToCSV(payload);
+    const parsed = parseCSVPayload(csv);
+    expect(parsed.habits[0]?.isCustom).toBe(false);
+    expect(parsed.positiveHabits[0]?.isCustom).toBe(false);
+  });
+
+  it("defaults isCustom to true for legacy CSV HABITS/POSITIVE_HABITS sections without that column", () => {
+    const legacyHabits =
+      "HABITS\nid,label,icon,color,bgColor,startDate,createdAt\n1,Alcool,icon,#3a8fd1,#e8f4fd,2024-01-01,2024-01-01T00:00:00Z";
+    const legacyPositiveHabits =
+      "POSITIVE_HABITS\nid,label,icon,color,bgColor,frequency,reminderTime,reminderEnabled,reminderDay,createdAt\n1,Course,run,#2e7d32,#e8f5e9,daily,07:00,1,,2024-01-01T00:00:00Z";
+    const csv = `${legacyHabits}\n\nHABIT_LOGS\nid,habitId,eventType,eventDate\n\nTREATMENTS\nid,label,frequency,reminderTime,reminderEnabled,reminderDay,createdAt\n\nTREATMENT_LOGS\nid,treatmentId,scheduledAt,status\n\n${legacyPositiveHabits}\n\nPOSITIVE_HABIT_LOGS\nid,positiveHabitId,scheduledAt,status`;
+    const parsed = parseCSVPayload(csv);
+    expect(parsed.habits[0]?.isCustom).toBe(true);
+    expect(parsed.positiveHabits[0]?.isCustom).toBe(true);
+  });
+
+  it("throws when HABITS isCustom column is not '0' or '1'", () => {
+    const csv =
+      "HABITS\nid,label,icon,color,bgColor,startDate,createdAt,isCustom\n1,Alcool,icon,#3a8fd1,#e8f4fd,2024-01-01,2024-01-01T00:00:00Z,yes\n\nHABIT_LOGS\nid,habitId,eventType,eventDate\n\nTREATMENTS\nid,label,frequency,reminderTime,reminderEnabled,reminderDay,createdAt\n\nTREATMENT_LOGS\nid,treatmentId,scheduledAt,status";
+    expect(() => parseCSVPayload(csv)).toThrow(/habits: isCustom must be "0" or "1"/);
   });
 
   it("treats a CSV without POSITIVE_HABITS/POSITIVE_HABIT_LOGS sections as [] (pre-'faire plus' CSV files)", () => {
@@ -938,6 +1017,34 @@ describe("importFromJSON", () => {
     expect(mockTransactionDb.run).toHaveBeenCalledWith(
       expect.stringContaining("INSERT OR IGNORE INTO treatment_logs"),
       expect.arrayContaining([mockTreatmentLog.treatmentId]),
+      false,
+    );
+  });
+
+  it("writes isCustom: false as 0 and isCustom: true as 1 when inserting habits", async () => {
+    const payload = buildExportPayload(
+      [
+        { ...mockHabit, id: "1", isCustom: false },
+        { ...mockHabit, id: "2", isCustom: true },
+      ],
+      [
+        { ...mockHabitLog, id: "1", habitId: "1" },
+        { ...mockHabitLog, id: "2", habitId: "2" },
+      ],
+      [],
+      [],
+      "2024-01-01T00:00:00.000Z",
+    );
+    const file = new File([JSON.stringify(payload)], "export.json", { type: "application/json" });
+    await importFromJSON(file);
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO habits"),
+      expect.arrayContaining(["1", 0]),
+      false,
+    );
+    expect(mockTransactionDb.run).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO habits"),
+      expect.arrayContaining(["2", 1]),
       false,
     );
   });

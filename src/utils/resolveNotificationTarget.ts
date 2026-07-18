@@ -31,7 +31,10 @@ export function resolveNotificationTarget(notification: {
   // bug that attaches the wrong kind — drop the deep link rather than propagate a target that
   // points at the wrong screen's entity. exactOptionalPropertyTypes forbids `deepLink:
   // undefined`, so the key is omitted entirely rather than set to undefined.
-  function withDeepLink(target: BaseTarget, expectedKind: NotificationDeepLinkKind): NotificationTarget {
+  function withDeepLink(
+    target: BaseTarget,
+    expectedKind: NotificationDeepLinkKind,
+  ): NotificationTarget {
     if (deepLink && deepLink.kind === expectedKind) return { ...target, deepLink };
     return target;
   }

@@ -13,6 +13,10 @@ export interface Habit {
   bgColor: string;
   startDate: string;
   createdAt: string;
+  // Whether the user typed this label themselves vs. picked a preset catalog entry.
+  // Undefined is treated as true (custom/renamable) — permissive default for rows/fixtures
+  // that predate this field.
+  isCustom?: boolean;
 }
 
 export interface HabitLog {
@@ -60,6 +64,8 @@ export interface PositiveHabit {
   reminderEnabled: boolean;
   reminderDay: number | null; // weekly: 0 to 6 (JS getDay), monthly: 0 last day or 1 to 28, null for daily
   createdAt: string;
+  // See Habit.isCustom — same meaning, same permissive-undefined default.
+  isCustom?: boolean;
 }
 
 export interface PositiveHabitLog {
@@ -150,6 +156,7 @@ export interface HabitCardProps {
   nextGrade: { grade: Grade; daysLeft: number } | null;
   onClick: () => void;
   onDelete: () => void;
+  onEdit: () => void;
   handleProps?: DragHandleProps | undefined;
 }
 

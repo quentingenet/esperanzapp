@@ -59,6 +59,7 @@ export function HabitForm({ onSubmit, existingHabits, isEmpty = false }: HabitFo
       color: config.color,
       bgColor: config.bgColor,
       startDate: format(startDate, "yyyy-MM-dd"),
+      isCustom: selectedId === "custom",
     });
     setSelectedId(null);
     setCustomLabel("");

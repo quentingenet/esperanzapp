@@ -179,8 +179,11 @@ export function BuildHabitsTab() {
     setEditTime(parse(h.reminderTime, "HH:mm", new Date()));
   };
 
+  const isEditTargetCustom = editTarget?.isCustom !== false;
+
   const handleEditSave = () => {
     if (!editTarget || !editLabel.trim() || isSaving) return;
+    if (!isEditTargetCustom && editLabel.trim() !== editTarget.label) return;
     if (editReminderEnabled && !editTime) return;
     if (editReminderEnabled && editTarget.frequency !== "daily" && editReminderDay === null) return;
     const reminderTime =
@@ -416,6 +419,8 @@ export function BuildHabitsTab() {
               onChange={(e) => {
                 setEditLabel(e.target.value);
               }}
+              disabled={!isEditTargetCustom}
+              helperText={!isEditTargetCustom ? t("common.nameLocked") : undefined}
               sx={{ mb: 2 }}
             />
             <ReminderFields
