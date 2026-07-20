@@ -325,7 +325,7 @@ describe("rescheduleAllMilestoneNotifications", () => {
   });
 
   it("uses the most recent start log as streak start", async () => {
-    // Old start + relapse + recent restart yesterday → all 20 milestones are in the future
+    // Old start + relapse + recent restart yesterday → all milestones are in the future
     const logsWithRelapse: HabitLog[] = [
       { id: "1", habitId: "1", eventType: "start", eventDate: "2024-01-01" },
       { id: "2", habitId: "1", eventType: "relapse", eventDate: "2025-01-14" },

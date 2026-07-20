@@ -48,6 +48,8 @@ The optional export encryption feature (described in Section 5) uses a separate 
 
 We recommend making regular backups using the export feature available in the application.
 
+This encryption relies on SQLCipher Community Edition (Copyright 2008 to 2025 Zetetic LLC, BSD license). See [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) for the full license text.
+
 ## 7. Children
 
 EsperanzApp is not intended for children under the age of 13 and does not knowingly collect any data from them.
