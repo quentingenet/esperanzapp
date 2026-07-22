@@ -3,7 +3,11 @@ import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import i18n from "@/i18n";
 import { getAllHabitLogs, getAllHabits } from "@/db";
-import { NOTIF_DOMAIN_OFFSET } from "@/hooks/useNotifications";
+import {
+  NOTIF_DOMAIN_OFFSET,
+  REMINDER_CHANNEL_ID,
+  ensureReminderChannel,
+} from "@/hooks/useNotifications";
 import { GRADES } from "./grades";
 import { logError } from "@/utils/logger";
 import { stableHash31 } from "./stableHash31";
@@ -52,6 +56,7 @@ export async function scheduleMilestoneNotifications(
   // Home.tsx shows a persistent banner when notifPermGranted===false so the user
   // can grant permission later; rescheduleAllMilestoneNotifications() is then called.
   if (display !== "granted") return;
+  await ensureReminderChannel();
 
   const start = parse(streakStartDate, "yyyy-MM-dd", new Date());
   const now = new Date();
@@ -86,6 +91,7 @@ export async function scheduleMilestoneNotifications(
       body: message,
       group: "milestones",
       extra: toNotificationExtra({ kind: "habit", entityId: habitId }),
+      channelId: REMINDER_CHANNEL_ID,
       schedule: { at: target, allowWhileIdle: true },
     };
   }).filter((n): n is NonNullable<typeof n> => n !== null);

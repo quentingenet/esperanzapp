@@ -6,6 +6,8 @@ import {
   getNotificationId,
   getLastDayNotificationIds,
   NOTIF_DOMAIN_OFFSET,
+  REMINDER_CHANNEL_ID,
+  ensureReminderChannel,
 } from "./useNotifications";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
@@ -115,6 +117,26 @@ describe("useNotifications", () => {
     vi.mocked(LocalNotifications.checkPermissions).mockClear();
     vi.mocked(ExactAlarm.canScheduleExactAlarms).mockClear();
     vi.mocked(ExactAlarm.requestExactAlarmPermission).mockClear();
+    vi.mocked(LocalNotifications.createChannel).mockClear();
+  });
+
+  it("ensureReminderChannel creates a channel with no custom sound (system default applies)", async () => {
+    await ensureReminderChannel();
+    expect(LocalNotifications.createChannel).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: REMINDER_CHANNEL_ID,
+        importance: 4,
+        vibration: true,
+      }),
+    );
+    const call = vi.mocked(LocalNotifications.createChannel).mock.calls[0]![0];
+    expect(call).not.toHaveProperty("sound");
+  });
+
+  it("ensureReminderChannel does nothing on non-Android platforms", async () => {
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("ios");
+    await ensureReminderChannel();
+    expect(LocalNotifications.createChannel).not.toHaveBeenCalled();
   });
 
   it("requestPermission returns true when granted", async () => {
@@ -142,6 +164,9 @@ describe("useNotifications", () => {
     await act(async () => {
       await result.current.scheduleReminder(treatment);
     });
+    expect(LocalNotifications.createChannel).toHaveBeenCalledWith(
+      expect.objectContaining({ id: REMINDER_CHANNEL_ID }),
+    );
     expect(LocalNotifications.schedule).toHaveBeenCalledWith(
       expect.objectContaining({
         notifications: expect.arrayContaining([
@@ -149,6 +174,7 @@ describe("useNotifications", () => {
             id: TREATMENT_3_NOTIF_ID,
             title: "EsperanzApp",
             extra: { kind: "treatment", entityId: "3" },
+            channelId: REMINDER_CHANNEL_ID,
             schedule: expect.objectContaining({
               on: expect.objectContaining({ hour: 8, minute: 0 }),
               allowWhileIdle: true,

@@ -516,7 +516,9 @@
   },
   "notifications": {
     "genericReminder": "N'oublie pas ton traitement",
-    "genericReminderPositiveHabit": "N'oublie pas ton habitude"
+    "genericReminderPositiveHabit": "N'oublie pas ton habitude",
+    "channelName": "Rappels",
+    "channelDescription": "Rappels de traitements, habitudes et jalons"
   },
   "startup": {
     "dbErrorTitle": "Erreur de démarrage",

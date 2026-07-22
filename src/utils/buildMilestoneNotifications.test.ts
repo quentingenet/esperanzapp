@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { checkAndNotifyPositiveMilestone } from "./buildMilestoneNotifications";
-import { NOTIF_DOMAIN_OFFSET } from "@/hooks/useNotifications";
+import { NOTIF_DOMAIN_OFFSET, REMINDER_CHANNEL_ID } from "@/hooks/useNotifications";
 import { hasNotifiedMilestone, markMilestoneNotified } from "@/db";
 import type { PositiveHabit } from "@/types";
 
@@ -27,6 +27,7 @@ const positiveHabit: PositiveHabit = {
 describe("checkAndNotifyPositiveMilestone", () => {
   beforeEach(() => {
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("android");
     vi.mocked(LocalNotifications.checkPermissions).mockResolvedValue({ display: "granted" });
     vi.mocked(LocalNotifications.schedule).mockResolvedValue({} as never);
     vi.mocked(hasNotifiedMilestone).mockResolvedValue(false);
@@ -35,6 +36,7 @@ describe("checkAndNotifyPositiveMilestone", () => {
 
   afterEach(() => {
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("web");
     vi.mocked(LocalNotifications.schedule).mockClear();
     vi.mocked(LocalNotifications.checkPermissions).mockClear();
     vi.mocked(hasNotifiedMilestone).mockClear();
@@ -82,6 +84,15 @@ describe("checkAndNotifyPositiveMilestone", () => {
   it("marks the threshold as notified after firing", async () => {
     await checkAndNotifyPositiveMilestone(positiveHabit, 1);
     expect(markMilestoneNotified).toHaveBeenCalledWith(positiveHabit.id, 1);
+  });
+
+  it("schedules on the dedicated reminder channel", async () => {
+    await checkAndNotifyPositiveMilestone(positiveHabit, 1);
+    expect(LocalNotifications.createChannel).toHaveBeenCalledWith(
+      expect.objectContaining({ id: REMINDER_CHANNEL_ID }),
+    );
+    const call = vi.mocked(LocalNotifications.schedule).mock.calls[0]![0];
+    expect(call.notifications[0]?.channelId).toBe(REMINDER_CHANNEL_ID);
   });
 
   it("does not re-fire when the threshold was already notified (taken → missed → taken toggle)", async () => {

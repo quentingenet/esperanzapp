@@ -516,7 +516,9 @@
   },
   "notifications": {
     "genericReminder": "Não esqueça seu tratamento",
-    "genericReminderPositiveHabit": "Não esqueça seu hábito"
+    "genericReminderPositiveHabit": "Não esqueça seu hábito",
+    "channelName": "Lembretes",
+    "channelDescription": "Lembretes de tratamentos, hábitos e marcos"
   },
   "startup": {
     "dbErrorTitle": "Erro de inicialização",

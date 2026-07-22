@@ -516,7 +516,9 @@
   },
   "notifications": {
     "genericReminder": "Vergiss nicht deine Behandlung",
-    "genericReminderPositiveHabit": "Vergiss nicht deine Gewohnheit"
+    "genericReminderPositiveHabit": "Vergiss nicht deine Gewohnheit",
+    "channelName": "Erinnerungen",
+    "channelDescription": "Erinnerungen für Behandlungen, Gewohnheiten und Meilensteine"
   },
   "startup": {
     "dbErrorTitle": "Startfehler",

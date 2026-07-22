@@ -516,7 +516,9 @@
   },
   "notifications": {
     "genericReminder": "Don't forget your treatment",
-    "genericReminderPositiveHabit": "Don't forget your habit"
+    "genericReminderPositiveHabit": "Don't forget your habit",
+    "channelName": "Reminders",
+    "channelDescription": "Treatment, habit and milestone reminders"
   },
   "startup": {
     "dbErrorTitle": "Startup error",

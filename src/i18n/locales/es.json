@@ -516,7 +516,9 @@
   },
   "notifications": {
     "genericReminder": "No olvides tu tratamiento",
-    "genericReminderPositiveHabit": "No olvides tu hábito"
+    "genericReminderPositiveHabit": "No olvides tu hábito",
+    "channelName": "Recordatorios",
+    "channelDescription": "Recordatorios de tratamientos, hábitos y logros"
   },
   "startup": {
     "dbErrorTitle": "Error de inicio",

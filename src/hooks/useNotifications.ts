@@ -17,6 +17,25 @@ export const NOTIF_DOMAIN_OFFSET = {
 
 export type NotifDomain = keyof typeof NOTIF_DOMAIN_OFFSET;
 
+// Dedicated channel (Android 8+) instead of the plugin's generic "Default" one: gives users
+// a clearly labelled entry in system notification settings. No `sound` is set on purpose -
+// Android assigns the channel the device's own default notification sound at creation time,
+// which is exactly what we want (respect the user's own sound, never bundle a custom file).
+// Channels are immutable once created, so if a future need for a different behavior arises,
+// it must ship under a new id rather than mutating this one.
+export const REMINDER_CHANNEL_ID = "esperanzapp_reminders";
+
+export async function ensureReminderChannel(): Promise<void> {
+  if (Capacitor.getPlatform() !== "android") return;
+  await LocalNotifications.createChannel({
+    id: REMINDER_CHANNEL_ID,
+    name: i18n.t("notifications.channelName"),
+    description: i18n.t("notifications.channelDescription"),
+    importance: 4,
+    vibration: true,
+  }).catch(() => {});
+}
+
 // Structural: Treatment and PositiveHabit both satisfy this shape, so the scheduling
 // engine below is shared between the two domains instead of duplicated per entity.
 export interface ReminderSchedulable {
@@ -102,6 +121,7 @@ export function useNotifications() {
         display: "denied" as const,
       }));
       if (display !== "granted") return "permission-denied";
+      await ensureReminderChannel();
 
       const [h, m] = entity.reminderTime.split(":").map(Number) as [number, number];
       if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return "schedule-failed";
@@ -139,6 +159,7 @@ export function useNotifications() {
                 title: "EsperanzApp",
                 body,
                 extra,
+                channelId: REMINDER_CHANNEL_ID,
                 schedule: { on: { hour: h, minute: m }, allowWhileIdle: true },
               },
             ],
@@ -154,6 +175,7 @@ export function useNotifications() {
                 title: "EsperanzApp",
                 body,
                 extra,
+                channelId: REMINDER_CHANNEL_ID,
                 schedule: { on: { weekday, hour: h, minute: m }, allowWhileIdle: true },
               },
             ],
@@ -191,6 +213,7 @@ export function useNotifications() {
               title: "EsperanzApp",
               body,
               extra,
+              channelId: REMINDER_CHANNEL_ID,
               schedule: { at: target, allowWhileIdle: true },
             };
           });
@@ -206,6 +229,7 @@ export function useNotifications() {
                 title: "EsperanzApp",
                 body,
                 extra,
+                channelId: REMINDER_CHANNEL_ID,
                 schedule: { on: { day, hour: h, minute: m }, allowWhileIdle: true },
               },
             ],

@@ -516,7 +516,9 @@
   },
   "notifications": {
     "genericReminder": "Vergeet je behandeling niet",
-    "genericReminderPositiveHabit": "Vergeet je gewoonte niet"
+    "genericReminderPositiveHabit": "Vergeet je gewoonte niet",
+    "channelName": "Herinneringen",
+    "channelDescription": "Herinneringen voor behandelingen, gewoontes en mijlpalen"
   },
   "startup": {
     "dbErrorTitle": "Opstartfout",

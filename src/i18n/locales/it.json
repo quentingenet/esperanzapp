@@ -516,7 +516,9 @@
   },
   "notifications": {
     "genericReminder": "Non dimenticare il tuo trattamento",
-    "genericReminderPositiveHabit": "Non dimenticare la tua abitudine"
+    "genericReminderPositiveHabit": "Non dimenticare la tua abitudine",
+    "channelName": "Promemoria",
+    "channelDescription": "Promemoria per trattamenti, abitudini e traguardi"
   },
   "startup": {
     "dbErrorTitle": "Errore di avvio",

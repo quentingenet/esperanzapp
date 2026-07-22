@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
-import { NOTIF_DOMAIN_OFFSET } from "@/hooks/useNotifications";
+import { NOTIF_DOMAIN_OFFSET, REMINDER_CHANNEL_ID } from "@/hooks/useNotifications";
 import { GRADES } from "./grades";
 import {
   cancelMilestoneNotifications,
@@ -47,6 +47,7 @@ describe("scheduleMilestoneNotifications", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2025-01-15T06:00:00.000Z"));
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("android");
     vi.mocked(LocalNotifications.checkPermissions).mockResolvedValue({ display: "granted" });
     vi.mocked(LocalNotifications.schedule).mockResolvedValue({} as never);
   });
@@ -54,7 +55,18 @@ describe("scheduleMilestoneNotifications", () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("web");
     vi.clearAllMocks();
+  });
+
+  it("schedules notifications on the dedicated reminder channel", async () => {
+    await scheduleMilestoneNotifications("1", "2025-01-15");
+    expect(LocalNotifications.createChannel).toHaveBeenCalledWith(
+      expect.objectContaining({ id: REMINDER_CHANNEL_ID }),
+    );
+    for (const notif of scheduledNotifs()) {
+      expect((notif as { channelId?: string }).channelId).toBe(REMINDER_CHANNEL_ID);
+    }
   });
 
   it("logs the error when LocalNotifications.schedule fails instead of failing silently", async () => {

@@ -1,7 +1,11 @@
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import i18n from "@/i18n";
-import { getNotificationId } from "@/hooks/useNotifications";
+import {
+  REMINDER_CHANNEL_ID,
+  ensureReminderChannel,
+  getNotificationId,
+} from "@/hooks/useNotifications";
 import { hasNotifiedMilestone, markMilestoneNotified } from "@/db";
 import { POSITIVE_GRADES } from "./positiveGrades";
 import { toNotificationExtra } from "./notificationDeepLink";
@@ -32,6 +36,7 @@ export async function checkAndNotifyPositiveMilestone(
     display: "denied" as const,
   }));
   if (display !== "granted") return;
+  await ensureReminderChannel();
 
   const label = i18n.t(grade.labelKey);
   const message = i18n.t(grade.messageKey);
@@ -45,6 +50,7 @@ export async function checkAndNotifyPositiveMilestone(
           body: message,
           group: "buildMilestones",
           extra: toNotificationExtra({ kind: "positiveHabit", entityId: positiveHabit.id }),
+          channelId: REMINDER_CHANNEL_ID,
           schedule: { at: new Date(Date.now() + 500), allowWhileIdle: true },
         },
       ],
